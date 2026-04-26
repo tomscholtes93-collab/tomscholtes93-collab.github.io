@@ -97,6 +97,7 @@ function Nav() {
           <a href="#work">Work</a>
           <a href="#writing">Writing</a>
           <a href="#cv">CV</a>
+          <a href="thesis.html">Thesis</a>
           <a href="#reading">Reading</a>
           <a href="#contact">Contact</a>
         </nav>
