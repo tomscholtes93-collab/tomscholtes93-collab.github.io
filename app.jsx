@@ -367,7 +367,7 @@ function Writing() {
 
 function CV() {
   const roles = [
-    { co: "Triton Partners", role: "Junior SPV Controller", period: "Mar 2025 · Present", note: "End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in Investran. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings." },
+    { co: "Working in Controlling", role: "SPV Controller", period: "Mar 2025 · Present", note: "End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in Investran. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings." },
     { co: "Alter Domus", role: "Fund & Corporate Services Officer", period: "Feb 2023 · Mar 2025", note: "Full-cycle accounting for management companies, funds, SPVs and GPs. NAVs, financial statements, CSSF/BCL regulatory filings. Drove process improvements through technology and structured methodologies." },
     { co: "Waystone Administration Solutions", role: "Junior Associate Fund Accountant", period: "Sep 2022 · Jan 2023", note: "Capital calls, distributions, OPEX payments. LuxGAAP financial statements. Audit coordination. Investran import automation." },
     { co: "Aztec Group", role: "Junior Depositary Analyst", period: "Feb 2021 · Aug 2022", note: "Asset confirmation and reconciliation for alternative investment funds. Depositary obligations and oversight duties. eFront reporting." },
