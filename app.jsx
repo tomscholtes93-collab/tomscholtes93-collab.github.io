@@ -113,7 +113,7 @@ function Hero({ layout, headline }) {
 
   const heading = (
     <>
-      <span className="eyebrow">Personal site · Manternach, Luxembourg</span>
+      <span className="eyebrow">Personal site · Luxembourg</span>
       <h1>{headline.pre}<em>{headline.em}</em>{headline.post}</h1>
       <p className="lead">
         I'm Tom. I work as an SPV Controller at a private equity house in Luxembourg.
@@ -604,7 +604,7 @@ function Footer() {
           </div>
         </div>
         <div className="foot-bottom">
-          <span>© 2026 Tom Scholtes · Manternach, Luxembourg</span>
+          <span>© 2026 Tom Scholtes · Luxembourg</span>
           <span>Personal site · opinions my own</span>
         </div>
       </div>
