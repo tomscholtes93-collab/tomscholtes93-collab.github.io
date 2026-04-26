@@ -560,7 +560,7 @@ function Contact() {
             <a href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93" target="_blank" rel="noopener" className="btn btn-primary">Message on LinkedIn <Arr /></a>
             <div style={{display:'flex', gap: 12, flexWrap:'wrap'}}>
               <a href="https://www.linkedin.com/in/tomscholtes93/" target="_blank" rel="noopener" className="btn btn-ghost">View profile</a>
-              <a href="mailto:tom.scholtes.93@gmail.com" className="btn btn-ghost">Email</a>
+              <a href="mailto:tom@tomscholtes.com" className="btn btn-ghost">Email</a>
             </div>
           </div>
         </div>
@@ -599,7 +599,7 @@ function Footer() {
           </div>
           <div>
             <h5>Contact</h5>
-            <a href="mailto:tom.scholtes.93@gmail.com">tom.scholtes.93@gmail.com</a>
+            <a href="mailto:tom@tomscholtes.com">tom@tomscholtes.com</a>
             <a href="#contact">Say hi</a>
           </div>
         </div>
