@@ -116,11 +116,11 @@ function Hero({ layout, headline }) {
       <span className="eyebrow">Personal site · Luxembourg</span>
       <h1>{headline.pre}<em>{headline.em}</em>{headline.post}</h1>
       <p className="lead">
-        I'm Tom. I work as an SPV Controller at a private equity house in Luxembourg.
-        Five years now in fund services across PE, Private Debt and Real Estate.
-        This site is my live CV, a portfolio of the automation work I've built inside
-        my day job, and a place to put down what I'm figuring out about AI in regulated
-        finance. Not selling anything. Just keeping notes in public.
+        I'm Tom. I work in SPV controlling for alternative funds.
+        Five years in Luxembourg fund services across PE, Private Debt and Real Estate.
+        This site is my live CV, a set of patterns I've worked through, and a place
+        to put down what I'm figuring out about AI in regulated finance. Not selling
+        anything. Just keeping notes in public.
       </p>
       <div className="hero-actions">
         <a href="#work" className="btn btn-primary">See the work <Arr /></a>
@@ -205,8 +205,8 @@ function FlowRow({ state, label, tag, pulse }) {
 
 function Now() {
   const items = [
-    { k: "Working on", v: "SPV control, statutory reporting and waterfall mechanics at a Luxembourg PE house. Day job." },
-    { k: "Building", v: "A personal library of Claude skills for the recurring stuff in fund accounting. Slow but it's adding up." },
+    { k: "Working on", v: "SPV control, statutory reporting and waterfall mechanics. Day job." },
+    { k: "Building", v: "Patterns for Claude skills covering recurring work in fund accounting. Slow but it's adding up." },
     { k: "Learning", v: "How to design AI skills that other people on the team can actually use without me hovering." },
     { k: "Reading", v: "Mostly non-fiction. Right now, going back through books on systems thinking and operational quality." },
     { k: "Off the clock", v: "Lifting in the morning. A bit of writing in the evening. Trying to be outside more." },
@@ -239,9 +239,9 @@ function CaseStudies() {
     {
       n: "01",
       title: "Automated Regulatory Notes Generation",
-      metric: "3h → 30m",
-      label: "per entity set · 83% time reduction",
-      blurb: "A reusable Claude skill that reads the trial balance, figures out the entity type, and generates the full annual-accounts disclosure notes. Tables, movement schedules, narrative, all in the firm's house style.",
+      metric: "Indicative",
+      label: "order of magnitude time savings on this pattern",
+      blurb: "A pattern for how a Claude skill can read a trial balance, identify entity type, and generate disclosure notes in a firm's chosen style. Tables, movement schedules, narrative.",
       tags: ["Claude skills", "Word generation", "LuxGAAP"],
     },
     {
@@ -249,15 +249,15 @@ function CaseStudies() {
       title: "Annual Accounts Quality Review",
       metric: "Pre-audit",
       label: "automated cross-checker",
-      blurb: "A review skill that takes the produced annual accounts (PDF) and the source reconciliation (Excel), checks every cross-reference between the primary statements and the notes, and flags inconsistencies before the auditor finds them.",
+      blurb: "How I think about pre-audit cross-checking. A pattern that takes annual accounts (PDF) and source reconciliation (Excel), checks every cross-reference between primary statements and notes, and flags inconsistencies before the auditor finds them.",
       tags: ["PDF parsing", "Excel", "QA automation"],
     },
     {
       n: "03",
       title: "Confidential Document Anonymisation",
-      metric: "Hours → mins",
+      metric: "Hours to minutes",
       label: "share registers for KYC/AML reviews",
-      blurb: "A pipeline that takes raw transactional share-register data, aggregates net positions per shareholder per share class, applies rule-based redaction for non-strategic shareholders, and spits out a print-ready Excel and PDF.",
+      blurb: "A pattern for aggregating raw transactional share-register data into net positions per shareholder per share class, applying rule-based redaction for non-strategic shareholders, and producing print-ready Excel and PDF.",
       tags: ["Data aggregation", "Compliance", "Multi-format"],
     },
     {
@@ -265,31 +265,31 @@ function CaseStudies() {
       title: "Cross-Platform Mailbox Intelligence",
       metric: "Daily",
       label: "morning briefing automation",
-      blurb: "A morning assistant that scans the last day or two of email and meeting transcripts, pulls out unanswered messages, follow-ups and half-finished commitments, and hands me a briefing organised by priority and workstream.",
+      blurb: "A pattern for triaging email and meeting-transcript backlogs into prioritised morning briefings. Surfaces unanswered messages, follow-ups, and half-finished commitments, organised by priority and workstream.",
       tags: ["M365", "Outlook", "Triage"],
     },
     {
       n: "05",
       title: "Process Documentation & Knowledge Transfer",
       metric: "Onboarding",
-      label: "structured payment & accounting guide",
-      blurb: "A proper Payment and Accounting Platform Process Guide. Full payment workflow, exception handling, approval routing, recharge and intercompany cases. Used it to onboard a new team member and cut down on repeated explanations.",
+      label: "structured payment and accounting guide",
+      blurb: "Patterns for documenting payment and accounting workflows in a way new joiners can self-serve. Payment flow, exception handling, approval routing, recharge and intercompany cases.",
       tags: ["Technical writing", "Process mapping"],
     },
     {
       n: "06",
       title: "Fund Accounting Platform Integration",
-      metric: "Above-target",
-      label: "implementation contribution",
-      blurb: "Worked on a fund-accounting platform rollout. Pref-share reconciliation methodology, waterfall validation against the existing manual models, edge-case identification. Direct contact with the vendor implementation team.",
+      metric: "Implementation",
+      label: "contribution to platform rollout",
+      blurb: "Patterns I've worked through during fund-accounting platform rollouts. Pref-share reconciliation logic, waterfall validation approaches, edge-case discovery.",
       tags: ["Reconciliation", "Vendor collab", "Validation"],
     },
     {
       n: "07",
       title: "AI Skill Architecture & Reusable Tooling",
       metric: "Library",
-      label: "of reusable Claude skills",
-      blurb: "A personal library of small, opinionated AI skills. Notes generation, quality review, anonymisation, mailbox triage, classification. Each one with deterministic inputs and outputs, and the institutional knowledge baked in. A pattern others can copy.",
+      label: "of reusable Claude skill patterns",
+      blurb: "A library of small, opinionated AI skill patterns. Notes generation, quality review, anonymisation, mailbox triage, classification. Each with deterministic inputs and outputs. A pattern others can adapt.",
       tags: ["Skill design", "Knowledge eng.", "Infrastructure"],
     },
   ];
@@ -300,11 +300,11 @@ function CaseStudies() {
         <div className="sec-head">
           <span className="eyebrow">Case studies</span>
           <div>
-            <h2>Work I've built inside my role.</h2>
+            <h2>Patterns I've worked through.</h2>
             <p className="blurb" style={{marginTop:18}}>
-              Sanitised case studies. Employer name, entity names and figures removed.
-              These describe automation work I shipped during my employment. A record
-              of what I've done. Not an offer of services.
+              Sanitised. Employer name, entity names and figures removed. Notes on
+              how I think about this kind of work in fund services, not deliverables
+              on offer.
             </p>
           </div>
         </div>
@@ -531,9 +531,6 @@ function Colophon() {
             <p style={{marginTop: 0}}>
               Designed and written in the open. Type set in <span style={{fontFamily:"'Instrument Serif', serif", fontStyle:'italic'}}>Instrument Serif</span> for display,
               <span style={{fontWeight: 500}}> Inter</span> for body, and <span style={{fontFamily:"'JetBrains Mono', monospace"}}>JetBrains Mono</span> for the small machine voice.
-            </p>
-            <p>
-              Built with help from <span style={{fontFamily:"'JetBrains Mono', monospace"}}>Claude</span>. Fittingly, the same tool I use at work to build the skills described in the case studies above.
             </p>
             <p>
               Personal site. Opinions my own. Nothing here is investment advice or a commercial offer.
