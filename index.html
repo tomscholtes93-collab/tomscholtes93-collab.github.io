@@ -421,6 +421,25 @@
   .case .tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 6px; }
   .case .tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 8px; border: 1px solid var(--rule); border-radius: 4px; color: var(--muted); }
 
+  /* project artifact preview (DevSwarm output, etc) */
+  .proj-artifact { margin-top: 40px; }
+  .proj-artifact-cap { max-width: 64ch; margin-bottom: 20px; color: var(--ink-2); font-size: 14.5px; }
+  .proj-artifact-cap .eyebrow { margin-bottom: 10px; display: inline-block; }
+  .proj-artifact-cap p { margin: 0; text-wrap: pretty; }
+  .proj-artifact-cap code { font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 2px 6px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg-2); }
+  .proj-artifact-frame {
+    width: 100%;
+    height: 560px;
+    border: 1px solid var(--rule);
+    border-radius: 18px;
+    background: var(--bg-2);
+    display: block;
+    color-scheme: light;
+  }
+  @media (max-width: 720px) {
+    .proj-artifact-frame { height: 440px; border-radius: 14px; }
+  }
+
   @media (max-width: 760px) {
     .reading-grid { grid-template-columns: 1fr !important; }
     .lang-grid { grid-template-columns: repeat(2, 1fr) !important; }

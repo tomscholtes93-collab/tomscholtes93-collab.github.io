@@ -394,6 +394,25 @@ function Projects() {
             </article>
           ))}
         </div>
+
+        <div className="proj-artifact">
+          <div className="proj-artifact-cap">
+            <span className="eyebrow">/ built by the swarm</span>
+            <p>
+              The CV one-pager DevSwarm produced end-to-end on its first smoke
+              test &mdash; 4m 42s from idea to merged PR, no human in the loop.
+              Live preview below; this is the exact <code>index.html</code>
+              it wrote. Try the theme toggle, scroll to watch the sections
+              fade in.
+            </p>
+          </div>
+          <iframe
+            className="proj-artifact-frame"
+            src="projects/devswarm-cv/index.html"
+            title="CV one-pager built end-to-end by DevSwarm"
+            loading="lazy"
+          />
+        </div>
       </div>
     </section>
   );
