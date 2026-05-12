@@ -35,6 +35,31 @@ function App() {
     root.style.setProperty("--accent-ink", accent.accentInk);
   }, [t.theme, t.density, t.accent]);
 
+  // Scroll-reveal: all main sections (skip the hero — it's above the fold)
+  // fade up as they enter the viewport. Honoured only when the user hasn't
+  // asked for reduced motion. One observer per mount.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sections = document.querySelectorAll('main section[id]');
+    sections.forEach(s => s.classList.add('reveal'));
+
+    if (!('IntersectionObserver' in window) ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      sections.forEach(s => s.classList.add('is-visible'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    sections.forEach(s => io.observe(s));
+    return () => io.disconnect();
+  }, []);
+
   return (
     <>
       <Nav />
@@ -42,7 +67,6 @@ function App() {
         <Hero layout={t.heroLayout} headline={HEADLINES[t.headline] || HEADLINES.editorial} />
         <Now />
         <CaseStudies />
-        <Projects />
         <Writing />
         <CV />
         <Reading />
@@ -102,7 +126,7 @@ function Nav() {
         <nav className="nav-links" onClick={close}>
           <a href="#now">Now</a>
           <a href="#work">Work</a>
-          <a href="#projects">Projects</a>
+          <a href="projects/">Projects</a>
           <a href="#writing">Writing</a>
           <a href="#cv">CV</a>
           <a href="thesis.html">Thesis</a>
@@ -344,79 +368,6 @@ function CaseStudies() {
               </div>
             </article>
           ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Projects() {
-  const projects = [
-    {
-      n: "01",
-      title: "DevSwarm v1",
-      metric: "4m 42s",
-      label: "from one prompt to one PR, end-to-end",
-      blurb: "A FastMCP server that orchestrates five persistent Claude Code persona sessions — architect, researcher, frontend, backend, reviewer-deployer — to turn one idea into a working pull request. Fire-and-forget: kick it off, close the laptop, wake up to a PR. No Docker, no daemon, no port — just files on disk and stdio MCP. Built on a Fedora server in a single afternoon.",
-      tags: ["Python", "FastMCP", "Multi-agent", "Claude Code"],
-      href: "projects/devswarm/",
-    },
-  ];
-
-  return (
-    <section id="projects">
-      <div className="container">
-        <div className="sec-head">
-          <span className="eyebrow">Side projects</span>
-          <div>
-            <h2>Things I build outside the day job.</h2>
-            <p className="blurb" style={{marginTop:18}}>
-              Small experiments in agent design, knowledge tooling, and the
-              workflow plumbing between them. Built for myself first; written
-              up here when something works.
-            </p>
-          </div>
-        </div>
-        <div className="cases" style={projects.length === 1 ? {gridTemplateColumns: '1fr'} : undefined}>
-          {projects.map(p => {
-            const Tag = p.href ? 'a' : 'article';
-            const extraProps = p.href ? { href: p.href } : {};
-            return (
-              <Tag className={`case${p.href ? ' case-link' : ''}`} key={p.n} {...extraProps}>
-                <div className="case-head">
-                  <span className="svc-num">Project {p.n}</span>
-                  <div className="case-metric">
-                    <div className="case-metric-num">{p.metric}</div>
-                    <div className="case-metric-lbl">{p.label}</div>
-                  </div>
-                </div>
-                <h3>{p.title}{p.href && <span className="case-arr" aria-hidden="true"> →</span>}</h3>
-                <p>{p.blurb}</p>
-                <div className="tags">
-                  {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
-                </div>
-              </Tag>
-            );
-          })}
-        </div>
-
-        <div className="proj-artifact">
-          <div className="proj-artifact-cap">
-            <span className="eyebrow">/ built by the swarm</span>
-            <p>
-              The CV one-pager DevSwarm produced end-to-end on its first smoke
-              test &mdash; 4m 42s from idea to merged PR, no human in the loop.
-              Live preview below; this is the exact <code>index.html</code>
-              it wrote. Try the theme toggle, scroll to watch the sections
-              fade in.
-            </p>
-          </div>
-          <iframe
-            className="proj-artifact-frame"
-            src="projects/devswarm-cv/index.html"
-            title="CV one-pager built end-to-end by DevSwarm"
-            loading="lazy"
-          />
         </div>
       </div>
     </section>
