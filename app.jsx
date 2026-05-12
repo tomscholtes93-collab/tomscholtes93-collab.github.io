@@ -42,6 +42,7 @@ function App() {
         <Hero layout={t.heroLayout} headline={HEADLINES[t.headline] || HEADLINES.editorial} />
         <Now />
         <CaseStudies />
+        <Projects />
         <Writing />
         <CV />
         <Reading />
@@ -95,6 +96,7 @@ function Nav() {
         <nav className="nav-links">
           <a href="#now">Now</a>
           <a href="#work">Work</a>
+          <a href="#projects">Projects</a>
           <a href="#writing">Writing</a>
           <a href="#cv">CV</a>
           <a href="thesis.html">Thesis</a>
@@ -322,6 +324,55 @@ function CaseStudies() {
               <p>{s.blurb}</p>
               <div className="tags">
                 {s.tags.map(t => <span className="tag" key={t}>{t}</span>)}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Projects() {
+  const projects = [
+    {
+      n: "01",
+      title: "DevSwarm v1",
+      metric: "4m 42s",
+      label: "from one prompt to one PR, end-to-end",
+      blurb: "A FastMCP server that orchestrates five persistent Claude Code persona sessions — architect, researcher, frontend, backend, reviewer-deployer — to turn one idea into a working pull request. Fire-and-forget: kick it off, close the laptop, wake up to a PR. No Docker, no daemon, no port — just files on disk and stdio MCP. Built on a Fedora server in a single afternoon.",
+      tags: ["Python", "FastMCP", "Multi-agent", "Claude Code"],
+    },
+  ];
+
+  return (
+    <section id="projects">
+      <div className="container">
+        <div className="sec-head">
+          <span className="eyebrow">Side projects</span>
+          <div>
+            <h2>Things I build outside the day job.</h2>
+            <p className="blurb" style={{marginTop:18}}>
+              Small experiments in agent design, knowledge tooling, and the
+              workflow plumbing between them. Built for myself first; written
+              up here when something works.
+            </p>
+          </div>
+        </div>
+        <div className="cases" style={projects.length === 1 ? {gridTemplateColumns: '1fr'} : undefined}>
+          {projects.map(p => (
+            <article className="case" key={p.n}>
+              <div className="case-head">
+                <span className="svc-num">Project {p.n}</span>
+                <div className="case-metric">
+                  <div className="case-metric-num">{p.metric}</div>
+                  <div className="case-metric-lbl">{p.label}</div>
+                </div>
+              </div>
+              <h3>{p.title}</h3>
+              <p>{p.blurb}</p>
+              <div className="tags">
+                {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
               </div>
             </article>
           ))}
