@@ -359,6 +359,7 @@ function Projects() {
       label: "from one prompt to one PR, end-to-end",
       blurb: "A FastMCP server that orchestrates five persistent Claude Code persona sessions — architect, researcher, frontend, backend, reviewer-deployer — to turn one idea into a working pull request. Fire-and-forget: kick it off, close the laptop, wake up to a PR. No Docker, no daemon, no port — just files on disk and stdio MCP. Built on a Fedora server in a single afternoon.",
       tags: ["Python", "FastMCP", "Multi-agent", "Claude Code"],
+      href: "projects/devswarm/",
     },
   ];
 
@@ -377,22 +378,26 @@ function Projects() {
           </div>
         </div>
         <div className="cases" style={projects.length === 1 ? {gridTemplateColumns: '1fr'} : undefined}>
-          {projects.map(p => (
-            <article className="case" key={p.n}>
-              <div className="case-head">
-                <span className="svc-num">Project {p.n}</span>
-                <div className="case-metric">
-                  <div className="case-metric-num">{p.metric}</div>
-                  <div className="case-metric-lbl">{p.label}</div>
+          {projects.map(p => {
+            const Tag = p.href ? 'a' : 'article';
+            const extraProps = p.href ? { href: p.href } : {};
+            return (
+              <Tag className={`case${p.href ? ' case-link' : ''}`} key={p.n} {...extraProps}>
+                <div className="case-head">
+                  <span className="svc-num">Project {p.n}</span>
+                  <div className="case-metric">
+                    <div className="case-metric-num">{p.metric}</div>
+                    <div className="case-metric-lbl">{p.label}</div>
+                  </div>
                 </div>
-              </div>
-              <h3>{p.title}</h3>
-              <p>{p.blurb}</p>
-              <div className="tags">
-                {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
-              </div>
-            </article>
-          ))}
+                <h3>{p.title}{p.href && <span className="case-arr" aria-hidden="true"> →</span>}</h3>
+                <p>{p.blurb}</p>
+                <div className="tags">
+                  {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
+                </div>
+              </Tag>
+            );
+          })}
         </div>
 
         <div className="proj-artifact">

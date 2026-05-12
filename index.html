@@ -420,6 +420,10 @@
   .case p { color: var(--ink-2); font-size: 14.5px; margin: 0; }
   .case .tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 6px; }
   .case .tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 8px; border: 1px solid var(--rule); border-radius: 4px; color: var(--muted); }
+  a.case.case-link { text-decoration: none; color: inherit; transition: background-color .15s ease; cursor: pointer; }
+  a.case.case-link:hover { background: var(--bg-2); }
+  a.case.case-link:hover .case-arr { transform: translateX(3px); }
+  .case-arr { display: inline-block; transition: transform .2s ease; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 0.85em; margin-left: 4px; }
 
   /* project artifact preview (DevSwarm output, etc) */
   .proj-artifact { margin-top: 40px; }
