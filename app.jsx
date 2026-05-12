@@ -86,14 +86,20 @@ function App() {
 }
 
 function Nav() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+  const close = () => setOpen(false);
   return (
-    <header className="nav">
+    <header className="nav" data-open={open ? 'true' : 'false'}>
       <div className="container nav-inner">
-        <a href="#" className="brand">
+        <a href="#" className="brand" onClick={close}>
           <span className="brand-mark">T</span>
           <span>Tom Scholtes</span>
         </a>
-        <nav className="nav-links">
+        <nav className="nav-links" onClick={close}>
           <a href="#now">Now</a>
           <a href="#work">Work</a>
           <a href="#projects">Projects</a>
@@ -103,7 +109,18 @@ function Nav() {
           <a href="#reading">Reading</a>
           <a href="#contact">Contact</a>
         </nav>
-        <a href="#contact" className="nav-cta">Say hi <Arr /></a>
+        <a href="#contact" className="nav-cta" onClick={close}>Say hi <Arr /></a>
+        <button
+          type="button"
+          className="nav-toggle"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          onClick={() => setOpen(o => !o)}
+        >
+          <span className="bar" />
+          <span className="bar" />
+          <span className="bar" />
+        </button>
       </div>
     </header>
   );
