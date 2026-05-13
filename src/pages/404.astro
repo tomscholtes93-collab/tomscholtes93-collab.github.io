@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base title="Not found — Tom Scholtes" description="That page is not here." path="/404">
+  <Nav active="404" />
+  <main>
+    <section>
+      <div class="container">
+        <div class="prose" style="text-align:center">
+          <div class="meta">404</div>
+          <h1>That page is not here.</h1>
+          <p>The link is dead, the file is gone, or you typed it from memory.</p>
+          <p style="margin-top:32px">
+            <a href="/" class="btn btn-primary">Back to home</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>

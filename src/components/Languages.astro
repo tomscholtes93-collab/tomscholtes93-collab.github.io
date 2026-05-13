@@ -1,0 +1,28 @@
+---
+const langs = [
+  { code: 'EN', name: 'English' },
+  { code: 'DE', name: 'Deutsch' },
+  { code: 'FR', name: 'Français' },
+  { code: 'RU', name: 'Русский' },
+  { code: 'LU', name: 'Lëtzebuergesch' },
+  { code: 'UZ', name: 'Oʻzbekcha' },
+];
+---
+<section class="reveal">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">Languages</span>
+      <div>
+        <h2>Six, used regularly.</h2>
+      </div>
+    </div>
+    <div class="lang-grid">
+      {langs.map((l) => (
+        <div class="lang-card">
+          <div class="code">{l.code}</div>
+          <div class="name">{l.name}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

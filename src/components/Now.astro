@@ -1,0 +1,25 @@
+---
+import { NOW_ITEMS, NOW_EYEBROW } from '../content/now.ts';
+---
+<section id="now" class="reveal">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">{NOW_EYEBROW}</span>
+      <div>
+        <h2>What I'm focused on this quarter.</h2>
+        <p class="blurb" style="margin-top:18px">
+          A public note of where my head is right now, in the spirit of
+          <span style="font-style:italic">nownownow.com</span>. I update it when things change, not on a schedule.
+        </p>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--rule)">
+      {NOW_ITEMS.map((it) => (
+        <div class="now-row">
+          <div class="k">{it.k}</div>
+          <div class="v">{it.v}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

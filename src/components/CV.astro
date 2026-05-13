@@ -1,0 +1,121 @@
+---
+import Arr from './Arr.astro';
+
+const roles = [
+  {
+    co: 'Working in Controlling',
+    role: 'SPV Controller',
+    period: 'Mar 2025 · Present',
+    notes: [
+      'End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in Investran. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings.',
+      'Payment automation across the SPV book — batch generation, exception routing, recharge / intercompany cases.',
+      'Investran ↔ Dealsplus data integration (composite-keys bridging architecture).',
+      'Task management workstream via MCP — Outlook + Monday.com wired into Claude Code through MCP.',
+    ],
+  },
+  {
+    co: 'Alter Domus',
+    role: 'Fund & Corporate Services Officer',
+    period: 'Feb 2023 · Mar 2025',
+    notes: ['Full-cycle accounting for management companies, funds, SPVs and GPs. NAVs, financial statements, CSSF/BCL regulatory filings. Drove process improvements through technology and structured methodologies.'],
+  },
+  {
+    co: 'Waystone Administration Solutions',
+    role: 'Junior Associate Fund Accountant',
+    period: 'Sep 2022 · Jan 2023',
+    notes: ['Capital calls, distributions, OPEX payments. LuxGAAP financial statements. Audit coordination. Investran import automation.'],
+  },
+  {
+    co: 'Aztec Group',
+    role: 'Junior Depositary Analyst',
+    period: 'Feb 2021 · Aug 2022',
+    notes: ['Asset confirmation and reconciliation for alternative investment funds. Depositary obligations and oversight duties. eFront reporting.'],
+  },
+  {
+    co: 'European Fund Administration',
+    role: 'Intern Fund Accountant',
+    period: 'Nov 2019 · Nov 2020',
+    notes: ['NAV calculations, financial-statement preparation, first-level controls and reconciliations. Year-end audit support.'],
+  },
+];
+
+const edu = [
+  { school: 'Erasmus School of Economics, University of Rotterdam', degree: 'MSc Economics & Business, International Economics', period: '2017 · 2020' },
+  { school: 'University of Luxembourg', degree: 'BSc Economics, Law & Management', period: '2014 · 2017' },
+];
+
+const skills: [string, string][] = [
+  ['Accounting systems', 'Investran · eFront · BOB50 · SAP'],
+  ['IT / scripting', 'VBA · Python · Microsoft Power Automate'],
+  ['Office', 'Advanced Excel · Word · PowerPoint'],
+  ['Fund types', 'Private Equity · Private Debt · Real Estate'],
+  ['AI tooling', 'Claude · Claude Code · ChatGPT · Glean · Even Realities G2 SDK (assembled stack)'],
+  ['AI infra', 'MCP servers · Multi-agent orchestration · Knowledge bases · Local model serving'],
+  ['Dev', 'TypeScript · Astro · React · GitHub Actions · Tailscale'],
+  ['Frameworks', 'LuxGAAP · eCDF · CSSF / BCL filings'],
+];
+---
+<section id="cv" class="reveal">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">Live CV</span>
+      <div>
+        <h2>Six years in Luxembourg fund services.</h2>
+        <p class="blurb" style="margin-top:18px">Updated as roles, projects and credentials change. The condensed PDF version is on request.</p>
+      </div>
+    </div>
+
+    <div class="cv-block">
+      <div class="cv-head">
+        <span>Experience</span>
+        <span>5 roles · 6+ years</span>
+      </div>
+      {roles.map((r) => (
+        <div class="cv-row">
+          <div>
+            <div class="co">{r.co}</div>
+            <div class="role">{r.role}</div>
+          </div>
+          <div class="note">
+            {r.notes.length === 1 ? <p style="margin:0">{r.notes[0]}</p> : (
+              <ul>{r.notes.map((n) => <li>{n}</li>)}</ul>
+            )}
+          </div>
+          <div class="period">{r.period}</div>
+        </div>
+      ))}
+    </div>
+
+    <div class="cv-block">
+      <div class="cv-head"><span>Education</span></div>
+      {edu.map((e) => (
+        <div class="cv-row">
+          <div class="co" style="font-size:22px">{e.school}</div>
+          <div class="note">{e.degree}</div>
+          <div class="period">{e.period}</div>
+        </div>
+      ))}
+    </div>
+
+    <div class="cv-block">
+      <div class="cv-head"><span>Skills</span></div>
+      <div class="skills-grid">
+        {skills.map(([k, v]) => (
+          <div class="skill-row">
+            <div class="k">{k}</div>
+            <div class="v">{v}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="cv-block">
+      <div class="cv-head"><span>Publication</span></div>
+      <div class="cv-row">
+        <div class="co" style="font-size:22px; line-height:1.15">Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</div>
+        <div class="note">MSc thesis · Erasmus University Rotterdam</div>
+        <div class="period"><a href="/thesis" class="btn btn-ghost" style="padding:10px 16px; font-size:13px">Read <Arr /></a></div>
+      </div>
+    </div>
+  </div>
+</section>

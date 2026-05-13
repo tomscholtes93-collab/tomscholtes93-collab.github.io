@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Now from '../components/Now.astro';
+import CaseStudies from '../components/CaseStudies.astro';
+import CV from '../components/CV.astro';
+import Reading from '../components/Reading.astro';
+import Languages from '../components/Languages.astro';
+import Colophon from '../components/Colophon.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+import RevealObserver from '../components/RevealObserver.astro';
+import DisplayPanel from '../components/islands/DisplayPanel.jsx';
+import TweaksPanel from '../components/islands/TweaksPanel.jsx';
+---
+<Base jsonLd={true}>
+  <Nav active="home" />
+  <main>
+    <Hero />
+    <Now />
+    <CaseStudies />
+    <CV />
+    <Reading />
+    <Languages />
+    <Colophon />
+    <Contact />
+  </main>
+  <Footer />
+  <DisplayPanel client:idle />
+  <TweaksPanel client:idle />
+  <RevealObserver />
+</Base>
