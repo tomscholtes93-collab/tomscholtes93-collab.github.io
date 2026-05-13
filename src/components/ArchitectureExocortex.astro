@@ -1,0 +1,59 @@
+---
+---
+<svg class="arch-svg" viewBox="0 0 760 420" role="img" aria-label="Exocortex architecture: G2 glasses to Pixel via Tailscale to Fedora server running patched Claude Code and MCP fan-out">
+  <!-- G2 glasses -->
+  <g role="img" aria-label="Even Realities G2 glasses">
+    <rect class="node-accent" x="20" y="20" width="140" height="56" rx="10" />
+    <text class="label" x="90" y="46" text-anchor="middle">G2 glasses</text>
+    <text class="sub"   x="90" y="64" text-anchor="middle">16 shades green HUD</text>
+  </g>
+  <path class="edge" d="M160 48 L 240 48" />
+  <polygon class="edge" fill="currentColor" points="248,48 240,44 240,52" />
+
+  <!-- Pixel -->
+  <g role="img" aria-label="Pixel 7 - Tailscale node">
+    <rect class="node" x="250" y="20" width="140" height="56" rx="10" />
+    <text class="label" x="320" y="46" text-anchor="middle">Pixel 7</text>
+    <text class="sub"   x="320" y="64" text-anchor="middle">Tailscale node</text>
+  </g>
+  <path class="edge" d="M320 76 L 320 130" />
+  <polygon class="edge" fill="currentColor" points="320,138 316,130 324,130" />
+
+  <!-- Fedora server -->
+  <g role="img" aria-label="Fedora server running Even Terminal">
+    <rect class="node-accent" x="220" y="140" width="200" height="70" rx="10" />
+    <text class="label" x="320" y="170" text-anchor="middle">Fedora server</text>
+    <text class="sub"   x="320" y="188" text-anchor="middle">Even Terminal :3456</text>
+    <text class="sub"   x="320" y="202" text-anchor="middle">patched Claude Code</text>
+  </g>
+
+  <!-- Fan-out lines -->
+  <path class="edge-accent" d="M320 210 C 320 240, 140 250, 100 280" />
+  <path class="edge-accent" d="M320 210 C 320 240, 260 250, 260 280" />
+  <path class="edge-accent" d="M320 210 C 320 240, 420 250, 420 280" />
+  <path class="edge-accent" d="M320 210 C 320 240, 580 250, 580 280" />
+
+  <!-- MCP endpoints -->
+  <g role="img" aria-label="OpenKB MCP endpoint">
+    <rect class="node" x="40" y="285" width="120" height="56" rx="10" />
+    <text class="label" x="100" y="311" text-anchor="middle">OpenKB</text>
+    <text class="sub"   x="100" y="329" text-anchor="middle">44 docs indexed</text>
+  </g>
+  <g role="img" aria-label="Meridian MCP endpoint">
+    <rect class="node" x="200" y="285" width="120" height="56" rx="10" />
+    <text class="label" x="260" y="311" text-anchor="middle">Meridian</text>
+    <text class="sub"   x="260" y="329" text-anchor="middle">Sonnet 4.6 router</text>
+  </g>
+  <g role="img" aria-label="Notion MCP endpoint">
+    <rect class="node" x="360" y="285" width="120" height="56" rx="10" />
+    <text class="label" x="420" y="311" text-anchor="middle">Notion</text>
+    <text class="sub"   x="420" y="329" text-anchor="middle">notes / journal</text>
+  </g>
+  <g role="img" aria-label="Asana MCP endpoint">
+    <rect class="node" x="520" y="285" width="120" height="56" rx="10" />
+    <text class="label" x="580" y="311" text-anchor="middle">Asana</text>
+    <text class="sub"   x="580" y="329" text-anchor="middle">tasks</text>
+  </g>
+
+  <text class="sub" x="380" y="380" text-anchor="middle">All endpoints reached via MCP, scoped per query</text>
+</svg>

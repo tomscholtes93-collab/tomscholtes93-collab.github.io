@@ -1,0 +1,27 @@
+{
+  "name": "tomscholtes-v3",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "node scripts/copy-fonts.mjs && node scripts/make-og.mjs && astro build && node scripts/post-build.mjs",
+    "preview": "astro preview",
+    "astro": "astro",
+    "copy:fonts": "node scripts/copy-fonts.mjs"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.2.0",
+    "@fontsource/instrument-serif": "^5.1.0",
+    "@fontsource/inter": "^5.1.0",
+    "@fontsource/jetbrains-mono": "^5.1.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "astro": "^5.0.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "satori": "^0.12.0",
+    "wawoff2": "^2.0.1"
+  }
+}

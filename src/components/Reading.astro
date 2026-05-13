@@ -1,0 +1,27 @@
+---
+const themes = [
+  { t: 'Systems & ops quality',  n: 'How operational excellence actually gets built and kept. Applies to finance ops as much as to engineering.' },
+  { t: 'Knowledge engineering',  n: 'Encoding expertise into tools other people can use without becoming experts themselves.' },
+  { t: 'AI & cognition',          n: 'Practical books on what current AI can and cannot do, and where it changes the work.' },
+  { t: 'Economics & finance',    n: 'Continuing the line my degrees started. International economics, capital markets, regulation.' },
+];
+---
+<section id="reading" class="reveal">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">Reading</span>
+      <div>
+        <h2>Mostly non-fiction.</h2>
+        <p class="blurb" style="margin-top:18px">Themes I keep coming back to. A proper bookshelf with titles will go here once I've trimmed the list.</p>
+      </div>
+    </div>
+    <div class="reading-grid">
+      {themes.map((th) => (
+        <div class="reading-card">
+          <div class="t">{th.t}</div>
+          <p>{th.n}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

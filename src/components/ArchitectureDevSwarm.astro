@@ -1,0 +1,53 @@
+---
+---
+<svg class="arch-svg" viewBox="0 0 720 360" role="img" aria-label="DevSwarm architecture: Architect to Researcher, Frontend, Backend in parallel, to Reviewer-Deployer to PR">
+  <!-- Architect -->
+  <g role="img" aria-label="Architect persona">
+    <rect class="node-accent" x="20" y="150" width="120" height="60" rx="10" />
+    <text class="label" x="80" y="178" text-anchor="middle">Architect</text>
+    <text class="sub"   x="80" y="196" text-anchor="middle">PLAN.md</text>
+  </g>
+
+  <!-- Edges to parallel trio -->
+  <path class="edge-accent" d="M140 180 C 200 180, 220 80, 280 80" />
+  <path class="edge-accent" d="M140 180 L 280 180" />
+  <path class="edge-accent" d="M140 180 C 200 180, 220 280, 280 280" />
+
+  <!-- Researcher -->
+  <g role="img" aria-label="Researcher persona">
+    <rect class="node" x="280" y="50" width="140" height="60" rx="10" />
+    <text class="label" x="350" y="78" text-anchor="middle">Researcher</text>
+    <text class="sub"   x="350" y="96" text-anchor="middle">RESEARCH.md</text>
+  </g>
+
+  <!-- Frontend -->
+  <g role="img" aria-label="Frontend persona">
+    <rect class="node" x="280" y="150" width="140" height="60" rx="10" />
+    <text class="label" x="350" y="178" text-anchor="middle">Frontend</text>
+    <text class="sub"   x="350" y="196" text-anchor="middle">frontend/</text>
+  </g>
+
+  <!-- Backend -->
+  <g role="img" aria-label="Backend persona">
+    <rect class="node" x="280" y="250" width="140" height="60" rx="10" />
+    <text class="label" x="350" y="278" text-anchor="middle">Backend</text>
+    <text class="sub"   x="350" y="296" text-anchor="middle">backend/</text>
+  </g>
+
+  <!-- Edges to Reviewer-Deployer -->
+  <path class="edge" d="M420 80 C 480 80, 500 180, 560 180" />
+  <path class="edge" d="M420 180 L 560 180" />
+  <path class="edge" d="M420 280 C 480 280, 500 180, 560 180" />
+
+  <!-- Reviewer-Deployer -->
+  <g role="img" aria-label="Reviewer-Deployer persona">
+    <rect class="node-accent" x="560" y="150" width="140" height="60" rx="10" />
+    <text class="label" x="630" y="178" text-anchor="middle">Reviewer-</text>
+    <text class="label" x="630" y="194" text-anchor="middle">Deployer</text>
+  </g>
+
+  <!-- PR arrow -->
+  <path class="edge-accent" d="M700 210 L 700 330" />
+  <polygon fill="currentColor" points="700,340 694,328 706,328" class="edge-accent" />
+  <text class="sub" x="700" y="354" text-anchor="middle">→ PR</text>
+</svg>

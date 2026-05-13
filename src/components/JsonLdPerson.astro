@@ -1,0 +1,18 @@
+---
+const data = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Tom Scholtes',
+  jobTitle: 'Finance ops engineer',
+  worksFor: { '@type': 'Organization', name: 'Triton' },
+  nationality: { '@type': 'Country', name: 'Luxembourg' },
+  knowsLanguage: ['en', 'de', 'fr', 'ru', 'lb', 'uz'],
+  url: 'https://tomscholtes.com',
+  sameAs: [
+    'https://www.linkedin.com/in/tomscholtes93/',
+    'https://github.com/tomscholtes93-collab',
+  ],
+};
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+<script type="application/ld+json" set:html={json} />

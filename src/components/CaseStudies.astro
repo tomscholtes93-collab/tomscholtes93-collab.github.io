@@ -1,0 +1,30 @@
+---
+import CaseStudyCard from './CaseStudyCard.astro';
+import { CASE_STUDIES } from '../content/caseStudies.ts';
+---
+<section id="work" class="reveal">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">Case studies</span>
+      <div>
+        <h2>Patterns I've worked through.</h2>
+        <p class="blurb" style="margin-top:18px">
+          Sanitised. Employer name, entity names and figures removed. Notes on
+          how I think about this kind of work in fund services.
+        </p>
+      </div>
+    </div>
+    <div class="cases">
+      {CASE_STUDIES.map((s) => (
+        <CaseStudyCard
+          n={s.n}
+          title={s.title}
+          metric={s.metric}
+          label={s.label}
+          blurb={s.blurb}
+          tags={s.tags}
+        />
+      ))}
+    </div>
+  </div>
+</section>
