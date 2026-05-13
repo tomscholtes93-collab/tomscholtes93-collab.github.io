@@ -2,57 +2,83 @@
 import Base from '../../layouts/Base.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
+import RevealObserver from '../../components/RevealObserver.astro';
 ---
 <Base
-  title="Projects — Tom Scholtes"
-  description="DevSwarm v1 — five-persona Claude Code orchestrator. Personal AI Exocortex — wearable-first knowledge stack."
+  title="Projects · Tom Scholtes"
+  description="Side projects by Tom Scholtes. Small experiments in agent design, knowledge tooling, and personal AI infrastructure."
   path="/projects"
 >
   <Nav active="projects" />
   <main>
-    <section>
+    <header class="paper">
       <div class="container">
-        <div class="sec-head">
-          <span class="eyebrow">Projects</span>
-          <div>
-            <h2>Two open builds.</h2>
-            <p class="blurb" style="margin-top:18px">
-              Things I've built outside the day job. Both are working, both are documented,
-              both are honest about what they do and don't yet do.
-            </p>
-          </div>
-        </div>
+        <span class="eyebrow">Projects · 2026</span>
+        <h1 class="title">Things I build <em>outside</em> the day job.</h1>
+        <p class="sub">
+          Small experiments in agent design, knowledge tooling, and the workflow
+          plumbing between them. Built for myself first, written up here when
+          something works. Each card opens a longer write-up: architecture,
+          decisions, and the artifacts the build produced.
+        </p>
+      </div>
+    </header>
 
-        <div class="proj-list">
-          <a class="proj-card" href="/projects/devswarm">
-            <span class="eyebrow">01 · DevSwarm v1</span>
-            <h3>Five-persona Claude Code orchestrator</h3>
-            <p>
-              Architect → Researcher + Frontend + Backend (parallel) → Reviewer-Deployer.
-              From an idea to a working pull request in one CLI command.
-            </p>
-            <span class="proj-metric">4m 42s — idea to PR · <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" style="color:inherit; border-bottom:1px solid var(--accent)">PR #1</a></span>
-          </a>
-          <a class="proj-card" href="/projects/exocortex">
-            <span class="eyebrow">02 · Personal AI Exocortex</span>
-            <h3>Wearable-first knowledge stack</h3>
-            <p>
-              G2 glasses + Pixel + Fedora server + Tailscale + patched Claude Code, fanning out
-              to OpenKB (44 docs indexed), Meridian, Notion and Asana through MCP.
-            </p>
-            <span class="proj-metric">Daily driver · documented stack</span>
-          </a>
-        </div>
+    <section class="cards reveal" id="projects-list">
+      <div class="container">
+        <div class="proj-cards">
 
-        <div style="margin-top:48px">
-          <a class="proj-card" href="/projects/devswarm-cv" style="min-height:auto">
-            <span class="eyebrow">Demo · DevSwarm</span>
-            <h3>cv-onepager — built by the swarm, live</h3>
-            <p>Single-file CV one-pager produced end-to-end by the five-persona pipeline in 4m 42s. The swarm built this.</p>
+          <a class="card" href="/projects/devswarm">
+            <div class="card-head">
+              <span class="card-num">Project 01</span>
+              <div class="card-metric">
+                <div class="card-metric-num">4m 42s</div>
+                <div class="card-metric-lbl">from one prompt to one PR, end-to-end</div>
+              </div>
+            </div>
+            <h2>DevSwarm v1<span class="arr"> →</span></h2>
+            <p>
+              A FastMCP server that orchestrates five persistent Claude Code persona
+              sessions (architect, researcher, frontend, backend, reviewer-deployer)
+              to turn one idea into a working pull request. Fire-and-forget; no
+              Docker, no daemon, no port. Just files on disk and stdio MCP.
+            </p>
+            <div class="tags">
+              <span class="tag">Python</span>
+              <span class="tag">FastMCP</span>
+              <span class="tag">Multi-agent</span>
+              <span class="tag">Claude Code</span>
+            </div>
           </a>
+
+          <a class="card in-progress" href="/projects/exocortex">
+            <div class="card-head">
+              <span class="card-num">Project 02</span>
+              <div class="card-metric">
+                <div class="card-metric-num">live</div>
+                <div class="card-metric-lbl">day 5 · base process complete</div>
+              </div>
+            </div>
+            <h2>Personal AI Exocortex<span class="arr"> →</span></h2>
+            <p>
+              A personal AI assistant accessible through Even Realities G2 smart
+              glasses. Voice from the lenses, pipeline through self-hosted
+              infrastructure on Fedora, all routed through Claude Max OAuth so
+              there's no per-token API billing. Multilingual: English, German,
+              Russian, French.
+            </p>
+            <div class="tags">
+              <span class="tag">AR glasses</span>
+              <span class="tag">MCP</span>
+              <span class="tag">Self-hosted</span>
+              <span class="tag">Claude Max</span>
+            </div>
+          </a>
+
         </div>
       </div>
     </section>
   </main>
   <Footer />
+  <RevealObserver />
 </Base>

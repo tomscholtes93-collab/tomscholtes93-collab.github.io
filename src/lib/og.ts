@@ -1,4 +1,4 @@
-// Satori VDOM template — no React runtime, just shape.
+// Satori VDOM template. No React runtime, just shape.
 export function ogTemplate() {
   return {
     type: 'div',

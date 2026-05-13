@@ -214,8 +214,26 @@
 /* case studies */
 .cases { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 18px; overflow: hidden; }
 @media (max-width: 760px) { .cases { grid-template-columns: 1fr; } }
-.case { background: var(--bg); padding: 32px; display: flex; flex-direction: column; gap: 14px; min-height: 280px; text-decoration: none; color: inherit; }
-.case:hover { background: var(--bg-2); }
+.case {
+  background: var(--bg);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 280px;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    background-color 180ms cubic-bezier(.2,.7,.2,1),
+    transform 180ms cubic-bezier(.2,.7,.2,1),
+    box-shadow 180ms cubic-bezier(.2,.7,.2,1);
+}
+.case:hover {
+  background: var(--bg-2);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -22px color-mix(in oklab, var(--ink) 60%, transparent);
+}
+.case:hover .case-arr { transform: translateX(4px); }
 .case-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
 .case-metric { text-align: right; }
 .case-metric-num { font-family: 'Instrument Serif', serif; font-size: 32px; line-height: 1; letter-spacing: -.02em; color: var(--accent); }
@@ -225,15 +243,14 @@
 .case .tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 6px; }
 .case .tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 8px; border: 1px solid var(--rule); border-radius: 4px; color: var(--muted); }
 .case .svc-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
-a.case.case-link {
-  transition: background-color .2s ease, transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease;
+.case-arr {
+  display: inline-block;
+  transition: transform 180ms cubic-bezier(.2,.7,.2,1);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  margin-left: 4px;
 }
-a.case.case-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px -22px color-mix(in oklab, var(--ink) 60%, transparent);
-}
-a.case.case-link:hover .case-arr { transform: translateX(4px); }
-.case-arr { display: inline-block; transition: transform .25s ease; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 0.85em; margin-left: 4px; }
 
 /* CV */
 .cv-block { border-top: 1px solid var(--ink); margin-top: 56px; }

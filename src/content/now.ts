@@ -9,7 +9,7 @@ export const NOW_ITEMS: NowItem[] = [
   },
   {
     k: 'Building',
-    v: 'DevSwarm — a five-persona Claude Code orchestrator that turns an idea into a working PR. V3 of this site is being built by it.',
+    v: 'DevSwarm, a five-persona Claude Code orchestrator that turns an idea into a working PR. V3 of this site is being built by it.',
   },
   {
     k: 'Running',

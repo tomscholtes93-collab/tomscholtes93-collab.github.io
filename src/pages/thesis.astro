@@ -2,68 +2,180 @@
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import RevealObserver from '../components/RevealObserver.astro';
 ---
 <Base
-  title="MSc thesis — Tom Scholtes"
-  description="Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries. MSc Economics & Business, Erasmus University Rotterdam, 2020."
+  title="Augmented Gravity Model · Tom Scholtes (MSc Thesis)"
+  description="MSc thesis by Tom Scholtes: institutions, infrastructure, and globalization impact on bilateral exports among OECD countries (1995-2018). Erasmus University Rotterdam."
   path="/thesis"
 >
   <Nav active="thesis" />
+
   <main>
-    <section>
+    <header class="paper">
       <div class="container">
-        <article class="prose">
-          <div class="meta">MSc thesis · Erasmus University Rotterdam · 2020</div>
-          <h1>Augmented gravity model</h1>
-          <p style="font-size:20px; color:var(--ink)">
-            Institutions, infrastructure and globalization impact on bilateral exports
-            among OECD countries.
-          </p>
+        <span class="eyebrow">MSc Thesis · 2020 · Erasmus School of Economics</span>
+        <h1 class="title">An augmented gravity model of <em>OECD bilateral exports</em>.</h1>
+        <p class="sub">
+          Institutions, infrastructure, and globalization, and how each moves bilateral aggregate exports
+          between 36 OECD economies over the 1995-2018 panel. A traditional gravity equation extended with
+          state fragility, an innovation index, and economic + political globalization indices.
+        </p>
 
-          <h2>Abstract</h2>
-          <p>
-            The classical gravity model of international trade explains bilateral export
-            volumes as a function of economic mass and geographic distance. This thesis
-            augments the canonical specification with measures of institutional quality
-            (rule of law, regulatory quality), infrastructure capacity (logistics
-            performance, ICT readiness), and globalization intensity (KOF index) across
-            OECD bilateral pairs.
-          </p>
-          <p>
-            Panel-data regressions over 2000–2018 confirm the robustness of the gravity
-            core while showing significant marginal explanatory power for the augmented
-            variables — particularly institutional quality on the exporter side and
-            infrastructure on the importer side.
-          </p>
+        <div class="actions">
+          <a href="https://thesis.eur.nl/pub/52992" target="_blank" rel="noopener" class="btn btn-primary">Open on EUR repository <span class="arr">→</span></a>
+          <a href="https://thesis.eur.nl/pub/52992" target="_blank" rel="noopener" class="btn btn-ghost">View metadata</a>
+        </div>
 
-          <h2>Method</h2>
-          <p>
-            PPML (Poisson Pseudo Maximum Likelihood) estimation, country-pair fixed
-            effects, year fixed effects, multilateral resistance terms via remoteness
-            indices. Heteroskedasticity-robust standard errors clustered at the
-            country-pair level.
-          </p>
+        <div class="meta-row">
+          <span><strong>Author</strong> · Tom Scholtes</span>
+          <span><strong>Institution</strong> · Erasmus University Rotterdam</span>
+          <span><strong>Programme</strong> · MSc International Economics</span>
+          <span><strong>Pages</strong> · 78</span>
+          <span><strong>Period</strong> · 1995-2018</span>
+        </div>
+      </div>
+    </header>
 
-          <h2>Findings</h2>
-          <ul>
-            <li>A one-standard-deviation increase in exporter rule-of-law correlates with a 4–7% increase in bilateral exports, holding gravity terms constant.</li>
-            <li>Importer logistics performance has roughly twice the marginal effect of importer GDP per capita on bilateral imports.</li>
-            <li>KOF globalization is significant in the cross-section but absorbed by country-pair fixed effects in the panel.</li>
-          </ul>
+    <section class="reveal">
+      <div class="container">
+        <span class="eyebrow">01 · Hypotheses</span>
+        <h2 class="h">Seven hypotheses on what moves <em>bilateral exports</em>.</h2>
+        <p class="lede">
+          The paper tests seven hypotheses against the OECD panel: three on standard trade-policy variables
+          (EU, RTAs, common currency), four extending the gravity model into institutional quality,
+          infrastructure, globalization, and tariff barriers.
+        </p>
 
-          <h2>Limitations</h2>
-          <p>
-            OECD-only sample biases results toward high-income trade patterns; institutional
-            and infrastructure variables are highly collinear with GDP per capita; the
-            sample period predates the COVID-19 trade dislocation.
-          </p>
+        <div class="hyps">
+          <div class="hyp"><span class="id">H1</span><div class="body"><strong>EU membership.</strong> EU members' exports are higher with each other than with non-EU partners.</div></div>
+          <div class="hyp"><span class="id">H2</span><div class="body"><strong>RTAs.</strong> Regional Trade Agreements increase aggregate exports between members of a common RTA.</div></div>
+          <div class="hyp"><span class="id">H3</span><div class="body"><strong>Common currency.</strong> A shared currency expands trade through reduced transaction fees and the absence of FX risk.</div></div>
+          <div class="hyp"><span class="id">H4</span><div class="body"><strong>Institutional quality.</strong> Improvements in the exporter's institutional quality promote bilateral aggregate exports.</div></div>
+          <div class="hyp"><span class="id">H5</span><div class="body"><strong>Infrastructure.</strong> Better exporter infrastructure boosts trade through efficiency gains and lower implicit trade costs.</div></div>
+          <div class="hyp"><span class="id">H6</span><div class="body"><strong>Globalization.</strong> Higher exporter globalization boosts trade via interdependence between elements of the global economy.</div></div>
+          <div class="hyp"><span class="id">H7</span><div class="body"><strong>Tariffs.</strong> An increase in most-favored-nation tariffs negatively impacts bilateral trade.</div></div>
+        </div>
+      </div>
+    </section>
 
-          <p style="margin-top:48px">
-            <a href="/">← Back to home</a>
-          </p>
-        </article>
+    <section class="reveal">
+      <div class="container">
+        <span class="eyebrow">02 · Findings</span>
+        <h2 class="h">What the data <em>actually said</em>.</h2>
+        <p class="lede">
+          Estimated with fixed-effects OLS over 1995-2018, with all specifications passing the RESET test for
+          misspecification. The results split cleanly into three buckets: robust positives, expected negatives,
+          and the perplexing.
+        </p>
+
+        <div class="findings">
+          <div class="find">
+            <span class="sign"><span class="sigil pos"></span>Positive · robust</span>
+            <h4>Economic &amp; political globalization</h4>
+            <p>Both globalization indices contribute substantially and consistently to bilateral exports across the full and recent (2011-2018) periods. The paper's headline contribution.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil pos"></span>Positive · robust</span>
+            <h4>Innovation index</h4>
+            <p>An exporter's innovation capacity has a significant, positive impact on bilateral aggregate exports.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil pos"></span>Positive · robust</span>
+            <h4>Road infrastructure quality</h4>
+            <p>Among infrastructure indicators, road quality stands out with a substantial positive effect on the dependent variable.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil pos"></span>Positive · expected</span>
+            <h4>EU, RTAs, common currency</h4>
+            <p>Both reporter and partner being EU or RTA members raises bilateral exports; common currency raises them further still.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil neg"></span>Negative · robust</span>
+            <h4>State fragility</h4>
+            <p>Higher state fragility on the exporter side meaningfully depresses bilateral exports; consistent with the institutions-as-trade-cost view.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil mix"></span>Counter-intuitive</span>
+            <h4>Political stability &amp; market openness</h4>
+            <p>Both come in negative; the most perplexing results. Possible explanation: stable, open exporters service larger domestic markets and source more inputs locally, dampening measured export volume.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container">
+        <span class="eyebrow">03 · Highlights</span>
+        <h2 class="h">What's <em>new</em> here.</h2>
+        <p class="lede">
+          Most gravity-model papers stop at GDP, distance, RTAs, and currency. This thesis extends the equation
+          with three under-tested exporter-side variables and re-runs everything on a shorter, more recent
+          sub-period.
+        </p>
+
+        <div class="high">
+          <div>
+            <h3>Contribution</h3>
+            <ul>
+              <li><strong>Globalization, end-to-end.</strong> First gravity-model treatment of the KOF economic and political globalization indices on OECD exports; both come out significant and positive.</li>
+              <li><strong>State fragility added.</strong> Brings a fragility dimension to a literature that traditionally proxies institutions with WGI / Heritage indicators alone.</li>
+              <li><strong>Innovation as a determinant.</strong> Tests the Global Innovation Index directly against bilateral exports; significant, positive, and robust.</li>
+              <li><strong>Two windows, not one.</strong> Re-runs the full model on the post-crisis sub-period 2011-2018 to surface effects that wash out over longer panels.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Method</h3>
+            <ul>
+              <li><strong>Augmented gravity equation</strong> with country-pair and year fixed effects, OLS estimation.</li>
+              <li><strong>Misspecification handled.</strong> Every specification clears the RESET test before being interpreted.</li>
+              <li><strong>Robustness table</strong> swaps in alternate fixed-effect structures (country-time-varying vs. time-invariant pair) to stress-test EU and RTA coefficients.</li>
+              <li><strong>Standard controls retained:</strong> GDP, distance, contiguity, common language, colonial ties, FDI stock, exchange rate, EU, common currency.</li>
+            </ul>
+          </div>
+        </div>
+
+        <dl class="method">
+          <div><dt>Sample</dt><dd>OECD bilateral pairs</dd></div>
+          <div><dt>Period</dt><dd>1995 to 2018</dd></div>
+          <div><dt>Estimator</dt><dd>Fixed-effects OLS</dd></div>
+          <div><dt>Diagnostics</dt><dd>RESET-test passing</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container">
+        <span class="eyebrow">04 · Full document</span>
+        <h2 class="h">The thesis, <em>in full</em>.</h2>
+        <p class="lede">
+          All 78 pages: abstract, literature review, methodology, results tables, robustness checks, appendices
+          and references. The Erasmus repository hosts the canonical PDF.
+        </p>
+
+        <div class="pdf-wrap">
+          <div class="pdf-bar">
+            <div class="left">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span>Tom_Scholtes_Thesis.pdf · 78 pages</span>
+            </div>
+            <div class="right">
+              <a href="https://thesis.eur.nl/pub/52992" target="_blank" rel="noopener">Open on EUR repository ↗</a>
+            </div>
+          </div>
+          <div class="pdf-fallback" style="padding:64px 28px">
+            <p style="margin:0 0 12px; color:var(--ink-2); font-size:15px">
+              The full PDF is hosted by Erasmus University Rotterdam.
+            </p>
+            <a href="https://thesis.eur.nl/pub/52992" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:8px">
+              Open on EUR repository <span class="arr">→</span>
+            </a>
+          </div>
+        </div>
       </div>
     </section>
   </main>
+
   <Footer />
+  <RevealObserver />
 </Base>

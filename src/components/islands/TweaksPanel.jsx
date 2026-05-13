@@ -6,11 +6,12 @@ import { useState, useEffect } from 'react';
 // keeps working without re-rolling the contract.
 export default function TweaksPanel() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     function onMsg(e) {
       const t = e && e.data && e.data.type;
-      if (t === '__activate_edit_mode') setOpen(true);
+      if (t === '__activate_edit_mode') { setMounted(true); setOpen(true); }
       else if (t === '__deactivate_edit_mode') setOpen(false);
     }
     window.addEventListener('message', onMsg);
@@ -18,7 +19,16 @@ export default function TweaksPanel() {
     return () => window.removeEventListener('message', onMsg);
   }, []);
 
-  if (!open) return null;
+  // When closing, wait for the slide-out transition before unmounting so the
+  // animation is visible. 240ms covers the 220ms transition + a frame.
+  useEffect(() => {
+    if (mounted && !open) {
+      const id = setTimeout(() => setMounted(false), 240);
+      return () => clearTimeout(id);
+    }
+  }, [mounted, open]);
+
+  if (!mounted) return null;
 
   return (
     <div
@@ -32,6 +42,9 @@ export default function TweaksPanel() {
         border: '.5px solid rgba(255,255,255,.6)', borderRadius: 14,
         boxShadow: '0 12px 40px rgba(0,0,0,.18)',
         font: '11.5px/1.4 ui-sans-serif, system-ui, sans-serif',
+        transform: open ? 'translateX(0)' : 'translateX(calc(100% + 24px))',
+        opacity: open ? 1 : 0,
+        transition: 'transform 220ms cubic-bezier(.2,.7,.2,1), opacity 220ms cubic-bezier(.2,.7,.2,1)',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>

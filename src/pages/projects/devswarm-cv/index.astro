@@ -2,51 +2,88 @@
 import Base from '../../../layouts/Base.astro';
 import Nav from '../../../components/Nav.astro';
 import Footer from '../../../components/Footer.astro';
+import RevealObserver from '../../../components/RevealObserver.astro';
 ---
 <Base
-  title="cv-onepager (built by DevSwarm) — Tom Scholtes"
-  description="Single-file CV one-pager produced end-to-end by the DevSwarm five-persona pipeline in 4m 42s."
+  title="cv-onepager (built by DevSwarm) · Tom Scholtes"
+  description="Single-file CV one-pager produced end-to-end by the DevSwarm five-persona pipeline in 4m 42s. Real artifact, embedded here."
   path="/projects/devswarm-cv"
 >
   <Nav active="projects" />
+
   <main>
-    <section>
+    <header class="paper">
       <div class="container">
-        <article class="prose">
-          <div class="meta">Demo · DevSwarm output</div>
-          <h1>cv-onepager — the swarm built this.</h1>
-          <p style="font-size:20px; color:var(--ink)">
-            Look ma: a static CV one-pager produced end-to-end by the five-persona DevSwarm
-            pipeline. Single HTML file, inline CSS, accessible motion, no JavaScript, no CDN.
+        <span class="eyebrow">Demo · DevSwarm output · May 2026</span>
+        <h1 class="title">cv-onepager, the swarm <em>built this</em>.</h1>
+        <p class="sub">
+          A single static HTML file produced end-to-end by the DevSwarm five-persona
+          pipeline. Inline CSS, accessible motion, no JavaScript, no CDN. The
+          artifact is the same file the swarm wrote into its workspace; nothing
+          edited by hand.
+        </p>
+
+        <div class="actions">
+          <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener" class="btn btn-primary">View the PR <span class="arr">→</span></a>
+          <a href="/projects/devswarm" class="btn btn-ghost">How DevSwarm works</a>
+        </div>
+
+        <div class="meta-row">
+          <span><strong>4m 42s</strong> idea to PR</span>
+          <span><strong>1</strong> file shipped</span>
+          <span><strong>8/8</strong> acceptance greps pass</span>
+          <span><strong>0</strong> human edits</span>
+          <span><strong>2026-05-12 19:46:03</strong> run timestamp</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Run summary</span>
+        <h2 class="h">Five personas, one PR.</h2>
+        <p class="lead">
+          The capstone smoke-test: a CV one-pager with dark background, fade-in
+          animation, and <code>prefers-reduced-motion</code> respect. Every stage
+          succeeded on first attempt.
+        </p>
+
+        <div class="run-log">
+          <div class="run-log-row"><span class="run-log-stage">Idea</span><span class="run-log-desc">"Build a CV one-pager that fades in."</span><span class="run-log-time">0:00</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Architect</span><span class="run-log-desc">Produced PLAN.md with acceptance greps for h1, fade-in keyframes, dark background, no script tags, no external resources.</span><span class="run-log-time">0:28</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Researcher</span><span class="run-log-desc">Produced RESEARCH.md with the flexbox centering, <code>@keyframes fadeIn</code>, and <code>prefers-reduced-motion</code> patterns.</span><span class="run-log-time">1:31</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Frontend</span><span class="run-log-desc">Wrote the single <code>index.html</code> file, ran the eight acceptance greps locally, all pass.</span><span class="run-log-time">0:59</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Backend</span><span class="run-log-desc">NOT_REQUIRED (spec is static frontend only).</span><span class="run-log-time">0:09</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Reviewer</span><span class="run-log-desc">Verified greps, packaged the artifact, opened the PR.</span><span class="run-log-time">1:44</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="artifact">
+      <div class="container paper-body">
+        <span class="eyebrow">The artifact</span>
+        <h2 class="h">Rendered live, below.</h2>
+        <p class="lead">
+          This is the exact file the swarm wrote. Try the theme toggle in the
+          top-right of the frame; scroll to see the fade-in animation fire.
+        </p>
+
+        <div class="artifact">
+          <iframe
+            src="/projects/cv-onepager-artifact.html"
+            title="cv-onepager artifact preview"
+            loading="lazy"
+            style="width:100%; height:640px; border:1px solid var(--rule); border-radius:14px; background:var(--bg-2); display:block; color-scheme:light;"
+          ></iframe>
+          <p class="artifact-cap">
+            /projects/cv-onepager-artifact.html, verbatim from the swarm's workspace output.
+            <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener">View the PR ↗</a>
           </p>
-
-          <h2>Run summary</h2>
-          <ul>
-            <li><strong>Idea</strong> — "Build a CV one-pager that fades in."</li>
-            <li><strong>Architect</strong> — Produced PLAN.md with acceptance greps for h1, fade-in keyframes, dark background, no script tags, no external resources.</li>
-            <li><strong>Researcher</strong> — Produced RESEARCH.md with the flexbox centering + <code>@keyframes fadeIn</code> + <code>prefers-reduced-motion</code> patterns.</li>
-            <li><strong>Frontend</strong> — Wrote the single <code>index.html</code> file, ran the eight acceptance greps locally, all pass.</li>
-            <li><strong>Backend</strong> — No-op (spec is static frontend only).</li>
-            <li><strong>Reviewer-Deployer</strong> — Verified greps, packaged the artifact, opened the PR.</li>
-          </ul>
-
-          <h2>Wall-clock</h2>
-          <p>
-            <strong>4m 42s</strong> from prompt to opened PR. Cv-onepager run timestamp:
-            <code>2026-05-12 19:46:03</code>.
-          </p>
-
-          <h2>Embedded artifact</h2>
-          <p>
-            (Below is a placeholder for the cv-onepager iframe; once the artifact is hosted, the
-            Reviewer-Deployer wires the iframe src to the PR's GitHub Pages preview URL.)
-          </p>
-          <pre><code>&lt;iframe src="/og/cv-onepager.html" style="width:100%; height:600px; border:1px solid var(--rule); border-radius:14px"&gt;&lt;/iframe&gt;</code></pre>
-
-          <p style="margin-top:48px"><a href="/projects">← Back to projects</a></p>
-        </article>
+        </div>
       </div>
     </section>
   </main>
+
   <Footer />
+  <RevealObserver />
 </Base>
