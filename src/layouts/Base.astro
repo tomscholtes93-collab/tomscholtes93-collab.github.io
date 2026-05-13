@@ -53,26 +53,34 @@ const ogImage = 'https://tomscholtes.com/og/default.png';
 
     <script is:inline>
       (function () {
-        try {
-          var prefs = JSON.parse(localStorage.getItem('ts-display-prefs') || '{}');
-          var theme = prefs.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-          document.documentElement.setAttribute('data-theme', theme);
-          var density = prefs.density || localStorage.getItem('density');
-          if (density) document.documentElement.setAttribute('data-density', density);
-          var ACC = {
-            terracotta: { a: '#C4623A', i: '#8A3F1E' },
-            ink:        { a: '#1B2B4B', i: '#0E1A2E' },
-            forest:     { a: '#2F6B4F', i: '#1E4A35' },
-            amber:      { a: '#C8902A', i: '#8A6217' },
-            violet:     { a: '#6A4BA8', i: '#48327A' },
-          };
-          var accent = prefs.accent || 'terracotta';
-          var a = ACC[accent] || ACC.terracotta;
-          document.documentElement.style.setProperty('--accent', a.a);
-          document.documentElement.style.setProperty('--accent-ink', a.i);
-        } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'light');
+        var ACC = {
+          terracotta: { a: '#C4623A', i: '#8A3F1E' },
+          ink:        { a: '#1B2B4B', i: '#0E1A2E' },
+          forest:     { a: '#2F6B4F', i: '#1E4A35' },
+          amber:      { a: '#C8902A', i: '#8A6217' },
+          violet:     { a: '#6A4BA8', i: '#48327A' },
+        };
+        function applyDisplayPrefs() {
+          try {
+            var prefs = JSON.parse(localStorage.getItem('ts-display-prefs') || '{}');
+            var theme = prefs.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            var density = prefs.density || localStorage.getItem('density');
+            if (density) document.documentElement.setAttribute('data-density', density);
+            else document.documentElement.removeAttribute('data-density');
+            var accent = prefs.accent || 'terracotta';
+            var a = ACC[accent] || ACC.terracotta;
+            document.documentElement.style.setProperty('--accent', a.a);
+            document.documentElement.style.setProperty('--accent-ink', a.i);
+          } catch (e) {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
         }
+        applyDisplayPrefs();
+        // View Transitions only run inline head scripts on first load. Re-apply
+        // after each same-site navigation so theme + accent + density survive
+        // /projects/, /thesis/, etc.
+        document.addEventListener('astro:after-swap', applyDisplayPrefs);
       })();
     </script>
 

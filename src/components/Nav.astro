@@ -4,25 +4,24 @@ import Arr from './Arr.astro';
 interface Props {
   active?: string;
 }
-const { active = 'home' } = Astro.props;
-const base = active === 'home' ? '' : '/';
+const { active: _active = 'home' } = Astro.props;
 ---
 <header class="nav" id="site-nav" data-open="false" transition:persist transition:name="site-nav">
   <div class="container nav-inner">
-    <a href={active === 'home' ? '#' : '/'} class="brand">
+    <a href="/" class="brand">
       <span class="brand-mark">T</span>
       <span>Tom Scholtes</span>
     </a>
     <nav class="nav-links">
-      <a href={base + '#now'}>Now</a>
-      <a href={base + '#work'}>Work</a>
-      <a href="/projects">Projects</a>
-      <a href={base + '#cv'}>CV</a>
-      <a href="/thesis">Thesis</a>
-      <a href={base + '#reading'}>Reading</a>
-      <a href={base + '#contact'}>Contact</a>
+      <a href="/#now">Now</a>
+      <a href="/#work">Work</a>
+      <a href="/projects/">Projects</a>
+      <a href="/#cv">CV</a>
+      <a href="/thesis/">Thesis</a>
+      <a href="/#reading">Reading</a>
+      <a href="/#contact">Contact</a>
     </nav>
-    <a href={base + '#contact'} class="nav-cta">Say hi <Arr /></a>
+    <a href="/#contact" class="nav-cta">Say hi <Arr /></a>
     <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false">
       <span class="bar"></span>
       <span class="bar"></span>
