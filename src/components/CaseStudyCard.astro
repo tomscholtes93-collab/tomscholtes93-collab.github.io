@@ -1,0 +1,28 @@
+---
+interface Props {
+  n: string;
+  title: string;
+  metric: string;
+  label: string;
+  blurb: string;
+  tags: string[];
+  href?: string;
+}
+const { n, title, metric, label, blurb, tags, href } = Astro.props;
+const Tag = href ? 'a' : 'article';
+const extra = href ? { href, class: 'case case-link' } : { class: 'case' };
+---
+<Tag {...extra}>
+  <div class="case-head">
+    <span class="svc-num">Case {n}</span>
+    <div class="case-metric">
+      <div class="case-metric-num">{metric}</div>
+      <div class="case-metric-lbl">{label}</div>
+    </div>
+  </div>
+  <h3>{title}{href && <span class="case-arr">→</span>}</h3>
+  <p>{blurb}</p>
+  <div class="tags">
+    {tags.map((t) => <span class="tag">{t}</span>)}
+  </div>
+</Tag>
