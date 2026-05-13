@@ -14,15 +14,25 @@ const PUBLIC_THEMES = [
   { v: 'ink',   label: 'Ink' },
 ];
 
+const PUBLIC_DENSITIES = [
+  { v: 'compact', label: 'Compact' },
+  { v: 'default', label: 'Default' },
+  { v: 'airy',    label: 'Airy' },
+];
+
 const STORAGE_KEY = 'ts-display-prefs';
 
 function loadPrefs() {
-  if (typeof window === 'undefined') return { theme: 'light', accent: 'terracotta' };
+  if (typeof window === 'undefined') return { theme: 'light', accent: 'terracotta', density: 'default' };
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    return { theme: saved.theme || 'light', accent: saved.accent || 'terracotta' };
+    return {
+      theme: saved.theme || 'light',
+      accent: saved.accent || 'terracotta',
+      density: saved.density || 'default',
+    };
   } catch (e) {
-    return { theme: 'light', accent: 'terracotta' };
+    return { theme: 'light', accent: 'terracotta', density: 'default' };
   }
 }
 
@@ -34,6 +44,8 @@ function applyPrefs(p) {
   if (typeof document === 'undefined') return;
   const root = document.documentElement;
   root.setAttribute('data-theme', p.theme);
+  if (p.density && p.density !== 'default') root.setAttribute('data-density', p.density);
+  else root.removeAttribute('data-density');
   const a = PUBLIC_ACCENTS[p.accent] || PUBLIC_ACCENTS.terracotta;
   root.style.setProperty('--accent', a.accent);
   root.style.setProperty('--accent-ink', a.accentInk);
@@ -41,7 +53,7 @@ function applyPrefs(p) {
 
 export default function DisplayPanel() {
   const [open, setOpen] = useState(false);
-  const [prefs, setPrefs] = useState({ theme: 'light', accent: 'terracotta' });
+  const [prefs, setPrefs] = useState({ theme: 'light', accent: 'terracotta', density: 'default' });
   const [pos, setPos] = useState({ x: null, y: null });
   const dragRef = useRef(null);
   const drag = useRef({ active: false, dx: 0, dy: 0 });
@@ -226,11 +238,35 @@ export default function DisplayPanel() {
             </div>
           </div>
 
+          <div>
+            <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8 }}>
+              Density
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, padding: 3, background: 'var(--bg-2)', borderRadius: 10, border: '1px solid var(--rule)' }}>
+              {PUBLIC_DENSITIES.map((d) => (
+                <button
+                  key={d.v}
+                  type="button"
+                  onClick={() => setPrefs((p) => ({ ...p, density: d.v }))}
+                  style={{
+                    padding: '8px 10px', fontSize: 12.5, fontWeight: 500,
+                    border: 'none', borderRadius: 7, cursor: 'pointer',
+                    background: prefs.density === d.v ? 'var(--ink)' : 'transparent',
+                    color: prefs.density === d.v ? 'var(--bg)' : 'var(--ink-2)',
+                    transition: 'all .15s ease', fontFamily: 'inherit',
+                  }}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div style={{ paddingTop: 12, borderTop: '1px solid var(--rule)', fontSize: 11, color: 'var(--muted)', fontFamily: "'JetBrains Mono', monospace", display: 'flex', justifyContent: 'space-between' }}>
             <span>press <kbd style={{ background: 'var(--bg-2)', padding: '1px 5px', borderRadius: 3, border: '1px solid var(--rule)' }}>D</kbd></span>
             <button
               type="button"
-              onClick={() => setPrefs({ theme: 'light', accent: 'terracotta' })}
+              onClick={() => setPrefs({ theme: 'light', accent: 'terracotta', density: 'default' })}
               style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11, textDecoration: 'underline' }}
             >
               reset
