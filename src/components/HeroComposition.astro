@@ -11,16 +11,28 @@ import HeroCardDevSwarm from './HeroCardDevSwarm.astro';
   </div>
 </div>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
   (function () {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var cards = document.querySelectorAll('[data-hero-card]');
-    if (cards.length < 2) return;
-    var i = 0;
-    setInterval(function () {
-      cards[i].classList.remove('hero-card--active');
-      i = (i + 1) % cards.length;
-      cards[i].classList.add('hero-card--active');
-    }, 6000);
+    var rotatorId = null;
+    function start() {
+      if (rotatorId) { clearInterval(rotatorId); rotatorId = null; }
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var cards = document.querySelectorAll('[data-hero-card]');
+      if (cards.length < 2) return;
+      var i = 0;
+      cards.forEach(function (c, idx) {
+        c.classList.toggle('hero-card--active', idx === 0);
+      });
+      rotatorId = setInterval(function () {
+        cards[i].classList.remove('hero-card--active');
+        i = (i + 1) % cards.length;
+        cards[i].classList.add('hero-card--active');
+      }, 6000);
+    }
+    start();
+    document.addEventListener('astro:page-load', start);
+    document.addEventListener('astro:before-swap', function () {
+      if (rotatorId) { clearInterval(rotatorId); rotatorId = null; }
+    });
   })();
 </script>

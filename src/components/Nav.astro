@@ -7,7 +7,7 @@ interface Props {
 const { active = 'home' } = Astro.props;
 const base = active === 'home' ? '' : '/';
 ---
-<header class="nav" id="site-nav" data-open="false">
+<header class="nav" id="site-nav" data-open="false" transition:persist transition:name="site-nav">
   <div class="container nav-inner">
     <a href={active === 'home' ? '#' : '/'} class="brand">
       <span class="brand-mark">T</span>

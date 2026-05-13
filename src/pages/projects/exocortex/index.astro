@@ -3,56 +3,199 @@ import Base from '../../../layouts/Base.astro';
 import Nav from '../../../components/Nav.astro';
 import Footer from '../../../components/Footer.astro';
 import ArchitectureExocortex from '../../../components/ArchitectureExocortex.astro';
+import RevealObserver from '../../../components/RevealObserver.astro';
 ---
 <Base
-  title="Personal AI Exocortex — Tom Scholtes"
-  description="Wearable-first knowledge stack. G2 glasses + Pixel + Fedora server, fanned out to OpenKB, Meridian, Notion and Asana via MCP."
+  title="Personal AI Exocortex · Tom Scholtes"
+  description="A personal AI assistant on smart glasses: voice from the lenses, pipeline through self-hosted infrastructure on Fedora, routed through Claude Max so there's no per-token API billing. Multilingual."
   path="/projects/exocortex"
 >
   <Nav active="projects" />
+
   <main>
-    <section>
+    <header class="paper">
       <div class="container">
-        <article class="prose">
-          <div class="meta">Project · Personal AI Exocortex</div>
-          <h1>A knowledge stack you can wear.</h1>
-          <p style="font-size:20px; color:var(--ink)">
-            Even Realities G2 glasses talking to a Pixel running Tailscale, talking to a Fedora
-            server running patched Claude Code, fanning out to OpenKB, Meridian, Notion and Asana
-            via MCP. Daily-driver setup, all first-party.
-          </p>
+        <span class="eyebrow">Side project · ongoing · May 2026</span>
+        <h1 class="title">Voice on the lenses, <em>Claude</em> on the server.</h1>
+        <p class="sub">
+          A personal AI exocortex accessible through Even Realities G2 smart
+          glasses. Voice query on the lenses, full pipeline runs through
+          self-hosted infrastructure on a Fedora server, all routed through
+          Claude Max OAuth so there's no per-token API billing. Multilingual
+          from day one (English, German, Russian, French) with a personal
+          knowledge base ingesting in the background.
+        </p>
 
-          <h2>Stack</h2>
-          <ArchitectureExocortex />
+        <div class="actions">
+          <a href="/projects" class="btn btn-primary">All projects <span class="arr">→</span></a>
+          <a href="#stack" class="btn btn-ghost">Stack &amp; status</a>
+        </div>
 
-          <ul>
-            <li><strong>G2 glasses</strong> — Heads-up display, 16 shades of green on a tiny waveguide. Input via voice and a Bluetooth ring.</li>
-            <li><strong>Pixel 7</strong> — Carries the connection. Joined to my Tailscale tailnet so everything routes through encrypted private IPs.</li>
-            <li><strong>Fedora server</strong> — Home box. Runs Even Terminal on :3456 and a patched Claude Code that exposes the MCP fan-out.</li>
-            <li><strong>OpenKB</strong> — Local document knowledge base. 44 documents indexed (contracts, papers, reference docs). Queried via <code>mcp__openkb__*</code>.</li>
-            <li><strong>Meridian</strong> — Sonnet-4.6-based router for non-Opus queries from the glasses.</li>
-            <li><strong>Notion + Asana</strong> — Living knowledge (Notion: notes, journal) and task state (Asana). Both wired through MCP so I can append from the glasses by asking.</li>
-          </ul>
+        <div class="meta-row">
+          <span><strong>4</strong> working languages</span>
+          <span><strong>~1-3 s</strong> Sonnet round-trip from the lenses</span>
+          <span><strong>$0</strong> marginal API cost (Claude Max OAuth)</span>
+          <span><strong>1</strong> always-on service (Meridian)</span>
+          <span><strong>Day 5</strong> · base process complete</span>
+        </div>
+      </div>
+    </header>
 
-          <h2>Why this shape</h2>
-          <p>
-            The interesting constraint is latency, not capability. Every component is local-first
-            or Tailscale-private; no third-party CDN, no public endpoint, no IP exposed to ad networks.
-            The glasses are a thin client; the server is where the work happens; MCP is the
-            common typed interface between the model and the data.
-          </p>
+    <section class="reveal" id="premise">
+      <div class="container paper-body">
+        <span class="eyebrow">The premise</span>
+        <h2 class="h">Conversation as the primary input.</h2>
+        <p class="lead">
+          Sitting down at a laptop, opening a terminal, typing a question; that
+          whole loop is too heavy for most of what I want to ask an AI throughout
+          a day. The glasses remove the loop. Voice goes in through the bone
+          conduction mic, a few seconds later the answer lives on the lenses. No
+          device taken out of a pocket, no app opened, no context switch.
+        </p>
+        <p>
+          The goal isn't to replace the laptop for real work; it's to make the
+          ten-second questions actually take ten seconds, instead of a minute of
+          friction that means they never get asked.
+        </p>
+      </div>
+    </section>
 
-          <h2>What it does not do</h2>
-          <ul>
-            <li>It is not an autonomous assistant. It answers what I ask, when I ask.</li>
-            <li>It does not have persistent memory across sessions beyond the local file-based memory in Claude Code's <code>memory/</code> directory.</li>
-            <li>It is not commercially packaged. This is my workbench; nothing here is a product on offer.</li>
-          </ul>
+    <section class="reveal" id="architecture">
+      <div class="container paper-body">
+        <span class="eyebrow">Architecture</span>
+        <h2 class="h">Self-hosted, end-to-end.</h2>
+        <p class="lead">
+          Voice and display happen on the glasses. Everything else runs on a
+          Fedora server at home. The glasses reach the server over Tailscale, so
+          latency is ~6 ms even when I'm not at the desk.
+        </p>
 
-          <p style="margin-top:48px"><a href="/projects">← Back to projects</a></p>
-        </article>
+        <ArchitectureExocortex />
+
+        <div class="arch" style="margin-top:28px">
+<pre>G2 glasses                   (voice in, lens display out)
+    ↓ Bluetooth
+Pixel 7 phone                (Even Realities companion app)
+    ↓ Tailscale (LAN, ~6 ms)
+Fedora 43 server
+    ↳ Even Terminal :3456     (the glasses bridge to Claude)
+        ↳ Claude Code         (patched: Sonnet default, MCPs allowlisted)
+            ↳ CLAUDE.md       (one source of truth for tool routing)
+            ↳ openkb MCP      (personal knowledge base, stdio FastMCP)
+                ↳ openkb CLI
+                    ↳ LiteLLM → Meridian :4000 → Claude Max OAuth
+                        ↳ Sonnet 4.6
+            ↳ Notion / Asana / Calendar / Gmail MCPs
+            ↳ opus-thinker     (subagent, on the literal word "opus")</pre>
+        </div>
+        <p style="margin-top:24px">
+          One systemd unit (Meridian) is always on; everything else launches on
+          demand. MCP servers are stdio subprocesses Claude Code spawns when a
+          tool is called; there's no daemon, no port, no container.
+        </p>
+      </div>
+    </section>
+
+    <section class="reveal" id="what-works">
+      <div class="container paper-body">
+        <span class="eyebrow">What works end-to-end</span>
+        <h2 class="h">Verified, on the lenses.</h2>
+        <p class="lead">
+          Status as of day five: each of these paths runs cleanly from a voice
+          prompt to a lens display. The tag in brackets is the model + tool-use
+          signal each response carries so I always know which path handled the
+          query.
+        </p>
+        <div class="feats">
+          <div class="feat">
+            <div class="feat-name">Direct knowledge query</div>
+            <div class="feat-tag">[sonnet] · ~1-3 s</div>
+            <div class="feat-desc">Voice in, Sonnet 4.6 answers from training, lenses show the result. The default path for most questions.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Personal KB retrieval</div>
+            <div class="feat-tag">[sonnet + 1 tool call] · ~5-10 s</div>
+            <div class="feat-desc">Explicit invocation reads from the local openkb wiki: contracts, custody docs, research, anything ingested.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Notion writes by voice</div>
+            <div class="feat-tag">[sonnet + 1 tool call]</div>
+            <div class="feat-desc">"Save this to Notion under X" creates a page in the right teamspace. Routing rules live in CLAUDE.md.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Deep reasoning on demand</div>
+            <div class="feat-tag">[opus subagent] · ~30-60 s</div>
+            <div class="feat-desc">The literal word "opus" in a prompt escalates to a claude-opus-4-7 subagent. Slow on purpose, used for hard questions.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Self-healing services</div>
+            <div class="feat-tag">systemd</div>
+            <div class="feat-desc">Both Meridian and Even Terminal auto-restart. Logs flow into journalctl. Lid close while plugged in keeps the box running.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Six-of-six health check</div>
+            <div class="feat-tag">one command</div>
+            <div class="feat-desc">A single script verifies all six moving parts: Even Terminal listening, Meridian responding, openkb reachable, MCP registered, claude CLI authed, Tailscale up.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="lessons">
+      <div class="container paper-body">
+        <span class="eyebrow">Hard-won lessons</span>
+        <h2 class="h">The things that cost me an evening.</h2>
+        <div class="lessons">
+          <div class="lesson">
+            <span class="lesson-kind">Auth caching</span>
+            <span class="lesson-text"><strong>Stale-token 401 loop.</strong> Editing the auth token in the companion app isn't enough; the app caches sessions. You have to force-stop the app, reopen, re-paste the token, probe and save. Without the force-stop, hundreds of 401s pile up in the bridge log and lens queries hang forever.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">systemd type</span>
+            <span class="lesson-text"><strong>Type=forking + tmux survives restart.</strong> The bridge unit's tmux session preserves auth across <code>systemctl restart</code>; you can patch and restart without re-pairing the phone. Type=simple does the opposite. Learned the hard way after re-pairing four times.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">API key hygiene</span>
+            <span class="lesson-text"><strong>Unset <code>ANTHROPIC_API_KEY</code> everywhere.</strong> If it's set in any shell, LiteLLM bypasses the Meridian proxy and silently bills the real API. The whole point of routing through Claude Max OAuth is to keep marginal cost at zero; one stray env var burns that.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">Model choice</span>
+            <span class="lesson-text"><strong>openkb compiles on Sonnet, not Haiku.</strong> Original architecture doc said Haiku for the wiki-compile step. In practice Sonnet 4.6 produces stronger concept linking and denser cross-doc graphs, and the speed difference doesn't matter for a background job.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">Opt-in escalation</span>
+            <span class="lesson-text"><strong>Opus is opt-in only.</strong> Default to Sonnet for speed, escalate to claude-opus-4-7 only when the prompt literally contains "opus" or "use opus". Every response carries a tag (<code>[sonnet]</code>, <code>[sonnet + N tool calls]</code>, <code>[opus subagent]</code>) so you always know which path answered.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="stack">
+      <div class="container paper-body">
+        <span class="eyebrow">Stack &amp; status</span>
+        <h2 class="h">Honest about what's in the box.</h2>
+        <dl class="stack">
+          <dt>Hardware</dt>
+          <dd>Even Realities G2 smart glasses · Pixel 7 phone · home Fedora 43 server · smart ring as secondary biometric capture. Tailscale mesh between all of them.</dd>
+          <dt>Models</dt>
+          <dd>Claude Sonnet 4.6 by default (<code>claude-sonnet-4-6</code>), Claude Opus 4.7 (<code>claude-opus-4-7</code>) on opt-in. Both routed through Meridian, which talks to Claude Max via OAuth.</dd>
+          <dt>Bridge</dt>
+          <dd>Even Terminal (vendored, patched in-place) on <code>:3456</code>. Patch is idempotent and survives npm upgrades.</dd>
+          <dt>Knowledge</dt>
+          <dd>openkb, a self-hosted personal KB with a FastMCP stdio interface. Compiles a queryable wiki from PDFs, contracts, research notes, journals. Sonnet 4.6 does the compile.</dd>
+          <dt>Tool routing</dt>
+          <dd>One <code>CLAUDE.md</code> auto-loaded into every session via <code>--setting-sources=user,project</code>. Explicit rules: openkb only on explicit invocation, Notion for "my notes", web search for current events, internal for everything else.</dd>
+          <dt>Always-on</dt>
+          <dd>One systemd unit (<code>meridian.service</code>, Type=simple). Everything else launches on demand.</dd>
+          <dt>Languages</dt>
+          <dd>English, German, Russian, French, used live; legal and tax corpus ingesting overnight in each.</dd>
+          <dt>What's next</dt>
+          <dd>POV video capture from the lenses into a passive memory loop; a calendar-aware morning briefing pipeline; a personal-life agent swarm in the spirit of DevSwarm but for non-dev work.</dd>
+        </dl>
       </div>
     </section>
   </main>
+
   <Footer />
+  <RevealObserver />
 </Base>
