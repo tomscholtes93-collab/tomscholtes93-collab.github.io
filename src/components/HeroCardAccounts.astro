@@ -1,0 +1,20 @@
+---
+import FlowRow from './FlowRow.astro';
+---
+<div class="hero-card" aria-hidden="true">
+  <div class="head">
+    <span class="dots"><i /><i /><i /></span>
+    <span>~/skills · annual-accounts</span>
+  </div>
+  <div class="flow">
+    <FlowRow state="done"   label="Read trial balance · Excel"         tag="0:08" />
+    <FlowRow state="done"   label="Identify entity type · holding/SPV" tag="0:02" />
+    <FlowRow state="done"   label="Pull prior-year notes pattern"      tag="0:14" />
+    <FlowRow state="live"   label="Generate disclosure notes · Word"   tag="drafting" pulse={true} />
+    <FlowRow state="queued" label="Cross-check vs. recon file"         tag="queued" />
+  </div>
+  <div class="foot">
+    <span>3h → 30m per entity set</span>
+    <strong>↓ 83%</strong>
+  </div>
+</div>

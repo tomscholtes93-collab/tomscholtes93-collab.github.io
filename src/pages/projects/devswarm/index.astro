@@ -1,0 +1,67 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import ArchitectureDevSwarm from '../../../components/ArchitectureDevSwarm.astro';
+---
+<Base
+  title="DevSwarm v1 — Tom Scholtes"
+  description="Five-persona Claude Code orchestrator. Architect, Researcher, Frontend, Backend, Reviewer-Deployer. Idea to PR in one CLI command."
+  path="/projects/devswarm"
+>
+  <Nav active="projects" />
+  <main>
+    <section>
+      <div class="container">
+        <article class="prose">
+          <div class="meta">Project · DevSwarm v1</div>
+          <h1>Five personas, one PR.</h1>
+          <p style="font-size:20px; color:var(--ink)">
+            A local Claude Code orchestrator that turns an idea into a working pull request.
+            Architect plans, Researcher gathers references, Frontend and Backend implement in
+            parallel, Reviewer-Deployer ships.
+          </p>
+
+          <h2>Architecture</h2>
+          <p>
+            Each persona is a Claude Code agent with a scoped CLAUDE.md, a fixed toolset, and a
+            workspace directory it owns. The Architect produces <code>PLAN.md</code>. The
+            Researcher produces <code>RESEARCH.md</code>. Frontend and Backend run in parallel
+            against the plan. Reviewer-Deployer audits the result, opens a real GitHub PR, and
+            posts the artifact link. The whole thing runs fire-and-forget; you can read the
+            <code>swarm.log</code> while it works.
+          </p>
+
+          <ArchitectureDevSwarm />
+
+          <h2>What it actually does</h2>
+          <ul>
+            <li><strong>Architect</strong> — Reads the idea, drafts PLAN.md with stack, file layout, API contracts, acceptance criteria, and a per-persona task list.</li>
+            <li><strong>Researcher</strong> — Drafts RESEARCH.md with library choices, reference patterns, gotchas, and a security section sized to the project.</li>
+            <li><strong>Frontend</strong> — Implements anything in <code>frontend/</code>. Reads PLAN + RESEARCH; ports content; runs the project's build.</li>
+            <li><strong>Backend</strong> — Implements anything in <code>backend/</code>. Same contract; tests included.</li>
+            <li><strong>Reviewer-Deployer</strong> — Greps for honesty failures, runs every acceptance command, opens a PR with a generated description, links the artifact.</li>
+          </ul>
+
+          <h2>Numbers</h2>
+          <p>
+            Smoke-test run on 2026-05-12: idea → PR in <strong>4m 42s</strong> wall-clock,
+            including the cv-onepager build artifact. PR
+            <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1">tomscholtes93-collab/devswarm-smoke-20260512#1</a>.
+            V3 of this site (the page you are reading) is itself the second swarm run.
+          </p>
+
+          <h2>What it does not do</h2>
+          <ul>
+            <li>It is not an autonomous agent. Each persona is a one-shot Claude Code invocation in a sandboxed workspace.</li>
+            <li>It does not browse the web at runtime; the Researcher's references are sourced from training knowledge plus any documentation MCP wired up explicitly.</li>
+            <li>It does not modify your main branch. Reviewer-Deployer opens a PR; merging is a human action.</li>
+          </ul>
+
+          <p style="margin-top:48px"><a href="/projects">← Back to projects</a></p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>

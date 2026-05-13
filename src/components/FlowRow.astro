@@ -1,0 +1,18 @@
+---
+interface Props {
+  state: 'done' | 'live' | 'queued';
+  label: string;
+  tag: string;
+  pulse?: boolean;
+}
+const { state, label, tag, pulse = false } = Astro.props;
+---
+<div class={`flow-row ${state}`}>
+  <div class="flow-tick">
+    {state === 'done' && (
+      <svg viewBox="0 0 12 12" fill="none"><path d="M2 6.5L5 9.5L10 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    )}
+  </div>
+  <span>{label}</span>
+  <span class="flow-tag">{pulse && <span class="pulse" style="margin-right:6px" />}{tag}</span>
+</div>

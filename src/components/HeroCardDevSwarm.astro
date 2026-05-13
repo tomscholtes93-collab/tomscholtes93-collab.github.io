@@ -1,0 +1,20 @@
+---
+import FlowRow from './FlowRow.astro';
+---
+<div class="hero-card" aria-hidden="true">
+  <div class="head">
+    <span class="dots"><i /><i /><i /></span>
+    <span>~/devswarm · idea-to-PR</span>
+  </div>
+  <div class="flow">
+    <FlowRow state="done" label="Architect · scope + PLAN.md"        tag="0:42" />
+    <FlowRow state="done" label="Researcher · RESEARCH.md"           tag="1:08" />
+    <FlowRow state="done" label="Frontend · build the UI"            tag="1:31" />
+    <FlowRow state="done" label="Backend · API + tests"              tag="0:51" />
+    <FlowRow state="live" label="Reviewer-Deployer · merge to main"  tag="opening PR" pulse={true} />
+  </div>
+  <div class="foot">
+    <span>Total 4m 42s → cv-onepager #1</span>
+    <strong>idea → PR</strong>
+  </div>
+</div>

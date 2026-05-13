@@ -1,0 +1,26 @@
+---
+import HeroCardAccounts from './HeroCardAccounts.astro';
+import HeroCardDevSwarm from './HeroCardDevSwarm.astro';
+---
+<div class="hero-composition" id="hero-composition">
+  <div class="hero-card-wrap hero-card--active" data-hero-card>
+    <HeroCardDevSwarm />
+  </div>
+  <div class="hero-card-wrap" data-hero-card>
+    <HeroCardAccounts />
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var cards = document.querySelectorAll('[data-hero-card]');
+    if (cards.length < 2) return;
+    var i = 0;
+    setInterval(function () {
+      cards[i].classList.remove('hero-card--active');
+      i = (i + 1) % cards.length;
+      cards[i].classList.add('hero-card--active');
+    }, 6000);
+  })();
+</script>

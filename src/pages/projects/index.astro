@@ -1,0 +1,58 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+---
+<Base
+  title="Projects — Tom Scholtes"
+  description="DevSwarm v1 — five-persona Claude Code orchestrator. Personal AI Exocortex — wearable-first knowledge stack."
+  path="/projects"
+>
+  <Nav active="projects" />
+  <main>
+    <section>
+      <div class="container">
+        <div class="sec-head">
+          <span class="eyebrow">Projects</span>
+          <div>
+            <h2>Two open builds.</h2>
+            <p class="blurb" style="margin-top:18px">
+              Things I've built outside the day job. Both are working, both are documented,
+              both are honest about what they do and don't yet do.
+            </p>
+          </div>
+        </div>
+
+        <div class="proj-list">
+          <a class="proj-card" href="/projects/devswarm">
+            <span class="eyebrow">01 · DevSwarm v1</span>
+            <h3>Five-persona Claude Code orchestrator</h3>
+            <p>
+              Architect → Researcher + Frontend + Backend (parallel) → Reviewer-Deployer.
+              From an idea to a working pull request in one CLI command.
+            </p>
+            <span class="proj-metric">4m 42s — idea to PR · <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" style="color:inherit; border-bottom:1px solid var(--accent)">PR #1</a></span>
+          </a>
+          <a class="proj-card" href="/projects/exocortex">
+            <span class="eyebrow">02 · Personal AI Exocortex</span>
+            <h3>Wearable-first knowledge stack</h3>
+            <p>
+              G2 glasses + Pixel + Fedora server + Tailscale + patched Claude Code, fanning out
+              to OpenKB (44 docs indexed), Meridian, Notion and Asana through MCP.
+            </p>
+            <span class="proj-metric">Daily driver · documented stack</span>
+          </a>
+        </div>
+
+        <div style="margin-top:48px">
+          <a class="proj-card" href="/projects/devswarm-cv" style="min-height:auto">
+            <span class="eyebrow">Demo · DevSwarm</span>
+            <h3>cv-onepager — built by the swarm, live</h3>
+            <p>Single-file CV one-pager produced end-to-end by the five-persona pipeline in 4m 42s. The swarm built this.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>

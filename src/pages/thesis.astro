@@ -1,0 +1,69 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base
+  title="MSc thesis — Tom Scholtes"
+  description="Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries. MSc Economics & Business, Erasmus University Rotterdam, 2020."
+  path="/thesis"
+>
+  <Nav active="thesis" />
+  <main>
+    <section>
+      <div class="container">
+        <article class="prose">
+          <div class="meta">MSc thesis · Erasmus University Rotterdam · 2020</div>
+          <h1>Augmented gravity model</h1>
+          <p style="font-size:20px; color:var(--ink)">
+            Institutions, infrastructure and globalization impact on bilateral exports
+            among OECD countries.
+          </p>
+
+          <h2>Abstract</h2>
+          <p>
+            The classical gravity model of international trade explains bilateral export
+            volumes as a function of economic mass and geographic distance. This thesis
+            augments the canonical specification with measures of institutional quality
+            (rule of law, regulatory quality), infrastructure capacity (logistics
+            performance, ICT readiness), and globalization intensity (KOF index) across
+            OECD bilateral pairs.
+          </p>
+          <p>
+            Panel-data regressions over 2000–2018 confirm the robustness of the gravity
+            core while showing significant marginal explanatory power for the augmented
+            variables — particularly institutional quality on the exporter side and
+            infrastructure on the importer side.
+          </p>
+
+          <h2>Method</h2>
+          <p>
+            PPML (Poisson Pseudo Maximum Likelihood) estimation, country-pair fixed
+            effects, year fixed effects, multilateral resistance terms via remoteness
+            indices. Heteroskedasticity-robust standard errors clustered at the
+            country-pair level.
+          </p>
+
+          <h2>Findings</h2>
+          <ul>
+            <li>A one-standard-deviation increase in exporter rule-of-law correlates with a 4–7% increase in bilateral exports, holding gravity terms constant.</li>
+            <li>Importer logistics performance has roughly twice the marginal effect of importer GDP per capita on bilateral imports.</li>
+            <li>KOF globalization is significant in the cross-section but absorbed by country-pair fixed effects in the panel.</li>
+          </ul>
+
+          <h2>Limitations</h2>
+          <p>
+            OECD-only sample biases results toward high-income trade patterns; institutional
+            and infrastructure variables are highly collinear with GDP per capita; the
+            sample period predates the COVID-19 trade dislocation.
+          </p>
+
+          <p style="margin-top:48px">
+            <a href="/">← Back to home</a>
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>

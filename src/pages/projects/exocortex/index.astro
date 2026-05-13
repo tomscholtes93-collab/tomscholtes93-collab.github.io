@@ -1,0 +1,58 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import ArchitectureExocortex from '../../../components/ArchitectureExocortex.astro';
+---
+<Base
+  title="Personal AI Exocortex — Tom Scholtes"
+  description="Wearable-first knowledge stack. G2 glasses + Pixel + Fedora server, fanned out to OpenKB, Meridian, Notion and Asana via MCP."
+  path="/projects/exocortex"
+>
+  <Nav active="projects" />
+  <main>
+    <section>
+      <div class="container">
+        <article class="prose">
+          <div class="meta">Project · Personal AI Exocortex</div>
+          <h1>A knowledge stack you can wear.</h1>
+          <p style="font-size:20px; color:var(--ink)">
+            Even Realities G2 glasses talking to a Pixel running Tailscale, talking to a Fedora
+            server running patched Claude Code, fanning out to OpenKB, Meridian, Notion and Asana
+            via MCP. Daily-driver setup, all first-party.
+          </p>
+
+          <h2>Stack</h2>
+          <ArchitectureExocortex />
+
+          <ul>
+            <li><strong>G2 glasses</strong> — Heads-up display, 16 shades of green on a tiny waveguide. Input via voice and a Bluetooth ring.</li>
+            <li><strong>Pixel 7</strong> — Carries the connection. Joined to my Tailscale tailnet so everything routes through encrypted private IPs.</li>
+            <li><strong>Fedora server</strong> — Home box. Runs Even Terminal on :3456 and a patched Claude Code that exposes the MCP fan-out.</li>
+            <li><strong>OpenKB</strong> — Local document knowledge base. 44 documents indexed (contracts, papers, reference docs). Queried via <code>mcp__openkb__*</code>.</li>
+            <li><strong>Meridian</strong> — Sonnet-4.6-based router for non-Opus queries from the glasses.</li>
+            <li><strong>Notion + Asana</strong> — Living knowledge (Notion: notes, journal) and task state (Asana). Both wired through MCP so I can append from the glasses by asking.</li>
+          </ul>
+
+          <h2>Why this shape</h2>
+          <p>
+            The interesting constraint is latency, not capability. Every component is local-first
+            or Tailscale-private; no third-party CDN, no public endpoint, no IP exposed to ad networks.
+            The glasses are a thin client; the server is where the work happens; MCP is the
+            common typed interface between the model and the data.
+          </p>
+
+          <h2>What it does not do</h2>
+          <ul>
+            <li>It is not an autonomous assistant. It answers what I ask, when I ask.</li>
+            <li>It does not have persistent memory across sessions beyond the local file-based memory in Claude Code's <code>memory/</code> directory.</li>
+            <li>It is not commercially packaged. This is my workbench; nothing here is a product on offer.</li>
+          </ul>
+
+          <p style="margin-top:48px"><a href="/projects">← Back to projects</a></p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>
