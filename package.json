@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/copy-fonts.mjs && node scripts/make-og.mjs && astro build && node scripts/post-build.mjs",
+    "build": "node scripts/check-notes.mjs && node scripts/copy-fonts.mjs && node scripts/make-og.mjs && astro build && node scripts/post-build.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "copy:fonts": "node scripts/copy-fonts.mjs"
