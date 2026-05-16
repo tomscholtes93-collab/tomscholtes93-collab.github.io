@@ -382,6 +382,19 @@ footer { padding: 48px 0 56px; color: var(--muted); border-top: 1px solid var(--
 .prose h2 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(26px, 3vw, 36px); color: var(--ink); margin: 48px 0 16px; letter-spacing: -.01em; }
 .prose h3 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 18px; color: var(--ink); margin: 32px 0 12px; }
 .prose p { margin: 0 0 14px; }
+/* Unified content column for thesis + project sub-pages: paragraphs now fill
+   the paper-body container so they visually align with sibling .arch diagrams,
+   <pre> code blocks, .personas/.feats grids, etc. The prior `.paper-body p
+   { max-width: 64ch }` rule produced a paragraph noticeably narrower than its
+   neighbours; this normalises the right edge across all elements in the column.
+*/
+.container.paper-body {
+  max-width: 920px;
+}
+.container.paper-body p {
+  max-width: none;
+}
+
 @media (min-width: 600px) {
   /* Site-wide body justification.
      Applied to every selector that holds running prose, across main, thesis,
