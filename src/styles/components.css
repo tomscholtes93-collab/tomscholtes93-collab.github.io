@@ -383,11 +383,26 @@ footer { padding: 48px 0 56px; color: var(--muted); border-top: 1px solid var(--
 .prose h3 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 18px; color: var(--ink); margin: 32px 0 12px; }
 .prose p { margin: 0 0 14px; }
 @media (min-width: 600px) {
-  .prose p { text-align: justify; text-justify: inter-word; hyphens: auto; -webkit-hyphens: auto; }
+  /* Long-form body justification, applied across all prose surfaces. */
+  .prose p,
+  .paper-body p,
+  .colo-grid .body p {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+  /* Keep meta paragraphs (eyebrow / lead / summary / back / mono labels) left-aligned. */
   .prose p.eyebrow,
   .prose p.lead,
   .prose p.back,
-  .prose p.note-summary { text-align: left; hyphens: manual; }
+  .prose p.note-summary,
+  .paper-body p.eyebrow,
+  .paper-body p.lead,
+  .paper-body p.back {
+    text-align: left;
+    hyphens: manual;
+  }
 }
 .prose ul { margin: 0 0 16px; padding-left: 1.2em; }
 .prose li { margin: 6px 0; }
