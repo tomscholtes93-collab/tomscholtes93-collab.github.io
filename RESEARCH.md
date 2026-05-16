@@ -1,400 +1,334 @@
-# RESEARCH.md — tomscholtes-v3
+# RESEARCH.md — tomscholtes-v4
 
 ## Libraries
 
+V4 is **strictly additive** to V3 with **zero new runtime dependencies** (acceptance criterion 14). Everything in the table is either already in V3's `package.json` or a built-in Astro 5 feature. No npm install is needed.
+
 | Name | Version | Purpose | Link |
 |---|---|---|---|
-| Astro | ^5.0.0 | Static site generator, islands architecture, file-based routing, build-time endpoints | https://docs.astro.build/en/getting-started/ |
-| @astrojs/react | ^4.2.0 | React 18 integration for two `client:idle` islands | https://docs.astro.build/en/guides/integrations-guide/react/ |
-| React + ReactDOM | 18.3.1 | Runtime for `TweaksPanel` / `DisplayPanel` only | https://react.dev/reference/react |
-| satori | ^0.12.0 | JSX → SVG renderer for OG image (no headless browser) | https://github.com/vercel/satori |
-| @resvg/resvg-js | ^2.6.2 | SVG → PNG rasteriser (native bindings, fast) | https://github.com/yisibl/resvg-js |
-| sharp | ^0.33.0 | `astro:assets` image optimisation backend (Astro builtin) | https://sharp.pixelplumbing.com/ |
-| @fontsource/instrument-serif | latest | Upstream woff2 source for Instrument Serif | https://www.npmjs.com/package/@fontsource/instrument-serif |
-| @fontsource/inter | latest | Upstream woff2 source for Inter | https://fontsource.org/fonts/inter |
-| @fontsource/jetbrains-mono | latest | Upstream woff2 source for JetBrains Mono | https://fontsource.org/fonts/jetbrains-mono |
-| fonttools (`pyftsubset`) | ≥ 4.50 | One-time subsetting of woff2 to Latin/Latin-Ext/Cyrillic ranges | https://fonttools.readthedocs.io/en/latest/subset/index.html |
-| TypeScript | ^5.5 | Typed content modules (`caseStudies.ts`, `headlines.ts`) | https://www.typescriptlang.org/ |
-| pa11y-ci | ^3.1 | Automated WCAG AA contrast / a11y audit across all 3 themes | https://github.com/pa11y/pa11y-ci |
-| vite-bundle-visualizer | ^1.x | Verify initial JS gz < 15 KB | https://github.com/KusStar/vite-bundle-visualizer |
-| actions/configure-pages | v5 | GitHub Pages deploy: configure step | https://github.com/actions/configure-pages |
-| actions/deploy-pages | v4 | GitHub Pages deploy: upload + activate | https://github.com/actions/deploy-pages |
-| actions/upload-pages-artifact | v3 | Upload `dist/` as Pages artifact | https://github.com/actions/upload-pages-artifact |
-| Intersection Observer | Level 1 (REC) | Scroll-reveal trigger | https://www.w3.org/TR/intersection-observer/ |
-| CSS Media Queries Level 5 | WD | `prefers-color-scheme`, `prefers-reduced-motion` | https://www.w3.org/TR/mediaqueries-5/ |
-| Schema.org Person | live spec | JSON-LD structured data for the home page | https://schema.org/Person |
-| Open Graph Protocol | 2014 | `og:title`/`og:image`/`og:description` for link previews | https://ogp.me/ |
-| WCAG 2.1 AA | 2018 REC | Contrast + reduced-motion compliance | https://www.w3.org/TR/WCAG21/ |
+| Astro | ^5.0.0 (existing) | Static build, file-based routing, content collections | https://docs.astro.build/en/getting-started/ |
+| Astro Content Collections | Astro 5 builtin | `defineCollection` + Zod schema for `notes/` | https://docs.astro.build/en/guides/content-collections/ |
+| Zod | bundled with Astro | Schema validation for note frontmatter | https://zod.dev/ |
+| `astro:transitions` (`ClientRouter`) | Astro 5 builtin | View Transitions API + SPA-style nav between index ↔ detail | https://docs.astro.build/en/guides/view-transitions/ |
+| `astro:content` (`getCollection`, `CollectionEntry`) | Astro 5 builtin | Type-safe access to `notes` collection | https://docs.astro.build/en/reference/modules/astro-content/ |
+| Remark + Rehype | Astro defaults | Markdown → HTML for note bodies | https://docs.astro.build/en/guides/markdown-content/ |
+| View Transitions API | CSS-WG Level 1 (WD) | `transition:name` pairing of index ↔ detail title morph | https://drafts.csswg.org/css-view-transitions-1/ |
+| Intersection Observer | Level 1 (REC) | Staggered scroll reveal (existing `RevealObserver`) | https://www.w3.org/TR/intersection-observer/ |
+| CSS Media Queries Level 5 | WD | `prefers-reduced-motion` guards on motion blocks | https://www.w3.org/TR/mediaqueries-5/ |
+| CSS Backgrounds and Borders Level 3 | REC | `background-image: linear-gradient(...)` underline-draw effect | https://www.w3.org/TR/css-backgrounds-3/ |
+| CSS Transforms Level 1/2 | REC/CR | 1 px `translateY(-1px)` hover lift | https://www.w3.org/TR/css-transforms-1/ |
+| HTML Living Standard | WHATWG | `<a>` semantics, `meta` description, etc. | https://html.spec.whatwg.org/multipage/ |
+| Schema.org `Article` (optional) | live spec | JSON-LD for note detail pages if SEO desired (not in PLAN) | https://schema.org/Article |
 
-Crucially, the runtime ships only the React islands' JS — everything else compiles to zero-JS HTML/CSS. The `< 15 KB initial gz` budget is realistic only because Astro's island hydration strategy keeps the rest off the wire.
+Tooling-only (not runtime):
+- `grep -P` with `\xe2\x80\x94` for em-dash audit (GNU grep / ripgrep) — https://www.gnu.org/software/grep/manual/grep.html
+- `gh pr create` — https://cli.github.com/manual/gh_pr_create
 
 ## Reference patterns
 
-### 1. Astro 5 static config with React integration
+### 1. Astro 5 content collection schema (legacy "content" type)
 
-Source: Astro docs, "Configuration Reference" — https://docs.astro.build/en/reference/configuration-reference/ and "@astrojs/react" — https://docs.astro.build/en/guides/integrations-guide/react/
-
-```js
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import react from '@astrojs/react';
-
-export default defineConfig({
-  site: 'https://tomscholtes.com',
-  output: 'static',
-  trailingSlash: 'never',
-  build: {
-    assets: '_astro',
-    inlineStylesheets: 'auto',
-  },
-  integrations: [react()],
-  vite: {
-    build: { cssCodeSplit: true, target: 'es2022' },
-  },
-});
-```
-
-`inlineStylesheets: 'auto'` lets Astro inline tiny stylesheets (< 4 KB by default) into the `<head>`, eliminating a round-trip for small per-route CSS — reference: https://docs.astro.build/en/reference/configuration-reference/#buildinlinestylesheets.
-
-### 2. React island hydrated `client:idle`
-
-Source: Astro docs, "Client Directives" — https://docs.astro.build/en/reference/directives-reference/#client-directives
-
-```astro
----
-// src/pages/index.astro
-import TweaksPanel from '../components/islands/TweaksPanel.jsx';
-import DisplayPanel from '../components/islands/DisplayPanel.jsx';
-import { HEADLINES } from '../content/headlines.ts';
----
-<TweaksPanel client:idle headlines={HEADLINES} />
-<DisplayPanel client:idle />
-```
-
-`client:idle` hydrates after `requestIdleCallback` fires (fallback: 200 ms timeout). Best for non-critical interactive UI — the page paints + LCP completes before React touches the DOM. Reference: https://docs.astro.build/en/reference/directives-reference/#clientidle.
-
-### 3. Static build-time OG endpoint with satori + resvg
-
-Source: satori README — https://github.com/vercel/satori and Astro "Endpoints" — https://docs.astro.build/en/guides/endpoints/#static-file-endpoints
+Source: Astro docs, "Content Collections" — https://docs.astro.build/en/guides/content-collections/
 
 ```ts
-// src/pages/og/default.png.ts
-import type { APIRoute } from 'astro';
-import satori from 'satori';
-import { Resvg } from '@resvg/resvg-js';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { ogTemplate } from '../../lib/og';
+// src/content/notes/config.ts
+import { defineCollection, z } from 'astro:content';
 
-export const prerender = true;
-
-export const GET: APIRoute = async () => {
-  const fontDir = path.resolve('public/fonts');
-  const [serif, inter] = await Promise.all([
-    fs.readFile(path.join(fontDir, 'instrument-serif-regular.woff2')),
-    fs.readFile(path.join(fontDir, 'inter-500.woff2')),
-  ]);
-  const svg = await satori(ogTemplate(), {
-    width: 1200,
-    height: 630,
-    fonts: [
-      { name: 'Instrument Serif', data: serif, weight: 400, style: 'normal' },
-      { name: 'Inter', data: inter, weight: 500, style: 'normal' },
-    ],
-  });
-  const png = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } })
-    .render()
-    .asPng();
-  return new Response(png, { headers: { 'Content-Type': 'image/png' } });
-};
-```
-
-`export const prerender = true` is required in Astro 5 for static endpoints when the project is not fully static-output (defensive even with `output: 'static'`). Reference: https://docs.astro.build/en/guides/endpoints/#prerendering.
-
-### 4. Satori JSX-as-VDOM (no React runtime)
-
-Source: satori README "JSX without React" — https://github.com/vercel/satori#jsx
-
-```tsx
-// src/lib/og.ts — JSX is for shape only; satori parses the tree directly.
-export const ogTemplate = () => ({
-  type: 'div',
-  props: {
-    style: {
-      width: 1200, height: 630, display: 'flex', flexDirection: 'column',
-      background: '#0E0E0C', color: '#E6E1D7', padding: 80,
-      fontFamily: 'Instrument Serif',
-    },
-    children: [
-      { type: 'div', props: { style: { fontSize: 96 }, children: 'Tom Scholtes' } },
-      { type: 'div', props: {
-          style: { fontFamily: 'Inter', fontSize: 32, color: '#C4623A', marginTop: 24 },
-          children: 'Six years in Luxembourg fund services.' } },
-    ],
-  },
+const notes = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    slug: z.string(),
+    summary: z.string().max(220),
+    publishDate: z.coerce.date(),
+    tags: z.array(z.string()).max(3).default([]),
+    related: z.array(z.string()).default([]),
+    sources: z.array(z.object({
+      label: z.string(),
+      kind: z.enum(['notion', 'memory', 'site', 'external']),
+    })).default([]),
+    status: z.enum(['draft', 'published']).default('published'),
+  }),
 });
+
+export const collections = { notes };
 ```
 
-The tree shape mirrors React but no React import is needed at build time. Satori supports a subset of CSS — flexbox yes, grid no, named system fonts no (you must pass `Buffer`s). Reference: https://github.com/vercel/satori#css.
+```ts
+// src/content/config.ts
+export { collections } from './notes/config';
+```
 
-### 5. Flash-of-wrong-theme prevention (inline pre-paint script)
+`z.coerce.date()` accepts YAML's unquoted ISO date `publishDate: 2026-05-16` and coerces it to a `Date` object. Without `coerce`, you'd need to write `new Date('2026-05-16')` in frontmatter, which doesn't work in YAML.
 
-Source: Josh W. Comeau, "The Quest for the Perfect Dark Mode" — https://www.joshwcomeau.com/react/dark-mode/
+### 2. Listing page with `getCollection` + filter + sort
+
+Source: Astro docs, "Querying collections" — https://docs.astro.build/en/guides/content-collections/#querying-collections
 
 ```astro
 ---
-// src/layouts/Base.astro — fragment in <head>, BEFORE any styled content
+// src/pages/notes/index.astro
+import Base from '../../layouts/Base.astro';
+import NoteCard from '../../components/NoteCard.astro';
+import RevealObserver from '../../components/RevealObserver.astro';
+import { getCollection } from 'astro:content';
+
+const entries = (await getCollection('notes', ({ data }) => data.status === 'published'))
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 ---
-<script is:inline>
-  (function () {
-    try {
-      var s = localStorage.getItem('theme');
-      var d = s || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.dataset.theme = d;
-      var dens = localStorage.getItem('density'); if (dens) document.documentElement.dataset.density = dens;
-      var acc  = localStorage.getItem('accent');  if (acc)  document.documentElement.dataset.accent = acc;
-    } catch (e) {}
-  })();
-</script>
+<Base title="Notes — Tom Scholtes" description="Reflections on MCP, token economy, RAG, and memory." path="/notes/">
+  <RevealObserver>
+    <section class="notes-grid">
+      {entries.map((entry, i) => (
+        <div class="reveal" style={`--reveal-delay: ${Math.min(i, 5) * 50}ms`}>
+          <NoteCard entry={entry} />
+        </div>
+      ))}
+    </section>
+  </RevealObserver>
+</Base>
 ```
 
-`is:inline` is Astro's directive that bypasses bundling, leaves the script verbatim in the output, and runs synchronously — exactly what FOUC prevention needs. Reference: https://docs.astro.build/en/reference/directives-reference/#isinline.
+Cap the per-card delay at index 5 so card 7+ doesn't introduce a noticeable lag. Inline `--reveal-delay` CSS variable lets the existing `RevealObserver` apply `transition-delay: var(--reveal-delay)` without per-card JS.
 
-### 6. Self-hosted font preload + `@font-face` with `unicode-range`
+### 3. Detail page with `getStaticPaths` + `entry.render()`
 
-Source: web.dev "Preload web fonts" — https://web.dev/articles/codelab-preload-web-fonts and MDN `@font-face` `unicode-range` — https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range
+Source: Astro docs, "Generating routes from data" — https://docs.astro.build/en/guides/content-collections/#generating-routes-from-content
 
-```html
-<link rel="preload" href="/fonts/instrument-serif-regular.woff2"
-      as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/inter-500.woff2"
-      as="font" type="font/woff2" crossorigin>
+```astro
+---
+// src/pages/notes/[slug].astro
+import Base from '../../layouts/Base.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('notes', ({ data }) => data.status === 'published');
+  return entries.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
+}
+
+interface Props { entry: CollectionEntry<'notes'> }
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const fmt = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+---
+<Base
+  title={`${entry.data.title} — Tom Scholtes`}
+  description={entry.data.summary}
+  path={`/notes/${entry.slug}/`}
+>
+  <article class="note">
+    <p class="eyebrow mono">
+      / notes · {fmt.format(entry.data.publishDate)}{entry.data.tags.length ? ` · ${entry.data.tags.join(' · ')}` : ''}
+    </p>
+    <h1 class="serif" transition:name={`note-title-${entry.slug}`}>{entry.data.title}</h1>
+    <p class="lead" transition:name={`note-summary-${entry.slug}`}>{entry.data.summary}</p>
+    <Content />
+    {entry.data.sources.length > 0 && (
+      <section class="note-sources">
+        <h2 class="eyebrow">Sources</h2>
+        <ul>{entry.data.sources.map(s => <li>{s.label} <span class="mono">· {s.kind}</span></li>)}</ul>
+      </section>
+    )}
+    <p class="back mono"><a href="/notes/">← all notes</a></p>
+  </article>
+</Base>
+```
+
+`entry.slug` (legacy "content" type) is the filename without extension by default — matches `{ params: { slug } }` for the route. Note: the new Astro 5 Content Layer API uses `entry.id` instead of `entry.slug` — see Gotchas.
+
+### 4. View Transitions named morph
+
+Source: Astro docs, "View Transitions" — https://docs.astro.build/en/guides/view-transitions/ and CSS-WG draft "Named view transitions" — https://drafts.csswg.org/css-view-transitions-1/#named-elements
+
+```astro
+<!-- NoteCard.astro -->
+<a href={`/notes/${entry.slug}/`} class="note-card">
+  <h3 class="serif" transition:name={`note-title-${entry.slug}`}>{entry.data.title}</h3>
+  <p>{entry.data.summary}</p>
+</a>
+
+<!-- pages/notes/[slug].astro -->
+<h1 class="serif" transition:name={`note-title-${entry.slug}`}>{entry.data.title}</h1>
+```
+
+The browser pairs elements that share `view-transition-name` (Astro's `transition:name` directive emits exactly that CSS property under the hood) and animates their geometry between the two states. **Both elements must have unique names** — using `transition:name="note-title"` on every card would cause the browser to skip the animation entirely (per spec §5: duplicate names ⇒ skip). Always include `${entry.slug}` to disambiguate.
+
+### 5. NoteLink primitive — underline-draw on hover, lift, reduced-motion guarded
+
+Source: CSS-Tricks "Animated CSS Underline" — https://css-tricks.com/css-link-hover-effects/ and MDN `prefers-reduced-motion` — https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+
+```astro
+---
+// src/components/NoteLink.astro
+interface Props { slug: string }
+const { slug } = Astro.props;
+---
+<a href={`/notes/${slug}/`} class="note-link" data-astro-prefetch><slot /></a>
 ```
 
 ```css
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/inter-500-latin.woff2') format('woff2');
-  font-weight: 500; font-style: normal; font-display: swap;
-  unicode-range: U+0000-024F, U+02BB; /* Latin + Latin-Ext + Uzbek ʻ */
+/* appended to src/styles/components.css */
+.note-link {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
 }
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/inter-500-cyrl.woff2') format('woff2');
-  font-weight: 500; font-style: normal; font-display: swap;
-  unicode-range: U+0400-04FF;
+@media (prefers-reduced-motion: no-preference) {
+  .note-link {
+    background-size: 0 1px;
+    transition: background-size 200ms ease, transform 200ms ease;
+  }
+  .note-link:hover,
+  .note-link:focus-visible {
+    background-size: 100% 1px;
+    transform: translateY(-1px);
+  }
+}
+.note-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 ```
 
-`crossorigin` is mandatory on font preload links — browsers always fetch fonts as anonymous CORS, and a non-crossorigin preload double-fetches. Reference: https://web.dev/articles/codelab-preload-web-fonts#cross-origin-fonts. `unicode-range` lets the Cyrillic file load only when a Cyrillic glyph is actually used (rare on a primarily-English CV).
+The trick: render the static (always-visible) underline by default for users with reduced motion, then *override* with a 0-width animated underline inside the `no-preference` block. This guarantees the link is visually identifiable as a link **always** — never "invisible until hovered" for reduced-motion users.
 
-### 7. JSON-LD Person schema
+### 6. `data-astro-prefetch` (Astro 5 builtin prefetch)
 
-Source: Schema.org `Person` — https://schema.org/Person and Google "Structured Data Person markup" — https://developers.google.com/search/docs/appearance/structured-data/
-
-```astro
----
-// src/components/JsonLdPerson.astro
-const data = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'Tom Scholtes',
-  jobTitle: 'Finance ops engineer',
-  worksFor: { '@type': 'Organization', name: 'Triton' },
-  knowsLanguage: ['en', 'de', 'fr', 'ru', 'lb', 'uz'],
-  sameAs: [
-    'https://www.linkedin.com/in/tomscholtes',
-    'https://github.com/tomscholtes93-collab',
-  ],
-};
----
-<script type="application/ld+json" set:html={JSON.stringify(data)} />
-```
-
-`set:html` is Astro's "trust me, this is safe HTML" sink — used here for the JSON payload which is built from typed literals only (no user input). Reference: https://docs.astro.build/en/reference/directives-reference/#sethtml. Validate the output with Google Rich Results Test — https://search.google.com/test/rich-results.
-
-### 8. IntersectionObserver scroll reveal with reduced-motion bypass
-
-Source: MDN "Intersection Observer API" — https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+Source: Astro docs, "Prefetch" — https://docs.astro.build/en/guides/prefetch/
 
 ```html
-<script is:inline>
-  (function () {
-    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var targets = document.querySelectorAll('.reveal');
-    if (reduce || !('IntersectionObserver' in window)) {
-      targets.forEach(function (el) { el.classList.add('visible'); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
-      });
-    }, { threshold: 0.15 });
-    targets.forEach(function (el) { io.observe(el); });
-  })();
-</script>
+<a href="/notes/mcp-workstream/" data-astro-prefetch>MCP workstream</a>
 ```
 
-### 9. Hero card rotator with reduced-motion short-circuit
+Astro 5 ships prefetch as a stable feature (no integration needed). The strategy defaults to `hover` — page is fetched on hover, ready before click. Cost: tiny (one fetch per hovered link). Reference: https://docs.astro.build/en/reference/configuration-reference/#prefetch.
 
-Source: MDN "setInterval" — https://developer.mozilla.org/en-US/docs/Web/API/setInterval
+### 7. Em-dash audit command
 
-```js
-(function () {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var cards = document.querySelectorAll('[data-hero-card]');
-  var i = 0;
-  cards[0].classList.add('hero-card--active');
-  setInterval(function () {
-    cards[i].classList.remove('hero-card--active');
-    i = (i + 1) % cards.length;
-    cards[i].classList.add('hero-card--active');
-  }, 6000);
-})();
-```
-
-Pure CSS transition on `.hero-card--active` (opacity + transform crossfade). Total JS ≤ 12 LOC, far under the 1 KB budget.
-
-### 10. GitHub Pages deploy workflow (Pages Actions, not gh-pages branch)
-
-Source: GitHub docs "Publishing with a custom GitHub Actions workflow" — https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages and `withastro/action` — https://github.com/withastro/action
-
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy
-on:
-  push: { branches: [main] }
-  workflow_dispatch:
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-concurrency:
-  group: pages
-  cancel-in-progress: true
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm', cache-dependency-path: frontend/package-lock.json }
-      - run: npm ci
-        working-directory: frontend
-      - run: npm run build
-        working-directory: frontend
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with: { path: frontend/dist }
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
-```
-
-Note: this approach uses Pages' native artifact mechanism (Settings → Pages → Source: "GitHub Actions"), which **deprecates the legacy `gh-pages` branch flow**. PLAN says "deploy to `gh-pages` branch" — but the modern, recommended approach is the Pages artifact above, which avoids force-pushing to a tracked branch. Either works; the artifact flow is cleaner. Reference: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-with-a-custom-github-actions-workflow.
-
-### 11. `pyftsubset` invocation for woff2 subsetting
-
-Source: fonttools docs — https://fonttools.readthedocs.io/en/latest/subset/index.html
+Source: GNU grep manual — https://www.gnu.org/software/grep/manual/grep.html and POSIX byte syntax
 
 ```bash
-pyftsubset Inter-Medium.ttf \
-  --unicodes="U+0000-024F,U+02BB" \
-  --layout-features='*' \
-  --flavor=woff2 \
-  --output-file=public/fonts/inter-500-latin.woff2
+grep -rP $'\xe2\x80\x94' src/ public/
 ```
 
-`--layout-features='*'` keeps OpenType ligatures + kerning (otherwise advanced typography breaks). `--flavor=woff2` produces a Brotli-compressed woff2 directly. Run once, commit the output, do not regenerate per build.
+`-P` enables Perl-compatible regex (needed for byte-level `\x` escapes in the pattern). `$'...'` is bash's ANSI-C quoted string — produces the raw 3-byte UTF-8 sequence for U+2014 (em-dash). An equivalent ripgrep call: `rg --pcre2 '\x{2014}' src/ public/`. Exit code 0 means at least one match (failure for our purposes); exit 1 means clean.
+
+### 8. Frontmatter shape for a note
+
+Source: PLAN §3 (schema) + Astro markdown docs — https://docs.astro.build/en/guides/markdown-content/
+
+```yaml
+---
+title: "The MCP workstream"
+slug: "mcp-workstream"
+summary: "Wiring Outlook and Monday.com into Claude Code through MCP, and what it taught me about scope of automation."
+publishDate: 2026-05-16
+tags: ["mcp", "automation", "tools"]
+related: ["self-hosted-rag-claude-max"]
+sources:
+  - label: "Personal Notion — MCP workstream brief"
+    kind: notion
+  - label: "Anthropic MCP spec"
+    kind: external
+status: published
+---
+```
+
+YAML 1.2 parses the unquoted date `2026-05-16` as a date if `z.coerce.date()` accepts it. Always quote `title`/`summary` (avoid colons confusing the YAML parser).
+
+### 9. Reusing existing `RevealObserver` with stagger
+
+Source: Astro docs, "Reusing components" — https://docs.astro.build/en/basics/astro-components/
+
+```astro
+<!-- existing src/components/RevealObserver.astro is assumed to:
+     - wrap children in a container
+     - add an IntersectionObserver
+     - apply .visible class when in view
+     - respect prefers-reduced-motion (instant reveal)
+-->
+<RevealObserver>
+  {entries.map((entry, i) => (
+    <div class="reveal" style={`--reveal-delay: ${Math.min(i, 5) * 50}ms`}>
+      <NoteCard entry={entry} />
+    </div>
+  ))}
+</RevealObserver>
+```
+
+The CSS in `components.css` (or wherever the existing reveal rules live) should already include:
+
+```css
+.reveal { opacity: 0; transform: translateY(8px); transition: opacity .4s ease var(--reveal-delay, 0ms), transform .4s ease var(--reveal-delay, 0ms); }
+.reveal.visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+```
+
+Verify the existing observer's CSS supports `--reveal-delay` before relying on it. If not, append the rule above to `components.css`.
 
 ## Gotchas
 
-- **Astro 5 endpoint exports renamed**: Astro 5 uses `export const GET`, `POST`, etc. (HTTP-method-named exports). The pre-4.0 `get()`/`post()` lowercase + `export const get` patterns are removed. Reference: https://docs.astro.build/en/guides/upgrade-to/v5/#removed-deprecated-get-and-post-functions.
-- **`prerender = true` on endpoints in static mode**: With `output: 'static'`, all routes prerender by default. But mixed-output projects need explicit `export const prerender = true` on the OG endpoint. Set it defensively even in pure static mode.
-- **Satori cannot fetch fonts over HTTP at build time without explicit support**: You must pass font `Buffer`s via the `fonts` option. `fs.readFile()` woff2 files directly from `public/fonts/`. Satori **does not** support TTF/OTF — must be woff2 or a raw font format satori-supported (see https://github.com/vercel/satori#fonts). Note: as of satori 0.10+, woff2 IS supported; older versions required ttf.
-- **Satori CSS subset is narrow**: No `grid`, no `box-shadow` blur radius, no `linear-gradient` with stops > 2 colors in all versions, no `background-image: url(...)`. Use flexbox and solid colors. Reference: https://github.com/vercel/satori#css.
-- **resvg-js font fallback**: resvg only rasterises what satori produced — if satori couldn't lay out a glyph (missing weight, missing range), resvg renders a tofu box. Always pass every font weight you reference in the satori tree.
-- **`@astrojs/react` and React 18.3 strict mode**: Islands re-mount in `<StrictMode>` during dev, doubling effect invocations. `localStorage.setItem` is idempotent so this is harmless, but any side-effect-heavy `useEffect` should be guarded.
-- **`client:idle` does not wait for hydration on initial paint**: That's the *point*, but it means initial server-rendered island HTML must be visually identical to the post-hydration state. If `TweaksPanel`'s closed state differs from its open state, render the closed state on the server side.
-- **React island state and SSR-DOM mismatch**: Server-side render Astro islands with React 18's `renderToString`. State that depends on `window`/`localStorage` (e.g., current theme) must be **read again** in a `useEffect` post-hydration; render-time access of `window` throws. Use `useSyncExternalStore` with a server snapshot or guard with `typeof window !== 'undefined'`.
-- **`set:html` and JSON-LD**: `JSON.stringify` correctly escapes `<` to `\u003c` ONLY if you specify it manually — by default it does NOT. **A JSON-LD payload containing the substring `</script>` will break out of the script tag.** Always sanitise: `JSON.stringify(data).replace(/</g, '\\u003c')` before `set:html`. Reference: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#output-encoding-for-javascript-contexts.
-- **`set:html` is the XSS sink**: Any *non-constant* input flowing into `set:html` is XSS-attackable. The JSON-LD payload is constant TypeScript data → safe. Still, escape the `<` defensively.
-- **Astro `<script>` tags are bundled by default**: A bare `<script>...</script>` in an `.astro` component gets ESM-bundled, hashed, and emitted as a `.js` file. Use `is:inline` to prevent bundling and keep the script in HTML — required for the pre-paint theme script (must run before bundled JS loads). Reference: https://docs.astro.build/en/guides/client-side-scripts/#opting-out-of-processing.
-- **CNAME and `.nojekyll` must be in `public/`**: Astro copies `public/` to `dist/` verbatim. `public/CNAME` → `dist/CNAME`. The `.nojekyll` file must be exactly empty (0 bytes). Reference: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#static-site-generators.
-- **`CNAME` must end in `\n`**: GitHub Pages parses `CNAME` line-by-line. A missing trailing newline can confuse some toolchains. Acceptance criterion 13 specifies `tomscholtes.com\n` — use `printf 'tomscholtes.com\n' > public/CNAME` to guarantee.
-- **`trailingSlash: 'never'` and GitHub Pages**: GitHub Pages serves `/projects/devswarm/` as `projects/devswarm/index.html` when trailing slash is present. With `trailingSlash: 'never'`, links should target `/projects/devswarm` (no slash) — GitHub Pages handles the redirect. Verify on staging.
-- **`output: 'static'` + dynamic routes**: PLAN has no dynamic routes, but if added, each must have `getStaticPaths()` exported. Reference: https://docs.astro.build/en/reference/routing-reference/#getstaticpaths.
-- **`view-transitions` and React islands**: Astro 5 supports `<ViewTransitions />`. **Do not enable** — it interferes with React island state across navigations (islands re-mount, losing local state). PLAN doesn't request it; resist adding it.
-- **`prefers-reduced-motion` is reactive**: Listen for `change` events on the MQL if you want OS-level toggles to take effect without reload. Not required by PLAN, but a nice polish.
-- **`localStorage.theme` and SSR**: Theme cannot be known at build time. The HTML ships with no `data-theme` attribute; the pre-paint script sets it before any styled element paints. Make sure CSS targets `html[data-theme="light"]` AND `html[data-theme="dark"]` with explicit selectors — no `:root` fallback that could flash. Or set a default `data-theme="light"` on `<html>` directly in `Base.astro` so the cascade works pre-script.
-- **Lighthouse "Performance ≥ 95" is fragile on GitHub Pages**: GitHub Pages serves over a CDN but with no Brotli (gzip only). Self-hosting fonts removes the third-party DNS hop. Defer non-critical CSS via `media="print" onload="this.media='all'"` if needed. Reference: https://web.dev/articles/defer-non-critical-css.
-- **`pa11y-ci` and JS-rendered content**: pa11y uses headless Chrome and waits for `networkidle`. With `client:idle` islands, the panel UI may not be rendered when pa11y measures. Use `pa11y --wait 1000` or the JS-CI config's `wait` setting.
-- **`vite-bundle-visualizer` integration with Astro**: Astro uses Vite under the hood. Add the visualiser as a Vite plugin in `astro.config.mjs` under `vite.plugins`. Reference: https://github.com/btd/rollup-plugin-visualizer (which is what `vite-bundle-visualizer` wraps).
-- **`@resvg/resvg-js` requires native bindings**: It ships prebuilt binaries for common platforms (linux-x64-gnu, darwin-arm64, etc.). On a fresh GitHub Actions Ubuntu runner this works out of the box. If the build runs on an exotic arch (musl, freebsd) it falls back to JS port or fails. Stick to `runs-on: ubuntu-latest`.
-- **Fontsource subsetting**: `@fontsource` packages already provide subsetted woff2 files (e.g., `@fontsource/inter/files/inter-latin-500-normal.woff2`). You can skip `pyftsubset` entirely if you accept fontsource's pre-defined subsets. But fontsource subsets do NOT include U+02BB (Uzbek), so for full PLAN compliance, run `pyftsubset` on the full Inter file to produce a custom range. Reference: https://fontsource.org/docs/getting-started/install.
-- **Inline SVG and `currentColor`**: `<path stroke="currentColor">` inherits from the element's CSS `color`. To switch fills by theme, use `fill="var(--accent)"` etc. — works in inline SVG, NOT in `<img src="...svg">`. PLAN uses inline → good.
-- **JSON-LD `worksFor` and ATS scrapers**: Some ATS bots scrape JSON-LD for current employer. PLAN explicitly puts "Triton" in structured data while keeping body copy anonymised ("Working in Controlling"). This is a deliberate tradeoff; document it in the colophon or honesty audit. Reviewer should flag it.
-- **Acceptance criterion 1 false positive**: `! grep -rqi "not taking on commercial work" dist/` — if any source comment or removed-content marker survives into `dist/`, it fails. Ensure V2's old strings are not preserved in HTML comments.
-- **Acceptance criterion 2 — "journey", "unlock", "transformative" forbidden words**: Be especially careful in alt text, ARIA labels, and the OG image text. A casual "journey" in a colophon would silently fail the build.
-- **Acceptance criterion 6 — Jarvis honesty grep**: Any matches must comply with §2 honesty table. Adopt a single canonical phrase ("[references to a Jarvis-style assistant comply with §2: this is *not* an autonomous agent]") and use it consistently, or remove all references.
-- **GitHub Pages caching**: First-time `gh-pages` deploys can take 5–10 min to propagate. Custom-domain HTTPS may take up to 24h for the certificate to provision the first time. Plan staging windows accordingly. Reference: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/troubleshooting-custom-domains-and-github-pages.
-- **`view-transitions` polyfill**: Not enabled, but if a third-party Astro component pulls it in, bundle size balloons. Audit `npm ls` for unexpected deps.
-- **OG image absolute URL**: Twitter/iMessage require `og:image` to be an **absolute** URL with scheme. `https://tomscholtes.com/og/default.png` (not `/og/default.png`). PLAN says this — preserve it.
-- **OG image dimensions**: 1200×630 is Twitter's "summary_large_image" minimum and Facebook's recommended. iMessage previews use the same. Smaller images get downscaled with quality loss. Reference: https://developers.facebook.com/docs/sharing/webmasters/images/.
+- **Astro 5 Content Layer API vs legacy `type: 'content'`**: Astro 5 introduced a new "Content Layer" API with `loader: glob({...})` syntax. The PLAN uses the **legacy** `type: 'content'` API. Legacy is still supported in Astro 5 but flagged for future removal. The legacy API uses `entry.slug`; the new Content Layer API uses `entry.id`. **PLAN's `entry.slug` references the legacy field — keep using `type: 'content'`. Do not "modernize" unless instructed.** Reference: https://docs.astro.build/en/guides/upgrade-to/v5/#legacy-v20-content-collections-api.
+- **Content config file location**: Astro 5 recommends `src/content.config.ts` (top-level, not under `content/`). The pre-5 location `src/content/config.ts` still works. **PLAN says `src/content/config.ts` — use that.** Both locations are auto-discovered; do not duplicate. Reference: https://docs.astro.build/en/guides/content-collections/#the-collection-config-file.
+- **`getStaticPaths` runs at build only**: With `output: 'static'`, `getStaticPaths` evaluates once at build. Adding a note later requires a rebuild. This is expected for V4.
+- **`entry.render()` returns a Promise**: `const { Content } = await entry.render();` — the `await` is mandatory. Forgetting it produces a confusing "Content is undefined" error at runtime, not a build error.
+- **`Content` is a component, not a string**: Render it with `<Content />`. Do **not** try `{entry.body}` to render HTML — `body` is raw markdown source, not HTML.
+- **YAML date parsing**: `publishDate: 2026-05-16` is parsed by YAML as a date. `publishDate: "2026-05-16"` (quoted) is parsed as a string and requires `z.coerce.date()` to convert. Use **unquoted** dates for cleanliness; `z.coerce.date()` handles both.
+- **YAML colon-in-title**: A frontmatter `title: The MCP workstream: a retrospective` will fail YAML parsing (second colon ambiguity). Always quote titles with colons: `title: "The MCP workstream: a retrospective"`.
+- **`transition:name` collision**: Named view transitions must be unique within a page. Two cards with the same name → animation skipped silently. Always interpolate the slug into the name: `transition:name={`note-title-${entry.slug}`}`. Reference: https://drafts.csswg.org/css-view-transitions-1/#dom-viewtransitiontypeset.
+- **View Transitions browser support**: Native View Transitions API is supported in Chrome 111+, Edge 111+, Safari 18+ (Sep 2024), Firefox 132+ (Oct 2024). Astro's `ClientRouter` falls back to instant navigation in older browsers. Reference: https://caniuse.com/view-transitions. No polyfill needed; degraded experience is acceptable.
+- **`ClientRouter` and inline `<script is:inline>`**: View Transitions persist the document between navigations, so `<script is:inline>` runs **once at first load** and not again on subsequent page navigations. The V3 pre-paint theme script in `Base.astro` is therefore safe (theme is set before any paint of the first page). Reference: https://docs.astro.build/en/guides/view-transitions/#script-behavior.
+- **`document.documentElement.dataset.theme` and View Transitions**: The persisted `<html>` element retains its `data-theme` attribute across navigations. No re-application needed. But any **per-page** script in `is:inline` will not re-run. If a note page needs page-specific JS, use `<script>` (default, bundled, re-fires on transition) or `<script data-astro-rerun>`. Reference: https://docs.astro.build/en/guides/view-transitions/#data-astro-rerun.
+- **Em-dash audit byte sequence**: U+2014 in UTF-8 is **`0xE2 0x80 0x94`**. `grep -P` with `\xe2\x80\x94` and `rg --pcre2 '\x{2014}'` both work. **Watch for U+2013 (en-dash, 0xE2 0x80 0x93) — different character, also looks dash-y.** PLAN bans only U+2014; en-dashes pass. If the brief intent is "no fancy dashes at all", add U+2013 to the grep: `grep -rP $'\xe2\x80[\x93\x94]' src/`. Confirm with Architect before broadening.
+- **CLAUDE.md's no-em-dash rule applies to all written content**: Tom's global instructions ban U+2014. The note bodies and frontmatter must obey. The grep gate (criterion 3) enforces it. Pre-flight every note before commit.
+- **Markdown auto-em-dash conversion**: Some markdown processors convert `--` to en-dash and `---` to em-dash (SmartyPants-style). **Astro's default markdown pipeline does NOT do this** — verify by checking `astro.config.mjs` for `markdown.smartypants` (absent by default in Astro 5). Reference: https://docs.astro.build/en/reference/configuration-reference/#markdownsmartypants. If smartypants is enabled, a literal `---` in note body becomes `—` in HTML, which would pass `grep src/` but fail a `grep dist/` audit. Run the em-dash grep on `dist/` too if uncertain.
+- **Frontmatter unknown-field warnings**: Astro logs `[content] Unknown field "X"` if a frontmatter key isn't in the schema. PLAN criterion 13 requires zero such warnings. Either match the schema exactly, or call `z.object({...}).strict()` to fail the build on extras. Default Zod is permissive — undocumented fields pass silently. Use strict mode in development to catch drift.
+- **`z.array(...).max(3)` is build-time enforcement**: If a frontmatter file lists 4 tags, the build fails with a Zod error. That's the desired behaviour (acceptance criterion 8). Do not relax to `.optional()` — let the schema gate enforce.
+- **Inline NoteLink in `.ts` content modules**: PLAN §10 specifies option (b) — keep `.ts` strings plain, move the specific line into the `.astro` template if a NoteLink is needed. **Do NOT refactor `caseStudies.ts` / `now.ts` into rich-segment arrays.** That would be a structural change; PLAN explicitly forbids it.
+- **First-mention rule**: "Max one NoteLink per concept per page; first mention wins." Implementation: walk the file, find first match of each concept string, wrap it. If a concept appears 0 times → skip. If 2+ times → wrap only the first. Reviewer-Deployer audits this via per-file grep count ≤ 1 (criterion 11).
+- **Concept-string disambiguation**: The token-economy concept matches multiple phrasings ("token economy", "GL never enters the context"). Pick one canonical phrase per file (the most concept-evocative one) and wrap only that. Document the choice in REVIEW.md.
+- **`<a>` inside `<a>` is invalid HTML**: `NoteCard` is itself an `<a class="note-card">`. **Do not nest a `<NoteLink>` inside `NoteCard`** — browsers will reflow the inner `<a>` outside the outer one (or render unpredictably). NoteCards are listing cards; NoteLinks are inline mentions in body copy. Don't mix.
+- **`getCollection` and draft entries**: Without a filter, `getCollection('notes')` returns *all* entries including `status: 'draft'`. Always pass the filter `({ data }) => data.status === 'published'`. Otherwise drafts ship to production.
+- **`new Intl.DateTimeFormat` locale**: Defaults to the build host's locale. Pin explicitly to `'en-GB'` (or `'en'`) so build output is deterministic regardless of CI runner locale. Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat.
+- **`text-decoration: none` accessibility**: Removing the default underline on `.note-link` and replacing with a hover-only underline is **less accessible than the default** for low-vision users. The `no-preference` block adds the underline-on-hover, but the static (no-preference-not-matching) state still has a 1-pixel underline. Verify with pa11y. If contrast is insufficient, raise the underline width to 1.5 px or make it always-visible at lower opacity. WCAG 2.2 SC 1.4.1 forbids using color alone to indicate links.
+- **`color: inherit` on links**: Keeps NoteLinks visually consistent with surrounding text. Combined with the underline, it remains distinguishable as a link. Verify per WCAG SC 1.4.1.
+- **Footer link must not break existing layout**: V3's Footer has a fixed nav cluster. Append `Notes` to the cluster (not as a new line/row). Inspect spacing on mobile (< 720 px); ensure no wrap break that puts "Notes" alone on a row.
+- **`grep -c '^- '` for tag count is approximate**: PLAN's criterion 8 uses `grep -c '^- '` on the `tags:` block — this counts ALL `- ` list items in the file, including under `related:` and `sources:`. Frontmatter limits the tag block specifically, not the whole-file `-` count. Read the criterion carefully: it likely meant "tags-block-scoped" — verify by reading the tag list manually or using `yq` for precision: `yq '.tags | length' note.md`. Schema enforcement (`z.array().max(3)`) is the real gate; the grep is a smoke test.
+- **`gh pr create` requires auth**: Reviewer-Deployer's persona must have `gh auth status` returning logged-in. If not, PR creation fails. PLAN assumes auth is preconfigured per V3 deploy workflow.
+- **Branch name `v4/notes-section`**: Slashes in branch names are allowed by git but some tooling (older Jenkins, certain CI) chokes. GitHub handles them. `gh pr create --base main --head v4/notes-section` is the standard incantation.
+- **No new dependencies (criterion 14)**: Avoid the temptation to `npm install date-fns` for date formatting. `Intl.DateTimeFormat` (stdlib) is sufficient. Avoid `npm install reading-time` — not in scope.
+- **Build output console errors**: Astro logs deprecation warnings for legacy collection APIs in Astro 5. These are `[WARN]`, not `[ERROR]`. Criterion 17 looks for `[ERROR]` only — warnings are tolerated but worth noting in PR description.
+- **OG image and notes**: V3's static OG endpoint emits ONE default OG. PLAN does not request per-note OGs. Note detail pages reuse `og:image` from Base. Acceptable. If individually-OG'd notes are wanted later, add per-page `<meta property="og:image">` in the `[slug].astro` frontmatter.
+- **JSON-LD `Article` schema (not in PLAN)**: For SEO, each note could emit `Article` JSON-LD. PLAN omits this. If added later, escape `<` to `\u003c` in stringified payloads (same XSS-prevention rule as V3).
 
 ## Security
 
-- **Static site → no server-side attack surface**: No SSR, no server endpoints at runtime, no form submissions, no API. The only build-time endpoint (`/og/default.png`) executes at build, not at request time. The runtime surface is HTML + CSS + ≤ 15 KB of React island JS.
-- **XSS sinks audit**: The only `set:html` use is the JSON-LD payload, fed from typed TS literals. **Mitigation**: escape `<` to `\u003c` in the stringified JSON before `set:html` to prevent any future injection if data becomes dynamic. Reference: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#output-encoding-for-javascript-contexts.
-- **`localStorage` and XSS**: TweaksPanel/DisplayPanel read/write `localStorage.theme`/`.density`/`.accent`. Values are read into `document.documentElement.dataset.X`, which the browser treats as plain attribute strings (not HTML-interpreted). Even if `localStorage.theme = '<script>alert(1)</script>'`, it would render as a literal attribute value, not execute. Safe by construction.
-- **Content Security Policy (CSP)**: Static site with inline CSS, inline JS, inline `<script>` for pre-paint, and inline `<script type="application/ld+json">`. A meta CSP for this project should be:
-  ```html
-  <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self';
-    style-src 'self' 'unsafe-inline';
-    script-src 'self' 'unsafe-inline';
-    img-src 'self' data:;
-    font-src 'self';
-    connect-src 'self';
-    base-uri 'self';
-    form-action 'none';
-    frame-ancestors 'none';">
-  ```
-  `'unsafe-inline'` is regrettable but required because PLAN mandates the inline pre-paint script and inline JSON-LD. A stricter alternative (nonce-based CSP) requires a server, which PLAN forbids. For GitHub Pages, you cannot set CSP headers (no `_headers` file support), so meta CSP is the only option. Reference: https://content-security-policy.com/.
-- **GitHub Pages and headers**: Pages serves with a fixed set of headers and doesn't honour `_headers` or `_redirects` files. Security headers like `X-Frame-Options`, `Strict-Transport-Security`, and `X-Content-Type-Options` are set by Pages defaults (HSTS yes, X-Frame-Options no). To set arbitrary headers, you would need Cloudflare Pages or a custom CDN — out of scope. Reference: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#https-enforcement.
-- **HTTPS enforcement**: GitHub Pages with custom domain auto-provisions a Let's Encrypt cert and serves HTTPS. Enforce in repo Settings → Pages → "Enforce HTTPS". Mandatory for any contemporary site.
-- **Subresource Integrity (SRI)**: N/A — zero external resources. The PLAN's no-CDN rule is the supply-chain control.
-- **Supply chain — Astro + React + satori + resvg**: Build-time dependencies are extensive (Astro pulls ~1000+ transitive packages). Mitigations:
-  - Use `npm ci` (not `npm install`) in CI to enforce lockfile.
-  - Commit `package-lock.json`.
-  - Enable Dependabot or Renovate with grouped security PRs.
-  - Use `npm audit --omit=dev` to scope to runtime — runtime here is ~React only.
-  - Consider `npm ci --ignore-scripts` if any postinstall scripts are suspect; this disables `sharp` native binary fetch — verify on a clean install first.
-- **`sharp` postinstall and native bindings**: `sharp` runs a postinstall script to fetch prebuilt binaries. This is a supply-chain trust point. `sharp` is maintained by the libvips author and widely trusted. Reference: https://sharp.pixelplumbing.com/install.
-- **`@resvg/resvg-js` postinstall**: Same shape. Trust the author (`yisibl`, established). Pin versions, audit on update.
-- **GitHub Actions security**:
-  - Use `permissions: { contents: read, pages: write, id-token: write }` (least privilege).
-  - The deploy workflow uses OIDC for Pages auth (no long-lived secrets).
-  - Pin actions by major version (`@v5`, `@v4`) — for stricter posture, pin by SHA per OWASP Top 10 CI/CD recommendations: https://owasp.org/www-project-top-10-ci-cd-security-risks/.
-  - `concurrency: { group: pages, cancel-in-progress: true }` prevents two deploys racing.
-- **`workflow_dispatch` exposure**: Allows manual deploys. Restrict via repo permissions; only collaborators with `write` can trigger. Acceptable.
-- **Privacy**:
-  - No analytics, no third-party scripts, no fonts.googleapis.com, no CDN. Zero third-party requests = zero leaked IPs.
-  - Per GDPR / CJEU C-252/21 (2023), embedding Google Fonts without consent is unlawful in the EU. Self-hosting eliminates that risk entirely.
-  - No cookies (only first-party `localStorage`). No consent banner required.
-- **JSON-LD and PII leakage**: The JSON-LD Person schema includes name, employer, languages, and `sameAs` social URLs. This is **intentional public info** for ATS/SEO. Do not include email, phone, or address in JSON-LD. Tom's email appears only in `Contact.astro` as a `mailto:` link — also public-by-design on a CV site.
-- **`mailto:` and scraping**: Bots scrape `mailto:` aggressively. Mitigations are weak (JS obfuscation, image-as-email) and harm accessibility. Accept the spam; rely on the mail provider's filtering.
-- **Theme persistence and fingerprinting**: `prefers-color-scheme`, `prefers-reduced-motion`, `localStorage.theme` are read locally and never transmitted. No fingerprinting surface introduced.
-- **OG image generation at build**: Reads woff2 files from `public/fonts/`. No network access, no user input. Safe.
-- **Open Redirect**: No redirects at the application layer. GitHub Pages enforces same-origin. N/A.
-- **CWE-915 (Mass assignment) / CWE-79 (XSS) / CWE-352 (CSRF)**: All N/A — static content, no forms, no state-changing endpoints.
-- **Honesty audit as security control**: §2's grep gates (no "Jarvis", no "Swarm V0", no "Cloudflare Worker") are **integrity controls on public claims**. False statements on a CV are a reputational/legal risk; the gate enforces accuracy. Treat the audit as a security check, not just an editorial preference.
+V4's surface is a strict subset of V3's: same static-site shape, same GitHub Pages target, same zero-runtime-deps posture. New attack vectors are limited to markdown rendering and the inline NoteLink primitive.
+
+- **Markdown XSS**: Astro's default markdown pipeline (remark + rehype) does **not** sanitise HTML embedded in markdown by default. A note containing raw `<script>alert(1)</script>` in its body would render the script tag verbatim. **Mitigation**: notes are authored by Tom (trusted), reviewed by Reviewer-Deployer, and committed. There is no untrusted markdown source. If notes ever accept external contributions, add `rehype-sanitize` — https://github.com/rehypejs/rehype-sanitize.
+- **Markdown auto-link XSS**: `[click](javascript:alert(1))` markdown links produce `<a href="javascript:alert(1)">` HTML by default in some processors. Astro's default remark setup **strips `javascript:` URL schemes** (verify with `npm view @astrojs/markdown-remark` and check the remark-rehype default). Defensive measure: lint note bodies with `eslint-plugin-mdx` or grep for `javascript:` in committed notes.
+- **Frontmatter injection**: Zod schema validation gates frontmatter shape. Any unexpected field with strict mode triggers a build error. Without strict mode, extra fields pass silently — low-risk because they aren't rendered.
+- **XSS via NoteLink slug**: The slug interpolates into `href={`/notes/${slug}/`}`. If the slug contains `"` or `<`, Astro's JSX-like escaping handles it (attribute values are escaped). Per Astro docs (https://docs.astro.build/en/guides/dev-toolbar/), expression interpolation auto-escapes. Slugs come from frontmatter (controlled) → no user input → no risk. But verify by trying `slug: "ev\"il"` once locally and confirming the escape works (defensive QA).
+- **`set:html` audit**: PLAN does not introduce new `set:html` sinks. The only `set:html` in V3 was the JSON-LD payload (typed literals → safe). V4 inherits this with no expansion.
+- **`data-astro-prefetch` and SSRF / privacy**: Prefetch fetches the same-origin note HTML on hover. No third-party fetches. No SSRF risk. Privacy: prefetch reveals user intent to the server (fetch of `/notes/X/`) before they click. Static site → no server logs analysed → no privacy leak beyond GitHub Pages' raw access logs.
+- **View Transitions and DOM swap**: `ClientRouter` swaps the `<body>` content between routes. Any third-party script (none here) could re-inject during the swap. With zero third-party JS, the surface is closed. The pre-paint script runs only on initial load (see Gotchas) — no re-entry risk.
+- **`localStorage` consistency across pages**: TweaksPanel/DisplayPanel (V3 islands) hydrate on `/`. They do not hydrate on `/notes/*` unless those pages explicitly import them. If a user changes theme on `/`, navigates to `/notes/X/`, the theme is read from `<html data-theme>` (preserved across view-transition navigations) so it stays consistent. Confirm by toggling theme on index, navigating to a note, and verifying the theme persists.
+- **Em-dash audit as content-integrity control**: U+2014 ban is a writing-style enforcement (Tom's CLAUDE.md). Treated as a security/quality gate at build time.
+- **Leakage grep (criterion 4)**: Hard-coded list of forbidden names/terms prevents accidental disclosure of colleagues, project codenames, and internal systems. This is **operational security**, not just style. Names like `Sofia`, `Bekzoda`, `Anna`, `Conrad`, `Luke`, `Joakim`, `Adam` are real people; `Triton`, `Investran`, `Dealsplus`, `composite-keys` are employer-internal terms. Public disclosure could harm Tom's employment. Reviewer-Deployer MUST run criterion 4 and block merge on any match.
+- **Jarvis honesty grep (criterion 5)**: Self-imposed integrity gate. Public claims about "having built Jarvis" would be false → reputational risk. Reflective first-person framing is permitted; product-pitch language is not.
+- **No new runtime dependencies (criterion 14)**: Zero supply-chain expansion. Maintains V3's secure dependency posture.
+- **GitHub Actions security**: V4 uses the same deploy workflow as V3 (`actions/configure-pages@v5`, `actions/deploy-pages@v4`). No changes. Least-privilege permissions preserved (`contents: read, pages: write, id-token: write`).
+- **PR-not-merge gate (criterion 18)**: Reviewer-Deployer stops at PR creation. Human (Tom) reads diff before merge. This is the final integrity boundary against persona drift. **Do not auto-merge.**
+- **CSP**: Inherited from V3's meta CSP (if present). New inline `<script>` for `RevealObserver` requires `'unsafe-inline'` for `script-src` — already required by V3. No new CSP relaxation needed.
+- **Subresource Integrity**: N/A — no external resources, same as V3.
+- **Privacy**: No analytics added. No tracking. No third-party fetches. Note pages are pure HTML+CSS with one prefetch link strategy (same-origin). GDPR/ePrivacy posture: unchanged, no consent banner required.
+- **`gh pr create` and secret exposure**: PR description (per acceptance criteria) includes grep results, build output, Lighthouse scores. **Verify the grep output for criteria 3, 4, 5 does not include the surrounding text of any (rare false-positive) match** — `grep` with default settings prints the matching line, which could leak adjacent content. Use `grep -c` (count only) or `grep -l` (files only) for the PR description when zero matches is the expected result. The criterion says "command and count attached" → use `wc -l`.
+- **Markdown sources field and HTML injection**: `sources: [{ label, kind }]` — if `label` contains `<script>`, it renders into `<li>{s.label}</li>`. Astro JSX-style interpolation escapes string children — verify by writing `label: "<b>bold</b>"` once and confirming literal output. Should be safe by default. Reference: https://docs.astro.build/en/basics/astro-syntax/#dynamic-html.
+- **CWE-79 (XSS) summary**: Surface is closed by (a) trusted author, (b) Astro auto-escape on expression interpolation, (c) default remark sanitisation of `javascript:` URLs, (d) review gate. Quad-defence; risk is negligible.
+- **CWE-918 (SSRF) / CWE-22 (Path Traversal)**: N/A — no server, no filesystem access at runtime.
+- **CWE-377 (Insecure Temp Files)**: N/A.
+- **CWE-200 (Information Exposure)**: Mitigated by criteria 4 (leakage grep) and 5 (Jarvis grep). Operational security baked into the acceptance gate.
 
 [opus + 1 tool call]

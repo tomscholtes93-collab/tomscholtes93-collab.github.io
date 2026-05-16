@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import NoteCard from '../../components/NoteCard.astro';
+import RevealObserver from '../../components/RevealObserver.astro';
+import { getCollection } from 'astro:content';
+
+const entries = (await getCollection('notes', ({ data }) => data.status === 'published'))
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+---
+<Base
+  title="Notes · Tom Scholtes"
+  description="Short reflections on MCP, token economy, retrieval, and memory in personal AI."
+  path="/notes/"
+>
+  <Nav active="notes" />
+  <main>
+    <header class="paper">
+      <div class="container">
+        <span class="eyebrow">Notes · 2026</span>
+        <h1 class="title">Reflections, in <em>first person</em>.</h1>
+        <p class="sub">
+          Short essays on the design of personal AI infrastructure. Concepts I keep
+          coming back to. Linked from the rest of the site where the concept first
+          appears in context.
+        </p>
+      </div>
+    </header>
+
+    <section>
+      <div class="container">
+        <div class="notes-grid">
+          {entries.map((entry, i) => (
+            <div class="reveal" style={`--reveal-delay: ${Math.min(i, 5) * 50}ms`}>
+              <NoteCard entry={entry} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <RevealObserver />
+</Base>

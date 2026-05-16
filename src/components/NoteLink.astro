@@ -1,0 +1,7 @@
+---
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+<a href={`/notes/${slug}/`} class="note-link" data-astro-prefetch><slot /></a>
