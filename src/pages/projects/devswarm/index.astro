@@ -4,6 +4,7 @@ import Nav from '../../../components/Nav.astro';
 import Footer from '../../../components/Footer.astro';
 import ArchitectureDevSwarm from '../../../components/ArchitectureDevSwarm.astro';
 import RevealObserver from '../../../components/RevealObserver.astro';
+import NoteLink from '../../../components/NoteLink.astro';
 ---
 <Base
   title="DevSwarm v1 · Tom Scholtes"
@@ -21,7 +22,7 @@ import RevealObserver from '../../../components/RevealObserver.astro';
           DevSwarm is a FastMCP server that orchestrates five persistent Claude Code
           persona sessions (Architect, Researcher, Frontend, Backend, Reviewer-Deployer)
           to turn one prompt into one pull request. Fire-and-forget: kick it off from
-          a single MCP call, close the laptop, wake up to a PR. No Docker, no daemon,
+          a single <NoteLink slug="mcp-workstream">MCP call</NoteLink>, close the laptop, wake up to a PR. No Docker, no daemon,
           no port; just files on disk and stdio MCP. Built end-to-end on a Fedora
           server in a single afternoon.
         </p>

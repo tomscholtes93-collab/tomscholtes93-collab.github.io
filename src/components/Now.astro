@@ -1,5 +1,6 @@
 ---
 import { NOW_ITEMS, NOW_EYEBROW } from '../content/now.ts';
+import NoteLink from './NoteLink.astro';
 ---
 <section id="now" class="reveal">
   <div class="container">
@@ -17,7 +18,13 @@ import { NOW_ITEMS, NOW_EYEBROW } from '../content/now.ts';
       {NOW_ITEMS.map((it) => (
         <div class="now-row">
           <div class="k">{it.k}</div>
-          <div class="v">{it.v}</div>
+          <div class="v">
+            {it.k === 'Running' ? (
+              <>
+                A personal exocortex on a Fedora server: <NoteLink slug="self-hosted-rag-claude-max">OpenKB</NoteLink> (44 docs indexed), Meridian, Notion and Asana fanned out through <NoteLink slug="mcp-workstream">MCP</NoteLink>. Accessed from G2 glasses and a Pixel through Tailscale.
+              </>
+            ) : it.v}
+          </div>
         </div>
       ))}
     </div>

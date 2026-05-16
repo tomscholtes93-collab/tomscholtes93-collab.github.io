@@ -4,6 +4,7 @@ import Nav from '../../../components/Nav.astro';
 import Footer from '../../../components/Footer.astro';
 import ArchitectureExocortex from '../../../components/ArchitectureExocortex.astro';
 import RevealObserver from '../../../components/RevealObserver.astro';
+import NoteLink from '../../../components/NoteLink.astro';
 ---
 <Base
   title="Personal AI Exocortex · Tom Scholtes"
@@ -21,7 +22,7 @@ import RevealObserver from '../../../components/RevealObserver.astro';
           A personal AI exocortex accessible through Even Realities G2 smart
           glasses. Voice query on the lenses, full pipeline runs through
           self-hosted infrastructure on a Fedora server, all routed through
-          Claude Max OAuth so there's no per-token API billing. Multilingual
+          <NoteLink slug="self-hosted-rag-claude-max">Claude Max OAuth</NoteLink> so there's no per-token API billing. Multilingual
           from day one (English, German, Russian, French) with a personal
           knowledge base ingesting in the background.
         </p>
