@@ -1,0 +1,73 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import RevealObserver from '../../components/RevealObserver.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('notes', ({ data }) => data.status === 'published');
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'notes'>;
+}
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const fmt = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+const eyebrowParts = ['/ notes', fmt.format(entry.data.publishDate), ...entry.data.tags];
+const eyebrow = eyebrowParts.join(' · ');
+
+const relatedEntries = entry.data.related.length
+  ? (await getCollection('notes', ({ data, slug }) => data.status === 'published' && entry.data.related.includes(slug)))
+  : [];
+---
+<Base
+  title={`${entry.data.title} · Tom Scholtes`}
+  description={entry.data.summary}
+  path={`/notes/${entry.slug}/`}
+>
+  <Nav active="notes" />
+  <main>
+    <section>
+      <div class="container">
+        <article class="prose note-article">
+          <p class="eyebrow mono">{eyebrow}</p>
+          <h1 class="serif note-title" transition:name={`note-title-${entry.slug}`}>{entry.data.title}</h1>
+          <p class="lead note-summary" transition:name={`note-summary-${entry.slug}`}>{entry.data.summary}</p>
+          <Content />
+
+          {entry.data.sources.length > 0 && (
+            <section class="note-sources">
+              <h2 class="eyebrow">Sources</h2>
+              <ul>
+                {entry.data.sources.map((s) => (
+                  <li>{s.label} <span class="mono">· {s.kind}</span></li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {relatedEntries.length > 0 && (
+            <section class="note-related">
+              <h2 class="eyebrow">Related</h2>
+              <ul>
+                {relatedEntries.map((r) => (
+                  <li><a class="note-link" href={`/notes/${r.slug}/`} data-astro-prefetch>{r.data.title}</a></li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <p class="back mono"><a href="/notes/">← all notes</a></p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <RevealObserver />
+</Base>
