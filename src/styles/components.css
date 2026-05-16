@@ -383,23 +383,59 @@ footer { padding: 48px 0 56px; color: var(--muted); border-top: 1px solid var(--
 .prose h3 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 18px; color: var(--ink); margin: 32px 0 12px; }
 .prose p { margin: 0 0 14px; }
 @media (min-width: 600px) {
-  /* Long-form body justification, applied across all prose surfaces. */
+  /* Site-wide body justification.
+     Applied to every selector that holds running prose, across main, thesis,
+     project sub-pages, projects-landing, and notes. Excludes mono/eyebrow/
+     metadata labels via the override block below.
+  */
   .prose p,
   .paper-body p,
-  .colo-grid .body p {
+  .colo-grid .body p,
+  .colo-grid .body,
+  .sec-head .blurb,
+  .hero .lead,
+  .sub,
+  .lede,
+  .lead,
+  .case p,
+  .cv-row .note,
+  .reading-card p,
+  .proj-card p,
+  .cta-card .right p,
+  .now-row .v,
+  .hyp .body,
+  .find p,
+  .high li,
+  .method dd,
+  .stack dd,
+  .persona-desc,
+  .run-log-desc,
+  .feat-desc,
+  .lesson-text,
+  .proj-cards .card p {
     text-align: justify;
     text-justify: inter-word;
     hyphens: auto;
     -webkit-hyphens: auto;
   }
-  /* Keep meta paragraphs (eyebrow / lead / summary / back / mono labels) left-aligned. */
+  /* Metadata, labels, mono fonts: stay left-aligned, no hyphenation. */
   .prose p.eyebrow,
-  .prose p.lead,
   .prose p.back,
   .prose p.note-summary,
   .paper-body p.eyebrow,
-  .paper-body p.lead,
-  .paper-body p.back {
+  .paper-body p.back,
+  .note-card-summary,
+  .case-metric-lbl,
+  .case-metric,
+  .meta-row,
+  .stack dt,
+  .method dt,
+  .persona-role,
+  .feat-tag,
+  .lesson-kind,
+  .run-log-stage,
+  .run-log-time,
+  .artifact-cap {
     text-align: left;
     hyphens: manual;
   }
