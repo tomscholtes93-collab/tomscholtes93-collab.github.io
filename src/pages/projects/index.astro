@@ -3,24 +3,31 @@ import Base from '../../layouts/Base.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
 import RevealObserver from '../../components/RevealObserver.astro';
+import { t as translate, getLocale, localizePath, type Locale } from '../../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+const devswarmHref = localizePath('/projects/devswarm', locale);
+const exocortexHref = localizePath('/projects/exocortex', locale);
+const tagList = (slug: 'devswarm' | 'exocortex') =>
+  [0, 1, 2, 3]
+    .map((i) => t(`projects.index.card.${slug}.tag.${i}`))
+    .filter((s) => s && s.length > 0);
+const devswarmTags = tagList('devswarm');
+const exocortexTags = tagList('exocortex');
 ---
 <Base
-  title="Projects · Tom Scholtes"
-  description="Side projects by Tom Scholtes. Small experiments in agent design, knowledge tooling, and personal AI infrastructure."
+  title={t('meta.projects.title')}
+  description={t('meta.projects.description')}
   path="/projects"
 >
   <Nav active="projects" />
   <main>
     <header class="paper">
       <div class="container">
-        <span class="eyebrow">Projects · 2026</span>
-        <h1 class="title">Things I build <em>outside</em> the day job.</h1>
-        <p class="sub">
-          Small experiments in agent design, knowledge tooling, and the workflow
-          plumbing between them. Built for myself first, written up here when
-          something works. Each card opens a longer write-up: architecture,
-          decisions, and the artifacts the build produced.
-        </p>
+        <span class="eyebrow">{t('projects.index.eyebrow')}</span>
+        <h1 class="title">{t('projects.index.heading.pre')} <em>{t('projects.index.heading.em')}</em> {t('projects.index.heading.post')}</h1>
+        <p class="sub">{t('projects.index.sub')}</p>
       </div>
     </header>
 
@@ -28,50 +35,33 @@ import RevealObserver from '../../components/RevealObserver.astro';
       <div class="container">
         <div class="proj-cards">
 
-          <a class="card" href="/projects/devswarm">
+          <a class="card" href={devswarmHref}>
             <div class="card-head">
-              <span class="card-num">Project 01</span>
+              <span class="card-num">{t('projects.index.card.devswarm.num')}</span>
               <div class="card-metric">
-                <div class="card-metric-num">4m 42s</div>
-                <div class="card-metric-lbl">from one prompt to one PR, end-to-end</div>
+                <div class="card-metric-num">{t('projects.index.card.devswarm.metric')}</div>
+                <div class="card-metric-lbl">{t('projects.index.card.devswarm.label')}</div>
               </div>
             </div>
-            <h2>DevSwarm v1<span class="arr"> →</span></h2>
-            <p>
-              A FastMCP server that orchestrates five persistent Claude Code persona
-              sessions (architect, researcher, frontend, backend, reviewer-deployer)
-              to turn one idea into a working pull request. Fire-and-forget; no
-              Docker, no daemon, no port. Just files on disk and stdio MCP.
-            </p>
+            <h2>{t('projects.index.card.devswarm.title')}<span class="arr"> →</span></h2>
+            <p>{t('projects.index.card.devswarm.body')}</p>
             <div class="tags">
-              <span class="tag">Python</span>
-              <span class="tag">FastMCP</span>
-              <span class="tag">Multi-agent</span>
-              <span class="tag">Claude Code</span>
+              {devswarmTags.map((tg) => <span class="tag">{tg}</span>)}
             </div>
           </a>
 
-          <a class="card in-progress" href="/projects/exocortex">
+          <a class="card in-progress" href={exocortexHref}>
             <div class="card-head">
-              <span class="card-num">Project 02</span>
+              <span class="card-num">{t('projects.index.card.exocortex.num')}</span>
               <div class="card-metric">
-                <div class="card-metric-num">live</div>
-                <div class="card-metric-lbl">day 5 · base process complete</div>
+                <div class="card-metric-num">{t('projects.index.card.exocortex.metric')}</div>
+                <div class="card-metric-lbl">{t('projects.index.card.exocortex.label')}</div>
               </div>
             </div>
-            <h2>Personal AI Exocortex<span class="arr"> →</span></h2>
-            <p>
-              A personal AI assistant accessible through Even Realities G2 smart
-              glasses. Voice from the lenses, pipeline through self-hosted
-              infrastructure on Fedora, all routed through Claude Max OAuth so
-              there's no per-token API billing. Multilingual: English, German,
-              Russian, French.
-            </p>
+            <h2>{t('projects.index.card.exocortex.title')}<span class="arr"> →</span></h2>
+            <p>{t('projects.index.card.exocortex.body')}</p>
             <div class="tags">
-              <span class="tag">AR glasses</span>
-              <span class="tag">MCP</span>
-              <span class="tag">Self-hosted</span>
-              <span class="tag">Claude Max</span>
+              {exocortexTags.map((tg) => <span class="tag">{tg}</span>)}
             </div>
           </a>
 

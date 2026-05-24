@@ -1,14 +1,15 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { getLocale, localizePath, localeDateFmt, type Locale } from '../i18n';
 
-interface Props {
-  entry: CollectionEntry<'notes'>;
-}
+interface Props { entry: CollectionEntry<'notes'>; }
 const { entry } = Astro.props;
-const fmt = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const fmt = localeDateFmt(locale);
+const href = localizePath(`/notes/${entry.slug}/`, locale);
 const firstTag = entry.data.tags[0];
 ---
-<a href={`/notes/${entry.slug}/`} class="note-card" data-astro-prefetch>
+<a href={href} class="note-card" data-astro-prefetch>
   <span class="note-eyebrow eyebrow">
     {fmt.format(entry.data.publishDate)}{firstTag ? ` · ${firstTag}` : ''}
   </span>
