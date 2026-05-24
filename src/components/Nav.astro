@@ -1,29 +1,39 @@
 ---
 import Arr from './Arr.astro';
+import LangSwitcher from './LangSwitcher.astro';
+import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
 
 interface Props {
   active?: string;
 }
 const { active: _active = 'home' } = Astro.props;
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+const home = localizePath('/', locale);
+const projects = localizePath('/projects/', locale);
+const notes = localizePath('/notes/', locale);
+const thesis = localizePath('/thesis/', locale);
 ---
 <header class="nav" id="site-nav" data-open="false" transition:persist transition:name="site-nav">
   <div class="container nav-inner">
-    <a href="/" class="brand">
+    <a href={home} class="brand">
       <span class="brand-mark">T</span>
-      <span>Tom Scholtes</span>
+      <span>{t('nav.brand')}</span>
     </a>
     <nav class="nav-links">
-      <a href="/#now">Now</a>
-      <a href="/#work">Work</a>
-      <a href="/projects/">Projects</a>
-      <a href="/notes/">Notes</a>
-      <a href="/#cv">CV</a>
-      <a href="/thesis/">Thesis</a>
-      <a href="/#reading">Reading</a>
-      <a href="/#contact">Contact</a>
+      <a href={`${home}#now`}>{t('nav.now')}</a>
+      <a href={`${home}#work`}>{t('nav.work')}</a>
+      <a href={projects}>{t('nav.projects')}</a>
+      <a href={notes}>{t('nav.notes')}</a>
+      <a href={`${home}#cv`}>{t('nav.cv')}</a>
+      <a href={thesis}>{t('nav.thesis')}</a>
+      <a href={`${home}#reading`}>{t('nav.reading')}</a>
+      <a href={`${home}#contact`}>{t('nav.contact')}</a>
     </nav>
-    <a href="/#contact" class="nav-cta">Say hi <Arr /></a>
-    <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+    <LangSwitcher />
+    <a href={`${home}#contact`} class="nav-cta">{t('nav.cta')} <Arr /></a>
+    <button type="button" class="nav-toggle" aria-label={t('nav.menu.open')} aria-expanded="false" data-label-open={t('nav.menu.open')} data-label-close={t('nav.menu.close')}>
       <span class="bar"></span>
       <span class="bar"></span>
       <span class="bar"></span>
@@ -37,10 +47,12 @@ const { active: _active = 'home' } = Astro.props;
     if (!nav) return;
     var btn = nav.querySelector('.nav-toggle');
     var links = nav.querySelector('.nav-links');
+    var openLabel = btn.getAttribute('data-label-open') || 'Open menu';
+    var closeLabel = btn.getAttribute('data-label-close') || 'Close menu';
     function setOpen(v) {
       nav.setAttribute('data-open', v ? 'true' : 'false');
       btn.setAttribute('aria-expanded', v ? 'true' : 'false');
-      btn.setAttribute('aria-label', v ? 'Close menu' : 'Open menu');
+      btn.setAttribute('aria-label', v ? closeLabel : openLabel);
       document.body.style.overflow = v ? 'hidden' : '';
     }
     btn.addEventListener('click', function () {

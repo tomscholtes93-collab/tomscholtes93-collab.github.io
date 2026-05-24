@@ -1,34 +1,5 @@
-export type Headline = { key: string; pre: string; em: string; post: string; label: string };
+export type HeadlineId = 'editorial' | 'bold' | 'plain' | 'punchy';
 
-export const HEADLINES: Record<string, Headline> = {
-  editorial: {
-    key: 'editorial',
-    pre: 'Six years in Luxembourg fund services, ',
-    em: 'quietly',
-    post: ' automating the desk underneath me.',
-    label: 'Editorial · "quietly automating"',
-  },
-  bold: {
-    key: 'bold',
-    pre: 'Building AI tools for ',
-    em: 'the work',
-    post: ' I do every day.',
-    label: 'Bold · "for the work"',
-  },
-  plain: {
-    key: 'plain',
-    pre: 'Finance operations, ',
-    em: 'augmented by AI',
-    post: '.',
-    label: 'Plain · "augmented by AI"',
-  },
-  punchy: {
-    key: 'punchy',
-    pre: 'Less manual work. ',
-    em: 'More controls',
-    post: ' that hold.',
-    label: 'Punchy · "controls that hold"',
-  },
-};
+export const HEADLINE_IDS: readonly HeadlineId[] = ['editorial', 'bold', 'plain', 'punchy'] as const;
 
-export const DEFAULT_HEADLINE = 'editorial';
+export const DEFAULT_HEADLINE: HeadlineId = 'editorial';

@@ -1,334 +1,410 @@
-# RESEARCH.md — tomscholtes-v4
+# RESEARCH.md — tomscholtes-i18n-2026-05-24
 
 ## Libraries
 
-V4 is **strictly additive** to V3 with **zero new runtime dependencies** (acceptance criterion 14). Everything in the table is either already in V3's `package.json` or a built-in Astro 5 feature. No npm install is needed.
+This batch is **strictly additive** with **zero new runtime or dev dependencies** (acceptance criterion 7). Everything in the table is either already in V3's `package.json` or a platform / Astro 5 built-in.
 
 | Name | Version | Purpose | Link |
 |---|---|---|---|
 | Astro | ^5.0.0 (existing) | Static build, file-based routing, content collections | https://docs.astro.build/en/getting-started/ |
-| Astro Content Collections | Astro 5 builtin | `defineCollection` + Zod schema for `notes/` | https://docs.astro.build/en/guides/content-collections/ |
-| Zod | bundled with Astro | Schema validation for note frontmatter | https://zod.dev/ |
-| `astro:transitions` (`ClientRouter`) | Astro 5 builtin | View Transitions API + SPA-style nav between index ↔ detail | https://docs.astro.build/en/guides/view-transitions/ |
-| `astro:content` (`getCollection`, `CollectionEntry`) | Astro 5 builtin | Type-safe access to `notes` collection | https://docs.astro.build/en/reference/modules/astro-content/ |
-| Remark + Rehype | Astro defaults | Markdown → HTML for note bodies | https://docs.astro.build/en/guides/markdown-content/ |
-| View Transitions API | CSS-WG Level 1 (WD) | `transition:name` pairing of index ↔ detail title morph | https://drafts.csswg.org/css-view-transitions-1/ |
-| Intersection Observer | Level 1 (REC) | Staggered scroll reveal (existing `RevealObserver`) | https://www.w3.org/TR/intersection-observer/ |
-| CSS Media Queries Level 5 | WD | `prefers-reduced-motion` guards on motion blocks | https://www.w3.org/TR/mediaqueries-5/ |
-| CSS Backgrounds and Borders Level 3 | REC | `background-image: linear-gradient(...)` underline-draw effect | https://www.w3.org/TR/css-backgrounds-3/ |
-| CSS Transforms Level 1/2 | REC/CR | 1 px `translateY(-1px)` hover lift | https://www.w3.org/TR/css-transforms-1/ |
-| HTML Living Standard | WHATWG | `<a>` semantics, `meta` description, etc. | https://html.spec.whatwg.org/multipage/ |
-| Schema.org `Article` (optional) | live spec | JSON-LD for note detail pages if SEO desired (not in PLAN) | https://schema.org/Article |
+| Astro 5 built-in i18n | Astro 5 builtin | Locale-prefixed routing, `Astro.currentLocale`, `i18n` config block | https://docs.astro.build/en/guides/internationalization/ |
+| Vite JSON imports | Vite (bundled with Astro) | Static import of `*.json` as typed objects | https://vitejs.dev/guide/features.html#json |
+| TypeScript | ^5.x (existing, via Astro) | `Locale` union, helper module typing | https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html |
+| `Intl.DateTimeFormat` | ECMA-402 (platform) | Locale-aware `publishDate` rendering | https://tc39.es/ecma402/#datetimeformat-objects |
+| Node `node:fs` (`readFileSync`) | Node 20+ stdlib | `scripts/check-i18n.mjs` reads JSON dicts | https://nodejs.org/api/fs.html#fsreadfilesyncpath-options |
+| GNU grep / ripgrep `-P` | host tool | Em-dash audit via `\xe2\x80\x94` byte regex | https://www.gnu.org/software/grep/manual/grep.html |
+| HTML Living Standard `<html lang>` | WHATWG | Per-locale root-element lang attribute | https://html.spec.whatwg.org/multipage/dom.html#the-lang-and-xml:lang-attributes |
+| `rel="alternate" hreflang="..."` | Google SEO guidance | Per-locale alternate URL hinting | https://developers.google.com/search/docs/specialty/international/localized-versions |
+| `og:locale` / `og:locale:alternate` | OpenGraph spec | Per-locale Open Graph signalling | https://ogp.me/#optional |
+| `prefers-reduced-motion` | CSS Media Queries L5 (WD) | LangSwitcher underline transition gate | https://www.w3.org/TR/mediaqueries-5/ |
 
-Tooling-only (not runtime):
-- `grep -P` with `\xe2\x80\x94` for em-dash audit (GNU grep / ripgrep) — https://www.gnu.org/software/grep/manual/grep.html
-- `gh pr create` — https://cli.github.com/manual/gh_pr_create
+Explicitly **not used** (per PLAN.md hard rule and acceptance criterion 15):
+
+| Library | Reason rejected |
+|---|---|
+| `i18next` / `react-i18next` / `next-i18next` | Third-party, runtime weight, not needed for a static site with ~320 keys |
+| `@astrojs/i18n` integration | Deprecated / merged into Astro 5 core; using core is the modern path |
+| `vue-i18n`, `svelte-i18n`, `@formatjs/intl` | Wrong stack / unneeded runtime |
+| `date-fns`, `dayjs` | `Intl.DateTimeFormat` covers the two date-render sites |
 
 ## Reference patterns
 
-### 1. Astro 5 content collection schema (legacy "content" type)
+### 1. Astro 5 i18n config block
 
-Source: Astro docs, "Content Collections" — https://docs.astro.build/en/guides/content-collections/
+Source: Astro docs, "Internationalization (i18n)" — https://docs.astro.build/en/guides/internationalization/
 
-```ts
-// src/content/notes/config.ts
-import { defineCollection, z } from 'astro:content';
+```js
+// astro.config.mjs (excerpt)
+import { defineConfig } from 'astro/config';
 
-const notes = defineCollection({
-  type: 'content',
-  schema: z.object({
-    title: z.string(),
-    slug: z.string(),
-    summary: z.string().max(220),
-    publishDate: z.coerce.date(),
-    tags: z.array(z.string()).max(3).default([]),
-    related: z.array(z.string()).default([]),
-    sources: z.array(z.object({
-      label: z.string(),
-      kind: z.enum(['notion', 'memory', 'site', 'external']),
-    })).default([]),
-    status: z.enum(['draft', 'published']).default('published'),
-  }),
+export default defineConfig({
+  site: 'https://tomscholtes.com',
+  trailingSlash: 'never',
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'de', 'fr', 'ru'],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
+  build: { /* unchanged */ },
 });
-
-export const collections = { notes };
 ```
+
+`prefixDefaultLocale: false` keeps English at the root (`/`, `/projects/`, ...). Non-default locales live under `/de/`, `/fr/`, `/ru/`. Default behavior of `redirectToDefaultLocale` is `true` when `prefixDefaultLocale: true` is set; with `prefixDefaultLocale: false` it is effectively a no-op — do not set it explicitly (criterion 9 enforces absence).
+
+### 2. Helper module — `src/i18n/index.ts`
+
+Source: Astro JSON-import behavior (Vite handles `*.json` as typed default exports) — https://vitejs.dev/guide/features.html#json and ECMA-402 Intl.DateTimeFormat — https://tc39.es/ecma402/
 
 ```ts
-// src/content/config.ts
-export { collections } from './notes/config';
-```
+// src/i18n/index.ts
+import en from './en.json';
+import de from './de.json';
+import fr from './fr.json';
+import ru from './ru.json';
 
-`z.coerce.date()` accepts YAML's unquoted ISO date `publishDate: 2026-05-16` and coerces it to a `Date` object. Without `coerce`, you'd need to write `new Date('2026-05-16')` in frontmatter, which doesn't work in YAML.
+export type Locale = 'en' | 'de' | 'fr' | 'ru';
+export const LOCALES = ['en', 'de', 'fr', 'ru'] as const satisfies readonly Locale[];
+export const NON_DEFAULT_LOCALES = ['de', 'fr', 'ru'] as const satisfies readonly Locale[];
+export const DEFAULT_LOCALE: Locale = 'en';
 
-### 2. Listing page with `getCollection` + filter + sort
+const DICTS: Record<Locale, Record<string, string>> = { en, de, fr, ru };
 
-Source: Astro docs, "Querying collections" — https://docs.astro.build/en/guides/content-collections/#querying-collections
+const DATE_LOCALE: Record<Locale, string> = {
+  en: 'en-GB', de: 'de-DE', fr: 'fr-FR', ru: 'ru-RU',
+};
 
-```astro
----
-// src/pages/notes/index.astro
-import Base from '../../layouts/Base.astro';
-import NoteCard from '../../components/NoteCard.astro';
-import RevealObserver from '../../components/RevealObserver.astro';
-import { getCollection } from 'astro:content';
-
-const entries = (await getCollection('notes', ({ data }) => data.status === 'published'))
-  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
----
-<Base title="Notes — Tom Scholtes" description="Reflections on MCP, token economy, RAG, and memory." path="/notes/">
-  <RevealObserver>
-    <section class="notes-grid">
-      {entries.map((entry, i) => (
-        <div class="reveal" style={`--reveal-delay: ${Math.min(i, 5) * 50}ms`}>
-          <NoteCard entry={entry} />
-        </div>
-      ))}
-    </section>
-  </RevealObserver>
-</Base>
-```
-
-Cap the per-card delay at index 5 so card 7+ doesn't introduce a noticeable lag. Inline `--reveal-delay` CSS variable lets the existing `RevealObserver` apply `transition-delay: var(--reveal-delay)` without per-card JS.
-
-### 3. Detail page with `getStaticPaths` + `entry.render()`
-
-Source: Astro docs, "Generating routes from data" — https://docs.astro.build/en/guides/content-collections/#generating-routes-from-content
-
-```astro
----
-// src/pages/notes/[slug].astro
-import Base from '../../layouts/Base.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
-
-export async function getStaticPaths() {
-  const entries = await getCollection('notes', ({ data }) => data.status === 'published');
-  return entries.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
+export function getLocale(url: URL | { pathname: string }): Locale {
+  const first = (url.pathname.split('/').filter(Boolean)[0] ?? '').toLowerCase();
+  return (NON_DEFAULT_LOCALES as readonly string[]).includes(first)
+    ? (first as Locale)
+    : DEFAULT_LOCALE;
 }
 
-interface Props { entry: CollectionEntry<'notes'> }
-const { entry } = Astro.props;
-const { Content } = await entry.render();
-const fmt = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
----
-<Base
-  title={`${entry.data.title} — Tom Scholtes`}
-  description={entry.data.summary}
-  path={`/notes/${entry.slug}/`}
->
-  <article class="note">
-    <p class="eyebrow mono">
-      / notes · {fmt.format(entry.data.publishDate)}{entry.data.tags.length ? ` · ${entry.data.tags.join(' · ')}` : ''}
-    </p>
-    <h1 class="serif" transition:name={`note-title-${entry.slug}`}>{entry.data.title}</h1>
-    <p class="lead" transition:name={`note-summary-${entry.slug}`}>{entry.data.summary}</p>
-    <Content />
-    {entry.data.sources.length > 0 && (
-      <section class="note-sources">
-        <h2 class="eyebrow">Sources</h2>
-        <ul>{entry.data.sources.map(s => <li>{s.label} <span class="mono">· {s.kind}</span></li>)}</ul>
-      </section>
-    )}
-    <p class="back mono"><a href="/notes/">← all notes</a></p>
-  </article>
-</Base>
+export function t(key: string, locale: Locale, vars?: Record<string, string | number>): string {
+  const raw = DICTS[locale]?.[key] ?? DICTS.en[key] ?? key;
+  if (!vars) return raw;
+  return raw.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? `{${name}}`));
+}
+
+export function localizePath(path: string, locale: Locale): string {
+  const clean = path.startsWith('/') ? path : `/${path}`;
+  if (locale === DEFAULT_LOCALE) return clean;
+  return `/${locale}${clean === '/' ? '/' : clean}`;
+}
+
+export function localeDateFmt(locale: Locale): Intl.DateTimeFormat {
+  return new Intl.DateTimeFormat(DATE_LOCALE[locale], { day: 'numeric', month: 'short', year: 'numeric' });
+}
 ```
 
-`entry.slug` (legacy "content" type) is the filename without extension by default — matches `{ params: { slug } }` for the route. Note: the new Astro 5 Content Layer API uses `entry.id` instead of `entry.slug` — see Gotchas.
+Notes:
+- JSON imports do **not** need `assert { type: 'json' }` in Astro 5 / Vite. The PLAN's example with `assert` works under Node but is being deprecated for `with { type: 'json' }`. Astro/Vite handles JSON natively — drop the assertion entirely.
+- The `t()` function is intentionally tiny. No nested-key traversal — keys are flat dot-strings (`'home.hero.eyebrow'` is a single string key, not a nested path). This keeps lookup O(1) and removes a class of "missing intermediate object" bugs.
+- Fallback chain: locale value → EN value → literal key (visible in dev, blocked by build gate).
 
-### 4. View Transitions named morph
+### 3. Component pattern — `t` via `Astro.currentLocale`
 
-Source: Astro docs, "View Transitions" — https://docs.astro.build/en/guides/view-transitions/ and CSS-WG draft "Named view transitions" — https://drafts.csswg.org/css-view-transitions-1/#named-elements
+Source: Astro docs, "Astro.currentLocale" — https://docs.astro.build/en/reference/api-reference/#astrocurrentlocale
 
 ```astro
-<!-- NoteCard.astro -->
-<a href={`/notes/${entry.slug}/`} class="note-card">
+---
+// any .astro component
+import { t as translate, getLocale, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
+---
+<section class="hero">
+  <p class="eyebrow">{t('home.hero.eyebrow')}</p>
+  <h1>{t('home.hero.lead')}</h1>
+  <p class="hero-meta">
+    {t('home.hero.meta.years', { years: 6 })}
+    <span class="dot">·</span>
+    {t('home.hero.meta.casestudies', { count: 8 })}
+  </p>
+</section>
+```
+
+The local `t` alias (closing over `locale`) keeps call sites tidy. The `??` fallback to `getLocale(Astro.url)` exists because `Astro.currentLocale` can be `undefined` in edge cases (notably during prerender of routes outside the configured `locales` set, e.g., 404 handlers in some Astro versions — see Gotchas).
+
+### 4. LangSwitcher — no client JS, CSS-only active state
+
+Source: PLAN.md FE-T8 and Astro `class:list` directive — https://docs.astro.build/en/reference/directives-reference/#classlist
+
+```astro
+---
+// src/components/LangSwitcher.astro
+import { LOCALES, getLocale, localizePath, t as translate, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+const stripLocalePrefix = (p: string) => p.replace(/^\/(de|fr|ru)(\/|$)/, '/');
+const here = stripLocalePrefix(Astro.url.pathname || '/');
+---
+<div class="lang-switcher" role="group" aria-label={t('langswitcher.aria.group')}>
+  {LOCALES.map((code) => (
+    <a
+      href={localizePath(here, code)}
+      class:list={['lang-switch', { 'is-active': code === locale }]}
+      hreflang={code}
+      aria-current={code === locale ? 'true' : undefined}
+    >{code.toUpperCase()}</a>
+  ))}
+</div>
+```
+
+The current locale link still renders as a real `<a>` (with `aria-current="true"`) rather than being suppressed — this is the modern A11y pattern (per WAI-ARIA 1.2 `aria-current`) and lets keyboard users navigate predictably. Reference: https://www.w3.org/TR/wai-aria-1.2/#aria-current.
+
+### 5. Locale wrapper page (re-export pattern)
+
+Source: Astro docs, "Imports" + "Re-exports" behavior — https://docs.astro.build/en/guides/imports/
+
+```astro
+---
+// src/pages/de/index.astro
+import IndexPage from '../index.astro';
+---
+<IndexPage />
+```
+
+For dynamic routes (`[slug]`), Astro requires the wrapper page to itself supply `getStaticPaths`. The re-export form works in Astro 5 for module-level exports:
+
+```astro
+---
+// src/pages/de/notes/[slug].astro
+import NoteDetail from '../../notes/[slug].astro';
+export { getStaticPaths } from '../../notes/[slug].astro';
+---
+<NoteDetail />
+```
+
+**Important caveat (see Gotchas):** Astro's `getStaticPaths` is parsed as a top-level export from the wrapper file; re-exporting from another `.astro` file works in current versions but has been intermittently broken in past minor releases. The fallback is to inline the function body (call `getCollection('notes', ...)` directly in the wrapper). Test both forms early in FE-T10 before scaling to 27 files.
+
+### 6. Build gate — `scripts/check-i18n.mjs`
+
+Source: GNU grep / Node `node:fs` — https://nodejs.org/api/fs.html#fsreadfilesyncpath-options. The PLAN ships a complete implementation; the critical correctness points are:
+
+```js
+// Word-boundary leakage regex MUST escape hyphens-as-words carefully.
+// "composite-keys" contains a literal hyphen — \b at \w/\W boundary works because
+// '-' is \W, but the regex must not anchor on word chars only.
+const re = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+```
+
+The PLAN's `new RegExp(\`\\b${name}\\b\`, 'i')` is correct for the current ban list (no regex metacharacters inside the names). If the list ever gains a name containing `.` or `(`, escape it. Defensive: add the escape step unconditionally — costs nothing.
+
+Two other quality points to fold in:
+- After `JSON.parse`, verify the result is a flat string-keyed string-valued object (not a nested object). A nested mistake (`{ "home": { "hero": "..." } }`) would silently pass key-parity (top-level keys match) while breaking lookup. Add: `for (const [k, v] of Object.entries(dict)) if (typeof v !== 'string') errors.push(\`non-string value ${locale}: ${k}\`)`.
+- Stable exit code: print evidence to stdout on success (criterion 1 looks for `✓ check-i18n: ...` in the build output tail).
+
+### 7. Locale-aware date rendering
+
+Source: ECMA-402 `Intl.DateTimeFormat` — https://tc39.es/ecma402/#datetimeformat-objects
+
+```astro
+---
+// src/components/NoteCard.astro (modified site of the existing en-GB hardcode)
+import { getLocale, localeDateFmt, type Locale } from '../i18n';
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const fmt = localeDateFmt(locale);
+const { entry } = Astro.props;
+---
+<a href={`/${locale === 'en' ? '' : locale + '/'}notes/${entry.slug}/`} class="note-card">
   <h3 class="serif" transition:name={`note-title-${entry.slug}`}>{entry.data.title}</h3>
+  <p class="eyebrow mono">{fmt.format(entry.data.publishDate)}</p>
   <p>{entry.data.summary}</p>
 </a>
-
-<!-- pages/notes/[slug].astro -->
-<h1 class="serif" transition:name={`note-title-${entry.slug}`}>{entry.data.title}</h1>
 ```
 
-The browser pairs elements that share `view-transition-name` (Astro's `transition:name` directive emits exactly that CSS property under the hood) and animates their geometry between the two states. **Both elements must have unique names** — using `transition:name="note-title"` on every card would cause the browser to skip the animation entirely (per spec §5: duplicate names ⇒ skip). Always include `${entry.slug}` to disambiguate.
+Use `localizePath(\`/notes/${entry.slug}/\`, locale)` instead of inline interpolation — keeps the path logic in one place and matches the LangSwitcher.
 
-### 5. NoteLink primitive — underline-draw on hover, lift, reduced-motion guarded
+### 8. `<html lang>` + hreflang alternates in Base.astro
 
-Source: CSS-Tricks "Animated CSS Underline" — https://css-tricks.com/css-link-hover-effects/ and MDN `prefers-reduced-motion` — https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+Source: Google "Tell Google about localized versions" — https://developers.google.com/search/docs/specialty/international/localized-versions
 
 ```astro
 ---
-// src/components/NoteLink.astro
-interface Props { slug: string }
-const { slug } = Astro.props;
+// src/layouts/Base.astro (excerpt)
+import { LOCALES, getLocale, localizePath, t as translate, type Locale } from '../i18n';
+const SITE = 'https://tomscholtes.com';
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string, vars?: Record<string, string|number>) => translate(k, locale, vars);
+
+interface Props { title?: string; description?: string; path?: string; }
+const { title, description, path = '/' } = Astro.props;
+const resolvedTitle = title ?? t('meta.home.title');
+const resolvedDesc = description ?? t('meta.home.description');
+const canonical = new URL(localizePath(path, locale), SITE).href;
+const OG_LOCALE = { en: 'en_GB', de: 'de_DE', fr: 'fr_FR', ru: 'ru_RU' } as const;
 ---
-<a href={`/notes/${slug}/`} class="note-link" data-astro-prefetch><slot /></a>
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <title>{resolvedTitle}</title>
+    <meta name="description" content={resolvedDesc} />
+    <link rel="canonical" href={canonical} />
+    {LOCALES.map((l) => (
+      <link rel="alternate" hreflang={l} href={new URL(localizePath(path, l), SITE).href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(path, SITE).href} />
+    <meta property="og:locale" content={OG_LOCALE[locale]} />
+    {LOCALES.filter((l) => l !== locale).map((l) => (
+      <meta property="og:locale:alternate" content={OG_LOCALE[l]} />
+    ))}
+    <!-- existing fonts, og:image, JSON-LD preserved -->
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
 ```
 
-```css
-/* appended to src/styles/components.css */
-.note-link {
-  color: inherit;
-  text-decoration: none;
-  background-image: linear-gradient(currentColor, currentColor);
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  background-size: 100% 1px;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .note-link {
-    background-size: 0 1px;
-    transition: background-size 200ms ease, transform 200ms ease;
-  }
-  .note-link:hover,
-  .note-link:focus-visible {
-    background-size: 100% 1px;
-    transform: translateY(-1px);
-  }
-}
-.note-link:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
+The `x-default` hreflang points at the English canonical (`/`) per Google's recommendation when a default locale exists. Reference: same URL above.
+
+### 9. Placeholder substitution contract
+
+Source: ECMA-262 `String.prototype.replace` with named-capture callback — https://tc39.es/ecma262/
+
+```js
+// Given EN value: "{count} roles · {years}+ years"
+// Translator must preserve placeholders verbatim:
+//   DE: "{count} Rollen · {years}+ Jahre"
+//   FR: "{count} postes · {years}+ ans"
+//   RU: "{count} ролей · {years}+ лет"
+
+t('home.cv.experience.summary', 'de', { count: 5, years: 6 })
+// → "5 Rollen · 6+ Jahre"
 ```
 
-The trick: render the static (always-visible) underline by default for users with reduced motion, then *override* with a 0-width animated underline inside the `no-preference` block. This guarantees the link is visually identifiable as a link **always** — never "invisible until hovered" for reduced-motion users.
+`check-i18n.mjs` enforces placeholder preservation per criterion 11. The regex `/\{[a-zA-Z0-9_]+\}/g` matches only ASCII placeholder names — translators using Cyrillic in placeholder positions would not be detected as drift. The convention "placeholders are always ASCII" is therefore a translator rule, not just a regex assumption.
 
-### 6. `data-astro-prefetch` (Astro 5 builtin prefetch)
+### 10. Em-dash audit byte sequence
 
-Source: Astro docs, "Prefetch" — https://docs.astro.build/en/guides/prefetch/
-
-```html
-<a href="/notes/mcp-workstream/" data-astro-prefetch>MCP workstream</a>
-```
-
-Astro 5 ships prefetch as a stable feature (no integration needed). The strategy defaults to `hover` — page is fetched on hover, ready before click. Cost: tiny (one fetch per hovered link). Reference: https://docs.astro.build/en/reference/configuration-reference/#prefetch.
-
-### 7. Em-dash audit command
-
-Source: GNU grep manual — https://www.gnu.org/software/grep/manual/grep.html and POSIX byte syntax
+Source: Unicode U+2014 in UTF-8 — https://www.unicode.org/charts/PDF/U2000.pdf
 
 ```bash
-grep -rP $'\xe2\x80\x94' src/ public/
+# Bash with ANSI-C quoted byte sequence:
+grep -rP $'\xe2\x80\x94' src/i18n/ src/components/LangSwitcher.astro src/pages/
+
+# Equivalent ripgrep:
+rg --pcre2 '\x{2014}' src/i18n/ src/components/LangSwitcher.astro src/pages/
+
+# Exit code: 0 = match found (FAIL), 1 = clean (PASS)
 ```
 
-`-P` enables Perl-compatible regex (needed for byte-level `\x` escapes in the pattern). `$'...'` is bash's ANSI-C quoted string — produces the raw 3-byte UTF-8 sequence for U+2014 (em-dash). An equivalent ripgrep call: `rg --pcre2 '\x{2014}' src/ public/`. Exit code 0 means at least one match (failure for our purposes); exit 1 means clean.
+Distinct from U+2013 (en-dash, `\xe2\x80\x93`), U+002D (ASCII hyphen-minus), U+2212 (math minus). The ban applies only to U+2014.
 
-### 8. Frontmatter shape for a note
+### 11. Headlines / now / case-study data refactor
 
-Source: PLAN §3 (schema) + Astro markdown docs — https://docs.astro.build/en/guides/markdown-content/
+Source: PLAN.md FE-T6. Reference TypeScript discriminated-union pattern for stable IDs.
 
-```yaml
----
-title: "The MCP workstream"
-slug: "mcp-workstream"
-summary: "Wiring Outlook and Monday.com into Claude Code through MCP, and what it taught me about scope of automation."
-publishDate: 2026-05-16
-tags: ["mcp", "automation", "tools"]
-related: ["self-hosted-rag-claude-max"]
-sources:
-  - label: "Personal Notion — MCP workstream brief"
-    kind: notion
-  - label: "Anthropic MCP spec"
-    kind: external
-status: published
----
+```ts
+// src/content/now.ts (after refactor)
+export type NowItem = {
+  id: 'working' | 'building' | 'running' | 'learning' | 'offclock';
+  // k/v values now resolved via t('home.now.items.<id>.k') and t('...v') at render
+};
+
+export const NOW: NowItem[] = [
+  { id: 'working' },
+  { id: 'building' },
+  { id: 'running' },
+  { id: 'learning' },
+  { id: 'offclock' },
+];
 ```
-
-YAML 1.2 parses the unquoted date `2026-05-16` as a date if `z.coerce.date()` accepts it. Always quote `title`/`summary` (avoid colons confusing the YAML parser).
-
-### 9. Reusing existing `RevealObserver` with stagger
-
-Source: Astro docs, "Reusing components" — https://docs.astro.build/en/basics/astro-components/
 
 ```astro
-<!-- existing src/components/RevealObserver.astro is assumed to:
-     - wrap children in a container
-     - add an IntersectionObserver
-     - apply .visible class when in view
-     - respect prefers-reduced-motion (instant reveal)
--->
-<RevealObserver>
-  {entries.map((entry, i) => (
-    <div class="reveal" style={`--reveal-delay: ${Math.min(i, 5) * 50}ms`}>
-      <NoteCard entry={entry} />
-    </div>
+---
+// Now.astro (excerpt)
+import { NOW } from '../content/now';
+import { t as translate, getLocale, type Locale } from '../i18n';
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+---
+<ul class="now-list">
+  {NOW.map((it) => (
+    <li>
+      <span class="now-k">{t(`home.now.items.${it.id}.k`)}</span>
+      <span class="now-v">{t(`home.now.items.${it.id}.v`)}</span>
+    </li>
   ))}
-</RevealObserver>
+</ul>
+{/* The 'running' item has inline JSX (NoteLink) — special-case it: */}
 ```
 
-The CSS in `components.css` (or wherever the existing reveal rules live) should already include:
+The PLAN calls out that `home.now.items.running` is split into `lead/middle/tail` because the visible text wraps an inline `<NoteLink>` JSX component. Pattern: render the three text fragments and the JSX between them:
 
-```css
-.reveal { opacity: 0; transform: translateY(8px); transition: opacity .4s ease var(--reveal-delay, 0ms), transform .4s ease var(--reveal-delay, 0ms); }
-.reveal.visible { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+```astro
+<li>
+  <span class="now-k">{t('home.now.items.running.k')}</span>
+  <span class="now-v">
+    {t('home.now.items.running.lead')}
+    <NoteLink slug="self-hosted-rag-claude-max">{t('home.now.items.running.middle')}</NoteLink>
+    {t('home.now.items.running.tail')}
+  </span>
+</li>
 ```
-
-Verify the existing observer's CSS supports `--reveal-delay` before relying on it. If not, append the rule above to `components.css`.
 
 ## Gotchas
 
-- **Astro 5 Content Layer API vs legacy `type: 'content'`**: Astro 5 introduced a new "Content Layer" API with `loader: glob({...})` syntax. The PLAN uses the **legacy** `type: 'content'` API. Legacy is still supported in Astro 5 but flagged for future removal. The legacy API uses `entry.slug`; the new Content Layer API uses `entry.id`. **PLAN's `entry.slug` references the legacy field — keep using `type: 'content'`. Do not "modernize" unless instructed.** Reference: https://docs.astro.build/en/guides/upgrade-to/v5/#legacy-v20-content-collections-api.
-- **Content config file location**: Astro 5 recommends `src/content.config.ts` (top-level, not under `content/`). The pre-5 location `src/content/config.ts` still works. **PLAN says `src/content/config.ts` — use that.** Both locations are auto-discovered; do not duplicate. Reference: https://docs.astro.build/en/guides/content-collections/#the-collection-config-file.
-- **`getStaticPaths` runs at build only**: With `output: 'static'`, `getStaticPaths` evaluates once at build. Adding a note later requires a rebuild. This is expected for V4.
-- **`entry.render()` returns a Promise**: `const { Content } = await entry.render();` — the `await` is mandatory. Forgetting it produces a confusing "Content is undefined" error at runtime, not a build error.
-- **`Content` is a component, not a string**: Render it with `<Content />`. Do **not** try `{entry.body}` to render HTML — `body` is raw markdown source, not HTML.
-- **YAML date parsing**: `publishDate: 2026-05-16` is parsed by YAML as a date. `publishDate: "2026-05-16"` (quoted) is parsed as a string and requires `z.coerce.date()` to convert. Use **unquoted** dates for cleanliness; `z.coerce.date()` handles both.
-- **YAML colon-in-title**: A frontmatter `title: The MCP workstream: a retrospective` will fail YAML parsing (second colon ambiguity). Always quote titles with colons: `title: "The MCP workstream: a retrospective"`.
-- **`transition:name` collision**: Named view transitions must be unique within a page. Two cards with the same name → animation skipped silently. Always interpolate the slug into the name: `transition:name={`note-title-${entry.slug}`}`. Reference: https://drafts.csswg.org/css-view-transitions-1/#dom-viewtransitiontypeset.
-- **View Transitions browser support**: Native View Transitions API is supported in Chrome 111+, Edge 111+, Safari 18+ (Sep 2024), Firefox 132+ (Oct 2024). Astro's `ClientRouter` falls back to instant navigation in older browsers. Reference: https://caniuse.com/view-transitions. No polyfill needed; degraded experience is acceptable.
-- **`ClientRouter` and inline `<script is:inline>`**: View Transitions persist the document between navigations, so `<script is:inline>` runs **once at first load** and not again on subsequent page navigations. The V3 pre-paint theme script in `Base.astro` is therefore safe (theme is set before any paint of the first page). Reference: https://docs.astro.build/en/guides/view-transitions/#script-behavior.
-- **`document.documentElement.dataset.theme` and View Transitions**: The persisted `<html>` element retains its `data-theme` attribute across navigations. No re-application needed. But any **per-page** script in `is:inline` will not re-run. If a note page needs page-specific JS, use `<script>` (default, bundled, re-fires on transition) or `<script data-astro-rerun>`. Reference: https://docs.astro.build/en/guides/view-transitions/#data-astro-rerun.
-- **Em-dash audit byte sequence**: U+2014 in UTF-8 is **`0xE2 0x80 0x94`**. `grep -P` with `\xe2\x80\x94` and `rg --pcre2 '\x{2014}'` both work. **Watch for U+2013 (en-dash, 0xE2 0x80 0x93) — different character, also looks dash-y.** PLAN bans only U+2014; en-dashes pass. If the brief intent is "no fancy dashes at all", add U+2013 to the grep: `grep -rP $'\xe2\x80[\x93\x94]' src/`. Confirm with Architect before broadening.
-- **CLAUDE.md's no-em-dash rule applies to all written content**: Tom's global instructions ban U+2014. The note bodies and frontmatter must obey. The grep gate (criterion 3) enforces it. Pre-flight every note before commit.
-- **Markdown auto-em-dash conversion**: Some markdown processors convert `--` to en-dash and `---` to em-dash (SmartyPants-style). **Astro's default markdown pipeline does NOT do this** — verify by checking `astro.config.mjs` for `markdown.smartypants` (absent by default in Astro 5). Reference: https://docs.astro.build/en/reference/configuration-reference/#markdownsmartypants. If smartypants is enabled, a literal `---` in note body becomes `—` in HTML, which would pass `grep src/` but fail a `grep dist/` audit. Run the em-dash grep on `dist/` too if uncertain.
-- **Frontmatter unknown-field warnings**: Astro logs `[content] Unknown field "X"` if a frontmatter key isn't in the schema. PLAN criterion 13 requires zero such warnings. Either match the schema exactly, or call `z.object({...}).strict()` to fail the build on extras. Default Zod is permissive — undocumented fields pass silently. Use strict mode in development to catch drift.
-- **`z.array(...).max(3)` is build-time enforcement**: If a frontmatter file lists 4 tags, the build fails with a Zod error. That's the desired behaviour (acceptance criterion 8). Do not relax to `.optional()` — let the schema gate enforce.
-- **Inline NoteLink in `.ts` content modules**: PLAN §10 specifies option (b) — keep `.ts` strings plain, move the specific line into the `.astro` template if a NoteLink is needed. **Do NOT refactor `caseStudies.ts` / `now.ts` into rich-segment arrays.** That would be a structural change; PLAN explicitly forbids it.
-- **First-mention rule**: "Max one NoteLink per concept per page; first mention wins." Implementation: walk the file, find first match of each concept string, wrap it. If a concept appears 0 times → skip. If 2+ times → wrap only the first. Reviewer-Deployer audits this via per-file grep count ≤ 1 (criterion 11).
-- **Concept-string disambiguation**: The token-economy concept matches multiple phrasings ("token economy", "GL never enters the context"). Pick one canonical phrase per file (the most concept-evocative one) and wrap only that. Document the choice in REVIEW.md.
-- **`<a>` inside `<a>` is invalid HTML**: `NoteCard` is itself an `<a class="note-card">`. **Do not nest a `<NoteLink>` inside `NoteCard`** — browsers will reflow the inner `<a>` outside the outer one (or render unpredictably). NoteCards are listing cards; NoteLinks are inline mentions in body copy. Don't mix.
-- **`getCollection` and draft entries**: Without a filter, `getCollection('notes')` returns *all* entries including `status: 'draft'`. Always pass the filter `({ data }) => data.status === 'published'`. Otherwise drafts ship to production.
-- **`new Intl.DateTimeFormat` locale**: Defaults to the build host's locale. Pin explicitly to `'en-GB'` (or `'en'`) so build output is deterministic regardless of CI runner locale. Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat.
-- **`text-decoration: none` accessibility**: Removing the default underline on `.note-link` and replacing with a hover-only underline is **less accessible than the default** for low-vision users. The `no-preference` block adds the underline-on-hover, but the static (no-preference-not-matching) state still has a 1-pixel underline. Verify with pa11y. If contrast is insufficient, raise the underline width to 1.5 px or make it always-visible at lower opacity. WCAG 2.2 SC 1.4.1 forbids using color alone to indicate links.
-- **`color: inherit` on links**: Keeps NoteLinks visually consistent with surrounding text. Combined with the underline, it remains distinguishable as a link. Verify per WCAG SC 1.4.1.
-- **Footer link must not break existing layout**: V3's Footer has a fixed nav cluster. Append `Notes` to the cluster (not as a new line/row). Inspect spacing on mobile (< 720 px); ensure no wrap break that puts "Notes" alone on a row.
-- **`grep -c '^- '` for tag count is approximate**: PLAN's criterion 8 uses `grep -c '^- '` on the `tags:` block — this counts ALL `- ` list items in the file, including under `related:` and `sources:`. Frontmatter limits the tag block specifically, not the whole-file `-` count. Read the criterion carefully: it likely meant "tags-block-scoped" — verify by reading the tag list manually or using `yq` for precision: `yq '.tags | length' note.md`. Schema enforcement (`z.array().max(3)`) is the real gate; the grep is a smoke test.
-- **`gh pr create` requires auth**: Reviewer-Deployer's persona must have `gh auth status` returning logged-in. If not, PR creation fails. PLAN assumes auth is preconfigured per V3 deploy workflow.
-- **Branch name `v4/notes-section`**: Slashes in branch names are allowed by git but some tooling (older Jenkins, certain CI) chokes. GitHub handles them. `gh pr create --base main --head v4/notes-section` is the standard incantation.
-- **No new dependencies (criterion 14)**: Avoid the temptation to `npm install date-fns` for date formatting. `Intl.DateTimeFormat` (stdlib) is sufficient. Avoid `npm install reading-time` — not in scope.
-- **Build output console errors**: Astro logs deprecation warnings for legacy collection APIs in Astro 5. These are `[WARN]`, not `[ERROR]`. Criterion 17 looks for `[ERROR]` only — warnings are tolerated but worth noting in PR description.
-- **OG image and notes**: V3's static OG endpoint emits ONE default OG. PLAN does not request per-note OGs. Note detail pages reuse `og:image` from Base. Acceptable. If individually-OG'd notes are wanted later, add per-page `<meta property="og:image">` in the `[slug].astro` frontmatter.
-- **JSON-LD `Article` schema (not in PLAN)**: For SEO, each note could emit `Article` JSON-LD. PLAN omits this. If added later, escape `<` to `\u003c` in stringified payloads (same XSS-prevention rule as V3).
+- **`Astro.currentLocale` can be undefined.** Per Astro 5 docs, `Astro.currentLocale` is derived from the URL using the `i18n.locales` config. For routes that don't match any locale prefix (e.g., file-system 404 pages, or root files when `prefixDefaultLocale: false`), it returns the `defaultLocale`. **But:** during `getStaticPaths` evaluation, `Astro` is not yet bound — never reference `Astro.currentLocale` inside `getStaticPaths`. Always parse from `Astro.url` in those contexts. Reference: https://docs.astro.build/en/reference/api-reference/#astrocurrentlocale.
+- **`prefixDefaultLocale: false` keeps the default at the root, NOT under `/en/`.** Means `dist/index.html` is English, `dist/de/index.html` is German. Wrapper pages must live under `src/pages/de/`, `src/pages/fr/`, `src/pages/ru/` — there is NO `src/pages/en/`. Trying to mirror EN under `src/pages/en/` would create a duplicate route conflict at build.
+- **`trailingSlash: 'never'` interaction with i18n routing.** V3 sets `trailingSlash: 'never'` which means Astro outputs `/notes/mcp-workstream/index.html` but resolves URLs without trailing slashes. With i18n, `/de/notes/mcp-workstream` is the canonical link. Audit each generated `<a href="...">` in components — make sure the `localizePath` output matches the canonical form. The PLAN's `localizePath` keeps the trailing slash if the input had one. Cross-check against `trailingSlash` config or the link will hard-redirect on GitHub Pages.
+- **JSON `import` assertions are syntax-shifting.** Old syntax: `import en from './en.json' assert { type: 'json' };`. New (TC39 stage 3): `import en from './en.json' with { type: 'json' };`. Astro/Vite handles plain `import en from './en.json'` without either — JSON is auto-treated as a module by Vite's plugin. **Use the bare import form.** Reference: https://vitejs.dev/guide/features.html#json. Adding `assert`/`with` triggers warnings in some Vite versions or fails outright in environments that haven't enabled the proposal.
+- **Re-exporting `getStaticPaths` from `.astro` files is fragile.** Astro 5 supports `export { getStaticPaths } from '../foo.astro';` but the function's closure context comes from the source file. If the source `getStaticPaths` references local imports relative to its own path, those resolve against the source — fine. But if it references file-relative paths via `import.meta.url`, those still resolve from the source. Test once before scaling to 27 files. Fallback: inline the body.
+- **Wrapper page double-render.** A wrapper that does `<IndexPage />` and the index page itself both export default components. Astro's route resolver sees them as separate routes — no double-render at the same URL. But if the wrapper passes props (`<IndexPage someProp={x} />`), those props override defaults. Wrappers per the PLAN pass NO props — components consume `Astro.currentLocale` directly.
+- **`Astro.currentLocale` on root index when `prefixDefaultLocale: false`.** Returns `'en'` (the default). Confirms via Astro docs. But during dev, hot-reload sometimes shows `undefined` on first paint of `/` — defensive `?? 'en'` covers this without polluting prod.
+- **Wrapper pages inherit `getStaticPaths` from re-export — but the wrapper file's URL is what's used.** Astro maps `src/pages/de/notes/[slug].astro` → `/de/notes/${slug}/`. The re-exported `getStaticPaths` returns slugs (`mcp-workstream`, etc.); Astro applies them to the wrapper's route pattern, not the source's. So `getStaticPaths` returning `[{ params: { slug: 'mcp-workstream' } }]` produces `/de/notes/mcp-workstream/` in the German tree. Confirmed; this is the intended behavior.
+- **`getCollection` is locale-blind.** It returns all entries regardless of locale. The PLAN keeps `src/content/notes/*.md` as English-only across all locales (out of scope for translation). Chrome around notes (`Sources`, `Related`, `← all notes`) IS localized. Be careful not to accidentally filter by locale in `[slug].astro` — every locale page must show every note.
+- **YAML/JSON BOM and trailing newlines.** Translators using Windows tools may add UTF-8 BOM (`\xEF\xBB\xBF`) to `de.json` / `ru.json`. `JSON.parse` tolerates BOM but `grep` matches and exact byte comparisons may surprise. Defensive: add a BOM check in `check-i18n.mjs`: `if (raw.charCodeAt(0) === 0xFEFF) errors.push(\`BOM in ${locale}.json\`);` — costs one line, prevents a class of silent bugs.
+- **Smart-quote auto-conversion in editors.** macOS / VS Code may convert `'`/`"` to `'/"/"/"` during editing. The dictionary should keep ASCII straight quotes for technical predictability. Add to gate if needed: `if (/[\u2018\u2019\u201C\u201D]/.test(val)) errors.push(\`smart quote ${locale}: ${k}\`)` — optional, ask Architect first.
+- **CSS-only active state has no JS fallback for older WebKit.** The `:hover` underline grow assumes `transform: scaleX(0)` then `scaleX(1)`. All targets support this. The `prefers-reduced-motion` guard zeros `transition`, which is correct — active still shows via `color: var(--ink)` and the `::after` underline (no transform animation runs).
+- **`hreflang` attribute case.** Spec accepts case-insensitive language tags, but **the convention is lowercase region-modifier subtags** (`hreflang="en-gb"`, not `en-GB`). The PLAN emits `hreflang={code}` where `code` is the bare two-letter locale (`'en'`, `'de'`, `'fr'`, `'ru'`) — no region. That's fine for primary languages; if a translator later asks for `de-AT` or `en-US`, switch to lowercase region tags. Reference: BCP 47 — https://www.rfc-editor.org/rfc/rfc5646.
+- **`og:locale` requires `xx_XX` underscore format.** OpenGraph spec uses `en_GB`, not `en-GB`. The PLAN's `OG_LOCALE` map has the underscores right. Don't refactor to share `DATE_LOCALE` (which uses dashes for ECMA-402).
+- **Russian language name display.** Russian readers expect `Русский` (Cyrillic, capitalized). German native form is `Deutsch` (capitalized). French native is `Français` (capitalized). The PLAN explicitly keeps language names literal — no `t()` call for those. Confirm `Languages.astro` outputs the native form for each, not transliterations.
+- **Cyrillic and JSON minification.** `ru.json` will contain Cyrillic chars (UTF-8 2-byte sequences). `JSON.parse` handles this natively. If the orchestrator's `dist/` post-processing minifies JSON, ensure UTF-8 is preserved. V3's `post-build.mjs` (read-only here) should not touch `dist/**/*.json`. Confirm during FE-T1.
+- **`Astro.props` in wrapper pages is empty.** The wrapper doesn't pass props. The shared component reads `Astro.currentLocale` from its own context — which is the wrapper's URL. So even though the wrapper imports the EN component, that component sees locale `'de'` when invoked from `/de/`. This is the core mechanism. Verify with one console.log during FE-T10 before scaling.
+- **404 page locale routing.** Astro 5 by default serves `src/pages/404.astro` for any unmatched route. With i18n, you can also have `src/pages/de/404.astro`, `src/pages/fr/404.astro`, `src/pages/ru/404.astro`. GitHub Pages serves a single `/404.html` regardless of URL — so the localized 404s are reachable only via direct URL navigation, not server-side error matching. Acceptable; document in the PR.
+- **Build time scaling.** Adding 27 wrapper pages × (8 notes + 8 static pages each) = ~270 pre-rendered HTML files. Astro 5 builds these in parallel. Expect a modest build-time increase (5–15 seconds on cold). If CI runs against `actions/setup-node@v4` with `cache: npm`, the install cost is negligible.
+- **`grep -l 'lang-switcher' dist/**/index.html | wc -l` — shell glob expansion.** Acceptance criterion 12 uses `dist/**/index.html` which requires `shopt -s globstar` in bash or `**` support in zsh. If the runner is `sh`, this will not expand recursively. Reviewer-Deployer should use `find dist -name 'index.html' -exec grep -l 'lang-switcher' {} \; | wc -l` for portability.
+- **`grep -A 1` in criterion 16.** The `-A 1` grabs only 1 line after the `prefers-reduced-motion` match. The PLAN's CSS block has the `.lang-switch` rule TWO lines after the `@media` line. Use `-A 3` or the criterion will false-fail. Recommend Reviewer-Deployer adjust: `grep -A 3 'prefers-reduced-motion' src/styles/components.css | grep -q 'lang-switch'`.
+- **TypeScript inference of `Locale` from `LOCALES`.** The `as const satisfies readonly Locale[]` pattern keeps the array typed as the tuple `readonly ['en','de','fr','ru']` while also validating each element is a `Locale`. If the helper exports `LOCALES` and a component does `LOCALES.includes(someString)`, TypeScript narrows correctly. Reference: https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-inference.
+- **Case 08 leakage strings — DO NOT extract.** The PLAN's "Planning conflict to surface" explicitly resolves this: leave the `Investran ↔ Dealsplus ...` CV bullet (`CV.astro:12`) and Case 08 case-study fields (`caseStudies.ts:75–82`) as English literals across ALL locales. This passes the `src/i18n/` scoped leakage grep (criterion 5) while keeping scope contained. **Do not "fix" by translating those strings — they stay English in DE/FR/RU pages as well.** This is intentional consistency with the i18n.md "brand names stay literal" rule applied to internal product names.
+- **Translator vouvoiement and Sie-form discipline.** The dictionary contains imperative phrasing ("Read more", "Get in touch"). Translators must convert to formal register:
+  - EN `"Get in touch"` → DE `"Kontakt aufnehmen"` (not `"Melde dich!"`), FR `"Prendre contact"` (not `"Contacte-moi"`), RU `"Связаться"` (impersonal, not `"Свяжись со мной"`).
+  - First-person prose ("Patterns I've worked through") → first-person but formal in DE/FR/RU. No `du`, no `tu`, no `ты`.
+- **Markdown / inline HTML preservation.** Some EN values contain `<strong>`, `<em>`, or escaped entities. Translators must preserve tags verbatim. Add a regex check in `check-i18n.mjs`: count `<[a-z]+>` openings in EN value vs translated value — mismatched count = error. Optional enhancement; ask Architect before adding.
+- **`tag` array extraction increases key churn.** PLAN extracts `home.work.case.01.tag.0/1/2` per case → ~21 tag keys for 7 cases × ~3 tags. These are short strings often left untranslated (`"QA automation"` is a fine literal in DE professional context). Translator policy: translate if natural; keep English if it's the established term. Either way, every locale must have all keys present (criterion 11).
+- **Total key count estimation.** PLAN estimates ~320. Researcher's namespace count: `meta` (~18), `nav` (~12), `footer` (~10), `home.hero` (~20), `home.now` (~15), `home.work` (~35 incl. tags), `home.cv` (~40), `home.reading` (~10), `home.languages` (~2), `home.colophon` (~5), `home.contact` (~9), `projects.index` (~25), `projects.devswarm/exocortex/devswarm-cv` chrome (~30 combined), `notes.index/detail` (~10), `error.404` (~5), `thesis` (~25), `actions` (~7), `langswitcher` (~1). Total ~280–320. Stable estimate.
 
 ## Security
 
-V4's surface is a strict subset of V3's: same static-site shape, same GitHub Pages target, same zero-runtime-deps posture. New attack vectors are limited to markdown rendering and the inline NoteLink primitive.
+The threat surface is tiny: static site, no auth, no server, no user input. Risks reduce to (a) cross-site scripting via interpolation, (b) translator-introduced content drift, (c) supply chain (mitigated by zero-new-deps), (d) SEO / canonical correctness.
 
-- **Markdown XSS**: Astro's default markdown pipeline (remark + rehype) does **not** sanitise HTML embedded in markdown by default. A note containing raw `<script>alert(1)</script>` in its body would render the script tag verbatim. **Mitigation**: notes are authored by Tom (trusted), reviewed by Reviewer-Deployer, and committed. There is no untrusted markdown source. If notes ever accept external contributions, add `rehype-sanitize` — https://github.com/rehypejs/rehype-sanitize.
-- **Markdown auto-link XSS**: `[click](javascript:alert(1))` markdown links produce `<a href="javascript:alert(1)">` HTML by default in some processors. Astro's default remark setup **strips `javascript:` URL schemes** (verify with `npm view @astrojs/markdown-remark` and check the remark-rehype default). Defensive measure: lint note bodies with `eslint-plugin-mdx` or grep for `javascript:` in committed notes.
-- **Frontmatter injection**: Zod schema validation gates frontmatter shape. Any unexpected field with strict mode triggers a build error. Without strict mode, extra fields pass silently — low-risk because they aren't rendered.
-- **XSS via NoteLink slug**: The slug interpolates into `href={`/notes/${slug}/`}`. If the slug contains `"` or `<`, Astro's JSX-like escaping handles it (attribute values are escaped). Per Astro docs (https://docs.astro.build/en/guides/dev-toolbar/), expression interpolation auto-escapes. Slugs come from frontmatter (controlled) → no user input → no risk. But verify by trying `slug: "ev\"il"` once locally and confirming the escape works (defensive QA).
-- **`set:html` audit**: PLAN does not introduce new `set:html` sinks. The only `set:html` in V3 was the JSON-LD payload (typed literals → safe). V4 inherits this with no expansion.
-- **`data-astro-prefetch` and SSRF / privacy**: Prefetch fetches the same-origin note HTML on hover. No third-party fetches. No SSRF risk. Privacy: prefetch reveals user intent to the server (fetch of `/notes/X/`) before they click. Static site → no server logs analysed → no privacy leak beyond GitHub Pages' raw access logs.
-- **View Transitions and DOM swap**: `ClientRouter` swaps the `<body>` content between routes. Any third-party script (none here) could re-inject during the swap. With zero third-party JS, the surface is closed. The pre-paint script runs only on initial load (see Gotchas) — no re-entry risk.
-- **`localStorage` consistency across pages**: TweaksPanel/DisplayPanel (V3 islands) hydrate on `/`. They do not hydrate on `/notes/*` unless those pages explicitly import them. If a user changes theme on `/`, navigates to `/notes/X/`, the theme is read from `<html data-theme>` (preserved across view-transition navigations) so it stays consistent. Confirm by toggling theme on index, navigating to a note, and verifying the theme persists.
-- **Em-dash audit as content-integrity control**: U+2014 ban is a writing-style enforcement (Tom's CLAUDE.md). Treated as a security/quality gate at build time.
-- **Leakage grep (criterion 4)**: Hard-coded list of forbidden names/terms prevents accidental disclosure of colleagues, project codenames, and internal systems. This is **operational security**, not just style. Names like `Sofia`, `Bekzoda`, `Anna`, `Conrad`, `Luke`, `Joakim`, `Adam` are real people; `Triton`, `Investran`, `Dealsplus`, `composite-keys` are employer-internal terms. Public disclosure could harm Tom's employment. Reviewer-Deployer MUST run criterion 4 and block merge on any match.
-- **Jarvis honesty grep (criterion 5)**: Self-imposed integrity gate. Public claims about "having built Jarvis" would be false → reputational risk. Reflective first-person framing is permitted; product-pitch language is not.
-- **No new runtime dependencies (criterion 14)**: Zero supply-chain expansion. Maintains V3's secure dependency posture.
-- **GitHub Actions security**: V4 uses the same deploy workflow as V3 (`actions/configure-pages@v5`, `actions/deploy-pages@v4`). No changes. Least-privilege permissions preserved (`contents: read, pages: write, id-token: write`).
-- **PR-not-merge gate (criterion 18)**: Reviewer-Deployer stops at PR creation. Human (Tom) reads diff before merge. This is the final integrity boundary against persona drift. **Do not auto-merge.**
-- **CSP**: Inherited from V3's meta CSP (if present). New inline `<script>` for `RevealObserver` requires `'unsafe-inline'` for `script-src` — already required by V3. No new CSP relaxation needed.
-- **Subresource Integrity**: N/A — no external resources, same as V3.
-- **Privacy**: No analytics added. No tracking. No third-party fetches. Note pages are pure HTML+CSS with one prefetch link strategy (same-origin). GDPR/ePrivacy posture: unchanged, no consent banner required.
-- **`gh pr create` and secret exposure**: PR description (per acceptance criteria) includes grep results, build output, Lighthouse scores. **Verify the grep output for criteria 3, 4, 5 does not include the surrounding text of any (rare false-positive) match** — `grep` with default settings prints the matching line, which could leak adjacent content. Use `grep -c` (count only) or `grep -l` (files only) for the PR description when zero matches is the expected result. The criterion says "command and count attached" → use `wc -l`.
-- **Markdown sources field and HTML injection**: `sources: [{ label, kind }]` — if `label` contains `<script>`, it renders into `<li>{s.label}</li>`. Astro JSX-style interpolation escapes string children — verify by writing `label: "<b>bold</b>"` once and confirming literal output. Should be safe by default. Reference: https://docs.astro.build/en/basics/astro-syntax/#dynamic-html.
-- **CWE-79 (XSS) summary**: Surface is closed by (a) trusted author, (b) Astro auto-escape on expression interpolation, (c) default remark sanitisation of `javascript:` URLs, (d) review gate. Quad-defence; risk is negligible.
-- **CWE-918 (SSRF) / CWE-22 (Path Traversal)**: N/A — no server, no filesystem access at runtime.
-- **CWE-377 (Insecure Temp Files)**: N/A.
-- **CWE-200 (Information Exposure)**: Mitigated by criteria 4 (leakage grep) and 5 (Jarvis grep). Operational security baked into the acceptance gate.
+- **XSS via `t()` interpolation.** Astro auto-escapes string children in JSX-like expressions. `<h2>{t('home.work.heading')}</h2>` is safe even if the dictionary value contains `<script>...`. Astro escapes `<`, `>`, `&`, `"`, `'` in expression context. The only escape hatches are `set:html` and `<Fragment>` with raw strings. **The PLAN does NOT introduce any new `set:html`.** Reference: https://docs.astro.build/en/basics/astro-syntax/#dynamic-html.
+- **XSS via HTML in dictionary values.** EN values may legitimately contain `<strong>` or `<em>` (per FE-T15 constraint "Inline markdown / HTML preserved verbatim"). Rendering those requires `set:html` — but the PLAN does NOT use `set:html` for `t()` output. If a value has HTML, it will render as literal text. **Resolution:** confirm with Architect — either (a) keep all dictionary values pure text (recommended), or (b) introduce a narrow `set:html` for the small number of values that genuinely need inline tags (e.g., colophon "Built with <strong>Astro 5</strong>..."). Option (a) is safer; option (b) requires that translator submissions be reviewed for `<script>` injection before merge. Since translators are Tom himself + this codebase, trust is high — but a defensive sanitizer (`rehype-sanitize` would be a new dep; ban) or a regex check in `check-i18n.mjs` is cheaper:
+  ```js
+  if (/<\s*script|on\w+\s*=|javascript:/i.test(val)) errors.push(`html risk ${locale}: ${k}`);
+  ```
+  This catches `<script>`, event handlers (`onclick=`), and `javascript:` URLs. Add to FE-T12 as a defensive gate; cost is one regex.
+- **XSS via placeholder values.** `t(key, locale, { name: userInput })` is not exercised in this batch (no runtime variables come from user input — `{count: 5, years: 6}` are hardcoded constants). Even if added later, the substitution is done before JSX interpolation, so Astro's auto-escape still applies. Safe by construction.
+- **`<a href={localizePath(...)}>` injection.** `localizePath` only prepends `/${locale}` to a controlled `path` argument. Locale is a typed `Locale` union — no user-controlled string ever flows in. Safe.
+- **Trust boundary on dictionary content.** Translators (Tom or translator subagents) have write access to `src/i18n/*.json` only. The build-time gate (`check-i18n.mjs`) is the merge boundary. The leakage grep, em-dash check, placeholder check, and (recommended) HTML-injection check all run before bundling. PR-not-merge (criterion 17) is the human review final gate.
+- **Supply chain.** Zero new dependencies (criterion 7 enforces). No `postinstall` scripts added. No new MCPs invoked. The build gate uses only Node stdlib (`node:fs`). Risk: unchanged from V3.
+- **Lockfile drift.** `package-lock.json` must show ZERO changes (criterion 7). If `npm install` is run with no changes, npm 10 may still touch the lockfile metadata. Run `npm ci` (clean install from existing lockfile, no writes) to verify — also matches CI behavior.
+- **CSP.** V3's inline-style and inline-script policy is unchanged. LangSwitcher emits CSS via the shared `components.css` (external, hashable) — no new inline. Wrappers add no new scripts. CSP-relevant surface: zero delta.
+- **GitHub Pages locale routing.** GH Pages serves `dist/de/index.html` at `https://tomscholtes.com/de/index.html` and `https://tomscholtes.com/de/` (with `index.html` resolution). With `trailingSlash: 'never'`, internal `<a href="/de/">` may produce a 301 redirect on GH Pages. Verify: navigate to `/de/projects` (no slash) and confirm it lands at `/de/projects/` (with slash) cleanly. If redirects loop, the issue is `trailingSlash` mismatch between Astro config and link generation. Reference: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#static-site-generators.
+- **SEO correctness.** Misconfigured `hreflang` can hurt international ranking. Acceptance criteria don't gate SEO directly, but verify (manually or via https://www.merkle.com/en/merkle-now/tools/hreflang-tags-generator after deploy) that the four-way hreflang triangle is symmetric — every locale page lists alternates to all locales including itself.
+- **OG `og:locale:alternate` count.** Filter excludes the active locale to avoid self-listing. Confirm: 1 `og:locale` + 3 `og:locale:alternate` per page = 4 total. Open Graph parsers tolerate self-listing but it's slightly redundant.
+- **Information disclosure via missing-key fallback.** When `t('missing.key', 'de')` returns the literal `'missing.key'` string (final fallback), that string appears in HTML. If a translator drops a key, the bare key shows up in production. `check-i18n.mjs` blocks merge before this ships (criterion 10 enforces key parity). Defense in depth: the dev-mode `t` fallback could log a warning to stderr — minor enhancement, ask Architect.
+- **Brand-name leakage (e.g., `Triton`).** Acceptance criterion 5 enforces zero matches inside `src/i18n/` only. Pre-existing leakage in `src/components/CV.astro` and `src/content/caseStudies.ts` (Case 08) is **out of scope** by explicit dispatch decision. Document this in the PR description with the file:line pointers so future audits don't relitigate.
+- **Russian translation of headings: do not transliterate brand names.** "Tom Scholtes" stays in Latin script in `ru.json`. Transliteration to `Том Шольтес` would constitute a different identity claim. Translator rule.
+- **CWE-79 (XSS) summary.** Defended by (a) Astro auto-escape, (b) no `set:html` added, (c) optional dictionary HTML-injection regex in build gate, (d) trusted-translator model + PR review.
+- **CWE-918 (SSRF) / CWE-22 (Path Traversal).** N/A — no server, no filesystem reads at runtime.
+- **CWE-200 (Information Exposure).** Defended by leakage grep + Jarvis grep (V4) + manual PR review.
+- **CWE-1035 (OWASP A6 — Vulnerable & Outdated Components).** Zero new deps → zero new risk surface. V3 baseline unchanged.
 
 [opus + 1 tool call]

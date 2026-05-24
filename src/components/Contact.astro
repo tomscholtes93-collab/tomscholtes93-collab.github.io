@@ -1,24 +1,24 @@
 ---
 import Arr from './Arr.astro';
+import { t as translate, getLocale, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
 ---
 <section id="contact" class="reveal">
   <div class="container">
     <div class="cta-card">
-      <div class="cta-bg">hi.</div>
+      <div class="cta-bg">{t('home.contact.bg')}</div>
       <div style="position:relative; z-index:1">
-        <span class="eyebrow" style="color:inherit; opacity:.6">Contact</span>
-        <h2 style="margin-top:16px">If any of this is <em>interesting</em>, say hi.</h2>
+        <span class="eyebrow" style="color:inherit; opacity:.6">{t('home.contact.eyebrow')}</span>
+        <h2 style="margin-top:16px">{t('home.contact.heading.pre')} <em>{t('home.contact.heading.em')}</em>{t('home.contact.heading.post')}</h2>
       </div>
       <div class="right" style="position:relative; z-index:1">
-        <p>
-          Always interested in conversations about data engineering, automation, applied AI,
-          multi-agent systems, knowledge engineering, agent infrastructure, especially where
-          they meet regulated workflows.
-        </p>
-        <a href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93" target="_blank" rel="noopener" class="btn btn-primary">Message on LinkedIn <Arr /></a>
+        <p>{t('home.contact.body')}</p>
+        <a href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93" target="_blank" rel="noopener" class="btn btn-primary">{t('home.contact.cta.linkedin')} <Arr /></a>
         <div style="display:flex; gap:12px; flex-wrap:wrap">
-          <a href="https://www.linkedin.com/in/tomscholtes93/" target="_blank" rel="noopener" class="btn btn-ghost">View profile</a>
-          <a href="mailto:tom@tomscholtes.com" class="btn btn-ghost">Email</a>
+          <a href="https://www.linkedin.com/in/tomscholtes93/" target="_blank" rel="noopener" class="btn btn-ghost">{t('home.contact.cta.profile')}</a>
+          <a href="mailto:tom@tomscholtes.com" class="btn btn-ghost">{t('home.contact.cta.email')}</a>
         </div>
       </div>
     </div>

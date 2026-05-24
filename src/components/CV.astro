@@ -1,5 +1,10 @@
 ---
 import Arr from './Arr.astro';
+import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
+const thesisHref = localizePath('/thesis', locale);
 
 const roles = [
   {
@@ -58,17 +63,17 @@ const skills: [string, string][] = [
 <section id="cv" class="reveal">
   <div class="container">
     <div class="sec-head">
-      <span class="eyebrow">Live CV</span>
+      <span class="eyebrow">{t('home.cv.eyebrow')}</span>
       <div>
-        <h2>Six years in Luxembourg fund services.</h2>
-        <p class="blurb" style="margin-top:18px">Updated as roles, projects and credentials change. The condensed PDF version is on request.</p>
+        <h2>{t('home.cv.heading')}</h2>
+        <p class="blurb" style="margin-top:18px">{t('home.cv.blurb')}</p>
       </div>
     </div>
 
     <div class="cv-block">
       <div class="cv-head">
-        <span>Experience</span>
-        <span>5 roles · 6+ years</span>
+        <span>{t('home.cv.experience.heading')}</span>
+        <span>{t('home.cv.experience.summary', { count: 5, years: 6 })}</span>
       </div>
       {roles.map((r) => (
         <div class="cv-row">
@@ -87,7 +92,7 @@ const skills: [string, string][] = [
     </div>
 
     <div class="cv-block">
-      <div class="cv-head"><span>Education</span></div>
+      <div class="cv-head"><span>{t('home.cv.education.heading')}</span></div>
       {edu.map((e) => (
         <div class="cv-row">
           <div class="co" style="font-size:22px">{e.school}</div>
@@ -98,7 +103,7 @@ const skills: [string, string][] = [
     </div>
 
     <div class="cv-block">
-      <div class="cv-head"><span>Skills</span></div>
+      <div class="cv-head"><span>{t('home.cv.skills.heading')}</span></div>
       <div class="skills-grid">
         {skills.map(([k, v]) => (
           <div class="skill-row">
@@ -110,11 +115,11 @@ const skills: [string, string][] = [
     </div>
 
     <div class="cv-block">
-      <div class="cv-head"><span>Publication</span></div>
+      <div class="cv-head"><span>{t('home.cv.publication.heading')}</span></div>
       <div class="cv-row">
         <div class="co" style="font-size:22px; line-height:1.15">Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</div>
         <div class="note">MSc thesis · Erasmus University Rotterdam</div>
-        <div class="period"><a href="/thesis" class="btn btn-ghost" style="padding:10px 16px; font-size:13px">Read <Arr /></a></div>
+        <div class="period"><a href={thesisHref} class="btn btn-ghost" style="padding:10px 16px; font-size:13px">{t('home.cv.publication.cta')} <Arr /></a></div>
       </div>
     </div>
   </div>
