@@ -5,6 +5,13 @@ export default defineConfig({
   site: 'https://tomscholtes.com',
   output: 'static',
   trailingSlash: 'never',
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'de', 'fr', 'ru'],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   build: {
     assets: '_astro',
     inlineStylesheets: 'auto',

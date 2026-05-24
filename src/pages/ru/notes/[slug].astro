@@ -1,0 +1,5 @@
+---
+import NoteDetail from '../../notes/[slug].astro';
+export { getStaticPaths } from '../../notes/[slug].astro';
+---
+<NoteDetail {...Astro.props} />

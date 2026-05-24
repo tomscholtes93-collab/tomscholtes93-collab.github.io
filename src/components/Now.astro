@@ -1,29 +1,36 @@
 ---
-import { NOW_ITEMS, NOW_EYEBROW } from '../content/now.ts';
+import { NOW_IDS } from '../content/now.ts';
 import NoteLink from './NoteLink.astro';
+import { t as translate, getLocale, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
 ---
 <section id="now" class="reveal">
   <div class="container">
     <div class="sec-head">
-      <span class="eyebrow">{NOW_EYEBROW}</span>
+      <span class="eyebrow">{t('home.now.eyebrow')}</span>
       <div>
-        <h2>What I'm focused on this quarter.</h2>
+        <h2>{t('home.now.heading')}</h2>
         <p class="blurb" style="margin-top:18px">
-          A public note of where my head is right now, in the spirit of
-          <span style="font-style:italic">nownownow.com</span>. I update it when things change, not on a schedule.
+          {t('home.now.blurb.pre')}
+          <span style="font-style:italic">{t('home.now.blurb.em')}</span>{t('home.now.blurb.post')}
         </p>
       </div>
     </div>
     <div style="border-top:1px solid var(--rule)">
-      {NOW_ITEMS.map((it) => (
+      {NOW_IDS.map((id) => (
         <div class="now-row">
-          <div class="k">{it.k}</div>
+          <div class="k">{t(`home.now.items.${id}.k`)}</div>
           <div class="v">
-            {it.k === 'Running' ? (
+            {id === 'running' ? (
               <>
-                A personal exocortex on a Fedora server: <NoteLink slug="self-hosted-rag-claude-max">OpenKB</NoteLink> (44 docs indexed), Meridian, Notion and Asana fanned out through <NoteLink slug="mcp-workstream">MCP</NoteLink>. Accessed from G2 glasses and a Pixel through Tailscale.
+                {t('home.now.items.running.lead')}{' '}
+                <NoteLink slug="self-hosted-rag-claude-max">OpenKB</NoteLink>{' '}
+                {t('home.now.items.running.middle')}{' '}
+                <NoteLink slug="mcp-workstream">MCP</NoteLink>{t('home.now.items.running.tail')}
               </>
-            ) : it.v}
+            ) : t(`home.now.items.${id}.v`)}
           </div>
         </div>
       ))}

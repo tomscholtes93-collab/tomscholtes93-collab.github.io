@@ -1,7 +1,11 @@
 ---
+import { getLocale, localizePath, type Locale } from '../i18n';
+
 interface Props {
   slug: string;
 }
 const { slug } = Astro.props;
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const href = localizePath(`/notes/${slug}/`, locale);
 ---
-<a href={`/notes/${slug}/`} class="note-link" data-astro-prefetch><slot /></a>
+<a href={href} class="note-link" data-astro-prefetch><slot /></a>

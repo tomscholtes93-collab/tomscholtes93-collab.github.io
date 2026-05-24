@@ -1,0 +1,18 @@
+---
+import { LOCALES, getLocale, localizePath, t as translate, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+const stripLocalePrefix = (p: string) => p.replace(/^\/(de|fr|ru)(\/|$)/, '/');
+const here = stripLocalePrefix(Astro.url.pathname || '/');
+---
+<div class="lang-switcher" role="group" aria-label={t('langswitcher.aria.group')}>
+  {LOCALES.map((code) => (
+    <a
+      href={localizePath(here, code)}
+      class:list={['lang-switch', { 'is-active': code === locale }]}
+      hreflang={code}
+      aria-current={code === locale ? 'true' : undefined}
+    >{code.toUpperCase()}</a>
+  ))}
+</div>

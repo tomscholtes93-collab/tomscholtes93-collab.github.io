@@ -2,18 +2,23 @@
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+const home = localizePath('/', locale);
 ---
-<Base title="Not found · Tom Scholtes" description="That page is not here." path="/404">
+<Base title={t('meta.404.title')} description={t('meta.404.description')} path="/404">
   <Nav active="404" />
   <main>
     <section>
       <div class="container">
         <div class="prose" style="text-align:center">
-          <div class="meta">404</div>
-          <h1>That page is not here.</h1>
-          <p>The link is dead, the file is gone, or you typed it from memory.</p>
+          <div class="meta">{t('error.404.label')}</div>
+          <h1>{t('error.404.heading')}</h1>
+          <p>{t('error.404.body')}</p>
           <p style="margin-top:32px">
-            <a href="/" class="btn btn-primary">Back to home</a>
+            <a href={home} class="btn btn-primary">{t('error.404.cta')}</a>
           </p>
         </div>
       </div>

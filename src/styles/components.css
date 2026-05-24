@@ -627,3 +627,44 @@ header.paper .lead,
   border-bottom: 1px solid var(--rule);
 }
 .note-article .back a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* lang-switcher (i18n) */
+.lang-switcher {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.lang-switch {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  padding: 4px 6px;
+  position: relative;
+  transition: color 200ms ease;
+}
+.lang-switch.is-active { color: var(--ink); }
+.lang-switch::after {
+  content: '';
+  position: absolute;
+  left: 6px; right: 6px; bottom: 2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 200ms ease;
+}
+.lang-switch.is-active::after,
+.lang-switch:hover::after { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  .lang-switch,
+  .lang-switch::after { transition: none; }
+}
+@media (max-width: 760px) {
+  .lang-switcher {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 8px 0;
+    border-top: 1px solid var(--rule);
+  }
+}

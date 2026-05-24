@@ -1,4 +1,8 @@
 ---
+import { t as translate, getLocale, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
 const langs = [
   { code: 'EN', name: 'English' },
   { code: 'DE', name: 'Deutsch' },
@@ -11,9 +15,9 @@ const langs = [
 <section class="reveal">
   <div class="container">
     <div class="sec-head">
-      <span class="eyebrow">Languages</span>
+      <span class="eyebrow">{t('home.languages.eyebrow')}</span>
       <div>
-        <h2>Six, used regularly.</h2>
+        <h2>{t('home.languages.heading')}</h2>
       </div>
     </div>
     <div class="lang-grid">

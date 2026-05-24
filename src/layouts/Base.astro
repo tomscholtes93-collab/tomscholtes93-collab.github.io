@@ -5,6 +5,7 @@ import '../styles/components.css';
 import '../styles/pages.css';
 import { ClientRouter } from 'astro:transitions';
 import JsonLdPerson from '../components/JsonLdPerson.astro';
+import { LOCALES, getLocale, localizePath, t as translate, type Locale } from '../i18n';
 
 interface Props {
   title?: string;
@@ -14,37 +15,58 @@ interface Props {
 }
 
 const {
-  title = 'Tom Scholtes. Finance ops engineer who automates the work in reach.',
-  description = "Personal site, live CV, and a portfolio of automation work I've built inside my role. Six years in Luxembourg fund services, quietly automating the desk underneath me.",
+  title,
+  description,
   path = '/',
   jsonLd = false,
 } = Astro.props;
 
-const canonical = new URL(path, Astro.site ?? 'https://tomscholtes.com').toString();
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
+
+const resolvedTitle = title ?? t('meta.home.title');
+const resolvedDesc = description ?? t('meta.home.description');
+
+const SITE = Astro.site ?? new URL('https://tomscholtes.com');
+const canonical = new URL(localizePath(path, locale), SITE).toString();
 const ogImage = 'https://tomscholtes.com/og/default.png';
+const OG_LOCALE: Record<Locale, string> = {
+  en: 'en_GB',
+  de: 'de_DE',
+  fr: 'fr_FR',
+  ru: 'ru_RU',
+};
 ---
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
+    <title>{resolvedTitle}</title>
+    <meta name="description" content={resolvedDesc} />
     <link rel="canonical" href={canonical} />
+    {LOCALES.map((l) => (
+      <link rel="alternate" hreflang={l} href={new URL(localizePath(path, l), SITE).toString()} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(path, SITE).toString()} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={resolvedTitle} />
+    <meta property="og:description" content={resolvedDesc} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="Tom Scholtes" />
+    <meta property="og:locale" content={OG_LOCALE[locale]} />
+    {LOCALES.filter((l) => l !== locale).map((l) => (
+      <meta property="og:locale:alternate" content={OG_LOCALE[l]} />
+    ))}
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:title" content={resolvedTitle} />
+    <meta name="twitter:description" content={resolvedDesc} />
     <meta name="twitter:image" content={ogImage} />
 
     <link rel="preload" href="/fonts/instrument-serif-regular.woff2" as="font" type="font/woff2" crossorigin />
@@ -77,9 +99,6 @@ const ogImage = 'https://tomscholtes.com/og/default.png';
           }
         }
         applyDisplayPrefs();
-        // View Transitions only run inline head scripts on first load. Re-apply
-        // after each same-site navigation so theme + accent + density survive
-        // /projects/, /thesis/, etc.
         document.addEventListener('astro:after-swap', applyDisplayPrefs);
       })();
     </script>

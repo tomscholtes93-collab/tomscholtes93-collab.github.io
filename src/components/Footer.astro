@@ -1,4 +1,13 @@
 ---
+import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
+const home = localizePath('/', locale);
+const projects = localizePath('/projects', locale);
+const notes = localizePath('/notes/', locale);
+const thesis = localizePath('/thesis', locale);
+const year = new Date().getFullYear();
 ---
 <footer>
   <div class="container">
@@ -6,35 +15,35 @@
       <div>
         <div class="brand" style="margin-bottom:14px">
           <span class="brand-mark">T</span>
-          <span style="color:var(--ink); font-weight:600">Tom Scholtes</span>
+          <span style="color:var(--ink); font-weight:600">{t('nav.brand')}</span>
         </div>
         <p style="margin:0; max-width:38ch; font-size:14px">
-          Notes on AI in finance ops, a live CV, and a portfolio of work.
+          {t('footer.tagline')}
         </p>
       </div>
       <div>
-        <h5>Site</h5>
-        <a href="/#now">Now</a>
-        <a href="/#work">Work</a>
-        <a href="/projects">Projects</a>
-        <a href="/notes/">Notes</a>
-        <a href="/#cv">CV</a>
-        <a href="/#reading">Reading</a>
+        <h5>{t('footer.col.site')}</h5>
+        <a href={`${home}#now`}>{t('nav.now')}</a>
+        <a href={`${home}#work`}>{t('nav.work')}</a>
+        <a href={projects}>{t('nav.projects')}</a>
+        <a href={notes}>{t('nav.notes')}</a>
+        <a href={`${home}#cv`}>{t('nav.cv')}</a>
+        <a href={`${home}#reading`}>{t('nav.reading')}</a>
       </div>
       <div>
-        <h5>Elsewhere</h5>
-        <a href="https://www.linkedin.com/in/tomscholtes93/" target="_blank" rel="noopener">LinkedIn</a>
-        <a href="/thesis">MSc thesis</a>
+        <h5>{t('footer.col.elsewhere')}</h5>
+        <a href="https://www.linkedin.com/in/tomscholtes93/" target="_blank" rel="noopener">{t('footer.linkedin')}</a>
+        <a href={thesis}>{t('footer.thesis')}</a>
       </div>
       <div>
-        <h5>Contact</h5>
+        <h5>{t('footer.col.contact')}</h5>
         <a href="mailto:tom@tomscholtes.com">tom@tomscholtes.com</a>
-        <a href="/#contact">Say hi</a>
+        <a href={`${home}#contact`}>{t('footer.email.cta')}</a>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 Tom Scholtes · Luxembourg</span>
-      <span>Personal site · opinions my own</span>
+      <span>{t('footer.copyright', { year })}</span>
+      <span>{t('footer.opinions')}</span>
     </div>
   </div>
 </footer>
