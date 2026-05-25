@@ -1,4 +1,183 @@
 ---
-import DevSwarmPage from '../../../projects/devswarm/index.astro';
+import Base from '../../../../layouts/Base.astro';
+import Nav from '../../../../components/Nav.astro';
+import Footer from '../../../../components/Footer.astro';
+import ArchitectureDevSwarm from '../../../../components/ArchitectureDevSwarm.astro';
+import RevealObserver from '../../../../components/RevealObserver.astro';
+import NoteLink from '../../../../components/NoteLink.astro';
 ---
-<DevSwarmPage />
+<Base
+  title="DevSwarm v1 · Tom Scholtes"
+  description="DevSwarm v1: пятиперсонный Claude Code dev squad, оркеструемый FastMCP-сервером. Один промпт в один pull request, fire-and-forget. Собрано Tom Scholtes на сервере Fedora за один полудень."
+  path="/ru/projects/devswarm"
+>
+  <Nav active="projects" />
+
+  <main>
+    <header class="paper">
+      <div class="container">
+        <span class="eyebrow">Сайд-проект · май 2026</span>
+        <h1 class="title">Пятиперсонный Claude Code <em>dev squad</em>.</h1>
+        <p class="sub">
+          DevSwarm это FastMCP-сервер, который оркеструет пять постоянных сессий персон Claude Code (Architect, Researcher, Frontend, Backend, Reviewer-Deployer), чтобы превратить один промпт в один pull request. Fire-and-forget: запустите его одним <NoteLink slug="mcp-workstream">MCP-вызовом</NoteLink>, закройте ноутбук, проснитесь к PR. Без Docker, без демона, без порта; только файлы на диске и stdio MCP. Собрано end-to-end на сервере Fedora за один полудень.
+        </p>
+
+        <div class="actions">
+          <a href="/ru/projects" class="btn btn-primary">Назад к проектам <span class="arr">→</span></a>
+          <a href="#demo" class="btn btn-ghost">Что он собрал</a>
+        </div>
+
+        <div class="meta-row">
+          <span><strong>5</strong> персон</span>
+          <span><strong>6</strong> MCP-инструментов</span>
+          <span><strong>4м 42с</strong> capstone-сборка</span>
+          <span><strong>Opus 4.7</strong> на всех персонах</span>
+          <span><strong>~3 ч</strong> сборки, один полудень</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Предпосылка</span>
+        <h2 class="h">Идея в 23:00. Pull request утром.</h2>
+        <p class="lead">
+          Одна сессия Claude Code это уже способный инженер. Но она работает по одной вещи за раз (прочитать, спланировать, написать код, проверить) в одном контекстном окне, с одними приоритетами, на тех же часах, что и человек, который печатает перед ней. DevSwarm это маленький эксперимент по тому, как разделить эту работу между постоянными специализированными агентами, которые передают результат через файлы на диске, работают в своих сессиях и не нуждаются в том, чтобы за ними кто-то следил.
+        </p>
+        <p>
+          Финальное состояние, которое я хотел: у вас есть идея поздно ночью, вы говорите её один раз и просыпаетесь к pull request, который можно прочитать, принять или отправить обратно. Без бэбиситтинга. Без «рой застрял через три шага». Оркестратор отделяется от вызывающего; статус живёт в JSON-файле на диске; можно закрыть терминал и вернуться на следующее утро.
+        </p>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Архитектура</span>
+        <h2 class="h">Чистые файлы на диске плюс stdio MCP.</h2>
+        <p class="lead">
+          MCP-сервер это один Python-файл. Каждая персона это реальная сессия <code>claude</code>, прикреплённая к UUID и продолжаемая через subprocess. Runner это отделённый процесс (<code>start_new_session=True</code>), который проходит пять стадий, сериализуя состояние в <code>.swarm_state.json</code> после каждой. Frontend и Backend работают в параллельных потоках. Без демона, без порта, без контейнера.
+        </p>
+
+        <ArchitectureDevSwarm />
+
+        <div class="arch" style="margin-top:28px">
+<pre>Вы (терминал, очки, везде где есть Claude Code)
+      ↓ MCP-вызов: devswarm.start_project(idea, repo_url)
+┌────────────────────────────────────┐
+│  devswarm_mcp.py  (FastMCP, stdio) │   ← запущен по требованию
+└─────────────┬──────────────────────┘
+              ↓ subprocess.Popen(start_new_session=True)
+┌────────────────────────────────────┐
+│  runner.py   (detached, PPID=1)    │   ← переживёт смерть MCP
+└─────────────┬──────────────────────┘
+              ↓ для каждой стадии: claude --resume &lt;uuid&gt; -p ...
+      ┌──────┴──────┬──────────┬──────────┬──────────────┐
+      ↓             ↓          ↓          ↓              ↓
+  Architect    Researcher   Frontend   Backend      Reviewer-
+  → PLAN.md    → RESEARCH   → код      → код        Deployer
+                  .md         в fe/      в be/      → REVIEW.md
+                                                    → gh pr create
+              ↓
+       состояние живёт в workspace/&lt;id&gt;/.swarm_state.json
+       проверять в любой момент через get_project_status(id)</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Пять персон</span>
+        <h2 class="h">Пять сессий, пять наборов инструментов.</h2>
+        <p class="lead">
+          Каждая персона это отдельная сессия Claude Code, живущая в собственной рабочей директории с собственным системным промптом <code>CLAUDE.md</code> и собственным allow-листом инструментов <code>settings.json</code>. Изоляция инструментов жёстко проводится в слое настроек, не просто обещается в промпте.
+        </p>
+        <div class="personas">
+          <div class="persona">
+            <div class="persona-name">Architect</div>
+            <div class="persona-role">Пишет PLAN.md · read-only</div>
+            <div class="persona-desc">Читает идею пользователя, выбирает стек, определяет раскладку файлов, контракты API, схему БД, декомпозицию задач, приёмочные критерии. Никакого кода. Никакого bash.</div>
+          </div>
+          <div class="persona">
+            <div class="persona-name">Researcher</div>
+            <div class="persona-role">Пишет RESEARCH.md · read + web</div>
+            <div class="persona-desc">Ищет библиотеки, паттерны, похожие OSS-проекты, известные подводные камни, риски безопасности для того, что описал Architect. С обилием ссылок.</div>
+          </div>
+          <div class="persona">
+            <div class="persona-name">Frontend</div>
+            <div class="persona-role">Собирает frontend/ · bash + edit</div>
+            <div class="persona-desc">Реализует UI-сторону PLAN.md. Имеет bash и доступ на запись, но жёстко заблокирован от git push и любого MCP-записывающего GitHub-инструмента.</div>
+          </div>
+          <div class="persona">
+            <div class="persona-name">Backend</div>
+            <div class="persona-role">Собирает backend/ · bash + edit</div>
+            <div class="persona-desc">Реализует API, сервер, миграции БД. Возвращает NOT_REQUIRED на статических проектах, чтобы пайплайн его чисто пропускал. Тот же блок git push, что и у Frontend.</div>
+          </div>
+          <div class="persona featured">
+            <div class="persona-name">Reviewer-Deployer</div>
+            <div class="persona-role">Пишет REVIEW.md + открывает PR · полный gh</div>
+            <div class="persona-desc">Запускает lint и тесты, проверяет каждый приёмочный критерий по команде, затем (и только тогда) клонирует целевой репозиторий, создаёт ветку <code>devswarm/&lt;id&gt;</code>, делает commit, push и открывает PR через <code>gh pr create</code>. Единственная персона с правом записи в GitHub.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="demo">
+      <div class="container paper-body">
+        <span class="eyebrow">Capstone-тест</span>
+        <h2 class="h">4 минуты 42 секунды, один промпт в один PR.</h2>
+        <p class="lead">
+          Первый end-to-end live-тест, без правок руками: одностраничный CV с переключателем тёмной темы, fade-in при прокрутке и уважением к <code>prefers-reduced-motion</code>. Каждая стадия удалась с первой попытки.
+        </p>
+
+        <div class="run-log">
+          <div class="run-log-row"><span class="run-log-stage">Architect</span><span class="run-log-desc">PLAN.md: стек, раскладка файлов, контракты API, приёмочные критерии</span><span class="run-log-time">28 с</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Researcher</span><span class="run-log-desc">RESEARCH.md: библиотеки, паттерны, подводные камни, безопасность</span><span class="run-log-time">1 м 31 с</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Frontend</span><span class="run-log-desc">index.html: инициализация темы без вспышки, CSS-переменные, IntersectionObserver</span><span class="run-log-time">59 с</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Backend</span><span class="run-log-desc">NOT_REQUIRED · статическая страница, нет API</span><span class="run-log-time">9 с</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Reviewer</span><span class="run-log-desc">REVIEW.md: 14 приёмочных проверок · clone · commit · push · открытие PR</span><span class="run-log-time">1 м 44 с</span></div>
+        </div>
+
+        <p style="margin-top:28px">
+          Ниже: точный <code>index.html</code>, который написал рой, отрисованный вживую. Попробуйте переключатель темы в правом верхнем углу рамки, прокрутите, чтобы увидеть, как срабатывает fade-in в каждой секции.
+        </p>
+
+        <div class="artifact">
+          <iframe
+            class="artifact-frame"
+            src="/projects/cv-onepager-artifact.html"
+            title="CV-одностраничник, собранный end-to-end DevSwarm"
+            loading="lazy"
+          ></iframe>
+          <p class="artifact-cap">
+            /projects/cv-onepager-artifact.html, дословно из выходной директории роя.
+            <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener">Смотреть PR ↗</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Стек и статус</span>
+        <h2 class="h">Честно о том, что в коробке.</h2>
+        <dl class="stack">
+          <dt>Язык</dt>
+          <dd>Python 3.14, FastMCP-сервер написан вручную в ~260 строк (<code>devswarm_mcp.py</code>) плюс runner (<code>runner.py</code>) плюс общие хелперы состояния (<code>swarm_state.py</code>).</dd>
+          <dt>Модель агента</dt>
+          <dd><code>claude-opus-4-7</code> на всех пяти персонах. Сессии сохраняются как JSONL в <code>~/.claude/projects/&lt;encoded&gt;/&lt;uuid&gt;.jsonl</code>, продолжаются через <code>claude --resume &lt;uuid&gt; -p ...</code>.</dd>
+          <dt>Изоляция инструментов</dt>
+          <dd>По <code>.claude/settings.json</code> на персону с явными allow/deny паттернами. Frontend/Backend жёстко заблокированы от <code>git push</code>, <code>gh pr</code>, всех записывающих <code>mcp__github__*</code>. Записи в Notion запрещены для каждой персоны.</dd>
+          <dt>Конкурентность</dt>
+          <dd>Python <code>threading</code> для параллельной стадии Frontend + Backend. Записи состояния используют уникальные tmp-имена + общепроцессный lock, чтобы read-modify-write внутри <code>update_stage</code> не терял обновления.</dd>
+          <dt>Деплой</dt>
+          <dd>Reviewer-Deployer использует CLI <code>gh</code> с существующей аутентификацией пользователя. URL PR пишется в <code>.pr_url</code> в рабочей директории; runner подхватывает его и отдаёт через <code>get_project_status</code>.</dd>
+          <dt>Источник</dt>
+          <dd>Ещё не в публичном репозитории; держится локально, пока API стабилизируется. Скорее всего, появится на <code>github.com/tomscholtes93-collab/devswarm</code>, когда несколько следующих capstone'ов пройдут чисто.</dd>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <RevealObserver />
+</Base>

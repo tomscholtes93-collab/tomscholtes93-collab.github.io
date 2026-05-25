@@ -1,4 +1,83 @@
 ---
-import DevSwarmCvPage from '../../../projects/devswarm-cv/index.astro';
+import Base from '../../../../layouts/Base.astro';
+import Nav from '../../../../components/Nav.astro';
+import Footer from '../../../../components/Footer.astro';
+import RevealObserver from '../../../../components/RevealObserver.astro';
 ---
-<DevSwarmCvPage />
+<Base
+  title="cv-onepager (собрано DevSwarm) · Tom Scholtes"
+  description="Однофайловый CV-одностраничник, произведённый end-to-end пятиперсонной пайплайн DevSwarm за 4м 42с. Реальный артефакт, встроен здесь."
+  path="/ru/projects/devswarm-cv"
+>
+  <Nav active="projects" />
+
+  <main>
+    <header class="paper">
+      <div class="container">
+        <span class="eyebrow">Демо · вывод DevSwarm · май 2026</span>
+        <h1 class="title">cv-onepager, рой <em>собрал это</em>.</h1>
+        <p class="sub">
+          Один статический HTML-файл, произведённый end-to-end пятиперсонной пайплайн DevSwarm. Inline CSS, доступная анимация, без JavaScript, без CDN. Артефакт это ровно тот файл, который рой записал в свою рабочую директорию; ничего не правилось вручную.
+        </p>
+
+        <div class="actions">
+          <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener" class="btn btn-primary">Смотреть PR <span class="arr">→</span></a>
+          <a href="/ru/projects/devswarm" class="btn btn-ghost">Как работает DevSwarm</a>
+        </div>
+
+        <div class="meta-row">
+          <span><strong>4м 42с</strong> от идеи до PR</span>
+          <span><strong>1</strong> файл выпущен</span>
+          <span><strong>8/8</strong> приёмочных greps зелёные</span>
+          <span><strong>0</strong> правок вручную</span>
+          <span><strong>2026-05-12 19:46:03</strong> временная метка прогона</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Сводка прогона</span>
+        <h2 class="h">Пять персон, один PR.</h2>
+        <p class="lead">
+          Финальный smoke-test: CV-одностраничник с тёмным фоном, fade-in анимацией и уважением к <code>prefers-reduced-motion</code>. Каждая стадия удалась с первой попытки.
+        </p>
+
+        <div class="run-log">
+          <div class="run-log-row"><span class="run-log-stage">Идея</span><span class="run-log-desc">«Собери CV-одностраничник, который проявляется через fade-in.»</span><span class="run-log-time">0:00</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Architect</span><span class="run-log-desc">Произвёл PLAN.md с приёмочными greps для h1, fade-in keyframes, тёмного фона, отсутствия script-тегов и внешних ресурсов.</span><span class="run-log-time">0:28</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Researcher</span><span class="run-log-desc">Произвёл RESEARCH.md с центрированием flexbox, <code>@keyframes fadeIn</code> и паттернами <code>prefers-reduced-motion</code>.</span><span class="run-log-time">1:31</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Frontend</span><span class="run-log-desc">Написал единственный <code>index.html</code>, прогнал восемь приёмочных greps локально, все зелёные.</span><span class="run-log-time">0:59</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Backend</span><span class="run-log-desc">NOT_REQUIRED (спецификация только статический frontend).</span><span class="run-log-time">0:09</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Reviewer</span><span class="run-log-desc">Проверил greps, упаковал артефакт, открыл PR.</span><span class="run-log-time">1:44</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="artifact">
+      <div class="container paper-body">
+        <span class="eyebrow">Артефакт</span>
+        <h2 class="h">Отрисован вживую, ниже.</h2>
+        <p class="lead">
+          Это в точности тот файл, который написал рой. Попробуйте переключатель темы в правом верхнем углу рамки; прокрутите, чтобы увидеть, как срабатывает fade-in.
+        </p>
+
+        <div class="artifact">
+          <iframe
+            src="/projects/cv-onepager-artifact.html"
+            title="превью артефакта cv-onepager"
+            loading="lazy"
+            style="width:100%; height:640px; border:1px solid var(--rule); border-radius:14px; background:var(--bg-2); display:block; color-scheme:light;"
+          ></iframe>
+          <p class="artifact-cap">
+            /projects/cv-onepager-artifact.html, дословно из выходной директории роя.
+            <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener">Смотреть PR ↗</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <RevealObserver />
+</Base>

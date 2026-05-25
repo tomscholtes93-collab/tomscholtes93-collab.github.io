@@ -6,16 +6,17 @@ interface Props { entry: CollectionEntry<'notes'>; }
 const { entry } = Astro.props;
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const fmt = localeDateFmt(locale);
-const href = localizePath(`/notes/${entry.slug}/`, locale);
+const displaySlug = entry.slug.replace(/^(en|de|fr|ru)\//, '');
+const href = localizePath(`/notes/${displaySlug}/`, locale);
 const firstTag = entry.data.tags[0];
 ---
 <a href={href} class="note-card" data-astro-prefetch>
   <span class="note-eyebrow eyebrow">
     {fmt.format(entry.data.publishDate)}{firstTag ? ` · ${firstTag}` : ''}
   </span>
-  <h3 class="serif note-card-title" transition:name={`note-title-${entry.slug}`}>
+  <h3 class="serif note-card-title" transition:name={`note-title-${displaySlug}`}>
     {entry.data.title}
   </h3>
   <p class="note-card-summary">{entry.data.summary}</p>
-  <span class="note-card-path mono">/notes/{entry.slug}/</span>
+  <span class="note-card-path mono">/notes/{displaySlug}/</span>
 </a>

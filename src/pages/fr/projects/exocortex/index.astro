@@ -1,4 +1,185 @@
 ---
-import ExocortexPage from '../../../projects/exocortex/index.astro';
+import Base from '../../../../layouts/Base.astro';
+import Nav from '../../../../components/Nav.astro';
+import Footer from '../../../../components/Footer.astro';
+import ArchitectureExocortex from '../../../../components/ArchitectureExocortex.astro';
+import RevealObserver from '../../../../components/RevealObserver.astro';
+import NoteLink from '../../../../components/NoteLink.astro';
 ---
-<ExocortexPage />
+<Base
+  title="Exocortex IA personnel · Tom Scholtes"
+  description="Un assistant IA personnel sur smart glasses : voix depuis les verres, pipeline via une infrastructure auto-hébergée sur Fedora, routé par Claude Max sans facturation API au token. Multilingue."
+  path="/fr/projects/exocortex"
+>
+  <Nav active="projects" />
+
+  <main>
+    <header class="paper">
+      <div class="container">
+        <span class="eyebrow">Projet annexe · en cours · mai 2026</span>
+        <h1 class="title">La voix sur les verres, <em>Claude</em> sur le serveur.</h1>
+        <p class="sub">
+          Un exocortex IA personnel accessible via les lunettes connectées Even Realities G2. Requête vocale sur les verres, pipeline complet tournant sur une infrastructure auto-hébergée sur un serveur Fedora, le tout routé par
+          <NoteLink slug="self-hosted-rag-claude-max">Claude Max OAuth</NoteLink>, de sorte qu'il n'y a pas de facturation API au token. Multilingue dès le premier jour (anglais, allemand, russe, français) avec une base de connaissances personnelle qui s'ingère en arrière-plan.
+        </p>
+
+        <div class="actions">
+          <a href="/fr/projects" class="btn btn-primary">Tous les projets <span class="arr">→</span></a>
+          <a href="#stack" class="btn btn-ghost">Pile &amp; statut</a>
+        </div>
+
+        <div class="meta-row">
+          <span><strong>4</strong> langues opérationnelles</span>
+          <span><strong>~1-3 s</strong> aller-retour Sonnet depuis les verres</span>
+          <span><strong>$0</strong> coût marginal API (Claude Max OAuth)</span>
+          <span><strong>1</strong> service toujours actif (Meridian)</span>
+          <span><strong>Jour 5</strong> · processus de base achevé</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="reveal" id="premise">
+      <div class="container paper-body">
+        <span class="eyebrow">Le préambule</span>
+        <h2 class="h">La conversation comme entrée principale.</h2>
+        <p class="lead">
+          S'asseoir devant un portable, ouvrir un terminal, taper une question ; toute cette boucle est trop lourde pour la majorité de ce que je veux demander à une IA dans une journée. Les lunettes suppriment la boucle. La voix entre par le micro à conduction osseuse, quelques secondes plus tard la réponse vit sur les verres. Aucun appareil sorti de la poche, aucune appli ouverte, aucun changement de contexte.
+        </p>
+        <p>
+          Le but n'est pas de remplacer le portable pour le vrai travail ; c'est de faire que les questions à dix secondes prennent réellement dix secondes, au lieu d'une minute de friction qui fait qu'elles ne sont jamais posées.
+        </p>
+      </div>
+    </section>
+
+    <section class="reveal" id="architecture">
+      <div class="container paper-body">
+        <span class="eyebrow">Architecture</span>
+        <h2 class="h">Auto-hébergée, de bout en bout.</h2>
+        <p class="lead">
+          La voix et l'affichage se passent sur les lunettes. Tout le reste tourne sur un serveur Fedora à la maison. Les lunettes joignent le serveur via Tailscale, donc la latence reste à ~6 ms même quand je ne suis pas au bureau.
+        </p>
+
+        <ArchitectureExocortex />
+
+        <div class="arch" style="margin-top:28px">
+<pre>Lunettes G2                  (voix en entrée, affichage sur les verres)
+    ↓ Bluetooth
+Téléphone Pixel 7            (appli compagnon Even Realities)
+    ↓ Tailscale (LAN, ~6 ms)
+Serveur Fedora 43
+    ↳ Even Terminal :3456     (le pont des lunettes vers Claude)
+        ↳ Claude Code         (patché : Sonnet par défaut, MCP en allowlist)
+            ↳ CLAUDE.md       (source unique de vérité pour le routage d'outils)
+            ↳ openkb MCP      (base de connaissances personnelle, stdio FastMCP)
+                ↳ CLI openkb
+                    ↳ LiteLLM → Meridian :4000 → Claude Max OAuth
+                        ↳ Sonnet 4.6
+            ↳ MCPs Notion / Asana / Calendar / Gmail
+            ↳ opus-thinker     (sous-agent, sur le mot littéral "opus")</pre>
+        </div>
+        <p style="margin-top:24px">
+          Une unité systemd (Meridian) est toujours active ; tout le reste se lance à la demande. Les serveurs MCP sont des sous-processus stdio que Claude Code lance quand un outil est appelé ; pas de démon, pas de port, pas de conteneur.
+        </p>
+      </div>
+    </section>
+
+    <section class="reveal" id="what-works">
+      <div class="container paper-body">
+        <span class="eyebrow">Ce qui marche de bout en bout</span>
+        <h2 class="h">Vérifié, sur les verres.</h2>
+        <p class="lead">
+          Statut au jour cinq : chacun de ces chemins tourne proprement d'une invite vocale à un affichage sur les verres. La balise entre crochets est le signal de modèle + outil que chaque réponse porte, pour que je sache toujours quel chemin a servi la requête.
+        </p>
+        <div class="feats">
+          <div class="feat">
+            <div class="feat-name">Requête directe sur les connaissances</div>
+            <div class="feat-tag">[sonnet] · ~1-3 s</div>
+            <div class="feat-desc">Voix en entrée, Sonnet 4.6 répond depuis l'entraînement, les verres affichent le résultat. Le chemin par défaut pour la plupart des questions.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Récupération depuis la KB personnelle</div>
+            <div class="feat-tag">[sonnet + 1 appel d'outil] · ~5-10 s</div>
+            <div class="feat-desc">Invocation explicite qui lit le wiki openkb local : contrats, documents de custody, recherche, tout ce qui a été ingéré.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Écritures vers Notion à la voix</div>
+            <div class="feat-tag">[sonnet + 1 appel d'outil]</div>
+            <div class="feat-desc">« Enregistre ceci dans Notion sous X » crée une page dans le bon teamspace. Les règles de routage vivent dans CLAUDE.md.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Raisonnement profond à la demande</div>
+            <div class="feat-tag">[sous-agent opus] · ~30-60 s</div>
+            <div class="feat-desc">Le mot littéral « opus » dans une invite escalade vers un sous-agent claude-opus-4-7. Lent à dessein, pour les questions dures.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Services qui se réparent</div>
+            <div class="feat-tag">systemd</div>
+            <div class="feat-desc">Meridian et Even Terminal redémarrent tous deux automatiquement. Les logs s'écoulent dans journalctl. Capot fermé en charge laisse la boîte tourner.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Bilan de santé six-sur-six</div>
+            <div class="feat-tag">une commande</div>
+            <div class="feat-desc">Un script unique vérifie les six pièces mobiles : Even Terminal à l'écoute, Meridian qui répond, openkb joignable, MCP enregistré, CLI claude authentifiée, Tailscale en service.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="lessons">
+      <div class="container paper-body">
+        <span class="eyebrow">Leçons gagnées de haute lutte</span>
+        <h2 class="h">Les choses qui m'ont coûté une soirée.</h2>
+        <div class="lessons">
+          <div class="lesson">
+            <span class="lesson-kind">Cache d'auth</span>
+            <span class="lesson-text"><strong>Boucle de 401 sur token périmé.</strong> Modifier le token d'auth dans l'appli compagnon ne suffit pas ; l'appli met en cache les sessions. Il faut force-stop l'appli, la rouvrir, recoller le token, sonder et sauvegarder. Sans le force-stop, des centaines de 401 s'empilent dans le log du pont et les requêtes des verres pendent à l'infini.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">Type systemd</span>
+            <span class="lesson-text"><strong>Type=forking + tmux survit au restart.</strong> La session tmux de l'unité du pont préserve l'auth à travers <code>systemctl restart</code> ; on peut patcher et redémarrer sans rappairer le téléphone. Type=simple fait l'inverse. Appris à la dure après quatre re-pairages.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">Hygiène des clés API</span>
+            <span class="lesson-text"><strong>Annuler <code>ANTHROPIC_API_KEY</code> partout.</strong> Si elle est définie dans n'importe quel shell, LiteLLM contourne silencieusement le proxy Meridian et facture la vraie API. Tout l'intérêt du routage par Claude Max OAuth est de garder le coût marginal à zéro ; une variable d'environnement égarée brûle ça.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">Choix du modèle</span>
+            <span class="lesson-text"><strong>openkb compile sur Sonnet, pas Haiku.</strong> Le document d'architecture initial disait Haiku pour l'étape de compilation du wiki. En pratique Sonnet 4.6 produit un liage conceptuel plus fort et des graphes inter-documents plus denses, et la différence de vitesse n'importe pas pour un job en arrière-plan.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">Escalade en opt-in</span>
+            <span class="lesson-text"><strong>Opus est uniquement en opt-in.</strong> Sonnet par défaut pour la vitesse, escalade vers claude-opus-4-7 uniquement quand l'invite contient littéralement « opus » ou « use opus ». Chaque réponse porte une étiquette (<code>[sonnet]</code>, <code>[sonnet + N appels d'outils]</code>, <code>[sous-agent opus]</code>) pour qu'on sache toujours quel chemin a répondu.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="stack">
+      <div class="container paper-body">
+        <span class="eyebrow">Pile &amp; statut</span>
+        <h2 class="h">Honnête sur ce qu'il y a dans la boîte.</h2>
+        <dl class="stack">
+          <dt>Matériel</dt>
+          <dd>Lunettes connectées Even Realities G2 · téléphone Pixel 7 · serveur Fedora 43 à la maison · bague intelligente en capture biométrique secondaire. Mesh Tailscale entre tous.</dd>
+          <dt>Modèles</dt>
+          <dd>Claude Sonnet 4.6 par défaut (<code>claude-sonnet-4-6</code>), Claude Opus 4.7 (<code>claude-opus-4-7</code>) en opt-in. Tous deux routés par Meridian, qui parle à Claude Max via OAuth.</dd>
+          <dt>Pont</dt>
+          <dd>Even Terminal (vendoré, patché sur place) sur <code>:3456</code>. Le patch est idempotent et survit aux mises à jour npm.</dd>
+          <dt>Connaissance</dt>
+          <dd>openkb, une KB personnelle auto-hébergée avec une interface stdio FastMCP. Compile un wiki interrogeable à partir de PDFs, contrats, notes de recherche, journaux. Sonnet 4.6 fait la compilation.</dd>
+          <dt>Routage d'outils</dt>
+          <dd>Un <code>CLAUDE.md</code> chargé automatiquement dans chaque session via <code>--setting-sources=user,project</code>. Règles explicites : openkb uniquement sur invocation explicite, Notion pour « mes notes », recherche web pour l'actualité, interne pour le reste.</dd>
+          <dt>Toujours actif</dt>
+          <dd>Une unité systemd (<code>meridian.service</code>, Type=simple). Tout le reste se lance à la demande.</dd>
+          <dt>Langues</dt>
+          <dd>Anglais, allemand, russe, français, utilisés en direct ; corpus juridique et fiscal en ingestion nocturne dans chacune.</dd>
+          <dt>Et ensuite</dt>
+          <dd>Capture vidéo en POV depuis les verres dans une boucle de mémoire passive ; une pipeline de briefing matinal consciente du calendrier ; un swarm d'agents pour la vie personnelle dans l'esprit de DevSwarm mais pour du travail hors dev.</dd>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <RevealObserver />
+</Base>
