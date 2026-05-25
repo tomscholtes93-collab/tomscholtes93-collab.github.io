@@ -1,4 +1,83 @@
 ---
-import DevSwarmCvPage from '../../../projects/devswarm-cv/index.astro';
+import Base from '../../../../layouts/Base.astro';
+import Nav from '../../../../components/Nav.astro';
+import Footer from '../../../../components/Footer.astro';
+import RevealObserver from '../../../../components/RevealObserver.astro';
 ---
-<DevSwarmCvPage />
+<Base
+  title="cv-onepager (construit par DevSwarm) · Tom Scholtes"
+  description="Un CV d'une seule page produit de bout en bout par la pipeline DevSwarm à cinq personas en 4m 42s. Vrai artéfact, intégré ici."
+  path="/fr/projects/devswarm-cv"
+>
+  <Nav active="projects" />
+
+  <main>
+    <header class="paper">
+      <div class="container">
+        <span class="eyebrow">Démo · sortie DevSwarm · mai 2026</span>
+        <h1 class="title">cv-onepager, le swarm <em>a construit ceci</em>.</h1>
+        <p class="sub">
+          Un fichier HTML statique unique produit de bout en bout par la pipeline DevSwarm à cinq personas. CSS en ligne, animation accessible, pas de JavaScript, pas de CDN. L'artéfact est exactement le fichier que le swarm a écrit dans son espace de travail ; rien n'a été édité à la main.
+        </p>
+
+        <div class="actions">
+          <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener" class="btn btn-primary">Voir la PR <span class="arr">→</span></a>
+          <a href="/fr/projects/devswarm" class="btn btn-ghost">Comment DevSwarm fonctionne</a>
+        </div>
+
+        <div class="meta-row">
+          <span><strong>4m 42s</strong> de l'idée à la PR</span>
+          <span><strong>1</strong> fichier livré</span>
+          <span><strong>8/8</strong> greps d'acceptation passés</span>
+          <span><strong>0</strong> édition humaine</span>
+          <span><strong>2026-05-12 19:46:03</strong> horodatage du run</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Résumé du run</span>
+        <h2 class="h">Cinq personas, une PR.</h2>
+        <p class="lead">
+          Le smoke-test final : un CV d'une page avec fond sombre, animation de fondu et respect de <code>prefers-reduced-motion</code>. Chaque étape a réussi du premier coup.
+        </p>
+
+        <div class="run-log">
+          <div class="run-log-row"><span class="run-log-stage">Idée</span><span class="run-log-desc">« Construire un CV d'une page qui apparaît en fondu. »</span><span class="run-log-time">0:00</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Architect</span><span class="run-log-desc">A produit PLAN.md avec les greps d'acceptation pour le h1, les keyframes de fondu, le fond sombre, l'absence de balises script et de ressources externes.</span><span class="run-log-time">0:28</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Researcher</span><span class="run-log-desc">A produit RESEARCH.md avec le centrage flexbox, <code>@keyframes fadeIn</code> et les motifs de <code>prefers-reduced-motion</code>.</span><span class="run-log-time">1:31</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Frontend</span><span class="run-log-desc">A écrit le seul fichier <code>index.html</code>, a passé les huit greps d'acceptation localement, tous au vert.</span><span class="run-log-time">0:59</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Backend</span><span class="run-log-desc">NOT_REQUIRED (la spec est purement frontend statique).</span><span class="run-log-time">0:09</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Reviewer</span><span class="run-log-desc">A vérifié les greps, empaqueté l'artéfact, ouvert la PR.</span><span class="run-log-time">1:44</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="artifact">
+      <div class="container paper-body">
+        <span class="eyebrow">L'artéfact</span>
+        <h2 class="h">Rendu en direct, ci-dessous.</h2>
+        <p class="lead">
+          C'est exactement le fichier que le swarm a écrit. Essayez le commutateur de thème en haut à droite du cadre ; faites défiler pour voir l'animation de fondu se déclencher.
+        </p>
+
+        <div class="artifact">
+          <iframe
+            src="/projects/cv-onepager-artifact.html"
+            title="aperçu de l'artéfact cv-onepager"
+            loading="lazy"
+            style="width:100%; height:640px; border:1px solid var(--rule); border-radius:14px; background:var(--bg-2); display:block; color-scheme:light;"
+          ></iframe>
+          <p class="artifact-cap">
+            /projects/cv-onepager-artifact.html, mot pour mot depuis la sortie de l'espace de travail du swarm.
+            <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener">Voir la PR ↗</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <RevealObserver />
+</Base>

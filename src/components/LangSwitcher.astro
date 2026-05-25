@@ -16,3 +16,30 @@ const here = stripLocalePrefix(Astro.url.pathname || '/');
     >{code.toUpperCase()}</a>
   ))}
 </div>
+
+<script is:inline>
+  (function () {
+    function currentLocale() {
+      var m = window.location.pathname.match(/^\/(de|fr|ru)(\/|$)/);
+      return m ? m[1] : 'en';
+    }
+    function fix() {
+      var here = window.location.pathname.replace(/^\/(de|fr|ru)(\/|$)/, '/');
+      if (!here.startsWith('/')) here = '/' + here;
+      var loc = currentLocale();
+      document.querySelectorAll('.lang-switcher a.lang-switch').forEach(function (a) {
+        var code = (a.getAttribute('hreflang') || '').toLowerCase();
+        a.setAttribute('href', code === 'en' ? here : '/' + code + (here === '/' ? '/' : here));
+        if (code === loc) {
+          a.classList.add('is-active');
+          a.setAttribute('aria-current', 'true');
+        } else {
+          a.classList.remove('is-active');
+          a.removeAttribute('aria-current');
+        }
+      });
+    }
+    document.addEventListener('astro:after-swap', fix);
+    document.addEventListener('astro:page-load', fix);
+  })();
+</script>

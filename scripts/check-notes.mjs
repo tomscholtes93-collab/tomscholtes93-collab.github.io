@@ -1,22 +1,25 @@
 #!/usr/bin/env node
-// Pre-build hard gate for src/content/notes/*.md.
+// Pre-build hard gate for src/content/notes/**/*.md.
 // Fails the build (exit 1) on:
 //   - em-dash (U+2014) anywhere in any note
 //   - any "leakage" name (Tom's personal blacklist)
+//   - inline <script>, on*= handlers, or javascript: URLs (defense in depth)
 //
-// Runs first in `npm run build`. Catches what NOTES_GUIDE.md asks for
-// before astro build, before deploy, before regret.
+// Runs as part of `npm run build`. Walks one level deep into locale
+// subdirectories so post-subpage-i18n notes under en/ de/ fr/ ru/ are covered.
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const NOTES_DIR = 'src/content/notes';
+const LOCALES = ['en', 'de', 'fr', 'ru'];
 const EM_DASH = '—';
 const LEAKAGE_NAMES = [
   'U29maWE=', 'QmVrem9kYQ==', 'VHJpdG9u', 'Y29tcG9zaXRlLWtleXM=',
   'SW52ZXN0cmFu', 'RGVhbHNwbHVz', 'THVrZQ==', 'Sm9ha2lt',
   'QW5uYQ==', 'Q29ucmFk', 'QWRhbQ==',
 ];
+const HTML_RISK = /<\s*script|on\w+\s*=\s*["']|javascript:/i;
 
 const errors = [];
 
@@ -25,33 +28,36 @@ function checkFile(path) {
   const lines = content.split('\n');
   lines.forEach((line, idx) => {
     if (line.includes(EM_DASH)) {
-      errors.push({
-        path,
-        line: idx + 1,
-        kind: 'em-dash',
-        snippet: line.trim().slice(0, 100),
-      });
+      errors.push({ path, line: idx + 1, kind: 'em-dash', snippet: line.trim().slice(0, 100) });
     }
     for (const name of LEAKAGE_NAMES) {
       const re = new RegExp(`\\b${name}\\b`, 'i');
       if (re.test(line)) {
-        errors.push({
-          path,
-          line: idx + 1,
-          kind: `leakage:${name}`,
-          snippet: line.trim().slice(0, 100),
-        });
+        errors.push({ path, line: idx + 1, kind: `leakage:${name}`, snippet: line.trim().slice(0, 100) });
       }
+    }
+    if (HTML_RISK.test(line)) {
+      errors.push({ path, line: idx + 1, kind: 'html-risk', snippet: line.trim().slice(0, 100) });
     }
   });
 }
 
-let files;
+let files = [];
 try {
-  files = readdirSync(NOTES_DIR)
-    .filter((f) => f.endsWith('.md'))
-    .map((f) => join(NOTES_DIR, f))
-    .filter((p) => statSync(p).isFile());
+  for (const top of readdirSync(NOTES_DIR)) {
+    const topPath = join(NOTES_DIR, top);
+    const topStat = statSync(topPath);
+    if (topStat.isFile() && top.endsWith('.md')) {
+      files.push(topPath);
+    } else if (topStat.isDirectory() && LOCALES.includes(top)) {
+      for (const f of readdirSync(topPath)) {
+        const fPath = join(topPath, f);
+        if (f.endsWith('.md') && statSync(fPath).isFile()) {
+          files.push(fPath);
+        }
+      }
+    }
+  }
 } catch (err) {
   console.error(`✗ check-notes: cannot read ${NOTES_DIR}: ${err.message}`);
   process.exit(1);
@@ -74,4 +80,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`✓ check-notes passed: ${files.length} note${files.length === 1 ? '' : 's'} checked, 0 issues`);
+console.log(`✓ check-notes passed: ${files.length} notes checked, 0 issues`);

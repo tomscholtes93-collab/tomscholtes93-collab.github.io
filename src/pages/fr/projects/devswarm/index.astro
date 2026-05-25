@@ -1,4 +1,183 @@
 ---
-import DevSwarmPage from '../../../projects/devswarm/index.astro';
+import Base from '../../../../layouts/Base.astro';
+import Nav from '../../../../components/Nav.astro';
+import Footer from '../../../../components/Footer.astro';
+import ArchitectureDevSwarm from '../../../../components/ArchitectureDevSwarm.astro';
+import RevealObserver from '../../../../components/RevealObserver.astro';
+import NoteLink from '../../../../components/NoteLink.astro';
 ---
-<DevSwarmPage />
+<Base
+  title="DevSwarm v1 · Tom Scholtes"
+  description="DevSwarm v1 : un dev squad Claude Code à cinq personas orchestré par un serveur FastMCP. Un prompt à une pull request, fire-and-forget. Construit par Tom Scholtes sur un serveur Fedora en une seule après-midi."
+  path="/fr/projects/devswarm"
+>
+  <Nav active="projects" />
+
+  <main>
+    <header class="paper">
+      <div class="container">
+        <span class="eyebrow">Projet annexe · mai 2026</span>
+        <h1 class="title">Un <em>dev squad</em> Claude Code à 5 personas.</h1>
+        <p class="sub">
+          DevSwarm est un serveur FastMCP qui orchestre cinq sessions persistantes de personas Claude Code (Architect, Researcher, Frontend, Backend, Reviewer-Deployer) pour transformer un prompt en une pull request. Fire-and-forget : lancez-le d'un seul <NoteLink slug="mcp-workstream">appel MCP</NoteLink>, fermez le portable, réveillez-vous devant une PR. Pas de Docker, pas de daemon, pas de port ; juste des fichiers sur disque et MCP en stdio. Construit de bout en bout sur un serveur Fedora en une seule après-midi.
+        </p>
+
+        <div class="actions">
+          <a href="/fr/projects" class="btn btn-primary">Retour aux projets <span class="arr">→</span></a>
+          <a href="#demo" class="btn btn-ghost">Voir ce qu'il a construit</a>
+        </div>
+
+        <div class="meta-row">
+          <span><strong>5</strong> personas</span>
+          <span><strong>6</strong> outils MCP</span>
+          <span><strong>4m 42s</strong> build capstone</span>
+          <span><strong>Opus 4.7</strong> sur toutes les personas</span>
+          <span><strong>~3 h</strong> de construction, une après-midi</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Le préambule</span>
+        <h2 class="h">Une idée à 23 h. Une pull request au matin.</h2>
+        <p class="lead">
+          Une session Claude Code unique est déjà un ingénieur capable. Mais elle travaille une chose à la fois (lire, planifier, coder, relire) dans la même fenêtre de contexte, avec les mêmes priorités, sur la même horloge que l'humain qui tape devant elle. DevSwarm est une petite expérimentation pour partager ce travail entre des agents spécialisés persistants qui s'échangent des fichiers sur disque, tournent dans leurs propres sessions et n'ont besoin de personne pour regarder.
+        </p>
+        <p>
+          L'état final que je voulais : vous avez une idée tard le soir, vous la dites une fois, et vous vous réveillez devant une pull request à lire, accepter ou renvoyer. Pas de babysitting. Pas de « le swarm s'est coincé trois étapes plus loin ». L'orchestrateur se détache de l'appelant ; l'état vit dans un fichier JSON sur disque ; vous pouvez fermer le terminal et revenir le lendemain matin.
+        </p>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Architecture</span>
+        <h2 class="h">Des fichiers purs sur disque, plus MCP en stdio.</h2>
+        <p class="lead">
+          Le serveur MCP est un seul fichier Python. Chaque persona est une vraie session <code>claude</code> épinglée à un UUID et reprise par sous-processus. Le runner est un processus détaché (<code>start_new_session=True</code>) qui parcourt cinq étapes, sérialisant l'état dans <code>.swarm_state.json</code> après chacune. Frontend et Backend tournent en threads parallèles. Pas de daemon, pas de port, pas de conteneur.
+        </p>
+
+        <ArchitectureDevSwarm />
+
+        <div class="arch" style="margin-top:28px">
+<pre>Vous (terminal, lunettes, partout où Claude Code tourne)
+      ↓ appel MCP : devswarm.start_project(idea, repo_url)
+┌────────────────────────────────────┐
+│  devswarm_mcp.py  (FastMCP, stdio) │   ← lancé à la demande
+└─────────────┬──────────────────────┘
+              ↓ subprocess.Popen(start_new_session=True)
+┌────────────────────────────────────┐
+│  runner.py   (détaché, PPID=1)     │   ← survit à la mort du MCP
+└─────────────┬──────────────────────┘
+              ↓ pour chaque étape : claude --resume &lt;uuid&gt; -p ...
+      ┌──────┴──────┬──────────┬──────────┬──────────────┐
+      ↓             ↓          ↓          ↓              ↓
+  Architect    Researcher   Frontend   Backend      Reviewer-
+  → PLAN.md    → RESEARCH   → code     → code       Deployer
+                  .md         dans fe/   dans be/   → REVIEW.md
+                                                    → gh pr create
+              ↓
+       l'état vit dans workspace/&lt;id&gt;/.swarm_state.json
+       vérifiable à tout moment via get_project_status(id)</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Les cinq personas</span>
+        <h2 class="h">Cinq sessions, cinq jeux d'outils.</h2>
+        <p class="lead">
+          Chaque persona est une session Claude Code distincte vivant dans son propre répertoire de travail, avec son propre system prompt <code>CLAUDE.md</code> et sa propre allow-list d'outils <code>settings.json</code>. L'isolation d'outils est appliquée durement au niveau des settings, pas seulement promise dans le prompt.
+        </p>
+        <div class="personas">
+          <div class="persona">
+            <div class="persona-name">Architect</div>
+            <div class="persona-role">Écrit PLAN.md · read-only</div>
+            <div class="persona-desc">Lit l'idée de l'utilisateur, choisit la stack, définit le layout de fichiers, les contrats d'API, le schéma de DB, la décomposition des tâches, les critères d'acceptation. Pas de code. Pas de bash.</div>
+          </div>
+          <div class="persona">
+            <div class="persona-name">Researcher</div>
+            <div class="persona-role">Écrit RESEARCH.md · read + web</div>
+            <div class="persona-desc">Cherche des bibliothèques, des motifs, des projets OSS similaires, des pièges connus, des risques de sécurité pour ce que l'Architect a spécifié. Lourd en citations.</div>
+          </div>
+          <div class="persona">
+            <div class="persona-name">Frontend</div>
+            <div class="persona-role">Construit frontend/ · bash + edit</div>
+            <div class="persona-desc">Implémente le côté UI du PLAN.md. A bash et accès en écriture, mais est durement bloqué de git push et de tout MCP GitHub en écriture.</div>
+          </div>
+          <div class="persona">
+            <div class="persona-name">Backend</div>
+            <div class="persona-role">Construit backend/ · bash + edit</div>
+            <div class="persona-desc">Implémente l'API, le serveur, les migrations DB. Retourne NOT_REQUIRED sur les projets statiques pour que la pipeline le saute proprement. Même blocage de git push que le Frontend.</div>
+          </div>
+          <div class="persona featured">
+            <div class="persona-name">Reviewer-Deployer</div>
+            <div class="persona-role">Écrit REVIEW.md + ouvre la PR · gh complet</div>
+            <div class="persona-desc">Lance lint et tests, vérifie chaque critère d'acceptation commande par commande, puis (et seulement alors) clone le repo cible, crée une branche <code>devswarm/&lt;id&gt;</code>, committe, pousse et ouvre une PR via <code>gh pr create</code>. La seule persona avec accès en écriture sur GitHub.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="demo">
+      <div class="container paper-body">
+        <span class="eyebrow">Le test capstone</span>
+        <h2 class="h">4 minutes 42 secondes, un prompt vers une PR.</h2>
+        <p class="lead">
+          Premier test live de bout en bout, sans édition humaine : un CV d'une page avec bascule mode sombre, fondu au défilement et respect de <code>prefers-reduced-motion</code>. Chaque étape a réussi du premier coup.
+        </p>
+
+        <div class="run-log">
+          <div class="run-log-row"><span class="run-log-stage">Architect</span><span class="run-log-desc">PLAN.md : stack, layout de fichiers, contrats d'API, critères d'acceptation</span><span class="run-log-time">28 s</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Researcher</span><span class="run-log-desc">RESEARCH.md : bibliothèques, motifs, pièges, sécurité</span><span class="run-log-time">1 m 31 s</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Frontend</span><span class="run-log-desc">index.html : init de thème sans flash, variables CSS, IntersectionObserver</span><span class="run-log-time">59 s</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Backend</span><span class="run-log-desc">NOT_REQUIRED · page statique, pas d'API</span><span class="run-log-time">9 s</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Reviewer</span><span class="run-log-desc">REVIEW.md : 14 vérifications d'acceptation · clone · commit · push · ouverture PR</span><span class="run-log-time">1 m 44 s</span></div>
+        </div>
+
+        <p style="margin-top:28px">
+          Ci-dessous : l'<code>index.html</code> exact que le swarm a écrit, rendu en direct. Essayez le commutateur de thème en haut à droite du cadre, faites défiler pour voir l'animation de fondu se déclencher sur chaque section.
+        </p>
+
+        <div class="artifact">
+          <iframe
+            class="artifact-frame"
+            src="/projects/cv-onepager-artifact.html"
+            title="CV d'une page construit de bout en bout par DevSwarm"
+            loading="lazy"
+          ></iframe>
+          <p class="artifact-cap">
+            /projects/cv-onepager-artifact.html, mot pour mot depuis la sortie de l'espace de travail du swarm.
+            <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener">Voir la PR ↗</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Pile &amp; statut</span>
+        <h2 class="h">Honnête sur ce qu'il y a dans la boîte.</h2>
+        <dl class="stack">
+          <dt>Langage</dt>
+          <dd>Python 3.14, serveur FastMCP écrit à la main en ~260 lignes (<code>devswarm_mcp.py</code>) plus le runner (<code>runner.py</code>) plus les utilitaires d'état partagé (<code>swarm_state.py</code>).</dd>
+          <dt>Modèle d'agent</dt>
+          <dd><code>claude-opus-4-7</code> sur les cinq personas. Sessions persistées en JSONL sous <code>~/.claude/projects/&lt;encoded&gt;/&lt;uuid&gt;.jsonl</code>, reprises via <code>claude --resume &lt;uuid&gt; -p ...</code>.</dd>
+          <dt>Isolation d'outils</dt>
+          <dd>Un <code>.claude/settings.json</code> par persona avec des motifs allow/deny explicites. Frontend/Backend durement bloqués de <code>git push</code>, <code>gh pr</code>, toutes les écritures <code>mcp__github__*</code>. Écritures Notion refusées pour chaque persona.</dd>
+          <dt>Concurrence</dt>
+          <dd>Python <code>threading</code> pour l'étape parallèle Frontend + Backend. Les écritures d'état utilisent des noms de fichiers tmp uniques et un verrou à l'échelle du processus, pour que le read-modify-write dans <code>update_stage</code> ne perde aucune mise à jour.</dd>
+          <dt>Déploiement</dt>
+          <dd>Reviewer-Deployer utilise la CLI <code>gh</code> avec l'auth existante de l'utilisateur. L'URL de la PR est écrite dans <code>.pr_url</code> dans l'espace de travail ; le runner la récupère et la fait apparaître dans <code>get_project_status</code>.</dd>
+          <dt>Source</dt>
+          <dd>Pas encore sur un repo public ; gardé local pendant que l'API se stabilise. Atterrira probablement sur <code>github.com/tomscholtes93-collab/devswarm</code> une fois que quelques capstones supplémentaires passeront proprement.</dd>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <RevealObserver />
+</Base>

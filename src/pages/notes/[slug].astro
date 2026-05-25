@@ -7,9 +7,10 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { t as translate, getLocale, localizePath, localeDateFmt, type Locale } from '../../i18n';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('notes', ({ data }) => data.status === 'published');
+  const entries = await getCollection('notes', ({ data, slug }) =>
+    data.status === 'published' && slug.startsWith('en/'));
   return entries.map((entry) => ({
-    params: { slug: entry.slug },
+    params: { slug: entry.slug.replace(/^en\//, '') },
     props: { entry },
   }));
 }
@@ -23,18 +24,20 @@ const { Content } = await entry.render();
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 const fmt = localeDateFmt(locale);
+const displaySlug = entry.slug.replace(/^en\//, '');
 const eyebrowParts = [t('notes.detail.eyebrow.prefix'), fmt.format(entry.data.publishDate), ...entry.data.tags];
 const eyebrow = eyebrowParts.join(' · ');
 
 const relatedEntries = entry.data.related.length
-  ? (await getCollection('notes', ({ data, slug }) => data.status === 'published' && entry.data.related.includes(slug)))
+  ? (await getCollection('notes', ({ data, slug }) =>
+      data.status === 'published' && entry.data.related.map((r) => `en/${r}`).includes(slug)))
   : [];
 const notesHref = localizePath('/notes/', locale);
 ---
 <Base
   title={`${entry.data.title} · Tom Scholtes`}
   description={entry.data.summary}
-  path={`/notes/${entry.slug}/`}
+  path={`/notes/${displaySlug}/`}
 >
   <Nav active="notes" />
   <main>
@@ -42,8 +45,8 @@ const notesHref = localizePath('/notes/', locale);
       <div class="container">
         <article class="prose note-article">
           <p class="eyebrow mono">{eyebrow}</p>
-          <h1 class="serif note-title" transition:name={`note-title-${entry.slug}`}>{entry.data.title}</h1>
-          <p class="lead note-summary" transition:name={`note-summary-${entry.slug}`}>{entry.data.summary}</p>
+          <h1 class="serif note-title" transition:name={`note-title-${displaySlug}`}>{entry.data.title}</h1>
+          <p class="lead note-summary" transition:name={`note-summary-${displaySlug}`}>{entry.data.summary}</p>
           <Content />
 
           {entry.data.sources.length > 0 && (
@@ -62,7 +65,7 @@ const notesHref = localizePath('/notes/', locale);
               <h2 class="eyebrow">{t('notes.detail.related.heading')}</h2>
               <ul>
                 {relatedEntries.map((r) => (
-                  <li><a class="note-link" href={localizePath(`/notes/${r.slug}/`, locale)} data-astro-prefetch>{r.data.title}</a></li>
+                  <li><a class="note-link" href={localizePath(`/notes/${r.slug.replace(/^en\//, '')}/`, locale)} data-astro-prefetch>{r.data.title}</a></li>
                 ))}
               </ul>
             </section>

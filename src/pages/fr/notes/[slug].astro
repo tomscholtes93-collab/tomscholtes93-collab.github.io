@@ -1,5 +1,81 @@
 ---
-import NoteDetail from '../../notes/[slug].astro';
-export { getStaticPaths } from '../../notes/[slug].astro';
+import Base from '../../../layouts/Base.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import RevealObserver from '../../../components/RevealObserver.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { t as translate, getLocale, localizePath, localeDateFmt, type Locale } from '../../../i18n';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('notes', ({ data, slug }) =>
+    data.status === 'published' && slug.startsWith('fr/'));
+  return entries.map((entry) => ({
+    params: { slug: entry.slug.replace(/^fr\//, '') },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'notes'>;
+}
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+const fmt = localeDateFmt(locale);
+const displaySlug = entry.slug.replace(/^fr\//, '');
+const eyebrowParts = [t('notes.detail.eyebrow.prefix'), fmt.format(entry.data.publishDate), ...entry.data.tags];
+const eyebrow = eyebrowParts.join(' · ');
+
+const relatedEntries = entry.data.related.length
+  ? (await getCollection('notes', ({ data, slug }) =>
+      data.status === 'published' && entry.data.related.map((r) => `fr/${r}`).includes(slug)))
+  : [];
+const notesHref = localizePath('/notes/', locale);
 ---
-<NoteDetail {...Astro.props} />
+<Base
+  title={`${entry.data.title} · Tom Scholtes`}
+  description={entry.data.summary}
+  path={`/fr/notes/${displaySlug}/`}
+>
+  <Nav active="notes" />
+  <main>
+    <section>
+      <div class="container">
+        <article class="prose note-article">
+          <p class="eyebrow mono">{eyebrow}</p>
+          <h1 class="serif note-title" transition:name={`note-title-${displaySlug}`}>{entry.data.title}</h1>
+          <p class="lead note-summary" transition:name={`note-summary-${displaySlug}`}>{entry.data.summary}</p>
+          <Content />
+
+          {entry.data.sources.length > 0 && (
+            <section class="note-sources">
+              <h2 class="eyebrow">{t('notes.detail.sources.heading')}</h2>
+              <ul>
+                {entry.data.sources.map((s) => (
+                  <li>{s.label} <span class="mono">· {s.kind}</span></li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {relatedEntries.length > 0 && (
+            <section class="note-related">
+              <h2 class="eyebrow">{t('notes.detail.related.heading')}</h2>
+              <ul>
+                {relatedEntries.map((r) => (
+                  <li><a class="note-link" href={localizePath(`/notes/${r.slug.replace(/^fr\//, '')}/`, locale)} data-astro-prefetch>{r.data.title}</a></li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <p class="back mono"><a href={notesHref}>{t('notes.detail.back')}</a></p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <RevealObserver />
+</Base>

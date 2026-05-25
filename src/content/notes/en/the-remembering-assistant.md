@@ -1,6 +1,5 @@
 ---
 title: "The remembering assistant"
-slug: "the-remembering-assistant"
 summary: "Not a Jarvis. A reflection on what it would mean for the assistant in my glasses to remember the right things, and which things it should forget on purpose."
 publishDate: 2026-05-16
 tags: ["memory", "wearables", "design"]

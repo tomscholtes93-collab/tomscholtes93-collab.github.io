@@ -10,7 +10,8 @@ import { t as translate, getLocale, type Locale } from '../../i18n';
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 
-const entries = (await getCollection('notes', ({ data }) => data.status === 'published'))
+const entries = (await getCollection('notes', ({ data, slug }) =>
+    data.status === 'published' && slug.startsWith('en/')))
   .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 ---
 <Base

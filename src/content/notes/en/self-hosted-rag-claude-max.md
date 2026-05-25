@@ -1,6 +1,5 @@
 ---
 title: "A self-hosted RAG on Claude Max"
-slug: "self-hosted-rag-claude-max"
 summary: "OpenKB, Meridian, and a Claude Max OAuth route. Notes on building a personal retrieval-augmented stack with no per-token API bill."
 publishDate: 2026-05-16
 tags: ["rag", "self-hosted", "knowledge"]
