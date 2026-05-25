@@ -1,4 +1,83 @@
 ---
-import DevSwarmCvPage from '../../../projects/devswarm-cv/index.astro';
+import Base from '../../../../layouts/Base.astro';
+import Nav from '../../../../components/Nav.astro';
+import Footer from '../../../../components/Footer.astro';
+import RevealObserver from '../../../../components/RevealObserver.astro';
 ---
-<DevSwarmCvPage />
+<Base
+  title="cv-onepager (gebaut von DevSwarm) · Tom Scholtes"
+  description="CV-Einseiter als einzelne Datei, Ende-zu-Ende von der DevSwarm-Fünf-Personas-Pipeline in 4m 42s produziert. Echtes Artefakt, hier eingebettet."
+  path="/de/projects/devswarm-cv"
+>
+  <Nav active="projects" />
+
+  <main>
+    <header class="paper">
+      <div class="container">
+        <span class="eyebrow">Demo · DevSwarm-Ausgabe · Mai 2026</span>
+        <h1 class="title">cv-onepager, der Schwarm <em>hat das gebaut</em>.</h1>
+        <p class="sub">
+          Eine einzelne statische HTML-Datei, Ende-zu-Ende von der DevSwarm-Fünf-Personas-Pipeline produziert. Inline-CSS, zugängliche Bewegung, kein JavaScript, kein CDN. Das Artefakt ist genau die Datei, die der Schwarm in seinen Workspace geschrieben hat; nichts wurde von Hand bearbeitet.
+        </p>
+
+        <div class="actions">
+          <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener" class="btn btn-primary">PR ansehen <span class="arr">→</span></a>
+          <a href="/de/projects/devswarm" class="btn btn-ghost">Wie DevSwarm funktioniert</a>
+        </div>
+
+        <div class="meta-row">
+          <span><strong>4m 42s</strong> Idee bis PR</span>
+          <span><strong>1</strong> Datei ausgeliefert</span>
+          <span><strong>8/8</strong> Akzeptanz-Greps bestanden</span>
+          <span><strong>0</strong> händische Edits</span>
+          <span><strong>2026-05-12 19:46:03</strong> Lauf-Zeitstempel</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="reveal">
+      <div class="container paper-body">
+        <span class="eyebrow">Lauf-Zusammenfassung</span>
+        <h2 class="h">Fünf Personas, ein PR.</h2>
+        <p class="lead">
+          Der Capstone-Smoke-Test: ein CV-Einseiter mit dunklem Hintergrund, Einblend-Animation und Respekt vor <code>prefers-reduced-motion</code>. Jede Stufe gelang im ersten Anlauf.
+        </p>
+
+        <div class="run-log">
+          <div class="run-log-row"><span class="run-log-stage">Idee</span><span class="run-log-desc">"Bau einen CV-Einseiter, der sich einblendet."</span><span class="run-log-time">0:00</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Architect</span><span class="run-log-desc">Lieferte PLAN.md mit Akzeptanz-Greps für h1, Einblend-Keyframes, dunklen Hintergrund, keine script-Tags, keine externen Ressourcen.</span><span class="run-log-time">0:28</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Researcher</span><span class="run-log-desc">Lieferte RESEARCH.md mit der Flexbox-Zentrierung, <code>@keyframes fadeIn</code> und <code>prefers-reduced-motion</code>-Mustern.</span><span class="run-log-time">1:31</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Frontend</span><span class="run-log-desc">Schrieb die einzelne <code>index.html</code>-Datei, ließ die acht Akzeptanz-Greps lokal laufen, alle grün.</span><span class="run-log-time">0:59</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Backend</span><span class="run-log-desc">NOT_REQUIRED (Spec ist nur statisches Frontend).</span><span class="run-log-time">0:09</span></div>
+          <div class="run-log-row"><span class="run-log-stage">Reviewer</span><span class="run-log-desc">Verifizierte die Greps, paketierte das Artefakt, eröffnete den PR.</span><span class="run-log-time">1:44</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="artifact">
+      <div class="container paper-body">
+        <span class="eyebrow">Das Artefakt</span>
+        <h2 class="h">Live gerendert, unten.</h2>
+        <p class="lead">
+          Das ist genau die Datei, die der Schwarm geschrieben hat. Probieren Sie den Theme-Schalter oben rechts im Rahmen; scrollen Sie, um die Einblend-Animation zu sehen.
+        </p>
+
+        <div class="artifact">
+          <iframe
+            src="/projects/cv-onepager-artifact.html"
+            title="cv-onepager Artefakt-Vorschau"
+            loading="lazy"
+            style="width:100%; height:640px; border:1px solid var(--rule); border-radius:14px; background:var(--bg-2); display:block; color-scheme:light;"
+          ></iframe>
+          <p class="artifact-cap">
+            /projects/cv-onepager-artifact.html, wörtlich aus der Workspace-Ausgabe des Schwarms.
+            <a href="https://github.com/tomscholtes93-collab/devswarm-smoke-20260512/pull/1" target="_blank" rel="noopener">PR ansehen ↗</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <RevealObserver />
+</Base>

@@ -1,6 +1,5 @@
 ---
 title: "The token economy principle"
-slug: "token-economy-principle"
 summary: "Why the general ledger should never enter the context window, and what that constraint forces you to design instead."
 publishDate: 2026-05-16
 tags: ["principles", "design", "llms"]

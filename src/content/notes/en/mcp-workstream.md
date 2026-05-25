@@ -1,6 +1,5 @@
 ---
 title: "The MCP workstream"
-slug: "mcp-workstream"
 summary: "Wiring Outlook and Monday.com into Claude Code through MCP, and what it taught me about the scope of automation in regulated workflows."
 publishDate: 2026-05-16
 tags: ["mcp", "automation", "tools"]

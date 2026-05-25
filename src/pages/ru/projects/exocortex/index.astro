@@ -1,4 +1,185 @@
 ---
-import ExocortexPage from '../../../projects/exocortex/index.astro';
+import Base from '../../../../layouts/Base.astro';
+import Nav from '../../../../components/Nav.astro';
+import Footer from '../../../../components/Footer.astro';
+import ArchitectureExocortex from '../../../../components/ArchitectureExocortex.astro';
+import RevealObserver from '../../../../components/RevealObserver.astro';
+import NoteLink from '../../../../components/NoteLink.astro';
 ---
-<ExocortexPage />
+<Base
+  title="Личный AI-экзокортекс · Tom Scholtes"
+  description="Личный AI-ассистент в смарт-очках: голос с линз, пайплайн через самохостинговую инфраструктуру на Fedora, маршрутизация через Claude Max без потокенного API-счёта. Многоязычно."
+  path="/ru/projects/exocortex"
+>
+  <Nav active="projects" />
+
+  <main>
+    <header class="paper">
+      <div class="container">
+        <span class="eyebrow">Сайд-проект · в работе · май 2026</span>
+        <h1 class="title">Голос на линзах, <em>Claude</em> на сервере.</h1>
+        <p class="sub">
+          Личный AI-экзокортекс, доступный через смарт-очки Even Realities G2. Голосовой запрос на линзах, полный пайплайн идёт через самохостинговую инфраструктуру на сервере Fedora, всё маршрутизируется через
+          <NoteLink slug="self-hosted-rag-claude-max">Claude Max OAuth</NoteLink>, так что потокенной оплаты API нет. Многоязычно с первого дня (английский, немецкий, русский, французский), с личной базой знаний, которая индексируется в фоне.
+        </p>
+
+        <div class="actions">
+          <a href="/ru/projects" class="btn btn-primary">Все проекты <span class="arr">→</span></a>
+          <a href="#stack" class="btn btn-ghost">Стек и статус</a>
+        </div>
+
+        <div class="meta-row">
+          <span><strong>4</strong> рабочих языка</span>
+          <span><strong>~1-3 с</strong> Sonnet туда-обратно с линз</span>
+          <span><strong>$0</strong> маржинальная стоимость API (Claude Max OAuth)</span>
+          <span><strong>1</strong> постоянно работающий сервис (Meridian)</span>
+          <span><strong>День 5</strong> · базовый процесс завершён</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="reveal" id="premise">
+      <div class="container paper-body">
+        <span class="eyebrow">Предпосылка</span>
+        <h2 class="h">Разговор как основной ввод.</h2>
+        <p class="lead">
+          Сесть за ноутбук, открыть терминал, набрать вопрос; вся эта петля слишком тяжела для большинства того, что я хочу спросить у AI за день. Очки убирают петлю. Голос идёт через костный микрофон, через несколько секунд ответ живёт на линзах. Ни одно устройство не достаётся из кармана, ни одно приложение не открывается, нет переключения контекста.
+        </p>
+        <p>
+          Цель не заменить ноутбук для реальной работы; цель в том, чтобы вопросы на десять секунд действительно занимали десять секунд, а не минуту трения, из-за которой их никогда не задают.
+        </p>
+      </div>
+    </section>
+
+    <section class="reveal" id="architecture">
+      <div class="container paper-body">
+        <span class="eyebrow">Архитектура</span>
+        <h2 class="h">Самохостинг, end-to-end.</h2>
+        <p class="lead">
+          Голос и отображение происходят на очках. Всё остальное работает на сервере Fedora дома. Очки достигают сервера через Tailscale, поэтому латентность ~6 мс даже когда я не за столом.
+        </p>
+
+        <ArchitectureExocortex />
+
+        <div class="arch" style="margin-top:28px">
+<pre>Очки G2                      (голос в, дисплей линз наружу)
+    ↓ Bluetooth
+Телефон Pixel 7              (компанион-приложение Even Realities)
+    ↓ Tailscale (LAN, ~6 мс)
+Сервер Fedora 43
+    ↳ Even Terminal :3456     (мост от очков к Claude)
+        ↳ Claude Code         (пропатчен: Sonnet по умолчанию, MCP в allowlist)
+            ↳ CLAUDE.md       (единый источник правды для маршрутизации инструментов)
+            ↳ openkb MCP      (личная база знаний, stdio FastMCP)
+                ↳ openkb CLI
+                    ↳ LiteLLM → Meridian :4000 → Claude Max OAuth
+                        ↳ Sonnet 4.6
+            ↳ Notion / Asana / Calendar / Gmail MCP
+            ↳ opus-thinker     (субагент, на буквальное слово "opus")</pre>
+        </div>
+        <p style="margin-top:24px">
+          Один systemd-юнит (Meridian) включён постоянно; всё остальное запускается по требованию. MCP-серверы это stdio-подпроцессы, которые Claude Code порождает при вызове инструмента; нет демона, нет порта, нет контейнера.
+        </p>
+      </div>
+    </section>
+
+    <section class="reveal" id="what-works">
+      <div class="container paper-body">
+        <span class="eyebrow">Что работает end-to-end</span>
+        <h2 class="h">Проверено, на линзах.</h2>
+        <p class="lead">
+          Статус на день пять: каждый из этих путей чисто проходит от голосового запроса до отображения на линзах. Тег в скобках это сигнал модели + использования инструментов, который несёт каждый ответ, чтобы я всегда знал, какой путь обслужил запрос.
+        </p>
+        <div class="feats">
+          <div class="feat">
+            <div class="feat-name">Прямой запрос к знаниям</div>
+            <div class="feat-tag">[sonnet] · ~1-3 с</div>
+            <div class="feat-desc">Голос на входе, Sonnet 4.6 отвечает из обучения, линзы показывают результат. Дефолтный путь для большинства вопросов.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Извлечение из личной KB</div>
+            <div class="feat-tag">[sonnet + 1 tool call] · ~5-10 с</div>
+            <div class="feat-desc">Явный вызов читает локальное openkb-вики: договоры, депозитарные документы, исследования, всё, что заиндексировано.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Запись в Notion голосом</div>
+            <div class="feat-tag">[sonnet + 1 tool call]</div>
+            <div class="feat-desc">«Сохрани это в Notion под X» создаёт страницу в правильном teamspace. Правила маршрутизации живут в CLAUDE.md.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Глубокое рассуждение по запросу</div>
+            <div class="feat-tag">[opus субагент] · ~30-60 с</div>
+            <div class="feat-desc">Буквальное слово "opus" в промпте эскалирует к субагенту claude-opus-4-7. Медленный намеренно, для тяжёлых вопросов.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Самовосстанавливающиеся сервисы</div>
+            <div class="feat-tag">systemd</div>
+            <div class="feat-desc">И Meridian, и Even Terminal перезапускаются автоматически. Логи стекают в journalctl. Закрытие крышки при питании оставляет машину работать.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Healthcheck шесть-из-шести</div>
+            <div class="feat-tag">одна команда</div>
+            <div class="feat-desc">Один скрипт проверяет все шесть подвижных частей: Even Terminal слушает, Meridian отвечает, openkb достижим, MCP зарегистрирован, claude CLI аутентифицирован, Tailscale поднят.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="lessons">
+      <div class="container paper-body">
+        <span class="eyebrow">Тяжёло доставшиеся уроки</span>
+        <h2 class="h">Вещи, которые стоили мне вечера.</h2>
+        <div class="lessons">
+          <div class="lesson">
+            <span class="lesson-kind">Кеш аутентификации</span>
+            <span class="lesson-text"><strong>Петля 401 с протухшим токеном.</strong> Редактировать токен в компанион-приложении недостаточно; приложение кеширует сессии. Нужно force-stop приложения, открыть заново, заново вставить токен, прозондировать и сохранить. Без force-stop сотни 401 копятся в логе моста, а запросы с линз висят бесконечно.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">systemd-тип</span>
+            <span class="lesson-text"><strong>Type=forking + tmux переживает restart.</strong> tmux-сессия юнита моста сохраняет аутентификацию через <code>systemctl restart</code>; можно патчить и перезапускать без повторного pair'а с телефоном. Type=simple делает обратное. Усвоено тяжело после четырёх повторных pair'ов.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">Гигиена API-ключей</span>
+            <span class="lesson-text"><strong>Unset <code>ANTHROPIC_API_KEY</code> везде.</strong> Если она установлена в любой shell, LiteLLM молча обходит прокси Meridian и счёт идёт в реальное API. Весь смысл маршрутизации через Claude Max OAuth держать маржинальную стоимость в нуле; одна случайная env-переменная это сжигает.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">Выбор модели</span>
+            <span class="lesson-text"><strong>openkb компилирует на Sonnet, не Haiku.</strong> Изначальный архитектурный документ говорил Haiku для шага компиляции вики. На практике Sonnet 4.6 даёт более сильное связывание концептов и более плотные межудокументные графы, а разница в скорости не важна для фонового задания.</span>
+          </div>
+          <div class="lesson">
+            <span class="lesson-kind">Opt-in эскалация</span>
+            <span class="lesson-text"><strong>Opus только opt-in.</strong> Дефолт Sonnet ради скорости, эскалация к claude-opus-4-7 только когда промпт буквально содержит "opus" или "use opus". Каждый ответ несёт тег (<code>[sonnet]</code>, <code>[sonnet + N tool calls]</code>, <code>[opus субагент]</code>), чтобы было всегда понятно, какой путь отвечал.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="stack">
+      <div class="container paper-body">
+        <span class="eyebrow">Стек и статус</span>
+        <h2 class="h">Честно о том, что в коробке.</h2>
+        <dl class="stack">
+          <dt>Железо</dt>
+          <dd>Смарт-очки Even Realities G2 · телефон Pixel 7 · домашний сервер Fedora 43 · смарт-кольцо как вторичный биометрический захват. Tailscale-mesh между всем.</dd>
+          <dt>Модели</dt>
+          <dd>Claude Sonnet 4.6 по умолчанию (<code>claude-sonnet-4-6</code>), Claude Opus 4.7 (<code>claude-opus-4-7</code>) по opt-in. Оба маршрутизируются через Meridian, который говорит с Claude Max по OAuth.</dd>
+          <dt>Мост</dt>
+          <dd>Even Terminal (вендорный, патч на месте) на <code>:3456</code>. Патч идемпотентен и переживает npm-апгрейды.</dd>
+          <dt>Знания</dt>
+          <dd>openkb, самохостинговая личная KB с интерфейсом FastMCP stdio. Компилирует запрашиваемое вики из PDF, договоров, исследовательских заметок, журналов. Компилирует Sonnet 4.6.</dd>
+          <dt>Маршрутизация инструментов</dt>
+          <dd>Один <code>CLAUDE.md</code> автоматически подгружается в каждую сессию через <code>--setting-sources=user,project</code>. Явные правила: openkb только при явном вызове, Notion для «моих заметок», веб-поиск для актуальных событий, внутреннее для всего остального.</dd>
+          <dt>Постоянно вкл.</dt>
+          <dd>Один systemd-юнит (<code>meridian.service</code>, Type=simple). Всё остальное запускается по требованию.</dd>
+          <dt>Языки</dt>
+          <dd>Английский, немецкий, русский, французский, в живом использовании; юридический и налоговый корпус индексируется по ночам на каждом.</dd>
+          <dt>Что дальше</dt>
+          <dd>POV-видеозахват с линз в пассивную память; календарно-осведомлённый утренний-брифинг пайплайн; рой агентов личной жизни в духе DevSwarm, но для не-разработческой работы.</dd>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <RevealObserver />
+</Base>
