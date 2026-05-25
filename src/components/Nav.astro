@@ -43,23 +43,34 @@ const thesis = localizePath('/thesis/', locale);
 
 <script is:inline>
   (function () {
-    var nav = document.getElementById('site-nav');
-    if (!nav) return;
-    var btn = nav.querySelector('.nav-toggle');
-    var links = nav.querySelector('.nav-links');
-    var openLabel = btn.getAttribute('data-label-open') || 'Open menu';
-    var closeLabel = btn.getAttribute('data-label-close') || 'Close menu';
-    function setOpen(v) {
-      nav.setAttribute('data-open', v ? 'true' : 'false');
-      btn.setAttribute('aria-expanded', v ? 'true' : 'false');
-      btn.setAttribute('aria-label', v ? closeLabel : openLabel);
-      document.body.style.overflow = v ? 'hidden' : '';
+    function init() {
+      var nav = document.getElementById('site-nav');
+      if (!nav || nav.dataset.toggleBound === 'true') return;
+      var btn = nav.querySelector('.nav-toggle');
+      var links = nav.querySelector('.nav-links');
+      if (!btn || !links) return;
+      var openLabel = btn.getAttribute('data-label-open') || 'Open menu';
+      var closeLabel = btn.getAttribute('data-label-close') || 'Close menu';
+      function setOpen(v) {
+        nav.setAttribute('data-open', v ? 'true' : 'false');
+        btn.setAttribute('aria-expanded', v ? 'true' : 'false');
+        btn.setAttribute('aria-label', v ? closeLabel : openLabel);
+        document.body.style.overflow = v ? 'hidden' : '';
+      }
+      btn.addEventListener('click', function () {
+        setOpen(nav.getAttribute('data-open') !== 'true');
+      });
+      links.addEventListener('click', function (e) {
+        if (e.target && e.target.tagName === 'A') setOpen(false);
+      });
+      nav.dataset.toggleBound = 'true';
     }
-    btn.addEventListener('click', function () {
-      setOpen(nav.getAttribute('data-open') !== 'true');
-    });
-    links.addEventListener('click', function (e) {
-      if (e.target && e.target.tagName === 'A') setOpen(false);
-    });
+    // Initial load: run once the DOM is parsed.
+    if (document.readyState !== 'loading') init();
+    else document.addEventListener('DOMContentLoaded', init);
+    // After every Astro View Transition swap, the Nav is re-rendered and
+    // needs its handlers re-bound. The dataset guard above prevents double
+    // binding if the same Nav element is somehow persisted.
+    document.addEventListener('astro:page-load', init);
   })();
 </script>
