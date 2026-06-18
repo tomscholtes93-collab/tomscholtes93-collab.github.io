@@ -17,8 +17,8 @@ const t = (k: string) => translate(k, locale);
         </p>
       </div>
     </div>
-    <div class="cases">
-      {CASE_IDS.map((n) => {
+    <div class="cases" data-stagger>
+      {CASE_IDS.map((n, i) => {
         const tags = [
           t(`home.work.case.${n}.tag.0`),
           t(`home.work.case.${n}.tag.1`),
@@ -32,6 +32,8 @@ const t = (k: string) => translate(k, locale);
             label={t(`home.work.case.${n}.label`)}
             blurb={t(`home.work.case.${n}.blurb`)}
             tags={tags}
+            className="reveal-item"
+            style={`--i:${i}`}
           />
         );
       })}
@@ -42,6 +44,8 @@ const t = (k: string) => translate(k, locale);
         label="designed"
         blurb="Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed."
         tags={['Data integration', 'Master data', 'Internal proposal']}
+        className="reveal-item"
+        style={`--i:${CASE_IDS.length}`}
       />
     </div>
   </div>

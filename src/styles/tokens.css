@@ -12,6 +12,36 @@
   --pad-y: clamp(80px, 9vw, 140px);
   --container: 1200px;
   --gap: 24px;
+
+  /* ── Type scale (fluid, ~1.22 ratio). Opt-in: selectors adopt these
+        below; existing ad-hoc clamps keep working until they reference a step. */
+  --step-0: clamp(15px, 0.95rem + 0.1vw, 16.5px);   /* body            */
+  --step-1: clamp(17px, 1rem + 0.3vw, 19px);        /* lead            */
+  --step-2: clamp(20px, 1.1rem + 0.5vw, 24px);
+  --step-3: clamp(26px, 1.4rem + 1vw, 34px);        /* card title      */
+  --step-4: clamp(34px, 2rem + 2vw, 52px);
+  --step-5: clamp(44px, 3rem + 3vw, 84px);          /* display heading */
+
+  /* ── Vertical rhythm ramp on the 4px grid. */
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --section-gap: var(--pad-y); /* one rhythm source for section padding */
+
+  /* ── Motion language. The curve already used in .reveal / .case is now
+        a single referenced variable so the lattice and reveals stay in lockstep. */
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --dur-reveal: .7s;
+  --dur-ui: .18s;
+  --stagger: 70ms;
+
+  /* --hairline: alias intent for --rule. Use var(--rule) for 1px separators;
+     this note documents intent without redefining the locked value. */
 }
 
 [data-theme="dark"] {

@@ -7,10 +7,17 @@ interface Props {
   blurb: string;
   tags: string[];
   href?: string;
+  className?: string;
+  style?: string;
 }
-const { n, title, metric, label, blurb, tags, href } = Astro.props;
+const { n, title, metric, label, blurb, tags, href, className, style } = Astro.props;
 const Tag = href ? 'a' : 'article';
-const extra = href ? { href, class: 'case case-link' } : { class: 'case' };
+const classes = ['case', href ? 'case-link' : '', className ?? ''].filter(Boolean).join(' ');
+const extra = {
+  ...(href ? { href } : {}),
+  class: classes,
+  ...(style ? { style } : {}),
+};
 ---
 <Tag {...extra}>
   <div class="case-head">
