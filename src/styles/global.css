@@ -65,7 +65,8 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   font-feature-settings: 'ss01', 'cv11';
   -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
+  font-size: var(--step-0);
+  line-height: 1.55;
 }
 a { color: inherit; text-decoration: none; }
 ::selection { background: var(--accent); color: var(--bg); }
@@ -91,16 +92,34 @@ a { color: inherit; text-decoration: none; }
 
 .reveal {
   opacity: 0;
-  transform: translateY(22px);
-  transition: opacity .85s cubic-bezier(.2,.7,.2,1), transform .85s cubic-bezier(.2,.7,.2,1);
+  transform: translateY(16px);
+  transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
 .reveal.is-visible { opacity: 1; transform: none; }
+
+/* Opt-in child stagger: direct .reveal-item children of a [data-stagger]
+   container cascade in reading order once the parent becomes visible. Same
+   gesture as the hero lattice, at section scale. Reduced-motion-safe: the
+   global block below nulls every transition, so the cascade is inert there. */
+.reveal[data-stagger] .reveal-item {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
+  will-change: opacity, transform;
+}
+.reveal[data-stagger].is-visible .reveal-item {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--stagger) * var(--i, 0));
+}
 
 section { padding: var(--pad-y) 0; border-top: 1px solid var(--rule); }
 section:first-of-type { border-top: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .reveal,
+  .reveal[data-stagger] .reveal-item { opacity: 1; transform: none; transition: none; }
   * { transition: none !important; animation: none !important; }
 }

@@ -118,7 +118,7 @@
   border-top: 1px solid var(--rule);
   color: var(--muted); font-size: 13px;
 }
-.hero-meta strong { color: var(--ink); display: block; font-weight: 600; font-size: 22px; font-family: 'Instrument Serif', serif; letter-spacing: -0.01em; }
+.hero-meta strong { color: var(--ink); display: block; font-weight: 600; font-size: 22px; font-family: 'Instrument Serif', serif; letter-spacing: -0.01em; font-feature-settings: 'tnum'; }
 
 /* hero propagation lattice */
 .hero-lattice {
@@ -233,13 +233,13 @@
 @media (max-width: 860px) { .sec-head { grid-template-columns: 1fr; gap: 18px; margin-bottom: 36px; align-items: start; } .sec-head h2 { margin-top: 0; } .sec-head .blurb { margin-top: 18px; } }
 .sec-head h2 {
   font-family: 'Instrument Serif', serif; font-weight: 400;
-  font-size: clamp(36px, 4.6vw, 64px);
+  font-size: var(--step-5);
   line-height: 1.02;
   letter-spacing: -0.02em;
   margin: 16px 0 0;
   text-wrap: balance;
 }
-.sec-head .blurb { color: var(--ink-2); font-size: 17px; max-width: 52ch; text-wrap: pretty; }
+.sec-head .blurb { color: var(--ink-2); font-size: var(--step-1); max-width: 52ch; text-wrap: pretty; }
 
 /* now */
 .now-row {
@@ -263,37 +263,75 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  min-height: 280px;
+  min-height: 300px;
   text-decoration: none;
   color: inherit;
+  /* accent top-rule, transparent at rest, grows in on hover */
+  box-shadow: inset 0 1px 0 transparent;
   transition:
-    background-color 180ms cubic-bezier(.2,.7,.2,1),
-    transform 180ms cubic-bezier(.2,.7,.2,1),
-    box-shadow 180ms cubic-bezier(.2,.7,.2,1);
+    background-color var(--dur-ui) var(--ease-out),
+    transform var(--dur-ui) var(--ease-out),
+    box-shadow var(--dur-ui) var(--ease-out);
 }
 .case:hover {
   background: var(--bg-2);
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px -22px color-mix(in oklab, var(--ink) 60%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--accent) 70%, transparent),
+    0 14px 30px -22px color-mix(in oklab, var(--ink) 60%, transparent);
+}
+.case:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 14px;
 }
 .case:hover .case-arr { transform: translateX(4px); }
 .case-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
 .case-metric { text-align: right; }
-.case-metric-num { font-family: 'Instrument Serif', serif; font-size: 32px; line-height: 1; letter-spacing: -.02em; color: var(--accent); }
+.case-metric-num { font-family: 'Instrument Serif', serif; font-size: 32px; line-height: 1; letter-spacing: -.02em; color: var(--accent-ink); }
 .case-metric-lbl { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 4px; max-width: 24ch; }
-.case h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 28px; line-height: 1.1; margin: 0; letter-spacing: -.01em; }
-.case p { color: var(--ink-2); font-size: 14.5px; margin: 0; }
+.case h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: var(--step-3); line-height: 1.12; margin: 0; letter-spacing: -.015em; }
+.case p { color: var(--ink-2); font-size: var(--step-0); line-height: 1.55; margin: 0; }
 .case .tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 6px; }
 .case .tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 8px; border: 1px solid var(--rule); border-radius: 4px; color: var(--muted); }
 .case .svc-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
 .case-arr {
   display: inline-block;
-  transition: transform 180ms cubic-bezier(.2,.7,.2,1);
+  transition: transform var(--dur-ui) var(--ease-out);
   color: var(--accent);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.85em;
   margin-left: 4px;
 }
+
+/* Card-hierarchy mirror: projects-landing cards (.proj-cards .card) inherit
+   the same unified title size, body size, steadier min-height, accent
+   top-rule, and tokenized easing as .case. Additive over pages.css. */
+.proj-cards .card {
+  min-height: 300px;
+  box-shadow: inset 0 1px 0 transparent;
+  transition:
+    background-color var(--dur-ui) var(--ease-out),
+    transform var(--dur-ui) var(--ease-out),
+    box-shadow var(--dur-ui) var(--ease-out);
+}
+.proj-cards .card:hover {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--accent) 70%, transparent),
+    0 14px 30px -22px color-mix(in oklab, var(--ink) 60%, transparent);
+}
+.proj-cards .card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 14px;
+}
+.proj-cards .card h2 {
+  font-size: var(--step-3);
+  line-height: 1.12;
+  letter-spacing: -.015em;
+}
+.proj-cards .card p { font-size: var(--step-0); line-height: 1.55; }
+.proj-cards .card-metric-num { color: var(--accent-ink); }
 
 /* CV */
 .cv-block { border-top: 1px solid var(--ink); margin-top: 56px; }
@@ -373,7 +411,7 @@
 }
 [data-theme="dark"] .cta-card, [data-theme="ink"] .cta-card { background: var(--bg-2); color: var(--ink); border: 1px solid var(--rule); }
 @media (max-width: 760px) { .cta-card { grid-template-columns: 1fr; } }
-.cta-card h2 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(38px, 5vw, 72px); line-height: 1; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+.cta-card h2 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: var(--step-5); line-height: 1; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
 .cta-card h2 em { font-style: italic; color: var(--accent); }
 .cta-card .right { display: flex; flex-direction: column; gap: 18px; align-items: flex-start; }
 .cta-card .right p { margin: 0; opacity: .8; max-width: 40ch; }
@@ -569,19 +607,27 @@ header.paper .lead,
   padding: 24px 24px 20px;
   text-decoration: none;
   color: inherit;
-  min-height: 220px;
+  min-height: 300px;
   position: relative;
+  box-shadow: inset 0 1px 0 transparent;
   transition:
-    background-color 180ms cubic-bezier(.2,.7,.2,1),
-    transform 180ms cubic-bezier(.2,.7,.2,1),
-    border-color 180ms cubic-bezier(.2,.7,.2,1),
-    box-shadow 180ms cubic-bezier(.2,.7,.2,1);
+    background-color var(--dur-ui) var(--ease-out),
+    transform var(--dur-ui) var(--ease-out),
+    border-color var(--dur-ui) var(--ease-out),
+    box-shadow var(--dur-ui) var(--ease-out);
 }
 .note-card:hover {
   background: var(--bg-2);
   border-color: var(--accent);
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px -22px color-mix(in oklab, var(--ink) 60%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--accent) 70%, transparent),
+    0 14px 30px -22px color-mix(in oklab, var(--ink) 60%, transparent);
+}
+.note-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 14px;
 }
 .note-card .note-eyebrow {
   color: var(--muted);
@@ -589,15 +635,16 @@ header.paper .lead,
 .note-card-title {
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
-  font-size: 22px;
-  line-height: 1.15;
-  letter-spacing: -.01em;
+  font-size: var(--step-3);
+  line-height: 1.12;
+  letter-spacing: -.015em;
   margin: 0;
   color: var(--ink);
 }
 .note-card-summary {
   color: var(--ink-2);
-  font-size: 14.5px;
+  font-size: var(--step-0);
+  line-height: 1.55;
   margin: 0;
   text-wrap: pretty;
 }
