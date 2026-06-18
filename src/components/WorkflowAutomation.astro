@@ -1,0 +1,21 @@
+---
+import Arr from './Arr.astro';
+import { t as translate, getLocale, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+---
+<section id="workflow" class="reveal">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">{t('home.workflow.eyebrow')}</span>
+      <div>
+        <h2>{t('home.workflow.heading')}</h2>
+        <p class="blurb">{t('home.workflow.blurb')}</p>
+        <div class="hero-actions">
+          <a href="/workflow-automation/" class="btn btn-primary">{t('home.workflow.cta')} <Arr /></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
