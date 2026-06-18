@@ -253,6 +253,11 @@
   color: var(--muted); text-transform: uppercase; letter-spacing: .08em;
 }
 .now-row .v { color: var(--ink-2); font-size: 16px; text-wrap: pretty; }
+@media (max-width: 600px) {
+  /* Stack label over value on mobile so there is no big horizontal gap. */
+  .now-row { grid-template-columns: 1fr; gap: 4px; padding: 16px 0; }
+  .now-row .k { margin-bottom: 2px; }
+}
 
 /* case studies */
 .cases { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 18px; overflow: hidden; }
@@ -488,8 +493,8 @@ header.paper .lead,
   max-width: none;
 }
 
-@media (min-width: 600px) {
-  /* Site-wide body justification.
+@media (min-width: 0px) {
+  /* Site-wide body justification (all widths, incl. mobile, per Tom 2026-06-19).
      Applied to every selector that holds running prose, across main, thesis,
      project sub-pages, projects-landing, and notes. Excludes mono/eyebrow/
      metadata labels via the override block below.
