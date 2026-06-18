@@ -1,10 +1,16 @@
 ---
 import { NOW_IDS } from '../content/now.ts';
-import NoteLink from './NoteLink.astro';
-import { t as translate, getLocale, type Locale } from '../i18n';
+import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
+
+// Items that carry a trailing inline CTA link. Language-agnostic for the
+// static workflow page; localized for the exocortex project page.
+const LINKS: Record<string, { href: string; label: string }> = {
+  email: { href: '/workflow-automation/', label: t('home.now.cta.demo') },
+  exocortex: { href: localizePath('/projects/exocortex', locale), label: t('home.now.cta.project') },
+};
 ---
 <section id="now" class="reveal">
   <div class="container">
@@ -23,14 +29,13 @@ const t = (k: string) => translate(k, locale);
         <div class="now-row">
           <div class="k">{t(`home.now.items.${id}.k`)}</div>
           <div class="v">
-            {id === 'running' ? (
+            {t(`home.now.items.${id}.v`)}
+            {LINKS[id] && (
               <>
-                {t('home.now.items.running.lead')}{' '}
-                <NoteLink slug="self-hosted-rag-claude-max">OpenKB</NoteLink>{' '}
-                {t('home.now.items.running.middle')}{' '}
-                <NoteLink slug="mcp-workstream">MCP</NoteLink>{t('home.now.items.running.tail')}
+                {' '}
+                <a class="link" href={LINKS[id].href}>{LINKS[id].label}</a>
               </>
-            ) : t(`home.now.items.${id}.v`)}
+            )}
           </div>
         </div>
       ))}

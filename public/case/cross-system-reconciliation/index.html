@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cross-system fund-data reconciliation architecture . Tom Scholtes</title>
+<meta name="description" content="A bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the master data model is still being scoped." />
+<link rel="canonical" href="https://tomscholtes.com/case/cross-system-reconciliation/" />
+<style>
+  @font-face { font-family:'Instrument Serif'; src:url('/fonts/instrument-serif-regular.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; unicode-range:U+0000-024F,U+02BB; }
+  @font-face { font-family:'Instrument Serif'; src:url('/fonts/instrument-serif-italic.woff2') format('woff2'); font-weight:400; font-style:italic; font-display:swap; unicode-range:U+0000-024F,U+02BB; }
+  @font-face { font-family:'Inter'; src:url('/fonts/inter-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; unicode-range:U+0000-024F,U+02BB; }
+  @font-face { font-family:'Inter'; src:url('/fonts/inter-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; unicode-range:U+0000-024F,U+02BB; }
+  @font-face { font-family:'Inter'; src:url('/fonts/inter-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; unicode-range:U+0000-024F,U+02BB; }
+  @font-face { font-family:'JetBrains Mono'; src:url('/fonts/jetbrains-mono-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face { font-family:'JetBrains Mono'; src:url('/fonts/jetbrains-mono-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
+
+  :root {
+    --bg:#F6F2EC; --bg-2:#EFE8DD; --ink:#0E0E0C; --ink-2:#2A2A28; --muted:#6B6963;
+    --rule:#1f1f1c1a; --accent:#C4623A; --accent-ink:#8A3F1E; --ok:#2F6B4F;
+    --container:1200px; --pad-y:clamp(56px,6vw,104px);
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  html,body { margin:0; padding:0; }
+  body {
+    background:var(--bg); color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif; font-feature-settings:'ss01','cv11';
+    -webkit-font-smoothing:antialiased; font-size:clamp(15px,0.95rem + 0.1vw,16.5px); line-height:1.55;
+  }
+  a { color:inherit; text-decoration:none; }
+  ::selection { background:var(--accent); color:var(--bg); }
+  :focus-visible { outline:2px solid var(--accent-ink); outline-offset:3px; border-radius:4px; }
+  .container { max-width:var(--container); margin:0 auto; padding:0 28px; }
+  .serif { font-family:'Instrument Serif','Times New Roman',serif; font-weight:400; letter-spacing:-0.01em; }
+  .mono { font-family:'JetBrains Mono',ui-monospace,monospace; }
+
+  /* nav */
+  header.nav { position:sticky; top:0; z-index:50; background:color-mix(in oklab,var(--bg) 86%,transparent); backdrop-filter:blur(12px) saturate(120%); border-bottom:1px solid var(--rule); }
+  .nav-inner { max-width:var(--container); margin:0 auto; padding:0 28px; height:62px; display:flex; align-items:center; justify-content:space-between; gap:18px; }
+  .brand { display:flex; align-items:center; gap:11px; font-family:'Instrument Serif',serif; font-size:20px; letter-spacing:-0.01em; color:var(--ink); white-space:nowrap; }
+  .brand-mark { width:28px; height:28px; flex:none; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--rule); border-radius:7px; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--accent-ink); background:var(--bg-2); }
+  .nav-links { display:flex; align-items:center; gap:clamp(14px,2.4vw,28px); }
+  .nav-links a { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.04em; color:var(--muted); transition:color .18s ease; white-space:nowrap; }
+  .nav-links a:hover { color:var(--ink); }
+  @media (max-width:640px) { .nav-links .hide-sm { display:none; } }
+
+  /* hero */
+  header.paper { padding:clamp(48px,7vw,96px) 0 clamp(36px,5vw,60px); }
+  .back { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); display:inline-flex; align-items:center; gap:8px; }
+  .back:hover { color:var(--ink); }
+  .eyebrow { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); display:inline-flex; align-items:center; gap:10px; margin-top:26px; }
+  .eyebrow::before { content:""; width:22px; height:1px; background:currentColor; opacity:.5; }
+  h1.title { font-family:'Instrument Serif',serif; font-weight:400; font-size:clamp(36px,5.4vw,68px); line-height:1.03; letter-spacing:-0.02em; margin:18px 0 0; text-wrap:balance; max-width:20ch; }
+  h1.title em { font-style:italic; color:var(--accent); }
+  .sub { margin-top:20px; color:var(--ink-2); font-size:clamp(16px,1.3vw,18px); max-width:60ch; text-wrap:pretty; }
+  .meta-row { display:flex; flex-wrap:wrap; gap:14px 28px; margin-top:34px; padding-top:22px; border-top:1px solid var(--rule); font-size:13px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .meta-row strong { color:var(--ink); font-weight:500; }
+
+  /* sections */
+  section { padding:var(--pad-y) 0; border-top:1px solid var(--rule); }
+  h2.h { font-family:'Instrument Serif',serif; font-weight:400; font-size:clamp(28px,3.6vw,44px); line-height:1.05; letter-spacing:-.02em; margin:10px 0 0; text-wrap:balance; }
+  h2.h em { font-style:italic; color:var(--accent); }
+  .lead { color:var(--ink-2); font-size:17px; margin-top:18px; max-width:64ch; text-wrap:pretty; }
+  .prose p { color:var(--ink-2); max-width:64ch; text-wrap:pretty; margin:14px 0 0; }
+  .prose p strong { color:var(--ink); font-weight:500; }
+
+  /* highlights two-col */
+  .high { display:grid; grid-template-columns:1fr 1fr; gap:44px; margin-top:30px; }
+  @media (max-width:860px) { .high { grid-template-columns:1fr; gap:28px; } }
+  .high h3 { font-family:'Instrument Serif',serif; font-weight:400; font-size:24px; margin:0 0 14px; letter-spacing:-.01em; }
+  .high ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:12px; }
+  .high li { padding-left:20px; position:relative; color:var(--ink-2); font-size:15.5px; line-height:1.5; }
+  .high li::before { content:""; position:absolute; left:0; top:10px; width:8px; height:1px; background:var(--accent); }
+  .high li strong { color:var(--ink); font-weight:500; }
+
+  /* stack chain */
+  .arch { margin-top:28px; background:var(--bg-2); border:1px solid var(--rule); border-radius:14px; padding:22px 24px; }
+  .chain { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+  .chain .cn { font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:.04em; border:1px solid var(--rule); border-radius:7px; padding:9px 13px; background:var(--bg); color:var(--ink-2); }
+  .chain .cn.acc { border-color:color-mix(in oklab,var(--accent) 55%,transparent); color:var(--accent-ink); background:color-mix(in oklab,var(--accent) 8%,transparent); }
+  .chain .ar { color:var(--accent); font-family:'JetBrains Mono',monospace; }
+
+  .stack { margin-top:24px; display:grid; grid-template-columns:minmax(140px,200px) 1fr; gap:14px 28px; }
+  @media (max-width:720px) { .stack { grid-template-columns:1fr; gap:4px 0; } .stack dt { padding-top:14px; } }
+  .stack dt { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; padding-top:3px; }
+  .stack dd { margin:0; color:var(--ink-2); font-size:15px; }
+
+  .note-strip { margin-top:28px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--muted); border-left:2px solid color-mix(in oklab,var(--accent) 55%,transparent); padding:4px 0 4px 16px; max-width:64ch; line-height:1.6; }
+
+  .actions { margin-top:30px; display:flex; gap:12px; flex-wrap:wrap; }
+  .btn { font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.02em; padding:12px 18px; border-radius:10px; border:1px solid var(--rule); display:inline-flex; align-items:center; gap:9px; transition:transform .18s ease,border-color .18s ease,background .18s ease; }
+  .btn:hover { transform:translateY(-1px); }
+  .btn-primary { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+  .btn-primary:hover { background:var(--accent-ink); }
+  .btn-ghost { background:transparent; color:var(--ink); }
+  .btn-ghost:hover { border-color:var(--muted); }
+  @media (prefers-reduced-motion:reduce) { .btn:hover { transform:none; } }
+
+  /* footer */
+  footer.site { border-top:1px solid var(--rule); padding:44px 0 56px; margin-top:var(--pad-y); }
+  .foot-inner { display:flex; justify-content:space-between; align-items:flex-start; gap:30px; flex-wrap:wrap; }
+  .foot-brand { font-family:'Instrument Serif',serif; font-size:20px; color:var(--ink); }
+  .foot-links { display:flex; gap:24px; flex-wrap:wrap; font-family:'JetBrains Mono',monospace; font-size:13px; }
+  .foot-links a { color:var(--muted); transition:color .18s ease; }
+  .foot-links a:hover { color:var(--accent); }
+  .foot-note { margin-top:26px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand"><span class="brand-mark">T</span><span>Tom Scholtes</span></a>
+    <nav class="nav-links">
+      <a href="/">Home</a>
+      <a href="/#work">Patterns</a>
+      <a class="hide-sm" href="/workflow-automation/">Live demo</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <header class="paper">
+    <div class="container">
+      <a href="/#work" class="back">&larr; All patterns</a>
+      <span class="eyebrow">Pattern . internal proposal</span>
+      <h1 class="title">Cross-system fund-data <em>reconciliation</em> architecture.</h1>
+      <p class="sub">A bridging architecture for reconciling two source-of-truth platforms while the master data model is still being scoped. A generic pattern, proposed internally, not deployed.</p>
+      <div class="meta-row">
+        <span><strong>Problem</strong> two sources of truth</span>
+        <span><strong>Constraint</strong> master model being scoped</span>
+        <span><strong>Shape</strong> bridging architecture</span>
+        <span><strong>Status</strong> proposed, not deployed</span>
+      </div>
+    </div>
+  </header>
+  <section>
+    <div class="container">
+      <span class="eyebrow">The problem</span>
+      <h2 class="h">Two systems, both claiming to be the source of truth.</h2>
+      <p class="lead">In a fund-administration setting two platforms can each hold what they consider the authoritative version of the same fund data. Reconciling them is awkward when the underlying master data model is still being scoped, because there is not yet a single agreed shape to reconcile against.</p>
+      <div class="high">
+        <div><h3>The tension</h3><ul>
+          <li><strong>Two sources of truth</strong> that drift apart over time.</li>
+          <li><strong>No settled master model</strong> to reconcile toward yet.</li>
+        </ul></div>
+        <div><h3>The bridge</h3><ul>
+          <li><strong>A reconciliation layer</strong> that maps between both systems.</li>
+          <li><strong>Designed to be temporary</strong>, retired once the master model lands.</li>
+        </ul></div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="container">
+      <span class="eyebrow">Why a bridge, and why not deployed</span>
+      <h2 class="h">Honest about what this is: a proposal, not a shipped system.</h2>
+      <p class="lead">The design is a generic bridging architecture meant to hold things together during the scoping period, not a permanent integration. It was proposed internally and was not deployed. It is included here as an example of architectural thinking rather than as a delivered result.</p>
+      <p class="note-strip">A capability pattern. Generic architecture, internal proposal, not deployed. No employer or vendor named.</p>
+    </div>
+  </section>
+</main>
+<footer class="site">
+  <div class="container foot-inner">
+    <div class="foot-brand">Tom Scholtes</div>
+    <div class="foot-links">
+      <a href="/">Home</a>
+      <a href="/#work">Patterns</a>
+      <a href="/workflow-automation/">Live demo</a>
+      <a href="/#contact">Contact</a>
+    </div>
+  </div>
+  <div class="container"><p class="foot-note">Capability and pattern descriptions only. No client or confidential material.</p></div>
+</footer>
+</body>
+</html>

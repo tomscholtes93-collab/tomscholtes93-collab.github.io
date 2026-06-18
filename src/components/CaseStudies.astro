@@ -1,6 +1,6 @@
 ---
 import CaseStudyCard from './CaseStudyCard.astro';
-import { CASE_IDS } from '../content/caseStudies.ts';
+import { CASE_IDS, CASE_SLUG } from '../content/caseStudies.ts';
 import { t as translate, getLocale, type Locale } from '../i18n';
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
@@ -32,6 +32,7 @@ const t = (k: string) => translate(k, locale);
             label={t(`home.work.case.${n}.label`)}
             blurb={t(`home.work.case.${n}.blurb`)}
             tags={tags}
+            href={`/case/${CASE_SLUG[n]}/`}
             className="reveal-item"
             style={`--i:${i}`}
           />
@@ -44,8 +45,20 @@ const t = (k: string) => translate(k, locale);
         label="designed"
         blurb="Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed."
         tags={['Data integration', 'Master data', 'Internal proposal']}
+        href="/case/cross-system-reconciliation/"
         className="reveal-item"
         style={`--i:${CASE_IDS.length}`}
+      />
+      <CaseStudyCard
+        n="09"
+        title="End-to-end email automation"
+        metric="Pattern"
+        label="personal automation architecture"
+        blurb="An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision."
+        tags={['Agentic', 'Self-review loop', 'Human-in-the-loop']}
+        href="/case/email-automation/"
+        className="reveal-item"
+        style={`--i:${CASE_IDS.length + 1}`}
       />
     </div>
   </div>
