@@ -1,0 +1,291 @@
+---
+// Full-bleed propagation-lattice hero. Reuses the node/edge visual language
+// (accent over bg-2 rings) of the existing arch-svg vocabulary. Canvas 2D,
+// vanilla controller, no libraries, no audio. Plays a one-shot four-stage
+// cascade then holds a calm lit steady state. Decorative: aria-hidden, no text.
+---
+<div class="hero-lattice" aria-hidden="true">
+  <div class="hero-lattice-static" aria-hidden="true"></div>
+  <canvas data-lattice></canvas>
+</div>
+
+<script is:inline data-astro-rerun>
+  (function () {
+    var raf = null, host = null, canvas = null, ctx = null;
+    var started = false, stopped = false, hardTimer = null;
+    var nodes = [], edges = [], W = 0, H = 0, dpr = 1, t0 = 0, mobile = false;
+    var col = { accent: '#C4623A', bg2: '#EFE8DD', rule: 'rgba(31,31,28,.1)', ink2: '#2A2A28' };
+
+    function reads(name, fb) {
+      try {
+        var v = getComputedStyle(host).getPropertyValue(name).trim();
+        return v || fb;
+      } catch (e) { return fb; }
+    }
+    function readColors() {
+      col.accent = reads('--accent', col.accent);
+      col.bg2 = reads('--bg-2', col.bg2);
+      col.rule = reads('--rule', col.rule);
+      col.ink2 = reads('--ink-2', col.ink2);
+    }
+
+    // Deterministic lattice. x ascends left to right so the wave reads as one
+    // direction. Positions are fractions of the box, jittered by a fixed seed.
+    function buildLattice() {
+      var N = mobile ? 5 : 7;
+      var seed = 0.42; // fixed, deterministic
+      nodes = [];
+      for (var i = 0; i < N; i++) {
+        var f = i / (N - 1);
+        // staggered rows to feel like a network, not a line
+        var row = (i % 2 === 0) ? 0.32 : 0.66;
+        var jx = ((Math.sin((i + 1) * seed * 9.7) + 1) / 2 - 0.5) * 0.06;
+        var jy = ((Math.cos((i + 1) * seed * 6.3) + 1) / 2 - 0.5) * 0.14;
+        nodes.push({
+          x: 0.12 + f * 0.76 + jx,
+          y: row + jy,
+          on: 0,          // 0..1 lit amount
+          litAt: Infinity // ms when activation begins
+        });
+      }
+      // Edges to nearest neighbours by x order (1 or 2 forward links).
+      edges = [];
+      for (var a = 0; a < N; a++) {
+        for (var b = a + 1; b < N; b++) {
+          var dx = nodes[a].x - nodes[b].x, dy = nodes[a].y - nodes[b].y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < (mobile ? 0.34 : 0.30)) {
+            edges.push({ a: a, b: b, fire: -1 }); // fire = ms the dash starts
+          }
+        }
+      }
+      // Seed the cascade: node 0 ignites first, then waves rightward by x.
+      nodes[0].litAt = 600; // ~600ms stillness then single ignite
+    }
+
+    function resize() {
+      var r = host.getBoundingClientRect();
+      W = Math.max(1, r.width); H = Math.max(1, r.height);
+      var cap = mobile ? 1.5 : 2;
+      dpr = Math.min(cap, window.devicePixelRatio || 1);
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function px(n) { return { x: n.x * W, y: n.y * H }; }
+
+    // Propagate: when a node is lit past a threshold, schedule its forward
+    // edges to fire, which in turn light their target nodes on arrival.
+    function propagate(now) {
+      var EDGE_MS = mobile ? 220 : 260; // dash travel time
+      for (var e = 0; e < edges.length; e++) {
+        var ed = edges[e];
+        var src = nodes[ed.a], dst = nodes[ed.b];
+        // forward direction = lower x lights higher x
+        var from = src.x <= dst.x ? ed.a : ed.b;
+        var to = from === ed.a ? ed.b : ed.a;
+        var nf = nodes[from], nt = nodes[to];
+        if (ed.fire < 0 && nf.litAt <= now && (now - nf.litAt) > 120) {
+          ed.fire = now;             // start dash
+          ed.from = from; ed.to = to;
+          if (nt.litAt === Infinity) nt.litAt = now + EDGE_MS; // light on arrival
+        }
+      }
+    }
+
+    function paint(now, ambientOnly) {
+      ctx.clearRect(0, 0, W, H);
+      var EDGE_MS = mobile ? 220 : 260;
+
+      // edges
+      for (var e = 0; e < edges.length; e++) {
+        var ed = edges[e];
+        var pa = px(nodes[ed.a]), pb = px(nodes[ed.b]);
+        var bothLit = nodes[ed.a].on > 0.4 && nodes[ed.b].on > 0.4;
+        // base hairline (rule), like arch-svg .edge
+        ctx.strokeStyle = bothLit
+          ? withAlpha(col.accent, 0.55)
+          : col.rule;
+        ctx.lineWidth = bothLit ? 1.4 : 1;
+        ctx.beginPath();
+        ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y);
+        ctx.stroke();
+
+        // travelling accent dash during a firing
+        if (!ambientOnly && ed.fire >= 0) {
+          var prog = (now - ed.fire) / EDGE_MS;
+          if (prog >= 0 && prog <= 1) {
+            var f = nodes[ed.from], tt = nodes[ed.to];
+            var sx = f.x * W, sy = f.y * H, tx = tt.x * W, ty = tt.y * H;
+            var headT = Math.min(1, prog);
+            var tailT = Math.max(0, prog - 0.28);
+            ctx.strokeStyle = col.accent;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(sx + (tx - sx) * tailT, sy + (ty - sy) * tailT);
+            ctx.lineTo(sx + (tx - sx) * headT, sy + (ty - sy) * headT);
+            ctx.stroke();
+            ctx.lineCap = 'butt';
+          }
+        }
+      }
+
+      // nodes: bg-2 ring with an accent radial fill scaled by lit amount
+      for (var i = 0; i < nodes.length; i++) {
+        var p = px(nodes[i]);
+        var on = nodes[i].on;
+        var r = mobile ? 9 : 11;
+        // ring
+        ctx.fillStyle = col.bg2;
+        ctx.strokeStyle = on > 0.05 ? withAlpha(col.accent, 0.4 + on * 0.5) : col.rule;
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        if (on > 0.01) {
+          // glow
+          var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 2.4);
+          g.addColorStop(0, withAlpha(col.accent, 0.55 * on));
+          g.addColorStop(1, withAlpha(col.accent, 0));
+          ctx.fillStyle = g;
+          ctx.beginPath(); ctx.arc(p.x, p.y, r * 2.4, 0, Math.PI * 2); ctx.fill();
+          // core
+          ctx.fillStyle = withAlpha(col.accent, 0.85 * on + 0.1);
+          ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.5, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+    }
+
+    function withAlpha(c, a) {
+      c = c.trim();
+      if (c.charAt(0) === '#') {
+        var h = c.slice(1);
+        if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+        var r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+      }
+      if (c.indexOf('rgb') === 0) {
+        return c.replace(/rgba?\(([^)]+)\)/, function (_, inner) {
+          var parts = inner.split(',').slice(0, 3).join(',');
+          return 'rgba(' + parts + ',' + a + ')';
+        });
+      }
+      return c;
+    }
+
+    function staticFrame() {
+      // calm lit end-state: every node fully on, no travelling dashes
+      for (var i = 0; i < nodes.length; i++) nodes[i].on = 0.78;
+      readColors();
+      paint(0, true);
+    }
+
+    function frame(ts) {
+      if (stopped) return;
+      if (!t0) t0 = ts;
+      var now = ts - t0;
+      propagate(now);
+      // ease node lit amount toward 1 once activated
+      var SETTLE = mobile ? 0.10 : 0.085;
+      var allDone = true;
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        var target = n.litAt <= now ? 1 : 0;
+        n.on += (target - n.on) * SETTLE;
+        if (target === 1 && n.on < 0.74) allDone = false;
+        if (target === 0) allDone = false;
+      }
+      paint(now, false);
+      // settle by ~3s: end the rAF, paint calm static frame
+      if (now > 3000 && allDone) { finish(); return; }
+      raf = requestAnimationFrame(frame);
+    }
+
+    function finish() {
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+      if (hardTimer) { clearTimeout(hardTimer); hardTimer = null; }
+      stopped = true;       // never resume the cascade after settling
+      staticFrame();
+    }
+
+    function startCascade() {
+      if (started || stopped) return;
+      started = true;
+      host.classList.add('is-live');
+      t0 = 0;
+      // hard timeout: a slow device never spins
+      hardTimer = setTimeout(function () { finish(); }, 4000);
+      raf = requestAnimationFrame(frame);
+    }
+
+    function init() {
+      host = document.querySelector('.hero-lattice');
+      if (!host) return;
+      canvas = host.querySelector('canvas[data-lattice]');
+      if (!canvas || !canvas.getContext) return; // unsupported -> static stays
+      ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      mobile = window.matchMedia('(max-width: 720px)').matches;
+      readColors();
+      buildLattice();
+      resize();
+
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) {
+        // collapse cascade to a static lit end-state, immediately.
+        host.classList.add('is-live');
+        staticFrame();
+        return;
+      }
+
+      // re-read tokens on theme/accent swaps and SPA nav
+      document.addEventListener('astro:after-swap', function () {
+        readColors();
+        if (stopped) staticFrame();
+      });
+      window.addEventListener('ts-display-prefs', function () {
+        readColors();
+        if (stopped) staticFrame();
+      });
+      window.addEventListener('resize', function () {
+        if (!host) return;
+        resize();
+        if (stopped) staticFrame();
+      });
+
+      // pause when tab hidden; resume cleanly
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          if (raf) { cancelAnimationFrame(raf); raf = null; }
+        } else if (started && !stopped) {
+          raf = requestAnimationFrame(frame);
+        }
+      });
+
+      // start only when on-screen
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (ents) {
+          for (var i = 0; i < ents.length; i++) {
+            if (ents[i].isIntersecting) {
+              startCascade();
+              io.disconnect();
+              break;
+            }
+          }
+        }, { threshold: 0.2 });
+        io.observe(host);
+      } else {
+        startCascade();
+      }
+    }
+
+    try {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    } catch (e) { /* static fallback remains visible */ }
+  })();
+</script>

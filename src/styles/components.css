@@ -120,6 +120,49 @@
 }
 .hero-meta strong { color: var(--ink); display: block; font-weight: 600; font-size: 22px; font-family: 'Instrument Serif', serif; letter-spacing: -0.01em; }
 
+/* hero propagation lattice */
+.hero-lattice {
+  position: relative;
+  min-height: 360px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: color-mix(in oklab, var(--bg-2) 100%, transparent);
+  border: 1px solid var(--rule);
+}
+.hero-lattice canvas[data-lattice] {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+/* CSS-only lit lattice: shown by default, hidden once canvas takes over.
+   Nodes are accent radial dots; hairlines are faint rule lines. */
+.hero-lattice-static {
+  position: absolute; inset: 0;
+  opacity: 1;
+  transition: opacity .6s cubic-bezier(.2,.7,.2,1);
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(circle at 16% 32%, var(--accent) 0 4px, transparent 5px),
+    radial-gradient(circle at 34% 64%, var(--accent) 0 4px, transparent 5px),
+    radial-gradient(circle at 52% 30%, var(--accent) 0 4px, transparent 5px),
+    radial-gradient(circle at 68% 66%, var(--accent) 0 4px, transparent 5px),
+    radial-gradient(circle at 86% 34%, var(--accent) 0 4px, transparent 5px),
+    linear-gradient(to right, var(--rule), var(--rule));
+  background-size:
+    100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
+    72% 1px;
+  background-position:
+    0 0, 0 0, 0 0, 0 0, 0 0,
+    14% 48%;
+}
+.hero-lattice.is-live .hero-lattice-static { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-lattice-static { opacity: 1 !important; transition: none; }
+  .hero-lattice.is-live .hero-lattice-static { opacity: 1; }
+  .hero-lattice canvas[data-lattice] { display: none; }
+}
+
 /* hero card rotation */
 .hero-composition { position: relative; min-height: 360px; }
 .hero-card-wrap {
