@@ -1,6 +1,6 @@
 ---
 import Arr from './Arr.astro';
-import HeroComposition from './HeroComposition.astro';
+import HeroLattice from './HeroLattice.astro';
 import { DEFAULT_HEADLINE } from '../content/headlines.ts';
 import { t as translate, getLocale, type Locale } from '../i18n';
 
@@ -24,6 +24,6 @@ const h = DEFAULT_HEADLINE;
         <div><strong>{t('home.hero.meta.languages.value')}</strong>{t('home.hero.meta.languages.label')}</div>
       </div>
     </div>
-    <HeroComposition />
+    <HeroLattice />
   </div>
 </section>
