@@ -229,8 +229,8 @@
 .hero-card .foot strong { color: var(--ok); font-weight: 500; }
 
 /* section heads */
-.sec-head { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; align-items: end; margin-bottom: 56px; }
-@media (max-width: 860px) { .sec-head { grid-template-columns: 1fr; gap: 18px; margin-bottom: 36px; align-items: start; } .sec-head h2 { margin-top: 0; } .sec-head .blurb { margin-top: 18px; } }
+.sec-head { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; align-items: end; margin-bottom: 44px; }
+@media (max-width: 860px) { .sec-head { grid-template-columns: 1fr; gap: 18px; margin-bottom: 28px; align-items: start; } .sec-head h2 { margin-top: 0; } .sec-head .blurb { margin-top: 18px; } }
 .sec-head h2 {
   font-family: 'Instrument Serif', serif; font-weight: 400;
   font-size: var(--step-5);

@@ -1,3 +1,3 @@
-export type NowId = 'working' | 'building' | 'running' | 'learning' | 'offclock';
+export type NowId = 'email' | 'frontier' | 'orchestration' | 'exocortex' | 'compute' | 'research';
 
-export const NOW_IDS: readonly NowId[] = ['working', 'building', 'running', 'learning', 'offclock'] as const;
+export const NOW_IDS: readonly NowId[] = ['email', 'frontier', 'orchestration', 'exocortex', 'compute', 'research'] as const;

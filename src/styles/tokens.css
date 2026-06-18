@@ -9,7 +9,7 @@
   --accent-ink: #8A3F1E;
   --deep: #1B2B4B;
   --ok: #2F6B4F;
-  --pad-y: clamp(80px, 9vw, 140px);
+  --pad-y: clamp(56px, 6vw, 104px);
   --container: 1200px;
   --gap: 24px;
 

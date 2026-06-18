@@ -50,6 +50,7 @@ const edu = [
 ];
 
 const skills: [string, string][] = [
+  [t('home.cv.skills.data.k'), t('home.cv.skills.data.v')],
   ['Accounting systems', 'eFront · BOB50 · SAP · alternative-investment platforms'],
   ['IT / scripting', 'VBA · Python · Microsoft Power Automate'],
   ['Office', 'Advanced Excel · Word · PowerPoint'],
@@ -118,7 +119,7 @@ const skills: [string, string][] = [
       <div class="cv-head"><span>{t('home.cv.publication.heading')}</span></div>
       <div class="cv-row">
         <div class="co" style="font-size:22px; line-height:1.15">Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</div>
-        <div class="note">MSc thesis · Erasmus University Rotterdam</div>
+        <div class="note">{t('home.cv.publication.note')}</div>
         <div class="period"><a href={thesisHref} class="btn btn-ghost" style="padding:10px 16px; font-size:13px">{t('home.cv.publication.cta')} <Arr /></a></div>
       </div>
     </div>
