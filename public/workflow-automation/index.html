@@ -556,6 +556,15 @@
       text-wrap: pretty;
     }
   }
+  /* Knuth-Plass enhancer active (html.kp): justify at ALL widths incl. mobile;
+     the JS evens the spacing. No JS -> no class -> mobile stays ragged. */
+  html.kp :is(.hero-lead, .sec-sub, #demo .sec-sub, #demo .lede, .built-body p, .conviction-body p) {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphenate-limit-chars: 6 3 2;
+  }
 </style>
 </head>
 <body>

@@ -80,13 +80,19 @@ function collectParagraphs() {
 function run() {
   restoreAll();           // reset to pure-CSS state, then re-evaluate at current width
   if (!hyphenate) return;
+  // Opt into all-width justification (incl. mobile). The `html.kp` CSS rule makes
+  // mobile prose compute as `justify` so collectParagraphs() picks it up; the JS
+  // then evens the spacing. If anything fails below, we drop the class so mobile
+  // reverts to ragged rather than showing native-justify rivers.
+  document.documentElement.classList.add('kp');
   const paras = collectParagraphs();
   if (!paras.length) return;
   paras.forEach(snapshot);
   try {
     justifyContent(paras, hyphenate);
   } catch (_e) {
-    restoreAll();         // back to native justify on any failure
+    restoreAll();                                    // undo partial layout
+    document.documentElement.classList.remove('kp'); // desktop keeps justify via @media; mobile -> ragged
   }
 }
 
