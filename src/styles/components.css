@@ -584,19 +584,22 @@ html.kp :is(
    scroll on narrow screens. `anywhere` on headings also reduces their intrinsic
    min-content so grid/flex tracks can actually shrink to fit; prose uses the
    gentler `break-word`. */
-h1, h2, h3, h4 {
+/* Catch-all for page CONTENT: `overflow-wrap: anywhere` is inherited, so this
+   lets long words (German compounds, Russian, URLs) break in any container
+   rather than forcing horizontal scroll. Crucially `anywhere` (unlike
+   `break-word`) also reduces intrinsic min-content, so `1fr` grid/flex tracks
+   can shrink to fit. Scoped to <main> so nav/footer chrome (brand, links) keep
+   normal word-wrapping; elements with `white-space: nowrap` are unaffected. */
+:where(main) {
   overflow-wrap: anywhere;
 }
+/* The brand name must never break mid-word or wrap; it sits on one line. */
+.brand { overflow-wrap: normal; white-space: nowrap; }
 /* Section headings hyphenate (per lang) so long German compounds break with a
    hyphen at syllable points rather than mid-word. Not on the hero h1 (display). */
 h2, h3, h4 {
   hyphens: auto;
   -webkit-hyphens: auto;
-}
-.prose p, .paper-body p, .sec-head .blurb, .hero .lead, .sub, .lede, .lead,
-.case p, .reading-card p, .proj-card p, .now-row .v, .body, .note,
-.persona-desc, .lesson-text {
-  overflow-wrap: break-word;
 }
 .prose ul { margin: 0 0 16px; padding-left: 1.2em; }
 .prose li { margin: 6px 0; }
