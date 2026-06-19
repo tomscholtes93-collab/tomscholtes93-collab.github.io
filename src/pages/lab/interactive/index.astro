@@ -1,0 +1,35 @@
+---
+// PREVIEW (unlisted, noindex): homepage with the interactive workflow teaser.
+// Identical to the live homepage except WorkflowAutomation -> WorkflowAutomationV2.
+import Base from '../../../layouts/Base.astro';
+import Nav from '../../../components/Nav.astro';
+import Hero from '../../../components/Hero.astro';
+import Now from '../../../components/Now.astro';
+import CaseStudies from '../../../components/CaseStudies.astro';
+import WorkflowAutomationV2 from '../../../components/WorkflowAutomationV2.astro';
+import CV from '../../../components/CV.astro';
+import Reading from '../../../components/Reading.astro';
+import Languages from '../../../components/Languages.astro';
+import Contact from '../../../components/Contact.astro';
+import Footer from '../../../components/Footer.astro';
+import RevealObserver from '../../../components/RevealObserver.astro';
+import DisplayPanel from '../../../components/islands/DisplayPanel.jsx';
+import TweaksPanel from '../../../components/islands/TweaksPanel.jsx';
+---
+<Base title="Preview: interactive teaser · Tom Scholtes" path="/lab/interactive" noindex={true}>
+  <Nav active="home" />
+  <main>
+    <Hero />
+    <WorkflowAutomationV2 />
+    <CaseStudies />
+    <Now />
+    <CV />
+    <Reading />
+    <Languages />
+    <Contact />
+  </main>
+  <Footer />
+  <DisplayPanel client:idle />
+  <TweaksPanel client:idle />
+  <RevealObserver />
+</Base>
