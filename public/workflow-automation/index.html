@@ -536,6 +536,26 @@
     .insp-foot { padding-top: 18px; }
     .legend { gap: 14px 18px; font-size: 0.74rem; }
   }
+  /* Body prose justification, matching the main site (>=600px only; below that
+     the narrow column rivers on short-word lines, so it stays ragged). Applies
+     to wide running-prose blocks; narrow cards/grids stay left-aligned. */
+  @media (min-width: 600px) {
+    .hero-lead,
+    .sec-sub,
+    #demo .sec-sub,
+    #demo .lede,
+    .built-body p,
+    .conviction-body p {
+      text-align: justify;
+      text-justify: inter-word;
+      hyphens: auto;
+      -webkit-hyphens: auto;
+      -webkit-hyphenate-limit-before: 3;
+      -webkit-hyphenate-limit-after: 2;
+      hyphenate-limit-chars: 6 3 2;
+      text-wrap: pretty;
+    }
+  }
 </style>
 </head>
 <body>
