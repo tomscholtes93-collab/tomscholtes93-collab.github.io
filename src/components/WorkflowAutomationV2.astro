@@ -1,0 +1,175 @@
+---
+import Arr from './Arr.astro';
+import { t as translate, getLocale, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+
+const stages = (['find', 'build', 'signoff', 'scale'] as const).map((k) => ({
+  k,
+  label: t(`home.workflow.stage.${k}.label`),
+  desc: t(`home.workflow.stage.${k}.desc`),
+}));
+---
+<section id="workflow" class="reveal">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">{t('home.workflow.eyebrow')}</span>
+      <div>
+        <h2>{t('home.workflow.heading')}</h2>
+        <p class="blurb">{t('home.workflow.blurb')}</p>
+
+        <div class="wf-teaser" data-wf>
+          <div class="wf-stages" role="tablist" aria-label={t('home.workflow.heading')}>
+            {stages.map((s, i) => (
+              <button
+                type="button"
+                class:list={['wf-stage', { 'is-active': i === 0 }]}
+                role="tab"
+                aria-selected={i === 0 ? 'true' : 'false'}
+                data-i={i}
+                data-desc={s.desc}
+              >
+                <span class="wf-dot" aria-hidden="true"></span>
+                <span class="wf-num">{`0${i + 1}`}</span>
+                <span class="wf-label">{s.label}</span>
+              </button>
+            ))}
+          </div>
+          <p class="wf-desc" data-wf-desc>{stages[0].desc}</p>
+        </div>
+
+        <div class="hero-actions">
+          <a href="/workflow-automation/" class="btn btn-primary">{t('home.workflow.cta')} <Arr /></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .wf-teaser { margin-top: 28px; }
+  .wf-stages {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    position: relative;
+  }
+  /* connecting baseline behind the row (desktop only) */
+  @media (min-width: 720px) {
+    .wf-stages::before {
+      content: "";
+      position: absolute;
+      left: 12%; right: 12%;
+      top: 22px;
+      height: 1px;
+      background: var(--rule);
+      z-index: 0;
+    }
+  }
+  .wf-stage {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    text-align: left;
+    background: var(--bg-2, color-mix(in oklab, var(--bg) 92%, var(--ink) 8%));
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--ink-2);
+    font: inherit;
+    transition: border-color .2s ease, transform .2s ease, color .2s ease;
+  }
+  .wf-stage:hover { transform: translateY(-1px); border-color: color-mix(in oklab, var(--accent) 45%, var(--rule)); }
+  .wf-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 1.5px solid var(--rule);
+    background: var(--bg);
+    transition: background .2s ease, border-color .2s ease, box-shadow .3s ease;
+  }
+  .wf-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: .08em; color: var(--muted);
+  }
+  .wf-label {
+    font-weight: 600; font-size: 15px; color: var(--ink-2);
+    transition: color .2s ease;
+  }
+  .wf-stage.is-active { border-color: color-mix(in oklab, var(--accent) 60%, var(--rule)); color: var(--ink); }
+  .wf-stage.is-active .wf-label { color: var(--ink); }
+  .wf-stage.is-active .wf-dot {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent);
+  }
+  .wf-desc {
+    margin: 16px 0 0;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.55;
+    min-height: 2.6em;
+    max-width: 60ch;
+    transition: opacity .2s ease;
+  }
+  @media (max-width: 600px) {
+    .wf-stages { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .wf-stage.is-active .wf-dot { animation: wf-pulse 3.2s ease-in-out infinite; }
+  }
+  @keyframes wf-pulse {
+    0%, 100% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent); }
+    50% { box-shadow: 0 0 0 7px color-mix(in oklab, var(--accent) 8%, transparent); }
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  (function () {
+    function initWf() {
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      document.querySelectorAll('[data-wf]').forEach(function (root) {
+        if (root.dataset.wfBound === '1') return;
+        root.dataset.wfBound = '1';
+        var stages = Array.prototype.slice.call(root.querySelectorAll('.wf-stage'));
+        var desc = root.querySelector('[data-wf-desc]');
+        if (!stages.length || !desc) return;
+        var active = 0;
+        var timer = null;
+
+        function show(i) {
+          active = i;
+          stages.forEach(function (s, j) {
+            var on = j === i;
+            s.classList.toggle('is-active', on);
+            s.setAttribute('aria-selected', on ? 'true' : 'false');
+          });
+          desc.style.opacity = '0';
+          window.setTimeout(function () {
+            desc.textContent = stages[i].getAttribute('data-desc') || '';
+            desc.style.opacity = '1';
+          }, 120);
+        }
+        function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
+        function start() {
+          if (reduce) return;
+          stop();
+          timer = window.setInterval(function () { show((active + 1) % stages.length); }, 3200);
+        }
+
+        stages.forEach(function (s, i) {
+          s.addEventListener('click', function () { show(i); start(); });
+          s.addEventListener('mouseenter', function () { stop(); show(i); });
+          s.addEventListener('focus', function () { stop(); show(i); });
+        });
+        root.addEventListener('mouseleave', start);
+        start();
+      });
+    }
+    initWf();
+    document.addEventListener('astro:page-load', initWf);
+  })();
+</script>

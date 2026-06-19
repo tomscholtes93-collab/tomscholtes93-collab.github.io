@@ -1,0 +1,54 @@
+---
+// Unlisted, noindex preview gallery. Not linked from the site nav.
+import Base from '../../layouts/Base.astro';
+import Footer from '../../components/Footer.astro';
+
+const versions = [
+  {
+    href: '/',
+    name: 'Current (live)',
+    note: 'The homepage as it is in production right now. Baseline to compare against.',
+    tag: 'baseline',
+  },
+  {
+    href: '/lab/interactive/',
+    name: 'Interactive workflow teaser',
+    note: 'Homepage with the winning page’s technique ported in: an interactive Find / Build / Sign off / Scale process stepper that glows and cycles. Everything else unchanged.',
+    tag: 'v1',
+  },
+];
+---
+<Base title="Design lab (preview) · Tom Scholtes" path="/lab" noindex={true}>
+  <main>
+    <div class="container" style="padding-top:64px; padding-bottom:96px; max-width:760px;">
+      <p class="eyebrow">Design lab</p>
+      <h1 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:clamp(34px,5vw,56px); line-height:1.05; margin:14px 0 16px;">
+        Preview gallery.
+      </h1>
+      <p style="color:var(--ink-2); font-size:17px; max-width:60ch; margin:0 0 40px;">
+        Unlisted previews of design directions. Not linked from the site and hidden from search.
+        Open any version, compare against the current live one, then tell me which direction to take.
+      </p>
+
+      <ul style="list-style:none; margin:0; padding:0; display:grid; gap:14px;">
+        {versions.map((v) => (
+          <li>
+            <a
+              href={v.href}
+              style="display:block; text-decoration:none; color:inherit; border:1px solid var(--rule); border-radius:14px; padding:22px 24px; transition:border-color .2s ease, transform .2s ease;"
+              onmouseover="this.style.borderColor='color-mix(in oklab, var(--accent) 50%, var(--rule))'; this.style.transform='translateY(-1px)';"
+              onmouseout="this.style.borderColor='var(--rule)'; this.style.transform='none';"
+            >
+              <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+                <span style="font-family:'Instrument Serif',serif; font-size:24px;">{v.name}</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase;">{v.tag}</span>
+              </div>
+              <p style="margin:8px 0 0; color:var(--ink-2); font-size:15px; line-height:1.55;">{v.note}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </main>
+  <Footer />
+</Base>

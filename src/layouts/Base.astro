@@ -13,6 +13,7 @@ interface Props {
   description?: string;
   path?: string;
   jsonLd?: boolean;
+  noindex?: boolean;
 }
 
 const {
@@ -20,6 +21,7 @@ const {
   description,
   path = '/',
   jsonLd = false,
+  noindex = false,
 } = Astro.props;
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
@@ -45,6 +47,7 @@ const OG_LOCALE: Record<Locale, string> = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{resolvedTitle}</title>
     <meta name="description" content={resolvedDesc} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
     {LOCALES.map((l) => (
       <link rel="alternate" hreflang={l} href={new URL(localizePath(path, l), SITE).toString()} />
