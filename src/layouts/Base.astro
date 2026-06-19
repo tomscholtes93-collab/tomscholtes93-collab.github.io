@@ -6,6 +6,7 @@ import '../styles/pages.css';
 import { ClientRouter } from 'astro:transitions';
 import JsonLdPerson from '../components/JsonLdPerson.astro';
 import { LOCALES, getLocale, localizePath, t as translate, type Locale } from '../i18n';
+import { version as APP_VERSION } from '../../package.json';
 
 interface Props {
   title?: string;
@@ -108,6 +109,6 @@ const OG_LOCALE: Record<Locale, string> = {
   </head>
   <body>
     <slot />
-    <script is:inline type="module" src="/js/justify.js"></script>
+    <script is:inline type="module" src={`/js/justify.js?v=${APP_VERSION}`}></script>
   </body>
 </html>

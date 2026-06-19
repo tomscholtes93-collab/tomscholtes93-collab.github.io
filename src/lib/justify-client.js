@@ -87,9 +87,35 @@ function run() {
   document.documentElement.classList.add('kp');
   const paras = collectParagraphs();
   if (!paras.length) return;
+  // Record each element's correct (CSS) width BEFORE justifying. We are in the
+  // pure-CSS state here (restoreAll ran above), so these are the right widths.
+  const cssWidth = new Map(paras.map((el) => [el, el.getBoundingClientRect().width]));
   paras.forEach(snapshot);
+
+  const revert = (el) => {
+    const o = origin.get(el);
+    if (!o) return;
+    el.innerHTML = o.html;
+    if (o.style == null) el.removeAttribute('style');
+    else el.setAttribute('style', o.style);
+  };
+
   try {
     justifyContent(paras, hyphenate);
+    // Safety net: tex-linebreak wraps each line in a `white-space: nowrap` span.
+    // If a line cannot be broken short enough (e.g. a long German compound word),
+    // the element GROWS wider than its column, which can stretch parent containers
+    // and cause horizontal page scroll. Revert any element that grew past its
+    // CSS width back to native wrapping.
+    for (const el of paras) {
+      if (el.getBoundingClientRect().width - (cssWidth.get(el) || 0) > 1) revert(el);
+    }
+    // Last-resort: if the page still scrolls sideways, drop KP entirely here.
+    const root = document.documentElement;
+    if (root.scrollWidth - root.clientWidth > 1) {
+      restoreAll();
+      root.classList.remove('kp');
+    }
   } catch (_e) {
     restoreAll();                                    // undo partial layout
     document.documentElement.classList.remove('kp'); // desktop keeps justify via @media; mobile -> ragged
