@@ -229,8 +229,11 @@
 .hero-card .foot strong { color: var(--ok); font-weight: 500; }
 
 /* section heads */
-.sec-head { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; align-items: end; margin-bottom: 44px; }
-@media (max-width: 860px) { .sec-head { grid-template-columns: 1fr; gap: 18px; margin-bottom: 28px; align-items: start; } .sec-head h2 { margin-top: 0; } .sec-head .blurb { margin-top: 18px; } }
+/* minmax(0, ...) lets the tracks shrink below the min-content of long German
+   compound words; without it a `1fr` track floors at the longest word's width
+   and overflows narrow screens. Pairs with overflow-wrap on the headings. */
+.sec-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 64px; align-items: end; margin-bottom: 44px; }
+@media (max-width: 860px) { .sec-head { grid-template-columns: minmax(0, 1fr); gap: 18px; margin-bottom: 28px; align-items: start; } .sec-head h2 { margin-top: 0; } .sec-head .blurb { margin-top: 18px; } }
 .sec-head h2 {
   font-family: 'Instrument Serif', serif; font-weight: 400;
   font-size: var(--step-5);
@@ -576,6 +579,24 @@ html.kp :is(
   hyphens: auto;
   -webkit-hyphens: auto;
   hyphenate-limit-chars: 6 3 2;
+}
+/* Long words (German compounds, URLs) must break instead of forcing horizontal
+   scroll on narrow screens. `anywhere` on headings also reduces their intrinsic
+   min-content so grid/flex tracks can actually shrink to fit; prose uses the
+   gentler `break-word`. */
+h1, h2, h3, h4 {
+  overflow-wrap: anywhere;
+}
+/* Section headings hyphenate (per lang) so long German compounds break with a
+   hyphen at syllable points rather than mid-word. Not on the hero h1 (display). */
+h2, h3, h4 {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+.prose p, .paper-body p, .sec-head .blurb, .hero .lead, .sub, .lede, .lead,
+.case p, .reading-card p, .proj-card p, .now-row .v, .body, .note,
+.persona-desc, .lesson-text {
+  overflow-wrap: break-word;
 }
 .prose ul { margin: 0 0 16px; padding-left: 1.2em; }
 .prose li { margin: 6px 0; }
