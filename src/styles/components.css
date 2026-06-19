@@ -493,11 +493,13 @@ header.paper .lead,
   max-width: none;
 }
 
-@media (min-width: 0px) {
-  /* Site-wide body justification (all widths, incl. mobile, per Tom 2026-06-19).
-     Applied to every selector that holds running prose, across main, thesis,
-     project sub-pages, projects-landing, and notes. Excludes mono/eyebrow/
-     metadata labels via the override block below.
+@media (min-width: 600px) {
+  /* Body justification on screens >=600px only (per Tom 2026-06-19).
+     Below 600px the narrow column produces unavoidable inter-word rivers on
+     short-word lines that hyphenation cannot break, so mobile falls back to
+     left-aligned (ragged right). Applied to every selector that holds running
+     prose, across main, thesis, project sub-pages, projects-landing, and notes.
+     Excludes mono/eyebrow/metadata labels via the override block below.
   */
   .prose p,
   .paper-body p,
@@ -528,6 +530,13 @@ header.paper .lead,
     text-justify: inter-word;
     hyphens: auto;
     -webkit-hyphens: auto;
+    /* Give the justify engine break points so inter-word spacing stays even,
+       without ugly stubs. 6 3 2 = hyphenate words >=6 chars, >=3 before the
+       break, >=2 after. -webkit-* longhands cover Safari (no hyphenate-limit-chars). */
+    -webkit-hyphenate-limit-before: 3;
+    -webkit-hyphenate-limit-after: 2;
+    hyphenate-limit-chars: 6 3 2;
+    text-wrap: pretty;
   }
   /* Metadata, labels, mono fonts: stay left-aligned, no hyphenation. */
   .prose p.eyebrow,
