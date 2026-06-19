@@ -511,7 +511,6 @@ header.paper .lead,
   .lede,
   .lead,
   .case p,
-  .cv-row .note,
   .reading-card p,
   .proj-card p,
   .cta-card .right p,
@@ -539,6 +538,7 @@ header.paper .lead,
     text-wrap: pretty;
   }
   /* Metadata, labels, mono fonts: stay left-aligned, no hyphenation. */
+  .cv-row .note,
   .prose p.eyebrow,
   .prose p.back,
   .prose p.note-summary,
