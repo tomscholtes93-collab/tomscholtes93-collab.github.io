@@ -560,6 +560,23 @@ header.paper .lead,
     hyphens: manual;
   }
 }
+/* When the Knuth-Plass enhancer is active (html.kp is set by justify-client.js),
+   justify body prose at ALL widths incl. mobile; the JS evens the spacing so the
+   narrow column has no rivers. Without JS the class is never added, so mobile
+   stays ragged (this rule is absent) and never shows native justify rivers. */
+html.kp :is(
+  .prose p, .paper-body p, .colo-grid .body p, .colo-grid .body,
+  .sec-head .blurb, .hero .lead, .sub, .lede, .lead, .case p,
+  .reading-card p, .proj-card p, .cta-card .right p, .now-row .v,
+  .hyp .body, .find p, .high li, .method dd, .stack dd, .persona-desc,
+  .run-log-desc, .feat-desc, .lesson-text, .proj-cards .card p
+) {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 3 2;
+}
 .prose ul { margin: 0 0 16px; padding-left: 1.2em; }
 .prose li { margin: 6px 0; }
 .prose a { color: var(--accent); border-bottom: 1px solid color-mix(in oklab, var(--accent) 40%, transparent); }
