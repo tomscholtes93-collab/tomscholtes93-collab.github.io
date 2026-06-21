@@ -3,51 +3,143 @@
 import Base from '../../layouts/Base.astro';
 import Footer from '../../components/Footer.astro';
 
-const versions = [
+// Homepage redesign tournament. Round 1 picked 3 concepts from 6. Round 2 built
+// 5 refined variants of each top-3 concept, judged by per-concept panels (3 judges)
+// then a 5-judge grand final. Combined = sum of judge totals. Borda = ranked-vote
+// points. Nothing here is on the live site.
+
+const overallWinner = '/lab/r2/brutalist-3/';
+
+// Round 2, grouped by concept, each ordered by combined score. champ = concept winner.
+const groups = [
   {
-    href: '/',
-    name: 'Current (live)',
-    note: 'The homepage as it is in production right now. Baseline to compare against.',
-    tag: 'baseline',
+    concept: 'Swiss / brutalist data-dense index',
+    tag: 'concept C',
+    champ: '/lab/r2/brutalist-3/',
+    variants: [
+      { href: '/lab/r2/brutalist-3/', note: 'Unique signature beyond generic brutalism: a real in-browser reconciliation demo flagging synthetic deltas, command palette, working keyboard jumps, scroll-sync location readout.', score: 'combined 99 . borda 13' },
+      { href: '/lab/r2/brutalist-2/', note: 'Prove technical depth via live systems signal: status ribbon, monospaced metrics, density that reads as engineering.', score: 'combined 94 . borda 12' },
+      { href: '/lab/r2/brutalist-5/', note: 'Restrained, purposeful motion that elevates without betraying the brutalist ethos.', score: 'combined 88 . borda 9' },
+      { href: '/lab/r2/brutalist-1/', note: 'Fix the structure: numeral alignment to index order, fully working keyboard number-jump nav.', score: 'combined 82 . borda 6' },
+      { href: '/lab/r2/brutalist-4/', note: 'Sharpen clarity and hierarchy while keeping density.', score: 'combined 80 . borda 5' },
+    ],
   },
   {
-    href: '/lab/interactive/',
-    name: 'Interactive workflow teaser',
-    note: 'Homepage with the winning page’s technique ported in: an interactive Find / Build / Sign off / Scale process stepper that glows and cycles. Everything else unchanged.',
-    tag: 'v1',
+    concept: 'Live systems architecture map',
+    tag: 'concept B',
+    champ: '/lab/r2/nodegraph-3/',
+    variants: [
+      { href: '/lab/r2/nodegraph-3/', note: 'Single source of truth: the graph clones one authored DOM by id so counts are derived (the 7 vs 9 drift is impossible). Cursor-anchored pan/zoom, bezier wires, zero-flash no-JS fallback, mobile signal-trace.', score: 'combined 101 . borda 12' },
+      { href: '/lab/r2/nodegraph-5/', note: 'Auto-tour walks the nodes and narrates on load, then hands over control so non-clickers still get the payoff.', score: 'combined 97 . borda 8' },
+      { href: '/lab/r2/nodegraph-4/', note: 'Elevated blueprint aesthetic: labeled edges, depth, motion on connectors, legend.', score: 'combined 96 . borda 9' },
+      { href: '/lab/r2/nodegraph-1/', note: 'A see-everything overview / expand-all mode so all content reads without clicking node by node.', score: 'combined 96 . borda 8' },
+      { href: '/lab/r2/nodegraph-2/', note: 'Mobile as a first-class graph experience, not a plain stacked fallback.', score: 'combined 95 . borda 8' },
+    ],
+  },
+  {
+    concept: 'Print editorial / magazine spread',
+    tag: 'concept A',
+    champ: '/lab/r2/editorial-3/',
+    variants: [
+      { href: '/lab/r2/editorial-3/', note: 'Pure typographic craft: enforced 8px baseline rhythm, oldstyle figures, a three-family type system, editorial signatures that read as intent not pastiche.', score: 'combined 102 . borda 12' },
+      { href: '/lab/r2/editorial-4/', note: 'One signature live interaction: an inline automation-runs / before-after figure inside the print feel.', score: 'combined 97 . borda 11' },
+      { href: '/lab/r2/editorial-5/', note: 'Maximize fast scannability: above-the-fold value, a sticky contents rail, tighter density.', score: 'combined 93 . borda 7' },
+      { href: '/lab/r2/editorial-1/', note: 'Fix the case-study reading order: a row-based editorial grid replacing the awkward column flow.', score: 'combined 91 . borda 8' },
+      { href: '/lab/r2/editorial-2/', note: 'Inject engineer signal: a systems figure, monospaced data tables, a spec-sheet CV.', score: 'combined 87 . borda 7' },
+    ],
   },
 ];
+
+// Round 1 finalists (the 6 originals) kept for reference.
+const round1 = [
+  { href: '/lab/v2/', name: 'Print editorial', score: 'r1 #1 . 103' },
+  { href: '/lab/v3/', name: 'Live systems map', score: 'r1 #2 . 102' },
+  { href: '/lab/v6/', name: 'Brutalist life-index', score: 'r1 #3 . 100' },
+  { href: '/lab/v5/', name: 'Cinematic timeline', score: 'r1 #4 . 95' },
+  { href: '/lab/v1/', name: 'Command-line terminal', score: 'r1 #5 . 89' },
+  { href: '/lab/v4/', name: 'tomOS desktop', score: 'r1 #6 . 82' },
+];
+
+const cardBase = 'display:block; text-decoration:none; color:inherit; border:1px solid var(--rule); border-radius:14px; padding:18px 20px; transition:border-color .2s ease, transform .2s ease;';
+const cardWin = 'display:block; text-decoration:none; color:inherit; border:1px solid color-mix(in oklab, var(--accent) 60%, var(--rule)); border-radius:14px; padding:18px 20px; transition:border-color .2s ease, transform .2s ease; box-shadow:0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent);';
 ---
 <Base title="Design lab (preview) · Tom Scholtes" path="/lab" noindex={true}>
   <main>
-    <div class="container" style="padding-top:64px; padding-bottom:96px; max-width:760px;">
-      <p class="eyebrow">Design lab</p>
+    <div class="container" style="padding-top:64px; padding-bottom:96px; max-width:860px;">
+      <p class="eyebrow">Design lab . homepage tournament</p>
       <h1 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:clamp(34px,5vw,56px); line-height:1.05; margin:14px 0 16px;">
-        Preview gallery.
+        Six homepages, then fifteen, one set of facts.
       </h1>
-      <p style="color:var(--ink-2); font-size:17px; max-width:60ch; margin:0 0 40px;">
-        Unlisted previews of design directions. Not linked from the site and hidden from search.
+      <p style="color:var(--ink-2); font-size:17px; max-width:66ch; margin:0 0 14px;">
+        Round 1 generated six radically different homepage directions and judged three
+        winners. Round 2 built five refined variants of each of those three, then a
+        per-concept panel picked a champion and a five-judge grand final ranked the
+        champions. Every version carries the same information as the live site.
+        Unlisted, hidden from search, none of it is live.
+      </p>
+      <p style="color:var(--muted); font-size:13px; font-family:'JetBrains Mono',monospace; margin:0 0 44px;">
         Open any version, compare against the current live one, then tell me which direction to take.
       </p>
 
-      <ul style="list-style:none; margin:0; padding:0; display:grid; gap:14px;">
-        {versions.map((v) => (
-          <li>
-            <a
-              href={v.href}
-              style="display:block; text-decoration:none; color:inherit; border:1px solid var(--rule); border-radius:14px; padding:22px 24px; transition:border-color .2s ease, transform .2s ease;"
-              onmouseover="this.style.borderColor='color-mix(in oklab, var(--accent) 50%, var(--rule))'; this.style.transform='translateY(-1px)';"
-              onmouseout="this.style.borderColor='var(--rule)'; this.style.transform='none';"
-            >
-              <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
-                <span style="font-family:'Instrument Serif',serif; font-size:24px;">{v.name}</span>
-                <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase;">{v.tag}</span>
-              </div>
-              <p style="margin:8px 0 0; color:var(--ink-2); font-size:15px; line-height:1.55;">{v.note}</p>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <!-- OVERALL WINNER -->
+      <p class="eyebrow" style="margin-bottom:12px;">Round 2 grand-final winner</p>
+      <a href={overallWinner} style={cardWin}
+        onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+          <span style="font-family:'Instrument Serif',serif; font-size:28px;">Brutalist data-dense index</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent);">winner . 175</span>
+        </div>
+        <p style="margin:8px 0 0; color:var(--ink-2); font-size:15px; line-height:1.55;">
+          The only champion that proves the finance-ops automation thesis inside the medium:
+          a live in-browser reconciliation demo flagging synthetic deltas, closing on "the human
+          owns the decision." Highest-density trust signals and the strongest orientation
+          instruments. Never ranked below second on any of the five grand-final lenses.
+        </p>
+      </a>
+
+      {groups.map((g) => (
+        <section style="margin-top:44px;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px;">
+            <h2 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:26px; margin:0;">{g.concept}</h2>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);">{g.tag}</span>
+          </div>
+          <ul style="list-style:none; margin:0; padding:0; display:grid; gap:12px;">
+            {g.variants.map((v) => (
+              <li>
+                <a href={v.href} style={v.href === g.champ ? cardWin : cardBase}
+                  onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';">
+                  <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink-2);">{v.href.replace('/lab/r2/', '').replace(/\/$/, '')}</span>
+                    <span style={`font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; ${v.href === g.champ ? 'color:var(--accent);' : 'color:var(--muted);'}`}>
+                      {v.href === g.champ ? 'concept champion . ' : ''}{v.score}
+                    </span>
+                  </div>
+                  <p style="margin:7px 0 0; color:var(--ink-2); font-size:14.5px; line-height:1.5;">{v.note}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+
+      <!-- ROUND 1 + BASELINE -->
+      <section style="margin-top:52px;">
+        <p class="eyebrow" style="margin-bottom:14px;">Round 1 finalists (reference)</p>
+        <ul style="list-style:none; margin:0; padding:0; display:grid; gap:10px; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));">
+          {round1.map((v) => (
+            <li>
+              <a href={v.href} style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; text-decoration:none; color:inherit; border:1px solid var(--rule); border-radius:12px; padding:12px 14px;"
+                onmouseover="this.style.borderColor='color-mix(in oklab, var(--accent) 50%, var(--rule))';" onmouseout="this.style.borderColor='var(--rule)';">
+                <span style="font-family:'Instrument Serif',serif; font-size:17px;">{v.name}</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); white-space:nowrap;">{v.score}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a href="/" style="display:inline-block; margin-top:20px; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink-2); text-decoration:none; border-bottom:1px solid var(--rule);">
+          Current live homepage (baseline) &#8594;
+        </a>
+      </section>
     </div>
   </main>
   <Footer />

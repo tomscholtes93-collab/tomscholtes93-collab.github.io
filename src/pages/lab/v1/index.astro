@@ -1,0 +1,806 @@
+---
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/jetbrains-mono/700.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>tom@scholtes:~ . Finance ops engineer who automates the work in reach</title>
+  <style>
+    :root {
+      --bg: #07090c;
+      --bg-panel: #0a0e13;
+      --bg-input: #0c1117;
+      --line: #1a2330;
+      --line-soft: #131b25;
+      --fg: #c7d3e0;
+      --fg-dim: #6b7d92;
+      --fg-faint: #44566a;
+      --accent: #5eead4;
+      --accent-glow: rgba(94, 234, 212, 0.35);
+      --amber: #f0b66b;
+      --magenta: #d39bff;
+      --blue: #7cc0ff;
+      --green: #8fe388;
+      --red: #ff8a8a;
+      --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --ui: "Inter", system-ui, sans-serif;
+      --maxw: 980px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(1200px 600px at 70% -10%, rgba(94, 234, 212, 0.06), transparent 60%),
+        radial-gradient(900px 500px at 0% 110%, rgba(211, 155, 255, 0.05), transparent 55%),
+        var(--bg);
+      background-attachment: fixed;
+    }
+
+    a { color: inherit; }
+
+    /* scanline / glow overlay */
+    .crt {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.012) 0px,
+        rgba(255,255,255,0.012) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      mix-blend-mode: overlay;
+      opacity: 0.5;
+    }
+    @media (prefers-reduced-motion: reduce) { .crt { display: none; } }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: clamp(16px, 4vw, 40px) clamp(12px, 3vw, 28px) 80px;
+    }
+
+    /* ---- terminal chrome ---- */
+    .term {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.015), transparent 120px),
+        var(--bg-panel);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.4),
+        0 40px 120px -40px rgba(0,0,0,0.9),
+        0 0 80px -50px var(--accent-glow);
+      overflow: hidden;
+    }
+
+    .titlebar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #0d1219, #0a0e13);
+      user-select: none;
+    }
+    .dots { display: flex; gap: 8px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.r { background: #ff5f57; }
+    .dot.y { background: #febc2e; }
+    .dot.g { background: #28c840; }
+    .titlebar .path {
+      flex: 1;
+      text-align: center;
+      color: var(--fg-dim);
+      font-size: 12.5px;
+      letter-spacing: 0.02em;
+    }
+    .titlebar .path b { color: var(--accent); font-weight: 500; }
+    .titlebar .meta {
+      font-size: 11px;
+      color: var(--fg-faint);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* command palette / toolbar */
+    .palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line-soft);
+      background: rgba(255,255,255,0.008);
+    }
+    .palette .hint {
+      width: 100%;
+      color: var(--fg-faint);
+      font-size: 11.5px;
+      margin-bottom: 4px;
+      letter-spacing: 0.03em;
+    }
+    .cmdbtn {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--fg-dim);
+      background: var(--bg-input);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: none;
+      white-space: nowrap;
+    }
+    .cmdbtn::before { content: "$ "; color: var(--fg-faint); }
+    @media (prefers-reduced-motion: no-preference) {
+      .cmdbtn { transition: color .15s, border-color .15s, background .15s, box-shadow .15s; }
+    }
+    .cmdbtn:hover, .cmdbtn:focus-visible {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(94,234,212,0.06);
+      box-shadow: 0 0 18px -8px var(--accent-glow);
+      outline: none;
+    }
+
+    /* screen / scrollback */
+    .screen {
+      padding: 18px clamp(14px, 3vw, 26px) 8px;
+      min-height: 360px;
+    }
+
+    .line { white-space: pre-wrap; word-break: break-word; }
+    .muted { color: var(--fg-dim); }
+    .faint { color: var(--fg-faint); }
+    .accent { color: var(--accent); }
+    .amber { color: var(--amber); }
+    .mag { color: var(--magenta); }
+    .blue { color: var(--blue); }
+    .green { color: var(--green); }
+
+    /* a printed command echo */
+    .echo { margin-top: 18px; }
+    .echo:first-child { margin-top: 4px; }
+    .prompt-sym { color: var(--accent); font-weight: 500; }
+    .prompt-user { color: var(--green); }
+    .prompt-host { color: var(--fg-dim); }
+    .prompt-dir { color: var(--blue); }
+    .typed { color: var(--fg); font-weight: 500; }
+
+    .out { margin: 6px 0 2px; }
+
+    /* output block styling */
+    .kv { display: grid; grid-template-columns: minmax(96px, 140px) 1fr; gap: 2px 14px; margin: 2px 0; }
+    .kv dt { color: var(--accent); }
+    .kv dd { margin: 0; color: var(--fg); }
+
+    .h-rule { color: var(--line); }
+    .label { color: var(--fg-faint); text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
+
+    .card {
+      border: 1px solid var(--line-soft);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 10px 14px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.012);
+    }
+    .card .cn { color: var(--fg-faint); font-size: 11.5px; letter-spacing: 0.06em; }
+    .card .ct { color: var(--fg); font-weight: 500; margin: 2px 0; }
+    .card .ct a { color: var(--accent); text-decoration: none; }
+    .card .ct a:hover { text-decoration: underline; }
+    .card .metric { color: var(--amber); font-weight: 500; }
+    .card .cb { color: var(--fg-dim); margin: 4px 0; font-size: 13.5px; line-height: 1.55; }
+    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .tag {
+      font-size: 11px;
+      color: var(--fg-dim);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 7px;
+      background: var(--bg-input);
+    }
+
+    .row { display: grid; grid-template-columns: minmax(90px, 120px) 1fr; gap: 4px 14px; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px dashed var(--line-soft); }
+    .row:last-child { border-bottom: 0; }
+    .row .rk { color: var(--accent); }
+    .row .rv { color: var(--fg-dim); font-size: 13.5px; }
+    .row .rv .ictx { color: var(--accent); text-decoration: none; }
+    .row .rv .ictx:hover { text-decoration: underline; }
+
+    .job { margin: 12px 0; padding-left: 14px; border-left: 1px solid var(--line); }
+    .job .jt { color: var(--fg); font-weight: 500; }
+    .job .jt b { color: var(--accent); font-weight: 500; }
+    .job .jm { color: var(--fg-faint); font-size: 11.5px; letter-spacing: 0.03em; }
+    .job ul { margin: 6px 0 0; padding-left: 18px; }
+    .job li { color: var(--fg-dim); font-size: 13px; margin: 2px 0; }
+
+    .pillrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+    .pill { border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; background: var(--bg-input); }
+    .pill .pc { color: var(--accent); font-weight: 700; }
+    .pill .pn { color: var(--fg-dim); margin-left: 8px; font-size: 13px; }
+
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 4px; }
+    .btn {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 13px;
+      text-decoration: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: rgba(94,234,212,0.05);
+    }
+    .btn:hover { background: rgba(94,234,212,0.12); box-shadow: 0 0 22px -8px var(--accent-glow); }
+    .btn.ghost { border-color: var(--line); color: var(--fg-dim); background: var(--bg-input); }
+    .btn.ghost:hover { color: var(--fg); border-color: var(--fg-dim); box-shadow: none; }
+
+    .stats { display: flex; flex-wrap: wrap; gap: 22px; margin: 8px 0; }
+    .stat .sv { color: var(--accent); font-size: 24px; font-weight: 700; line-height: 1; }
+    .stat .sl { color: var(--fg-dim); font-size: 12px; margin-top: 4px; }
+
+    .em { color: var(--accent); font-style: normal; }
+
+    /* live input */
+    .inputbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px clamp(14px, 3vw, 26px);
+      border-top: 1px solid var(--line);
+      background: var(--bg-input);
+    }
+    .inputbar .ps1 { white-space: nowrap; }
+    #cmd {
+      flex: 1;
+      background: transparent;
+      border: 0;
+      outline: none;
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 15px;
+      caret-color: var(--accent);
+      padding: 2px 0;
+    }
+    #cmd::placeholder { color: var(--fg-faint); }
+
+    .blink {
+      display: inline-block;
+      width: 9px;
+      height: 1.05em;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .blink { animation: blink 1.05s steps(1) infinite; }
+      @keyframes blink { 50% { opacity: 0; } }
+    }
+
+    .footer {
+      max-width: var(--maxw);
+      margin: 26px auto 0;
+      padding: 0 clamp(12px, 3vw, 28px);
+      color: var(--fg-faint);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    .footer a { color: var(--fg-dim); text-decoration: none; }
+    .footer a:hover { color: var(--accent); }
+    .footer .fcols { display: flex; flex-wrap: wrap; gap: 28px 44px; margin-bottom: 14px; }
+    .footer .fcol h4 { margin: 0 0 4px; color: var(--fg-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+    .footer .fbottom { border-top: 1px solid var(--line-soft); padding-top: 12px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+    .skip { position: absolute; left: -9999px; }
+    .skip:focus { position: static; color: var(--accent); }
+
+    @media (max-width: 600px) {
+      body { font-size: 14px; }
+      .titlebar .meta { display: none; }
+      .kv, .row { grid-template-columns: 1fr; }
+      .kv dt, .row .rk { color: var(--accent); }
+      .stats { gap: 14px; }
+      .stat .sv { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="crt" aria-hidden="true"></div>
+
+  <main class="wrap">
+    <div class="term" role="application" aria-label="Tom Scholtes interactive terminal">
+
+      <div class="titlebar">
+        <div class="dots" aria-hidden="true">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        </div>
+        <div class="path">tom@scholtes: <b>~/portfolio</b> . zsh</div>
+        <div class="meta">Luxembourg</div>
+      </div>
+
+      <div class="palette" aria-label="Command palette">
+        <span class="hint">Click a command, or type one below. Try: whoami . ls projects . cat cv . help</span>
+        <button class="cmdbtn" data-run="whoami">whoami</button>
+        <button class="cmdbtn" data-run="cat about">cat about</button>
+        <button class="cmdbtn" data-run="run demo">run demo</button>
+        <button class="cmdbtn" data-run="ls work">ls work</button>
+        <button class="cmdbtn" data-run="cat now">cat now</button>
+        <button class="cmdbtn" data-run="cat cv">cat cv</button>
+        <button class="cmdbtn" data-run="ls reading">ls reading</button>
+        <button class="cmdbtn" data-run="locale">locale</button>
+        <button class="cmdbtn" data-run="open contact">open contact</button>
+        <button class="cmdbtn" data-run="help">help</button>
+        <button class="cmdbtn" data-run="clear">clear</button>
+      </div>
+
+      <div class="screen" id="screen" aria-live="polite"></div>
+
+      <form class="inputbar" id="form" autocomplete="off">
+        <span class="ps1" aria-hidden="true"><span class="prompt-user">tom</span><span class="prompt-host">@scholtes</span><span class="muted">:</span><span class="prompt-dir">~</span><span class="prompt-sym">$</span></span>
+        <label for="cmd" class="skip">Enter a terminal command</label>
+        <input id="cmd" name="cmd" type="text" spellcheck="false" placeholder="type a command and press Enter . (try: help)" />
+      </form>
+    </div>
+
+    <a href="#nojs" class="skip">Skip to readable content</a>
+
+    <footer class="footer" id="nojs">
+      <div class="fcols">
+        <div class="fcol">
+          <h4>Site</h4>
+          <div><a href="/#now">Now</a></div>
+          <div><a href="/#work">Work</a></div>
+          <div><a href="/projects">Projects</a></div>
+          <div><a href="/notes/">Notes</a></div>
+          <div><a href="/#cv">CV</a></div>
+          <div><a href="/#reading">Reading</a></div>
+        </div>
+        <div class="fcol">
+          <h4>Elsewhere</h4>
+          <div><a href="https://www.linkedin.com/in/tomscholtes93/">LinkedIn</a></div>
+          <div><a href="/thesis">MSc thesis</a></div>
+          <div><a href="/workflow-automation/">Workflow Automation</a></div>
+        </div>
+        <div class="fcol">
+          <h4>Contact</h4>
+          <div><a href="mailto:tom@tomscholtes.com">tom@tomscholtes.com</a></div>
+          <div><a href="/#contact">Say hi</a></div>
+        </div>
+      </div>
+      <div class="fbottom">
+        <span>T . Tom Scholtes . Notes on AI in finance ops, a live CV, and a portfolio of work.</span>
+        <span>&copy; {year} Tom Scholtes . Luxembourg . Personal site . opinions my own</span>
+      </div>
+    </footer>
+  </main>
+
+  <script is:inline>
+  (function () {
+    var screen = document.getElementById('screen');
+    var form = document.getElementById('form');
+    var input = document.getElementById('cmd');
+    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ---- content registry: every command returns an HTML string of output ----
+    var cases = [
+      ['Case 01', 'Indicative', 'order of magnitude time savings on this pattern', 'Automated Regulatory Notes Generation',
+        'A pattern for how a Claude skill can read a trial balance, identify entity type, and generate disclosure notes in a firm’s chosen style. Tables, movement schedules, narrative.',
+        ['Claude skills', 'Word generation', 'LuxGAAP'], '/case/automated-regulatory-notes/'],
+      ['Case 02', 'Pre-audit', 'automated cross-checker', 'Annual Accounts Quality Review',
+        'How I think about pre-audit cross-checking. A pattern that takes annual accounts (PDF) and source reconciliation (Excel), checks every cross-reference between primary statements and notes, and flags inconsistencies before the auditor finds them.',
+        ['PDF parsing', 'Excel', 'QA automation'], '/case/annual-accounts-quality-review/'],
+      ['Case 03', 'Hours to minutes', 'share registers for KYC/AML reviews', 'Confidential Document Anonymisation',
+        'A pattern for aggregating raw transactional share-register data into net positions per shareholder per share class, applying rule-based redaction for non-strategic shareholders, and producing print-ready Excel and PDF.',
+        ['Data aggregation', 'Compliance', 'Multi-format'], '/case/confidential-document-anonymisation/'],
+      ['Case 04', 'Daily', 'morning briefing automation', 'Cross-Platform Mailbox Intelligence',
+        'A pattern for triaging email and meeting-transcript backlogs into prioritised morning briefings. Surfaces unanswered messages, follow-ups, and half-finished commitments, organised by priority and workstream.',
+        ['M365', 'Outlook', 'Triage'], '/case/cross-platform-mailbox-intelligence/'],
+      ['Case 05', 'Onboarding', 'structured payment and accounting guide', 'Process Documentation & Knowledge Transfer',
+        'Patterns for documenting payment and accounting workflows in a way new joiners can self-serve. Payment flow, exception handling, approval routing, recharge and intercompany cases.',
+        ['Technical writing', 'Process mapping'], '/case/process-documentation/'],
+      ['Case 06', 'Implementation', 'contribution to platform rollout', 'Fund Accounting Platform Integration',
+        'Patterns I’ve worked through during fund-accounting platform rollouts. Pref-share reconciliation logic, waterfall validation approaches, edge-case discovery.',
+        ['Reconciliation', 'Vendor collab', 'Validation'], '/case/fund-accounting-platform-integration/'],
+      ['Case 07', 'Library', 'of reusable Claude skill patterns', 'AI Skill Architecture & Reusable Tooling',
+        'A library of small, opinionated AI skill patterns. Notes generation, quality review, anonymisation, mailbox triage, classification. Each with deterministic inputs and outputs. From single-purpose skills to five-persona orchestration, see Projects.',
+        ['Skill design', 'Knowledge eng.', 'Infrastructure'], '/case/ai-skill-architecture/'],
+      ['Case 08', 'Pattern', 'designed', 'Cross-system fund-data reconciliation architecture',
+        'Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed.',
+        ['Data integration', 'Master data', 'Internal proposal'], '/case/cross-system-reconciliation/'],
+      ['Case 09', 'Pattern', 'personal automation architecture', 'End-to-end email automation',
+        'An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.',
+        ['Agentic', 'Self-review loop', 'Human-in-the-loop'], '/case/email-automation/']
+    ];
+
+    function caseCard(c) {
+      var tags = c[5].map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
+      return '<div class="card">' +
+        '<div class="cn">' + esc(c[0]) + ' . <span class="metric">' + esc(c[1]) + '</span> <span class="faint">' + esc(c[2]) + '</span></div>' +
+        '<div class="ct"><a href="' + c[7] + '">' + esc(c[3]) + ' →</a></div>' +
+        '<div class="cb">' + esc(c[4]) + '</div>' +
+        '<div class="tags">' + tags + '</div></div>';
+    }
+
+    var jobs = [
+      ['Working in Controlling', 'SPV Controller', 'Mar 2025 . Present', [
+        'End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in fund-administration platforms. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings.',
+        'Payment automation across the SPV book: batch generation, exception routing, recharge / intercompany cases.',
+        'Cross-system fund-data integration architecture.',
+        'Task management workstream via MCP: Outlook + Monday.com wired into Claude Code through MCP.'
+      ]],
+      ['Alter Domus', 'Fund & Corporate Services Officer', 'Feb 2023 . Mar 2025', [
+        'Full-cycle accounting for management companies, funds, SPVs and GPs. NAVs, financial statements, CSSF/BCL regulatory filings. Drove process improvements through technology and structured methodologies.'
+      ]],
+      ['Waystone Administration Solutions', 'Junior Associate Fund Accountant', 'Sep 2022 . Jan 2023', [
+        'Capital calls, distributions, OPEX payments. LuxGAAP financial statements. Audit coordination. Fund-administration platform import automation.'
+      ]],
+      ['Aztec Group', 'Junior Depositary Analyst', 'Feb 2021 . Aug 2022', [
+        'Asset confirmation and reconciliation for alternative investment funds. Depositary obligations and oversight duties. eFront reporting.'
+      ]],
+      ['European Fund Administration', 'Intern Fund Accountant', 'Nov 2019 . Nov 2020', [
+        'NAV calculations, financial-statement preparation, first-level controls and reconciliations. Year-end audit support.'
+      ]]
+    ];
+
+    var skills = [
+      ['Data analysis', 'Panel econometrics . fixed-effects OLS . large multi-source datasets . Python . advanced Excel'],
+      ['Accounting systems', 'eFront . BOB50 . SAP . alternative-investment platforms'],
+      ['IT / scripting', 'VBA . Python . Microsoft Power Automate'],
+      ['Office', 'Advanced Excel . Word . PowerPoint'],
+      ['Fund types', 'Private Equity . Private Debt . Real Estate'],
+      ['AI tooling', 'Claude . Claude Code . ChatGPT . Glean . Even Realities G2 SDK (assembled stack)'],
+      ['AI infra', 'MCP servers . Multi-agent orchestration . Knowledge bases . Local model serving'],
+      ['Dev', 'TypeScript . Astro . React . GitHub Actions . Tailscale'],
+      ['Frameworks', 'LuxGAAP . eCDF . CSSF / BCL filings']
+    ];
+
+    var reading = [
+      ['Systems & ops quality', 'How operational excellence actually gets built and kept. Applies to finance ops as much as to engineering.'],
+      ['Knowledge engineering', 'Encoding expertise into tools other people can use without becoming experts themselves.'],
+      ['AI & cognition', 'Practical books on what current AI can and cannot do, and where it changes the work.'],
+      ['Economics & finance', 'Continuing the line my degrees started. International economics, capital markets, regulation.']
+    ];
+
+    var langs = [
+      ['EN', 'English'], ['DE', 'Deutsch'], ['FR', 'Français'],
+      ['RU', 'Русский'], ['LU', 'Lëtzebuergesch'], ['UZ', 'Oʻzbekcha']
+    ];
+
+    var nowRows = [
+      ['Building', 'End-to-end email automation as a personal architecture. An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts the reply and proposes which attachments to include. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.', 'See the demo', '/workflow-automation/'],
+      ['Testing', 'Frontier models on large, long-context files. How far the current generation holds up running real workflows over very large inputs.', null, null],
+      ['Orchestrating', 'Workflow orchestration with n8n, extending the automation surface beyond a single agent.', null, null],
+      ['Running', 'An agentic memory system on my own infrastructure. A voice-first assistant over AR glasses with a memory that consolidates during sleep, running across two machines that talk to each other, turning ideas into video journals or music within hours.', 'See the project', '/projects/exocortex'],
+      ['Learning', 'Cloud computing and GPU inference, to serve models faster and at lower marginal cost.', null, null],
+      ['Throughline', 'Applied research on frontier models and frontier technologies. Curiosity is the throughline across all of it.', null, null]
+    ];
+
+    var COMMANDS = {
+      help: function () {
+        var list = [
+          ['whoami', 'identity, role and location'],
+          ['cat about', 'the full self-description'],
+          ['run demo', 'live workflow-automation teaser'],
+          ['ls work', 'case studies (9 patterns on file)'],
+          ['cat now', 'what I am focused on this quarter'],
+          ['cat cv', 'experience, education, skills, publication'],
+          ['ls reading', 'themes I keep returning to'],
+          ['locale', 'languages I use regularly'],
+          ['open contact', 'email and LinkedIn'],
+          ['clear', 'wipe the scrollback']
+        ];
+        var rows = list.map(function (l) {
+          return '<dt>' + esc(l[0]) + '</dt><dd class="muted">' + esc(l[1]) + '</dd>';
+        }).join('');
+        return '<div class="out"><div class="label">available commands</div><dl class="kv">' + rows + '</dl>' +
+          '<div class="faint" style="margin-top:8px">Up / Down arrows scroll command history. Tab autocompletes.</div></div>';
+      },
+
+      whoami: function () {
+        return '<div class="out">' +
+          '<div class="line"><span class="accent">Tom Scholtes</span> <span class="faint">// Personal site . Luxembourg</span></div>' +
+          '<div class="line muted">Finance ops engineer who automates the work in reach.</div>' +
+          '<dl class="kv" style="margin-top:10px">' +
+          '<dt>role</dt><dd>Builds AI-augmented automation for the operational work in regulated finance.</dd>' +
+          '<dt>tenure</dt><dd>Six years in Luxembourg fund services across PE, Private Debt and Real Estate.</dd>' +
+          '<dt>location</dt><dd>Luxembourg</dd>' +
+          '</dl>' +
+          '<div class="line accent" style="margin-top:12px;font-weight:500">I build the automation behind <span class="em">regulated finance</span> operations.</div>' +
+          '<div class="stats">' +
+          '<div class="stat"><div class="sv">6 yrs</div><div class="sl">in Lux fund services</div></div>' +
+          '<div class="stat"><div class="sv">7</div><div class="sl">case studies on file</div></div>' +
+          '<div class="stat"><div class="sv">6</div><div class="sl">languages spoken</div></div>' +
+          '</div>' +
+          '<div class="btns">' +
+          '<a class="btn" href="#" data-run="ls work">See the work</a>' +
+          '<a class="btn ghost" href="#" data-run="open contact">Get in touch</a>' +
+          '</div></div>';
+      },
+
+      'cat about': function () {
+        return '<div class="out"><div class="label">~/about.md</div>' +
+          '<div class="line muted" style="margin-top:6px">I’m Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and case studies of it shipping.</div></div>';
+      },
+
+      'run demo': function () {
+        var stages = [
+          ['Find', 'Reads the source files and surfaces what is unbooked, mismatched, or missing.'],
+          ['Build', 'Generates the upload template for the accounting system and drafts the counterparty email.'],
+          ['Sign off', 'The operator reviews and approves. The human owns the decision.'],
+          ['Scale', 'The same approach maps every other workflow in the company, from the existing mailbox.']
+        ];
+        var lines = stages.map(function (s, i) {
+          return '<div class="line"><span class="green">[' + (i + 1) + '/4]</span> <span class="accent">' + esc(s[0]) + '</span> <span class="muted">' + esc(s[1]) + '</span></div>';
+        }).join('');
+        return '<div class="out"><div class="label">live demo . on synthetic data</div>' +
+          '<div class="line accent" style="font-weight:500;margin-top:6px">See the automation run, on synthetic data.</div>' +
+          '<div class="line muted" style="margin:6px 0">Point AI at the manual workflows underneath a finance desk. It surfaces what is unbooked, mismatched, or missing, builds the upload template, and drafts the counterparty email. The operator reviews and signs off; the human owns the decision. Click through a before-and-after process map and run it live.</div>' +
+          '<div style="margin:10px 0">' + lines + '</div>' +
+          '<div class="btns"><a class="btn" href="/workflow-automation/">Open the live demo →</a></div></div>';
+      },
+
+      'ls work': function () {
+        var cards = cases.map(caseCard).join('');
+        return '<div class="out"><div class="label">case studies . patterns I’ve worked through</div>' +
+          '<div class="line muted" style="margin:6px 0">Sanitised. Employer name, entity names and figures removed. Notes on how I think about this kind of work in fund services. <span class="faint">9 entries.</span></div>' +
+          cards + '</div>';
+      },
+
+      'cat now': function () {
+        var rows = nowRows.map(function (r) {
+          var cta = r[2] ? ' <a class="ictx" href="' + r[3] + '">[' + esc(r[2]) + ' →]</a>' : '';
+          return '<div class="row"><div class="rk">' + esc(r[0]) + '</div><div class="rv">' + esc(r[1]) + cta + '</div></div>';
+        }).join('');
+        return '<div class="out"><div class="label">/ now . June 2026</div>' +
+          '<div class="line accent" style="font-weight:500;margin-top:6px">What I’m focused on this quarter.</div>' +
+          '<div class="line muted" style="margin:6px 0">A public note of where my head is right now, in the spirit of <span class="em" style="font-style:italic">nownownow.com</span>. I update it when things change, not on a schedule.</div>' +
+          rows + '</div>';
+      },
+
+      'cat cv': function () {
+        var exp = jobs.map(function (j) {
+          var li = j[3].map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('');
+          return '<div class="job"><div class="jt"><b>' + esc(j[1]) + '</b> . ' + esc(j[0]) + '</div>' +
+            '<div class="jm">' + esc(j[2]) + '</div><ul>' + li + '</ul></div>';
+        }).join('');
+        var edu = '<div class="job"><div class="jt"><b>MSc Economics &amp; Business, International Economics</b></div><div class="jm">Erasmus School of Economics, University of Rotterdam . 2017 . 2020</div></div>' +
+          '<div class="job"><div class="jt"><b>BSc Economics, Law &amp; Management</b></div><div class="jm">University of Luxembourg . 2014 . 2017</div></div>';
+        var sk = skills.map(function (s) {
+          return '<div class="row"><div class="rk">' + esc(s[0]) + '</div><div class="rv">' + esc(s[1]) + '</div></div>';
+        }).join('');
+        var pub = '<div class="job"><div class="jt"><b>Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</b></div>' +
+          '<div class="jm">MSc thesis . Erasmus University Rotterdam . panel econometrics over 36 OECD economies, 1995 to 2018</div>' +
+          '<div class="btns"><a class="btn ghost" href="/thesis">Read →</a></div></div>';
+        return '<div class="out"><div class="label">live CV . cv --full</div>' +
+          '<div class="line accent" style="font-weight:500;margin-top:6px">Six years in Luxembourg fund services.</div>' +
+          '<div class="line muted" style="margin:6px 0">Updated as roles, projects and credentials change. The condensed PDF version is on request.</div>' +
+          '<div class="label" style="margin-top:14px">Experience <span class="faint">. 5 roles . 6+ years</span></div>' + exp +
+          '<div class="label" style="margin-top:14px">Education</div>' + edu +
+          '<div class="label" style="margin-top:14px">Skills</div>' + sk +
+          '<div class="label" style="margin-top:14px">Publication</div>' + pub +
+          '</div>';
+      },
+
+      'ls reading': function () {
+        var cards = reading.map(function (r) {
+          return '<div class="card"><div class="ct">' + esc(r[0]) + '</div><div class="cb">' + esc(r[1]) + '</div></div>';
+        }).join('');
+        return '<div class="out"><div class="label">reading . mostly non-fiction</div>' +
+          '<div class="line muted" style="margin:6px 0">Themes I keep coming back to. A proper bookshelf with titles will go here once I’ve trimmed the list.</div>' +
+          cards + '</div>';
+      },
+
+      locale: function () {
+        var pills = langs.map(function (l) {
+          return '<div class="pill"><span class="pc">' + esc(l[0]) + '</span><span class="pn">' + esc(l[1]) + '</span></div>';
+        }).join('');
+        return '<div class="out"><div class="label">languages . six, used regularly</div>' +
+          '<div class="pillrow" style="margin-top:8px">' + pills + '</div></div>';
+      },
+
+      'open contact': function () {
+        return '<div class="out"><div class="label">contact</div>' +
+          '<div class="line accent" style="font-weight:500;margin-top:6px">If any of this is <span class="em" style="font-style:italic">interesting</span>, say hi.</div>' +
+          '<div class="line muted" style="margin:6px 0">Always interested in conversations about data engineering, automation, applied AI, multi-agent systems, knowledge engineering, agent infrastructure, especially where they meet regulated workflows.</div>' +
+          '<dl class="kv" style="margin-top:8px">' +
+          '<dt>email</dt><dd><a class="ictx" href="mailto:tom@tomscholtes.com" style="color:var(--accent);text-decoration:none">tom@tomscholtes.com</a></dd>' +
+          '<dt>linkedin</dt><dd><a class="ictx" href="https://www.linkedin.com/in/tomscholtes93/" style="color:var(--accent);text-decoration:none">in/tomscholtes93</a></dd>' +
+          '<dt>message</dt><dd><a class="ictx" href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93" style="color:var(--accent);text-decoration:none">linkedin messaging compose</a></dd>' +
+          '</dl>' +
+          '<div class="btns">' +
+          '<a class="btn" href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93">Message on LinkedIn</a>' +
+          '<a class="btn ghost" href="https://www.linkedin.com/in/tomscholtes93/">View profile</a>' +
+          '<a class="btn ghost" href="mailto:tom@tomscholtes.com">Email</a>' +
+          '</div></div>';
+      }
+    };
+
+    // aliases so common unix-ish guesses resolve
+    var ALIASES = {
+      'ls': 'help', 'ls projects': 'ls work', 'ls -la': 'help', 'cat': 'cat about',
+      'about': 'cat about', 'cat me': 'whoami', 'id': 'whoami', 'who': 'whoami',
+      'work': 'ls work', 'projects': 'ls work', 'cases': 'ls work', 'ls cases': 'ls work',
+      'cv': 'cat cv', 'resume': 'cat cv', 'experience': 'cat cv',
+      'now': 'cat now', 'cat now.md': 'cat now',
+      'reading': 'ls reading', 'books': 'ls reading', 'ls books': 'ls reading',
+      'languages': 'locale', 'lang': 'locale', 'cat languages': 'locale',
+      'contact': 'open contact', 'email': 'open contact', 'hi': 'open contact', 'say hi': 'open contact',
+      'demo': 'run demo', 'open demo': 'run demo', 'workflow': 'run demo',
+      'man': 'help', '?': 'help', 'h': 'help'
+    };
+
+    var ps1 = '<span class="prompt-user">tom</span><span class="prompt-host">@scholtes</span><span class="muted">:</span><span class="prompt-dir">~</span><span class="prompt-sym">$</span>';
+
+    function printEcho(cmd) {
+      var div = document.createElement('div');
+      div.className = 'echo';
+      div.innerHTML = '<span aria-hidden="true">' + ps1 + '</span> <span class="typed">' + esc(cmd) + '</span>';
+      screen.appendChild(div);
+      return div;
+    }
+
+    function printOut(html) {
+      var div = document.createElement('div');
+      div.innerHTML = html;
+      screen.appendChild(div);
+      screen.scrollTop = screen.scrollHeight;
+      try { div.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+    }
+
+    function resolve(raw) {
+      var cmd = raw.trim().replace(/\s+/g, ' ').toLowerCase();
+      if (!cmd) return null;
+      if (cmd === 'clear') return 'clear';
+      if (COMMANDS[cmd]) return cmd;
+      if (ALIASES[cmd]) return ALIASES[cmd];
+      // partial: strip flags / extra words, try first token combos
+      if (COMMANDS[cmd.split(' ').slice(0, 2).join(' ')]) return cmd.split(' ').slice(0, 2).join(' ');
+      return null;
+    }
+
+    function exec(raw, opts) {
+      opts = opts || {};
+      if (!opts.silent) printEcho(raw);
+      var key = resolve(raw);
+      if (key === 'clear') { screen.innerHTML = ''; return; }
+      if (!key) {
+        printOut('<div class="out"><span class="red">command not found:</span> <span class="muted">' + esc(raw.trim()) + '</span>. Type <span class="accent">help</span> for the list.</div>');
+        return;
+      }
+      printOut(COMMANDS[key]());
+    }
+
+    // ---- command history ----
+    var history = [];
+    var hIdx = -1;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var raw = input.value;
+      if (!raw.trim()) return;
+      history.push(raw); hIdx = history.length;
+      exec(raw);
+      input.value = '';
+    });
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowUp') {
+        if (hIdx > 0) { hIdx--; input.value = history[hIdx]; e.preventDefault(); }
+      } else if (e.key === 'ArrowDown') {
+        if (hIdx < history.length - 1) { hIdx++; input.value = history[hIdx]; }
+        else { hIdx = history.length; input.value = ''; }
+        e.preventDefault();
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        var cur = input.value.trim().toLowerCase();
+        if (!cur) return;
+        var keys = Object.keys(COMMANDS).concat(['help', 'clear']);
+        var match = keys.filter(function (k) { return k.indexOf(cur) === 0; });
+        if (match.length === 1) input.value = match[0];
+      }
+    });
+
+    // palette + inline data-run buttons
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-run]');
+      if (!t) return;
+      e.preventDefault();
+      var cmd = t.getAttribute('data-run');
+      exec(cmd);
+      input.focus();
+    });
+
+    // keep focus on input when clicking empty screen area
+    screen.addEventListener('click', function (e) {
+      if (window.getSelection && String(window.getSelection())) return;
+      if (e.target.closest('a, button, [data-run]')) return;
+      input.focus();
+    });
+
+    // ---- signature interaction: auto-typed boot session ----
+    function bootStatic() {
+      printOut('<div class="out muted">Last login. Welcome. <span class="faint">Type</span> <span class="accent">help</span> <span class="faint">or click a command above.</span></div>');
+      exec('whoami', { silent: true });
+    }
+
+    function typeInto(text, done) {
+      var i = 0;
+      input.value = '';
+      (function step() {
+        if (i <= text.length) {
+          input.value = text.slice(0, i);
+          i++;
+          setTimeout(step, 34 + Math.random() * 36);
+        } else {
+          setTimeout(done, 240);
+        }
+      })();
+    }
+
+    function bootAnimated() {
+      printOut('<div class="out faint">tom@scholtes . session started . booting portfolio shell</div>');
+      var queue = ['whoami', 'ls work', 'help'];
+      var qi = 0;
+      function next() {
+        if (qi >= queue.length) {
+          input.placeholder = 'your turn . type a command and press Enter';
+          input.focus();
+          return;
+        }
+        var cmd = queue[qi++];
+        typeInto(cmd, function () {
+          input.value = '';
+          exec(cmd);
+          setTimeout(next, 520);
+        });
+      }
+      next();
+    }
+
+    // run
+    if (prefersReduced) {
+      bootStatic();
+      input.focus();
+    } else {
+      // small delay so the page paints first
+      setTimeout(bootAnimated, 420);
+    }
+
+    // if user starts typing during the auto-demo, hand control over immediately
+    input.addEventListener('input', function () {
+      input.placeholder = 'type a command and press Enter . (try: help)';
+    }, { once: true });
+  })();
+  </script>
+</body>
+</html>
