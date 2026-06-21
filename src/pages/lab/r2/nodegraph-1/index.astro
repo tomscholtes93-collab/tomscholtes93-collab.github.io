@@ -1,0 +1,1196 @@
+---
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/jetbrains-mono/700.css';
+
+// "Live systems architecture map" - round 2, variant 1.
+// THESIS: a real "see everything" overview. The graph is navigation; an
+// Overview mode (and the mobile trace) render ALL node content at once,
+// from the SAME data arrays the panel and graph use. Single source of truth.
+// Standalone, self-contained page. All content from the parent design.
+
+const cases = [
+  { n: '01', metric: 'Indicative', mlabel: 'order of magnitude time savings on this pattern', title: 'Automated Regulatory Notes Generation', blurb: 'A pattern for how a Claude skill can read a trial balance, identify entity type, and generate disclosure notes in a firm’s chosen style. Tables, movement schedules, narrative.', tags: ['Claude skills', 'Word generation', 'LuxGAAP'], href: '/case/automated-regulatory-notes/' },
+  { n: '02', metric: 'Pre-audit', mlabel: 'automated cross-checker', title: 'Annual Accounts Quality Review', blurb: 'How I think about pre-audit cross-checking. A pattern that takes annual accounts (PDF) and source reconciliation (Excel), checks every cross-reference between primary statements and notes, and flags inconsistencies before the auditor finds them.', tags: ['PDF parsing', 'Excel', 'QA automation'], href: '/case/annual-accounts-quality-review/' },
+  { n: '03', metric: 'Hours to minutes', mlabel: 'share registers for KYC/AML reviews', title: 'Confidential Document Anonymisation', blurb: 'A pattern for aggregating raw transactional share-register data into net positions per shareholder per share class, applying rule-based redaction for non-strategic shareholders, and producing print-ready Excel and PDF.', tags: ['Data aggregation', 'Compliance', 'Multi-format'], href: '/case/confidential-document-anonymisation/' },
+  { n: '04', metric: 'Daily', mlabel: 'morning briefing automation', title: 'Cross-Platform Mailbox Intelligence', blurb: 'A pattern for triaging email and meeting-transcript backlogs into prioritised morning briefings. Surfaces unanswered messages, follow-ups, and half-finished commitments, organised by priority and workstream.', tags: ['M365', 'Outlook', 'Triage'], href: '/case/cross-platform-mailbox-intelligence/' },
+  { n: '05', metric: 'Onboarding', mlabel: 'structured payment and accounting guide', title: 'Process Documentation & Knowledge Transfer', blurb: 'Patterns for documenting payment and accounting workflows in a way new joiners can self-serve. Payment flow, exception handling, approval routing, recharge and intercompany cases.', tags: ['Technical writing', 'Process mapping'], href: '/case/process-documentation/' },
+  { n: '06', metric: 'Implementation', mlabel: 'contribution to platform rollout', title: 'Fund Accounting Platform Integration', blurb: 'Patterns I’ve worked through during fund-accounting platform rollouts. Pref-share reconciliation logic, waterfall validation approaches, edge-case discovery.', tags: ['Reconciliation', 'Vendor collab', 'Validation'], href: '/case/fund-accounting-platform-integration/' },
+  { n: '07', metric: 'Library', mlabel: 'of reusable Claude skill patterns', title: 'AI Skill Architecture & Reusable Tooling', blurb: 'A library of small, opinionated AI skill patterns. Notes generation, quality review, anonimisation, mailbox triage, classification. Each with deterministic inputs and outputs. From single-purpose skills to five-persona orchestration, see Projects.', tags: ['Skill design', 'Knowledge eng.', 'Infrastructure'], href: '/case/ai-skill-architecture/' },
+  { n: '08', metric: 'Pattern', mlabel: 'designed', title: 'Cross-system fund-data reconciliation architecture', blurb: 'Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed.', tags: ['Data integration', 'Master data', 'Internal proposal'], href: '/case/cross-system-reconciliation/' },
+  { n: '09', metric: 'Pattern', mlabel: 'personal automation architecture', title: 'End-to-end email automation', blurb: 'An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.', tags: ['Agentic', 'Self-review loop', 'Human-in-the-loop'], href: '/case/email-automation/' }
+];
+
+const stages = [
+  { k: 'Find', v: 'Reads the source files and surfaces what is unbooked, mismatched, or missing.' },
+  { k: 'Build', v: 'Generates the upload template for the accounting system and drafts the counterparty email.' },
+  { k: 'Sign off', v: 'The operator reviews and approves. The human owns the decision.' },
+  { k: 'Scale', v: 'The same approach maps every other workflow in the company, from the existing mailbox.' }
+];
+
+const nowRows = [
+  { k: 'Building', v: 'End-to-end email automation as a personal architecture. An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts the reply and proposes which attachments to include. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.', cta: { label: 'See the demo', href: '/workflow-automation/' } },
+  { k: 'Testing', v: 'Frontier models on large, long-context files. How far the current generation holds up running real workflows over very large inputs.' },
+  { k: 'Orchestrating', v: 'Workflow orchestration with n8n, extending the automation surface beyond a single agent.' },
+  { k: 'Running', v: 'An agentic memory system on my own infrastructure. A voice-first assistant over AR glasses with a memory that consolidates during sleep, running across two machines that talk to each other, turning ideas into video journals or music within hours.', cta: { label: 'See the project', href: '/projects/exocortex' } },
+  { k: 'Learning', v: 'Cloud computing and GPU inference, to serve models faster and at lower marginal cost.' },
+  { k: 'Throughline', v: 'Applied research on frontier models and frontier technologies. Curiosity is the throughline across all of it.' }
+];
+
+const roles = [
+  { title: 'Working in Controlling', role: 'SPV Controller', dates: 'Mar 2025 · Present', lines: ['End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in fund-administration platforms. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings.', 'Payment automation across the SPV book: batch generation, exception routing, recharge / intercompany cases.', 'Cross-system fund-data integration architecture.', 'Task management workstream via MCP: Outlook + Monday.com wired into Claude Code through MCP.'] },
+  { title: 'Alter Domus', role: 'Fund & Corporate Services Officer', dates: 'Feb 2023 · Mar 2025', lines: ['Full-cycle accounting for management companies, funds, SPVs and GPs. NAVs, financial statements, CSSF/BCL regulatory filings. Drove process improvements through technology and structured methodologies.'] },
+  { title: 'Waystone Administration Solutions', role: 'Junior Associate Fund Accountant', dates: 'Sep 2022 · Jan 2023', lines: ['Capital calls, distributions, OPEX payments. LuxGAAP financial statements. Audit coordination. Fund-administration platform import automation.'] },
+  { title: 'Aztec Group', role: 'Junior Depositary Analyst', dates: 'Feb 2021 · Aug 2022', lines: ['Asset confirmation and reconciliation for alternative investment funds. Depositary obligations and oversight duties. eFront reporting.'] },
+  { title: 'European Fund Administration', role: 'Intern Fund Accountant', dates: 'Nov 2019 · Nov 2020', lines: ['NAV calculations, financial-statement preparation, first-level controls and reconciliations. Year-end audit support.'] }
+];
+
+const education = [
+  { school: 'Erasmus School of Economics, University of Rotterdam', deg: 'MSc Economics & Business, International Economics', dates: '2017 · 2020' },
+  { school: 'University of Luxembourg', deg: 'BSc Economics, Law & Management', dates: '2014 · 2017' }
+];
+
+const skills = [
+  { k: 'Data analysis', v: 'Panel econometrics · fixed-effects OLS · large multi-source datasets · Python · advanced Excel' },
+  { k: 'Accounting systems', v: 'eFront · BOB50 · SAP · alternative-investment platforms' },
+  { k: 'IT / scripting', v: 'VBA · Python · Microsoft Power Automate' },
+  { k: 'Office', v: 'Advanced Excel · Word · PowerPoint' },
+  { k: 'Fund types', v: 'Private Equity · Private Debt · Real Estate' },
+  { k: 'AI tooling', v: 'Claude · Claude Code · ChatGPT · Glean · Even Realities G2 SDK (assembled stack)' },
+  { k: 'AI infra', v: 'MCP servers · Multi-agent orchestration · Knowledge bases · Local model serving' },
+  { k: 'Dev', v: 'TypeScript · Astro · React · GitHub Actions · Tailscale' },
+  { k: 'Frameworks', v: 'LuxGAAP · eCDF · CSSF / BCL filings' }
+];
+
+const reading = [
+  { t: 'Systems & ops quality', n: 'How operational excellence actually gets built and kept. Applies to finance ops as much as to engineering.' },
+  { t: 'Knowledge engineering', n: 'Encoding expertise into tools other people can use without becoming experts themselves.' },
+  { t: 'AI & cognition', n: 'Practical books on what current AI can and cannot do, and where it changes the work.' },
+  { t: 'Economics & finance', n: 'Continuing the line my degrees started. International economics, capital markets, regulation.' }
+];
+
+const languages = [
+  { c: 'EN', n: 'English' }, { c: 'DE', n: 'Deutsch' }, { c: 'FR', n: 'Français' },
+  { c: 'RU', n: 'Русский' }, { c: 'LU', n: 'Lëtzebuergesch' }, { c: 'UZ', n: 'Oʻzbekcha' }
+];
+
+const year = new Date().getFullYear();
+
+// Derived counts. SINGLE source of truth. These can never drift from the data.
+const caseCount = cases.length;        // 9
+const langCount = languages.length;    // 6
+const readingCount = reading.length;   // 4
+const roleCount = roles.length;        // 5
+
+// Node layout (logical coordinates on a 1600 x 1100 canvas).
+const nodes = [
+  { id: 'identity', label: 'IDENTITY', sub: 'root', x: 800, y: 130, kind: 'root' },
+  { id: 'workflow', label: 'WORKFLOW', sub: 'live demo', x: 420, y: 360, kind: 'svc' },
+  { id: 'work', label: 'WORK', sub: caseCount + ' case studies', x: 800, y: 420, kind: 'svc' },
+  { id: 'now', label: 'NOW', sub: 'current focus', x: 1180, y: 360, kind: 'svc' },
+  { id: 'cv', label: 'CV', sub: 'live record', x: 560, y: 700, kind: 'svc' },
+  { id: 'reading', label: 'READING', sub: readingCount + ' themes', x: 1060, y: 700, kind: 'svc' },
+  { id: 'languages', label: 'LANGUAGES', sub: 'x' + langCount, x: 1280, y: 560, kind: 'leaf' },
+  { id: 'contact', label: 'CONTACT', sub: 'endpoint', x: 800, y: 950, kind: 'endpoint' }
+];
+
+const edges = [
+  { a: 'identity', b: 'workflow', label: 'demonstrates' },
+  { a: 'identity', b: 'work', label: 'evidence' },
+  { a: 'identity', b: 'now', label: 'current state' },
+  { a: 'work', b: 'cv', label: 'backed by' },
+  { a: 'now', b: 'reading', label: 'inputs' },
+  { a: 'workflow', b: 'work', label: 'pattern of' },
+  { a: 'cv', b: 'languages', label: 'attribute' },
+  { a: 'cv', b: 'contact', label: 'reach' },
+  { a: 'work', b: 'contact', label: 'reach' },
+  { a: 'reading', b: 'contact', label: 'reach' }
+];
+
+// Ordered node ids for the overview / mobile trace (reading order).
+const order = ['identity', 'workflow', 'work', 'now', 'cv', 'reading', 'languages', 'contact'];
+
+// Human accessible names for each node (used for aria-labels + overview titles).
+const nodeNames = {
+  identity: 'Identity, the root node',
+  workflow: 'Workflow automation, live demo',
+  work: 'Work, ' + caseCount + ' case studies',
+  now: 'Now, current focus',
+  cv: 'Live CV',
+  reading: 'Reading, ' + readingCount + ' themes',
+  languages: 'Languages, ' + langCount,
+  contact: 'Contact, endpoint'
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Tom Scholtes / systems map</title>
+  <style>
+    :root {
+      --bg: #0a0e16;
+      --bg-grid: #11161f;
+      --panel: #0d121c;
+      --panel-2: #10171f;
+      --line: #1d2a3a;
+      --line-2: #28384c;
+      --ink: #e6edf6;
+      --ink-2: #aebacc;
+      --muted: #6f7e93;
+      --dim: #4a586c;
+      --cyan: #5cc8e0;
+      --amber: #e0a85c;
+      --green: #6fcf97;
+      --wire: #2f4a63;
+      --wire-hot: #5cc8e0;
+      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --serif: 'Instrument Serif', Georgia, serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+    /* When the document view is active (overview / mobile / no-js) the page
+       scrolls normally instead of being a fixed canvas. */
+    body.doc { overflow: auto; }
+    a { color: inherit; }
+    ::selection { background: var(--cyan); color: #06121a; }
+
+    /* ============ TOP RAIL ============ */
+    .rail {
+      position: fixed; inset: 0 0 auto 0; z-index: 40;
+      display: flex; align-items: center; gap: 16px;
+      padding: 11px 18px;
+      background: linear-gradient(180deg, rgba(10,14,22,.97), rgba(10,14,22,.78));
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .rail .mark {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border: 1px solid var(--line-2);
+      font-family: var(--mono); font-weight: 700; font-size: 14px; color: var(--cyan);
+      border-radius: 4px; background: var(--panel-2);
+    }
+    .rail .who { font-family: var(--mono); font-size: 13px; letter-spacing: .04em; }
+    .rail .who b { font-weight: 600; }
+    .rail .who span { color: var(--muted); }
+    .rail .stat-strip {
+      display: flex; gap: 22px;
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+    }
+    .rail .stat-strip b { color: var(--ink); font-weight: 600; }
+
+    /* The view toggle: graph <-> overview. The signature affordance. */
+    .vtoggle {
+      margin-left: auto; display: inline-flex; align-items: stretch;
+      border: 1px solid var(--line-2); border-radius: 7px; overflow: hidden;
+      font-family: var(--mono); font-size: 11.5px;
+    }
+    .vtoggle button {
+      background: transparent; color: var(--muted); border: 0; cursor: pointer;
+      padding: 7px 13px; font-family: inherit; font-size: inherit;
+      letter-spacing: .04em; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .vtoggle button + button { border-left: 1px solid var(--line-2); }
+    .vtoggle button[aria-pressed="true"] { background: var(--cyan); color: #06121a; font-weight: 600; }
+    .vtoggle button:not([aria-pressed="true"]):hover { color: var(--ink); }
+    .vtoggle .ic { width: 13px; height: 13px; display: inline-block; }
+
+    @media (max-width: 760px) {
+      .rail .stat-strip { display: none; }
+      .vtoggle { display: none; } /* mobile is always the trace/overview */
+    }
+
+    .legend {
+      position: fixed; left: 18px; bottom: 18px; z-index: 35;
+      font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+      background: rgba(13,18,28,.78); border: 1px solid var(--line);
+      border-radius: 6px; padding: 9px 12px; max-width: 290px;
+      backdrop-filter: blur(6px);
+    }
+    .legend .row { display: flex; align-items: center; gap: 8px; }
+    .legend .row + .row { margin-top: 4px; }
+    .legend .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+    .legend .hint { margin-top: 7px; color: var(--dim); line-height: 1.45; }
+    .legend .hint b { color: var(--muted); font-weight: 500; }
+
+    /* ============ CANVAS / GRAPH ============ */
+    #stage {
+      position: fixed; inset: 0; z-index: 1;
+      background:
+        radial-gradient(1200px 700px at 60% 20%, #0e1623 0%, transparent 60%),
+        var(--bg);
+      cursor: grab;
+      touch-action: none;
+    }
+    #stage.dragging { cursor: grabbing; }
+    #stage::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+      background-size: 44px 44px;
+      opacity: .5;
+      mask-image: radial-gradient(circle at 50% 42%, #000 0%, transparent 78%);
+    }
+    #viewport {
+      position: absolute; left: 0; top: 0;
+      width: 1600px; height: 1100px;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+    svg.wires { position: absolute; inset: 0; width: 1600px; height: 1100px; overflow: visible; pointer-events: none; }
+    .wire { fill: none; stroke: var(--wire); stroke-width: 1.4; }
+    .wire.hot { stroke: var(--wire-hot); stroke-width: 2; filter: drop-shadow(0 0 5px rgba(92,200,224,.5)); }
+    .wire-flow {
+      fill: none; stroke: var(--cyan); stroke-width: 2;
+      stroke-dasharray: 4 10; opacity: 0;
+    }
+    /* intro edge-trace: dashes draw the whole skeleton once on boot */
+    .wire-intro {
+      fill: none; stroke: var(--cyan); stroke-width: 1.6; opacity: .85;
+    }
+    .edge-label {
+      font-family: var(--mono); font-size: 9.5px; fill: var(--dim);
+      letter-spacing: .05em; text-transform: uppercase;
+    }
+    .edge-label.hot { fill: var(--cyan); }
+
+    .node {
+      position: absolute; transform: translate(-50%, -50%);
+      min-width: 134px;
+      background: var(--panel); border: 1px solid var(--line-2);
+      border-radius: 8px; padding: 11px 14px; cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0,0,0,.45);
+      user-select: none; text-align: left;
+    }
+    .node .nid {
+      font-family: var(--mono); font-size: 9px; color: var(--dim);
+      letter-spacing: .14em; display: flex; justify-content: space-between;
+    }
+    .node .nlabel {
+      font-family: var(--mono); font-weight: 700; font-size: 14px;
+      letter-spacing: .06em; margin-top: 3px; color: var(--ink);
+    }
+    .node .nsub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .node[data-kind="root"] { border-color: var(--cyan); min-width: 150px; }
+    .node[data-kind="root"] .nlabel { color: var(--cyan); font-size: 15px; }
+    .node[data-kind="endpoint"] { border-color: var(--amber); }
+    .node[data-kind="endpoint"] .nlabel { color: var(--amber); }
+    .node[data-kind="leaf"] { min-width: 110px; }
+    .node.active {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 1px var(--cyan), 0 14px 40px rgba(0,0,0,.6), 0 0 28px rgba(92,200,224,.25);
+    }
+    .node:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+    .node .pulse {
+      position: absolute; top: -1px; right: -1px;
+      width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+    }
+    .ports { position: absolute; inset: 0; pointer-events: none; }
+
+    /* ============ DETAIL PANEL ============ */
+    #panel {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 50;
+      width: min(560px, 100vw);
+      background: var(--panel-2);
+      border-left: 1px solid var(--line-2);
+      box-shadow: -30px 0 60px rgba(0,0,0,.5);
+      transform: translateX(100%);
+      display: flex; flex-direction: column;
+      visibility: hidden;
+    }
+    #panel.open { transform: translateX(0); visibility: visible; }
+    @media (prefers-reduced-motion: no-preference) {
+      #panel { transition: transform .42s cubic-bezier(.2,.8,.2,1); }
+      .wire, .edge-label { transition: stroke .25s ease, fill .25s ease, stroke-width .25s ease; }
+      .node { transition: border-color .2s ease, box-shadow .2s ease, transform .25s cubic-bezier(.2,.8,.2,1); }
+      #viewport { transition: transform .55s cubic-bezier(.2,.8,.2,1); }
+      #viewport.live { transition: none; }
+    }
+    #panel .phead {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 18px 22px 14px; border-bottom: 1px solid var(--line);
+      flex: none;
+    }
+    #panel .phead .tag {
+      font-family: var(--mono); font-size: 10px; color: var(--cyan);
+      letter-spacing: .14em; text-transform: uppercase;
+      border: 1px solid var(--line-2); border-radius: 4px; padding: 3px 7px;
+      align-self: center;
+    }
+    #panel .phead h2 {
+      font-family: var(--serif); font-weight: 400; font-size: 30px;
+      line-height: 1.04; letter-spacing: -.01em; color: var(--ink);
+    }
+    #panel .phead .meta { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 4px; }
+    #panel .close {
+      margin-left: auto; flex: none; align-self: flex-start;
+      width: 30px; height: 30px; border: 1px solid var(--line-2);
+      background: var(--panel); color: var(--ink-2);
+      border-radius: 5px; cursor: pointer; font-size: 16px; line-height: 1;
+      font-family: var(--mono);
+    }
+    #panel .close:hover { border-color: var(--cyan); color: var(--cyan); }
+    #panel .pbody { padding: 20px 22px 60px; overflow-y: auto; flex: 1; }
+
+    /* shared content typography (panel + overview cards) */
+    .lead {
+      font-family: var(--serif); font-size: 21px; line-height: 1.4;
+      color: var(--ink-2); margin-bottom: 4px;
+    }
+    .eyebrow {
+      font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+      letter-spacing: .14em; text-transform: uppercase; margin: 22px 0 8px;
+    }
+    .pbody p, .ocard p { color: var(--ink-2); margin: 10px 0; }
+    .pbody p.note, .ocard p.note { color: var(--muted); font-size: 13.5px; }
+    a.inline { color: var(--cyan); text-decoration: none; border-bottom: 1px solid rgba(92,200,224,.4); }
+    a.inline:hover { border-bottom-color: var(--cyan); }
+    em { font-style: italic; color: var(--cyan); }
+
+    .kv { display: grid; grid-template-columns: 116px 1fr; gap: 4px 16px; margin: 14px 0; }
+    .kv dt { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: .04em; padding-top: 2px; }
+    .kv dd { color: var(--ink-2); font-size: 14px; }
+
+    .stat3 { display: flex; gap: 26px; margin: 16px 0 6px; flex-wrap: wrap; }
+    .stat3 .s b { font-family: var(--mono); font-size: 26px; color: var(--cyan); display: block; line-height: 1; }
+    .stat3 .s span { font-family: var(--mono); font-size: 11px; color: var(--muted); display: block; margin-top: 5px; }
+
+    /* case list */
+    .case {
+      border: 1px solid var(--line); border-radius: 7px;
+      padding: 13px 15px; margin: 10px 0; background: var(--panel);
+      text-decoration: none; display: block;
+    }
+    .case:hover { border-color: var(--line-2); }
+    .case .top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .case .cn { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: .14em; }
+    .case .metric { font-family: var(--mono); font-size: 12px; color: var(--amber); text-align: right; }
+    .case .metric small { display: block; color: var(--muted); font-size: 10px; max-width: 180px; }
+    .case h4 { font-size: 15px; font-weight: 600; color: var(--ink); margin: 6px 0; }
+    .case h4 .arr { color: var(--cyan); }
+    .case .cb { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+    .case .tags { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .case .tags span {
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+      border: 1px solid var(--line); border-radius: 3px; padding: 2px 6px;
+    }
+
+    /* pipeline */
+    .pipe { display: grid; gap: 8px; margin: 12px 0; }
+    .pipe .st { display: grid; grid-template-columns: 24px 84px 1fr; gap: 12px; align-items: start; }
+    .pipe .st .ix { font-family: var(--mono); font-size: 11px; color: var(--cyan); padding-top: 1px; }
+    .pipe .st .nm { font-family: var(--mono); font-size: 12px; color: var(--ink); font-weight: 600; }
+    .pipe .st .ds { font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+
+    /* now rows */
+    .nowrow { padding: 12px 0; border-top: 1px solid var(--line); }
+    .nowrow:first-child { border-top: 0; }
+    .nowrow .nk { font-family: var(--mono); font-size: 11px; color: var(--cyan); letter-spacing: .1em; text-transform: uppercase; }
+    .nowrow .nv { font-size: 13.5px; color: var(--ink-2); margin-top: 4px; }
+
+    /* roles */
+    .role { padding: 13px 0; border-top: 1px solid var(--line); }
+    .role:first-of-type { border-top: 0; }
+    .role .rh { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+    .role .rh b { font-size: 15px; color: var(--ink); }
+    .role .rh .dt { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+    .role .rr { font-family: var(--mono); font-size: 12px; color: var(--amber); margin: 2px 0 7px; }
+    .role ul { list-style: none; }
+    .role li { font-size: 13px; color: var(--ink-2); padding-left: 16px; position: relative; margin: 5px 0; line-height: 1.45; }
+    .role li::before { content: '\2022'; position: absolute; left: 2px; color: var(--dim); }
+
+    .edu { padding: 9px 0; border-top: 1px solid var(--line); }
+    .edu b { font-size: 14px; color: var(--ink); display: block; }
+    .edu .d { font-size: 13px; color: var(--ink-2); }
+    .edu .dt { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+
+    .pub {
+      border: 1px solid var(--line-2); border-radius: 7px; padding: 14px;
+      background: var(--panel); margin-top: 8px;
+    }
+    .pub b { font-size: 14px; color: var(--ink); }
+    .pub .pn { font-family: var(--mono); font-size: 11px; color: var(--muted); margin: 6px 0; line-height: 1.5; }
+
+    /* reading + lang grids */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+    @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+    .gcard { border: 1px solid var(--line); border-radius: 7px; padding: 12px 14px; background: var(--panel); }
+    .gcard b { font-size: 14px; color: var(--ink); display: block; margin-bottom: 5px; }
+    .gcard span { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+    .langgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 10px 0; }
+    @media (max-width: 480px) { .langgrid { grid-template-columns: repeat(2, 1fr); } }
+    .lang { border: 1px solid var(--line); border-radius: 7px; padding: 11px; text-align: center; background: var(--panel); }
+    .lang b { font-family: var(--mono); font-size: 17px; color: var(--cyan); display: block; }
+    .lang span { font-size: 12px; color: var(--ink-2); margin-top: 3px; display: block; }
+
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 4px; }
+    .btn {
+      font-family: var(--mono); font-size: 12.5px; text-decoration: none;
+      padding: 10px 16px; border-radius: 6px; letter-spacing: .02em; cursor: pointer; border: 0;
+    }
+    .btn.pri { background: var(--cyan); color: #06121a; font-weight: 600; }
+    .btn.ghost { border: 1px solid var(--line-2); color: var(--ink); background: transparent; }
+    .btn.ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .watermark {
+      font-family: var(--serif); font-size: 100px; color: var(--line-2);
+      line-height: .8; opacity: .35; margin: 6px 0 -10px; user-select: none;
+    }
+
+    /* zoom controls */
+    .zoomctl {
+      position: fixed; right: 18px; bottom: 18px; z-index: 36;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .zoomctl button {
+      width: 36px; height: 36px; border: 1px solid var(--line-2);
+      background: rgba(13,18,28,.85); color: var(--ink); font-size: 17px;
+      border-radius: 6px; cursor: pointer; font-family: var(--mono);
+      backdrop-filter: blur(6px);
+    }
+    .zoomctl button:hover { border-color: var(--cyan); color: var(--cyan); }
+    .zoomctl button.reset { font-size: 11px; }
+
+    /* ============ OVERVIEW / "SEE EVERYTHING" VIEW ============ */
+    /* This is the signature of this variant: every node rendered at once,
+       in a sticky-railed two-column reading layout, from the SAME data.
+       Used as: desktop overview mode, mobile default, and no-JS fallback. */
+    #overview { display: none; }
+    body.doc #overview { display: block; }
+    /* In graph mode the overview is parked off-screen but kept in the
+       accessibility tree, since the canvas itself is aria-hidden. This way a
+       screen-reader user on desktop still reaches the full content. */
+    #overview.sr-park {
+      display: block; position: absolute; left: 0; top: 0; width: 1px; height: 1px;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+    }
+
+    .ov-wrap {
+      max-width: 1180px; margin: 0 auto;
+      padding: 72px 22px 96px;
+      display: grid; grid-template-columns: 210px 1fr; gap: 40px;
+      align-items: start;
+    }
+    /* sticky node map / table of contents that mirrors the graph topology */
+    .ov-nav {
+      position: sticky; top: 72px; align-self: start;
+      font-family: var(--mono); font-size: 11.5px;
+    }
+    .ov-nav .ttl { color: var(--muted); letter-spacing: .12em; text-transform: uppercase; font-size: 10px; margin-bottom: 12px; }
+    .ov-nav ol { list-style: none; counter-reset: nv; }
+    .ov-nav li { counter-increment: nv; position: relative; }
+    /* connector line down the TOC, echoing the wires */
+    .ov-nav li::before {
+      content: ''; position: absolute; left: 4px; top: 18px; bottom: -6px;
+      width: 1px; background: var(--line-2);
+    }
+    .ov-nav li:last-child::before { display: none; }
+    .ov-nav a {
+      display: flex; align-items: baseline; gap: 11px;
+      padding: 6px 0; text-decoration: none; color: var(--ink-2);
+    }
+    .ov-nav a .pip {
+      flex: none; width: 9px; height: 9px; border-radius: 50%;
+      border: 1px solid var(--line-2); background: var(--bg); margin-top: 4px; z-index: 1;
+    }
+    .ov-nav a[data-kind="root"] .pip { border-color: var(--cyan); }
+    .ov-nav a[data-kind="endpoint"] .pip { border-color: var(--amber); }
+    .ov-nav a:hover { color: var(--ink); }
+    .ov-nav a:hover .pip { background: var(--line-2); }
+    .ov-nav a.active { color: var(--cyan); }
+    .ov-nav a.active .pip { background: var(--cyan); border-color: var(--cyan); }
+    .ov-nav .edgenote { display: block; color: var(--dim); font-size: 9.5px; letter-spacing: .06em; margin: -2px 0 0 20px; }
+
+    .ov-cards { min-width: 0; }
+    .ocard {
+      scroll-margin-top: 80px;
+      border-top: 1px solid var(--line);
+      padding: 30px 0;
+      position: relative;
+    }
+    .ocard:first-child { border-top: 0; padding-top: 6px; }
+    .ocard > .ohead {
+      display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; flex-wrap: wrap;
+    }
+    .ocard .obadge {
+      font-family: var(--mono); font-size: 10px; color: var(--cyan);
+      letter-spacing: .14em; text-transform: uppercase;
+      border: 1px solid var(--line-2); border-radius: 4px; padding: 3px 7px;
+    }
+    .ocard[data-kind="endpoint"] .obadge { color: var(--amber); }
+    .ocard .otitle {
+      font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 4.4vw, 38px);
+      line-height: 1.02; letter-spacing: -.01em; color: var(--ink);
+    }
+    .ocard .ometa { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    /* big watermark node number behind each card head */
+    .ocard .onum {
+      position: absolute; right: 0; top: 14px;
+      font-family: var(--serif); font-size: 86px; line-height: .8;
+      color: var(--line); opacity: .5; user-select: none; pointer-events: none;
+    }
+    @media (max-width: 900px) { .ocard .onum { display: none; } }
+
+    .ov-hero h1 {
+      font-family: var(--serif); font-weight: 400; font-size: clamp(34px, 6vw, 56px);
+      line-height: 1.0; letter-spacing: -.01em; margin: 6px 0 14px; color: var(--ink);
+    }
+    .ov-hero h1 em { color: var(--cyan); font-style: italic; }
+
+    /* ============ MOBILE TRACE (vertical packet down the node sequence) ============ */
+    .skip {
+      position: fixed; left: -999px; top: 8px; z-index: 99;
+      background: var(--cyan); color: #06121a; padding: 8px 14px; border-radius: 5px;
+      font-family: var(--mono); font-size: 12px; text-decoration: none;
+    }
+    .skip:focus { left: 8px; }
+
+    @media (max-width: 760px) {
+      /* mobile is ALWAYS the document/overview view: kill the canvas chrome */
+      #stage, .legend, .zoomctl, #panel { display: none !important; }
+      .ov-wrap { grid-template-columns: 1fr; gap: 0; padding: 64px 18px 84px; }
+      /* turn the sticky nav into a horizontal "trace" rail at the top */
+      .ov-nav {
+        position: sticky; top: 50px; z-index: 30;
+        background: linear-gradient(180deg, rgba(10,14,22,.97), rgba(10,14,22,.85));
+        backdrop-filter: blur(6px);
+        margin: 0 -18px 8px; padding: 10px 18px;
+        border-bottom: 1px solid var(--line);
+        overflow-x: auto; -webkit-overflow-scrolling: touch;
+      }
+      .ov-nav .ttl { display: none; }
+      .ov-nav ol { display: flex; gap: 0; counter-reset: nv; }
+      .ov-nav li::before {
+        left: 14px; right: -16px; top: 8px; bottom: auto; width: auto; height: 1px;
+      }
+      .ov-nav li:last-child::before { display: block; }
+      .ov-nav li:last-child { padding-right: 4px; }
+      .ov-nav a { flex-direction: column; align-items: center; gap: 4px; padding: 2px 16px 2px 0; white-space: nowrap; }
+      .ov-nav a .lbl { font-size: 9px; letter-spacing: .08em; }
+      .ov-nav .edgenote { display: none; }
+      .ocard .otitle { font-size: clamp(26px, 8vw, 34px); }
+    }
+
+    /* no-JS: show the overview document, hide the interactive canvas */
+    .nojs #stage, .nojs .legend, .nojs .zoomctl, .nojs #panel, .nojs .vtoggle { display: none !important; }
+    .nojs #overview { display: block; }
+    .nojs body, body.nojs { overflow: auto; }
+  </style>
+</head>
+<body class="nojs doc">
+  <a href="#overview" class="skip">Skip to full content</a>
+
+  <!-- TOP RAIL -->
+  <header class="rail">
+    <span class="mark">T</span>
+    <span class="who"><b>Tom Scholtes</b> <span>/ systems map</span></span>
+    <div class="stat-strip">
+      <span><b>6 yrs</b> in Lux fund services</span>
+      <span><b>{caseCount}</b> case studies on file</span>
+      <span><b>{langCount}</b> languages spoken</span>
+    </div>
+    <div class="vtoggle" role="group" aria-label="View mode">
+      <button id="vGraph" aria-pressed="false">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="12" cy="18" r="2.4"/><path d="M7.5 7.5 11 16M16.5 7.5 13 16M8 6h8"/></svg>
+        Graph
+      </button>
+      <button id="vOverview" aria-pressed="true">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16M4 10h16M4 15h11M4 20h8"/></svg>
+        Overview
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ INTERACTIVE GRAPH (built by JS for sighted pointer users) ============ -->
+  <div id="stage" aria-hidden="true">
+    <div id="viewport">
+      <svg class="wires" id="wires" viewBox="0 0 1600 1100"></svg>
+      <div id="ports" class="ports"></div>
+      {nodes.map(n => (
+        <button class="node" data-node={n.id} data-kind={n.kind} aria-label={nodeNames[n.id]} style={`left:${n.x}px; top:${n.y}px;`}>
+          <span class="nid"><span>{'<' + n.id + '/>'}</span><span>{n.id === 'now' || n.id === 'workflow' ? '●' : ''}</span></span>
+          <span class="nlabel">{n.label}</span>
+          <span class="nsub">{n.sub}</span>
+          {(n.id === 'now' || n.id === 'workflow') && <span class="pulse"></span>}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="row"><span class="dot" style="background:var(--cyan)"></span> root / service node</div>
+    <div class="row"><span class="dot" style="background:var(--amber)"></span> contact endpoint</div>
+    <div class="hint">Drag to pan. Scroll or pinch to zoom. Click any node to open it. <b>Overview</b> shows everything at once. Esc closes.</div>
+  </div>
+
+  <div class="zoomctl">
+    <button id="zin" aria-label="Zoom in">+</button>
+    <button id="zout" aria-label="Zoom out">&#8722;</button>
+    <button id="zreset" class="reset" aria-label="Reset view">fit</button>
+  </div>
+
+  <!-- ============ DETAIL PANEL ============ -->
+  <aside id="panel" aria-label="Node detail">
+    <div class="phead">
+      <span class="tag" id="ptag">node</span>
+      <div>
+        <h2 id="ptitle">Title</h2>
+        <div class="meta" id="pmeta"></div>
+      </div>
+      <button class="close" id="pclose" aria-label="Close panel">&#215;</button>
+    </div>
+    <div class="pbody" id="pbody"></div>
+  </aside>
+
+  <!-- ============ OVERVIEW: SEE EVERYTHING (also the no-JS + mobile fallback) ============ -->
+  <!-- Authored ONCE in markup from the data arrays; the panel JS renders the
+       SAME strings from the SAME data, so the two surfaces cannot drift. -->
+  <main id="overview">
+    <div class="ov-wrap">
+      <!-- sticky node-map / table of contents mirroring the graph topology -->
+      <nav class="ov-nav" aria-label="Node map">
+        <div class="ttl">Node map</div>
+        <ol>
+          {order.map(id => {
+            const n = nodes.find(nn => nn.id === id);
+            return (
+              <li>
+                <a href={`#ov-${id}`} data-ovnav={id} data-kind={n.kind}>
+                  <span class="pip"></span>
+                  <span class="lbl">{n.label}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+
+      <div class="ov-cards">
+        <!-- IDENTITY -->
+        <article class="ocard ov-hero" id="ov-identity" data-kind="root">
+          <div class="ohead"><span class="obadge">root</span><span class="ometa">Personal site · Luxembourg</span></div>
+          <h1>I build the automation behind <em>regulated finance</em> operations.</h1>
+          <p>I'm Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and case studies of it shipping.</p>
+          <div class="stat3">
+            <div class="s"><b>6 yrs</b><span>in Lux fund services</span></div>
+            <div class="s"><b>{caseCount}</b><span>case studies on file</span></div>
+            <div class="s"><b>{langCount}</b><span>languages spoken</span></div>
+          </div>
+          <p class="note">This is the root. Every section below hangs off it, in the same order the graph wires them.</p>
+          <div class="btns">
+            <a class="btn pri" href="#ov-contact">Get in touch</a>
+            <a class="btn ghost" href="#ov-work">See the work</a>
+          </div>
+        </article>
+
+        <!-- WORKFLOW -->
+        <article class="ocard" id="ov-workflow" data-kind="svc">
+          <div class="onum">01</div>
+          <div class="ohead"><span class="obadge">service · demonstrates</span><span class="ometa">Live demo</span></div>
+          <h2 class="otitle">See the automation run, on synthetic data.</h2>
+          <p>Point AI at the manual workflows underneath a finance desk. It surfaces what is unbooked, mismatched, or missing, builds the upload template, and drafts the counterparty email. The operator reviews and signs off; the human owns the decision. Click through a before-and-after process map and run it live.</p>
+          <div class="eyebrow">Pipeline stages</div>
+          <div class="pipe">
+            {stages.map((s, i) => (
+              <div class="st"><span class="ix">{String(i + 1).padStart(2, '0')}</span><span class="nm">{s.k}</span><span class="ds">{s.v}</span></div>
+            ))}
+          </div>
+          <div class="btns"><a class="btn ghost" href="/workflow-automation/">Open the live demo</a></div>
+        </article>
+
+        <!-- WORK -->
+        <article class="ocard" id="ov-work" data-kind="svc">
+          <div class="onum">02</div>
+          <div class="ohead"><span class="obadge">service · evidence</span><span class="ometa">{caseCount} case studies on the page</span></div>
+          <h2 class="otitle">Patterns I've worked through.</h2>
+          <p class="note">Sanitised. Employer name, entity names and figures removed. Notes on how I think about this kind of work in fund services.</p>
+          {cases.map(c => (
+            <a class="case" href={c.href}>
+              <div class="top"><span class="cn">Case {c.n}</span><span class="metric">{c.metric}<small>{c.mlabel}</small></span></div>
+              <h4>{c.title} <span class="arr">&#8594;</span></h4>
+              <div class="cb">{c.blurb}</div>
+              <div class="tags">{c.tags.map(t => <span>{t}</span>)}</div>
+            </a>
+          ))}
+        </article>
+
+        <!-- NOW -->
+        <article class="ocard" id="ov-now" data-kind="svc">
+          <div class="onum">03</div>
+          <div class="ohead"><span class="obadge">service · current state</span><span class="ometa">/ now · June 2026</span></div>
+          <h2 class="otitle">What I'm focused on this quarter.</h2>
+          <p class="note">A public note of where my head is right now, in the spirit of <em>nownownow.com</em>. I update it when things change, not on a schedule.</p>
+          {nowRows.map(r => (
+            <div class="nowrow"><div class="nk">{r.k}</div><div class="nv">{r.v} {r.cta && <a class="inline" href={r.cta.href}>{r.cta.label} &#8594;</a>}</div></div>
+          ))}
+        </article>
+
+        <!-- CV -->
+        <article class="ocard" id="ov-cv" data-kind="svc">
+          <div class="onum">04</div>
+          <div class="ohead"><span class="obadge">service · backed by</span><span class="ometa">Live CV</span></div>
+          <h2 class="otitle">Six years in Luxembourg fund services.</h2>
+          <p class="note">Updated as roles, projects and credentials change. The condensed PDF version is on request.</p>
+          <div class="eyebrow">Experience · {roleCount} roles · 6+ years</div>
+          {roles.map(r => (
+            <div class="role">
+              <div class="rh"><b>{r.title}</b><span class="dt">{r.dates}</span></div>
+              <div class="rr">{r.role}</div>
+              <ul>{r.lines.map(l => <li>{l}</li>)}</ul>
+            </div>
+          ))}
+          <div class="eyebrow">Education</div>
+          {education.map(e => (
+            <div class="edu"><b>{e.school}</b><span class="d">{e.deg}</span> <span class="dt">{e.dates}</span></div>
+          ))}
+          <div class="eyebrow">Skills</div>
+          <dl class="kv">{skills.map(s => (<><dt>{s.k}</dt><dd>{s.v}</dd></>))}</dl>
+          <div class="eyebrow">Publication</div>
+          <div class="pub">
+            <b>Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</b>
+            <div class="pn">MSc thesis · Erasmus University Rotterdam · panel econometrics over 36 OECD economies, 1995 to 2018</div>
+            <a class="btn ghost" href="/thesis">Read</a>
+          </div>
+        </article>
+
+        <!-- READING -->
+        <article class="ocard" id="ov-reading" data-kind="svc">
+          <div class="onum">05</div>
+          <div class="ohead"><span class="obadge">service · inputs</span><span class="ometa">{readingCount} themes</span></div>
+          <h2 class="otitle">Mostly non-fiction.</h2>
+          <p class="note">Themes I keep coming back to. A proper bookshelf with titles will go here once I've trimmed the list.</p>
+          <div class="grid2">{reading.map(r => (<div class="gcard"><b>{r.t}</b><span>{r.n}</span></div>))}</div>
+        </article>
+
+        <!-- LANGUAGES -->
+        <article class="ocard" id="ov-languages" data-kind="leaf">
+          <div class="onum">06</div>
+          <div class="ohead"><span class="obadge">leaf · attribute</span><span class="ometa">{langCount} languages, no levels stored</span></div>
+          <h2 class="otitle">{langCount}, used regularly.</h2>
+          <div class="langgrid">{languages.map(l => (<div class="lang"><b>{l.c}</b><span>{l.n}</span></div>))}</div>
+        </article>
+
+        <!-- CONTACT -->
+        <article class="ocard" id="ov-contact" data-kind="endpoint">
+          <div class="onum">07</div>
+          <div class="ohead"><span class="obadge">endpoint · reach</span><span class="ometa">Reach</span></div>
+          <h2 class="otitle">If any of this is <em>interesting</em>, say hi.</h2>
+          <p>Always interested in conversations about data engineering, automation, applied AI, multi-agent systems, knowledge engineering, agent infrastructure, especially where they meet regulated workflows.</p>
+          <div class="btns">
+            <a class="btn pri" href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93">Message on LinkedIn</a>
+            <a class="btn ghost" href="https://www.linkedin.com/in/tomscholtes93/">View profile</a>
+            <a class="btn ghost" href="mailto:tom@tomscholtes.com">Email</a>
+          </div>
+          <div class="eyebrow">Endpoint</div>
+          <p class="note">tom@tomscholtes.com · linkedin.com/in/tomscholtes93 · © {year} Tom Scholtes, Luxembourg. Personal site, opinions my own. Notes on AI in finance ops, a live CV, and a portfolio of work.</p>
+          <p style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:14px;">
+            <a href="/#now">Now</a> · <a href="/#work">Work</a> · <a href="/projects">Projects</a> · <a href="/notes/">Notes</a> · <a href="/#cv">CV</a> · <a href="/#reading">Reading</a> · <a href="/thesis">MSc thesis</a>
+          </p>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ DATA PAYLOAD + GRAPH ENGINE ============ -->
+  <script type="application/json" id="data">{JSON.stringify({ nodes, edges, cases, stages, nowRows, roles, education, skills, reading, languages, year, caseCount, langCount, readingCount, roleCount, order, nodeNames })}</script>
+  <script>
+    const DATA = JSON.parse(document.getElementById('data').textContent);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.matchMedia('(max-width: 760px)').matches;
+
+    document.body.classList.remove('nojs');
+
+    const stage = document.getElementById('stage');
+    const viewport = document.getElementById('viewport');
+    const wires = document.getElementById('wires');
+    const panel = document.getElementById('panel');
+    const overview = document.getElementById('overview');
+    const btnGraph = document.getElementById('vGraph');
+    const btnOverview = document.getElementById('vOverview');
+
+    const nodeEls = {};
+    document.querySelectorAll('.node').forEach(el => { nodeEls[el.dataset.node] = el; });
+    const nodeMap = {};
+    DATA.nodes.forEach(n => { nodeMap[n.id] = n; });
+
+    /* ---- draw wires (curved connectors) ---- */
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    DATA.edges.forEach((e) => {
+      const a = nodeMap[e.a], b = nodeMap[e.b];
+      const my = (a.y + b.y) / 2;
+      const d = `M ${a.x} ${a.y} C ${a.x} ${my}, ${b.x} ${my}, ${b.x} ${b.y}`;
+
+      const p = document.createElementNS(SVGNS, 'path');
+      p.setAttribute('d', d); p.setAttribute('class', 'wire');
+      p.dataset.a = e.a; p.dataset.b = e.b;
+      wires.appendChild(p);
+
+      const flow = document.createElementNS(SVGNS, 'path');
+      flow.setAttribute('d', d); flow.setAttribute('class', 'wire-flow');
+      flow.dataset.a = e.a; flow.dataset.b = e.b;
+      wires.appendChild(flow);
+
+      const t = document.createElementNS(SVGNS, 'text');
+      t.setAttribute('x', (a.x + b.x) / 2 + 8);
+      t.setAttribute('y', my - 4);
+      t.setAttribute('class', 'edge-label');
+      t.dataset.a = e.a; t.dataset.b = e.b;
+      t.textContent = e.label;
+      wires.appendChild(t);
+    });
+
+    function highlightEdges(id) {
+      wires.querySelectorAll('.wire, .edge-label').forEach(el => {
+        const on = id && (el.dataset.a === id || el.dataset.b === id);
+        el.classList.toggle('hot', !!on);
+      });
+      wires.querySelectorAll('.wire-flow').forEach(el => {
+        const on = id && (el.dataset.a === id || el.dataset.b === id);
+        if (on && !reduce) { el.style.opacity = '.9'; el.classList.add('anim'); }
+        else { el.style.opacity = '0'; el.classList.remove('anim'); }
+      });
+    }
+
+    /* ---- pan + zoom ---- */
+    let scale = 1, tx = 0, ty = 0;
+    const LOGW = 1600, LOGH = 1100;
+
+    function apply(animate) {
+      if (animate && !reduce) viewport.classList.remove('live');
+      else viewport.classList.add('live');
+      viewport.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    }
+
+    function fit() {
+      const vw = stage.clientWidth, vh = stage.clientHeight;
+      scale = Math.min(vw / LOGW, vh / LOGH) * 0.96;
+      scale = Math.max(0.3, Math.min(scale, 1.4));
+      tx = (vw - LOGW * scale) / 2;
+      ty = (vh - LOGH * scale) / 2 + 14;
+      apply(true);
+    }
+
+    function focusNode(n, openScale) {
+      const vw = stage.clientWidth, vh = stage.clientHeight;
+      const sideDrawer = vw > 720;
+      const panelW = (panel.classList.contains('open') && sideDrawer) ? Math.min(560, vw) : 0;
+      const visW = vw - panelW;
+      scale = openScale || Math.min(1.05, scale < 0.7 ? 0.85 : scale);
+      tx = visW / 2 - n.x * scale;
+      ty = vh / 2 - n.y * scale + 10;
+      apply(true);
+    }
+
+    /* drag */
+    let dragging = false, sx = 0, sy = 0, stx = 0, sty = 0, moved = false;
+    stage.addEventListener('pointerdown', (ev) => {
+      if (ev.target.closest('.node')) return;
+      dragging = true; moved = false;
+      sx = ev.clientX; sy = ev.clientY; stx = tx; sty = ty;
+      stage.classList.add('dragging');
+      stage.setPointerCapture(ev.pointerId);
+    });
+    stage.addEventListener('pointermove', (ev) => {
+      if (!dragging) return;
+      tx = stx + (ev.clientX - sx);
+      ty = sty + (ev.clientY - sy);
+      if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
+      apply(false);
+    });
+    function endDrag() { dragging = false; stage.classList.remove('dragging'); }
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    /* wheel zoom (anchored at cursor) */
+    stage.addEventListener('wheel', (ev) => {
+      ev.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const cx = ev.clientX - rect.left, cy = ev.clientY - rect.top;
+      const prev = scale;
+      const delta = -ev.deltaY * 0.0014;
+      scale = Math.max(0.3, Math.min(2.2, scale * (1 + delta)));
+      const k = scale / prev;
+      tx = cx - (cx - tx) * k;
+      ty = cy - (cy - ty) * k;
+      apply(false);
+    }, { passive: false });
+
+    /* pinch zoom */
+    let pinch = null;
+    stage.addEventListener('touchstart', (ev) => {
+      if (ev.touches.length === 2) {
+        const [a, b] = ev.touches;
+        pinch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), s: scale };
+      }
+    }, { passive: true });
+    stage.addEventListener('touchmove', (ev) => {
+      if (pinch && ev.touches.length === 2) {
+        const [a, b] = ev.touches;
+        const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        scale = Math.max(0.3, Math.min(2.2, pinch.s * (d / pinch.d)));
+        apply(false);
+      }
+    }, { passive: true });
+    stage.addEventListener('touchend', () => { pinch = null; }, { passive: true });
+
+    document.getElementById('zin').onclick = () => { scale = Math.min(2.2, scale * 1.2); apply(true); };
+    document.getElementById('zout').onclick = () => { scale = Math.max(0.3, scale / 1.2); apply(true); };
+    document.getElementById('zreset').onclick = () => { closePanel(); fit(); };
+
+    /* hover highlight */
+    Object.entries(nodeEls).forEach(([id, el]) => {
+      el.addEventListener('pointerenter', () => { if (!panel.classList.contains('open')) highlightEdges(id); });
+      el.addEventListener('pointerleave', () => { if (!panel.classList.contains('open')) highlightEdges(null); });
+      el.addEventListener('click', () => { if (moved) { moved = false; return; } openNode(id); });
+    });
+
+    /* ---- panel rendering: SAME data, SAME strings as the overview markup ---- */
+    const esc = (s) => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    function renderBody(id) {
+      const D = DATA;
+      if (id === 'identity') {
+        return `
+          <p class="lead">I build the automation behind <em>regulated finance</em> operations.</p>
+          <p>I'm Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and case studies of it shipping.</p>
+          <div class="stat3">
+            <div class="s"><b>6 yrs</b><span>in Lux fund services</span></div>
+            <div class="s"><b>${D.caseCount}</b><span>case studies on file</span></div>
+            <div class="s"><b>${D.langCount}</b><span>languages spoken</span></div>
+          </div>
+          <div class="eyebrow">Connected nodes</div>
+          <p class="note">This is the root. Every other node hangs off it. Open WORK for the evidence, NOW for current state, WORKFLOW for the live demo, or follow an edge to CONTACT. Prefer to read it all at once? Use Overview in the top bar.</p>
+          <div class="btns">
+            <a class="btn pri" href="#" data-goto="work">See the work &#8594;</a>
+            <a class="btn ghost" href="#" data-goto="contact">Get in touch</a>
+          </div>`;
+      }
+      if (id === 'workflow') {
+        return `
+          <p class="lead">See the automation run, on synthetic data.</p>
+          <p>Point AI at the manual workflows underneath a finance desk. It surfaces what is unbooked, mismatched, or missing, builds the upload template, and drafts the counterparty email. The operator reviews and signs off; the human owns the decision. Click through a before-and-after process map and run it live.</p>
+          <div class="eyebrow">Pipeline stages</div>
+          <div class="pipe">${D.stages.map((s,i)=>`<div class="st"><span class="ix">${String(i+1).padStart(2,'0')}</span><span class="nm">${esc(s.k)}</span><span class="ds">${esc(s.v)}</span></div>`).join('')}</div>
+          <div class="btns"><a class="btn pri" href="/workflow-automation/">Open the live demo</a></div>`;
+      }
+      if (id === 'work') {
+        return `
+          <p class="lead">Patterns I've worked through.</p>
+          <p class="note">Sanitised. Employer name, entity names and figures removed. Notes on how I think about this kind of work in fund services.</p>
+          ${D.cases.map(c => `
+            <a class="case" href="${c.href}">
+              <div class="top"><span class="cn">Case ${c.n}</span><span class="metric">${esc(c.metric)}<small>${esc(c.mlabel)}</small></span></div>
+              <h4>${esc(c.title)} <span class="arr">&#8594;</span></h4>
+              <div class="cb">${esc(c.blurb)}</div>
+              <div class="tags">${c.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div>
+            </a>`).join('')}`;
+      }
+      if (id === 'now') {
+        return `
+          <p class="lead">What I'm focused on this quarter.</p>
+          <p class="note">A public note of where my head is right now, in the spirit of <em>nownownow.com</em>. I update it when things change, not on a schedule.</p>
+          ${D.nowRows.map(r => `<div class="nowrow"><div class="nk">${esc(r.k)}</div><div class="nv">${esc(r.v)}${r.cta?` <a class="inline" href="${r.cta.href}">${esc(r.cta.label)} &#8594;</a>`:''}</div></div>`).join('')}`;
+      }
+      if (id === 'cv') {
+        return `
+          <p class="lead">Six years in Luxembourg fund services.</p>
+          <p class="note">Updated as roles, projects and credentials change. The condensed PDF version is on request.</p>
+          <div class="eyebrow">Experience · ${D.roleCount} roles · 6+ years</div>
+          ${D.roles.map(r => `<div class="role"><div class="rh"><b>${esc(r.title)}</b><span class="dt">${esc(r.dates)}</span></div><div class="rr">${esc(r.role)}</div><ul>${r.lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>`).join('')}
+          <div class="eyebrow">Education</div>
+          ${D.education.map(e=>`<div class="edu"><b>${esc(e.school)}</b><span class="d">${esc(e.deg)}</span> <span class="dt">${esc(e.dates)}</span></div>`).join('')}
+          <div class="eyebrow">Skills</div>
+          <dl class="kv">${D.skills.map(s=>`<dt>${esc(s.k)}</dt><dd>${esc(s.v)}</dd>`).join('')}</dl>
+          <div class="eyebrow">Publication</div>
+          <div class="pub"><b>Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</b><div class="pn">MSc thesis · Erasmus University Rotterdam · panel econometrics over 36 OECD economies, 1995 to 2018</div><a class="btn ghost" href="/thesis">Read</a></div>`;
+      }
+      if (id === 'reading') {
+        return `
+          <p class="lead">Mostly non-fiction.</p>
+          <p class="note">Themes I keep coming back to. A proper bookshelf with titles will go here once I've trimmed the list.</p>
+          <div class="grid2">${D.reading.map(r=>`<div class="gcard"><b>${esc(r.t)}</b><span>${esc(r.n)}</span></div>`).join('')}</div>`;
+      }
+      if (id === 'languages') {
+        return `
+          <p class="lead">${D.langCount}, used regularly.</p>
+          <div class="langgrid">${D.languages.map(l=>`<div class="lang"><b>${esc(l.c)}</b><span>${esc(l.n)}</span></div>`).join('')}</div>`;
+      }
+      if (id === 'contact') {
+        return `
+          <div class="watermark">hi.</div>
+          <p class="lead">If any of this is <em>interesting</em>, say hi.</p>
+          <p>Always interested in conversations about data engineering, automation, applied AI, multi-agent systems, knowledge engineering, agent infrastructure, especially where they meet regulated workflows.</p>
+          <div class="btns">
+            <a class="btn pri" href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93">Message on LinkedIn</a>
+            <a class="btn ghost" href="https://www.linkedin.com/in/tomscholtes93/">View profile</a>
+            <a class="btn ghost" href="mailto:tom@tomscholtes.com">Email</a>
+          </div>
+          <div class="eyebrow">Endpoint</div>
+          <p class="note">tom@tomscholtes.com · linkedin.com/in/tomscholtes93 · © ${D.year} Tom Scholtes, Luxembourg. Personal site, opinions my own. Notes on AI in finance ops, a live CV, and a portfolio of work.</p>`;
+      }
+      return '';
+    }
+
+    const META = {
+      identity: { tag: 'root', meta: 'Personal site · Luxembourg' },
+      workflow: { tag: 'service', meta: 'Live demo' },
+      work: { tag: 'service', meta: DATA.caseCount + ' case studies on the page' },
+      now: { tag: 'service', meta: '/ now · June 2026' },
+      cv: { tag: 'service', meta: 'Live CV' },
+      reading: { tag: 'service', meta: DATA.readingCount + ' themes' },
+      languages: { tag: 'leaf', meta: DATA.langCount + ' languages, no levels stored' },
+      contact: { tag: 'endpoint', meta: 'Reach' }
+    };
+    const TITLES = {
+      identity: 'Tom Scholtes', workflow: 'Workflow automation', work: 'Work',
+      now: 'Now', cv: 'Live CV', reading: 'Reading', languages: 'Languages', contact: 'Contact'
+    };
+
+    let activeId = null;
+    function openNode(id) {
+      activeId = id;
+      Object.values(nodeEls).forEach(el => el.classList.remove('active'));
+      nodeEls[id].classList.add('active');
+      highlightEdges(id);
+
+      document.getElementById('ptag').textContent = META[id].tag;
+      document.getElementById('ptitle').textContent = TITLES[id];
+      document.getElementById('pmeta').textContent = META[id].meta;
+      const body = document.getElementById('pbody');
+      body.innerHTML = renderBody(id);
+      body.scrollTop = 0;
+      body.querySelectorAll('[data-goto]').forEach(b => {
+        b.addEventListener('click', (ev) => { ev.preventDefault(); openNode(b.dataset.goto); });
+      });
+
+      panel.classList.add('open');
+      focusNode(nodeMap[id]);
+    }
+
+    function closePanel() {
+      panel.classList.remove('open');
+      activeId = null;
+      Object.values(nodeEls).forEach(el => el.classList.remove('active'));
+      highlightEdges(null);
+    }
+    document.getElementById('pclose').onclick = closePanel;
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+
+    /* keyboard access on nodes */
+    Object.values(nodeEls).forEach(el => el.setAttribute('tabindex', '0'));
+    Object.entries(nodeEls).forEach(([id, el]) => {
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openNode(id); } });
+    });
+
+    /* ---- VIEW MODE: graph <-> overview (the thesis) ---- */
+    let mode = 'graph'; // desktop default after JS boot
+
+    function setMode(next, opts) {
+      opts = opts || {};
+      mode = next;
+      const graphOn = next === 'graph';
+      document.body.classList.toggle('doc', !graphOn);
+      stage.style.display = graphOn ? '' : 'none';
+      document.querySelector('.legend').style.display = graphOn ? '' : 'none';
+      document.querySelector('.zoomctl').style.display = graphOn ? '' : 'none';
+      overview.classList.toggle('sr-park', graphOn); // keep content SR-reachable behind the canvas
+      if (!graphOn) closePanel();
+      btnGraph.setAttribute('aria-pressed', String(graphOn));
+      btnOverview.setAttribute('aria-pressed', String(!graphOn));
+      // graph canvas stays aria-hidden in both modes; the overview is the SR surface.
+      if (graphOn) {
+        // re-fit when returning to the canvas (it was display:none)
+        requestAnimationFrame(() => { fit(); });
+      } else if (!opts.silent) {
+        window.scrollTo(0, 0);
+      }
+    }
+
+    btnGraph.addEventListener('click', () => setMode('graph'));
+    btnOverview.addEventListener('click', () => setMode('overview'));
+
+    /* scroll-spy: light up the node-map pip for the section in view */
+    const ovNavLinks = {};
+    document.querySelectorAll('[data-ovnav]').forEach(a => { ovNavLinks[a.dataset.ovnav] = a; });
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(en => {
+          if (en.isIntersecting) {
+            const id = en.target.id.replace('ov-', '');
+            Object.values(ovNavLinks).forEach(a => a.classList.remove('active'));
+            if (ovNavLinks[id]) ovNavLinks[id].classList.add('active');
+          }
+        });
+      }, { rootMargin: '-45% 0px -50% 0px' });
+      document.querySelectorAll('.ocard').forEach(c => io.observe(c));
+    }
+
+    window.addEventListener('resize', () => {
+      if (mode === 'graph') { if (activeId) focusNode(nodeMap[activeId]); else fit(); }
+    });
+
+    /* ---- flow animation via stroke offset ---- */
+    if (!reduce) {
+      let off = 0;
+      (function tick() {
+        off = (off - 0.6) % 14;
+        wires.querySelectorAll('.wire-flow.anim').forEach(el => { el.style.strokeDashoffset = off; });
+        requestAnimationFrame(tick);
+      })();
+    }
+
+    /* ---- intro edge-trace: draw the whole skeleton on first boot ---- */
+    function introTrace() {
+      if (reduce) return;
+      const intro = [];
+      wires.querySelectorAll('.wire').forEach(src => {
+        const c = document.createElementNS(SVGNS, 'path');
+        c.setAttribute('d', src.getAttribute('d'));
+        c.setAttribute('class', 'wire-intro');
+        wires.appendChild(c);
+        const len = c.getTotalLength();
+        c.style.strokeDasharray = len;
+        c.style.strokeDashoffset = len;
+        c.style.transition = 'stroke-dashoffset .8s ease';
+        intro.push({ c, len });
+      });
+      requestAnimationFrame(() => {
+        intro.forEach((o, i) => { setTimeout(() => { o.c.style.strokeDashoffset = '0'; }, i * 70); });
+      });
+      // clean up the trace overlay once done so it does not double the wires
+      setTimeout(() => { intro.forEach(o => o.c.remove()); }, 1600);
+    }
+
+    /* ---- boot ---- */
+    if (isMobile) {
+      // phones: stay in the document/overview view (the canvas is hidden by CSS)
+      setMode('overview', { silent: true });
+      document.body.classList.add('doc');
+    } else {
+      // desktop: land on the fitted graph, let it breathe, trace the edges.
+      // No auto-open: the visitor sees the whole system first.
+      setMode('graph', { silent: true });
+      fit();
+      introTrace();
+    }
+  </script>
+</body>
+</html>

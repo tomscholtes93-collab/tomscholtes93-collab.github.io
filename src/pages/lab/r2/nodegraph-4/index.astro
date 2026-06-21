@@ -1,0 +1,1156 @@
+---
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/jetbrains-mono/700.css';
+
+// "Live systems architecture map" - Tom Scholtes as a navigable node graph.
+// Round 2 refinement, variant 4: elevate the blueprint aesthetic.
+// Labeled edges, depth, motion-gated connectors, legend, hover affordances.
+// Standalone, self-contained page. All content preserved from the parent.
+
+const cases = [
+  { n: '01', metric: 'Indicative', mlabel: 'order of magnitude time savings on this pattern', title: 'Automated Regulatory Notes Generation', blurb: 'A pattern for how a Claude skill can read a trial balance, identify entity type, and generate disclosure notes in a firm’s chosen style. Tables, movement schedules, narrative.', tags: ['Claude skills', 'Word generation', 'LuxGAAP'], href: '/case/automated-regulatory-notes/' },
+  { n: '02', metric: 'Pre-audit', mlabel: 'automated cross-checker', title: 'Annual Accounts Quality Review', blurb: 'How I think about pre-audit cross-checking. A pattern that takes annual accounts (PDF) and source reconciliation (Excel), checks every cross-reference between primary statements and notes, and flags inconsistencies before the auditor finds them.', tags: ['PDF parsing', 'Excel', 'QA automation'], href: '/case/annual-accounts-quality-review/' },
+  { n: '03', metric: 'Hours to minutes', mlabel: 'share registers for KYC/AML reviews', title: 'Confidential Document Anonymisation', blurb: 'A pattern for aggregating raw transactional share-register data into net positions per shareholder per share class, applying rule-based redaction for non-strategic shareholders, and producing print-ready Excel and PDF.', tags: ['Data aggregation', 'Compliance', 'Multi-format'], href: '/case/confidential-document-anonymisation/' },
+  { n: '04', metric: 'Daily', mlabel: 'morning briefing automation', title: 'Cross-Platform Mailbox Intelligence', blurb: 'A pattern for triaging email and meeting-transcript backlogs into prioritised morning briefings. Surfaces unanswered messages, follow-ups, and half-finished commitments, organised by priority and workstream.', tags: ['M365', 'Outlook', 'Triage'], href: '/case/cross-platform-mailbox-intelligence/' },
+  { n: '05', metric: 'Onboarding', mlabel: 'structured payment and accounting guide', title: 'Process Documentation & Knowledge Transfer', blurb: 'Patterns for documenting payment and accounting workflows in a way new joiners can self-serve. Payment flow, exception handling, approval routing, recharge and intercompany cases.', tags: ['Technical writing', 'Process mapping'], href: '/case/process-documentation/' },
+  { n: '06', metric: 'Implementation', mlabel: 'contribution to platform rollout', title: 'Fund Accounting Platform Integration', blurb: 'Patterns I’ve worked through during fund-accounting platform rollouts. Pref-share reconciliation logic, waterfall validation approaches, edge-case discovery.', tags: ['Reconciliation', 'Vendor collab', 'Validation'], href: '/case/fund-accounting-platform-integration/' },
+  { n: '07', metric: 'Library', mlabel: 'of reusable Claude skill patterns', title: 'AI Skill Architecture & Reusable Tooling', blurb: 'A library of small, opinionated AI skill patterns. Notes generation, quality review, anonimisation, mailbox triage, classification. Each with deterministic inputs and outputs. From single-purpose skills to five-persona orchestration, see Projects.', tags: ['Skill design', 'Knowledge eng.', 'Infrastructure'], href: '/case/ai-skill-architecture/' },
+  { n: '08', metric: 'Pattern', mlabel: 'designed', title: 'Cross-system fund-data reconciliation architecture', blurb: 'Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed.', tags: ['Data integration', 'Master data', 'Internal proposal'], href: '/case/cross-system-reconciliation/' },
+  { n: '09', metric: 'Pattern', mlabel: 'personal automation architecture', title: 'End-to-end email automation', blurb: 'An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.', tags: ['Agentic', 'Self-review loop', 'Human-in-the-loop'], href: '/case/email-automation/' }
+];
+
+const stages = [
+  { k: 'Find', v: 'Reads the source files and surfaces what is unbooked, mismatched, or missing.' },
+  { k: 'Build', v: 'Generates the upload template for the accounting system and drafts the counterparty email.' },
+  { k: 'Sign off', v: 'The operator reviews and approves. The human owns the decision.' },
+  { k: 'Scale', v: 'The same approach maps every other workflow in the company, from the existing mailbox.' }
+];
+
+const nowRows = [
+  { k: 'Building', v: 'End-to-end email automation as a personal architecture. An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts the reply and proposes which attachments to include. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.', cta: { label: 'See the demo', href: '/workflow-automation/' } },
+  { k: 'Testing', v: 'Frontier models on large, long-context files. How far the current generation holds up running real workflows over very large inputs.' },
+  { k: 'Orchestrating', v: 'Workflow orchestration with n8n, extending the automation surface beyond a single agent.' },
+  { k: 'Running', v: 'An agentic memory system on my own infrastructure. A voice-first assistant over AR glasses with a memory that consolidates during sleep, running across two machines that talk to each other, turning ideas into video journals or music within hours.', cta: { label: 'See the project', href: '/projects/exocortex' } },
+  { k: 'Learning', v: 'Cloud computing and GPU inference, to serve models faster and at lower marginal cost.' },
+  { k: 'Throughline', v: 'Applied research on frontier models and frontier technologies. Curiosity is the throughline across all of it.' }
+];
+
+const roles = [
+  { title: 'Working in Controlling', role: 'SPV Controller', dates: 'Mar 2025 · Present', lines: ['End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in fund-administration platforms. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings.', 'Payment automation across the SPV book: batch generation, exception routing, recharge / intercompany cases.', 'Cross-system fund-data integration architecture.', 'Task management workstream via MCP: Outlook + Monday.com wired into Claude Code through MCP.'] },
+  { title: 'Alter Domus', role: 'Fund & Corporate Services Officer', dates: 'Feb 2023 · Mar 2025', lines: ['Full-cycle accounting for management companies, funds, SPVs and GPs. NAVs, financial statements, CSSF/BCL regulatory filings. Drove process improvements through technology and structured methodologies.'] },
+  { title: 'Waystone Administration Solutions', role: 'Junior Associate Fund Accountant', dates: 'Sep 2022 · Jan 2023', lines: ['Capital calls, distributions, OPEX payments. LuxGAAP financial statements. Audit coordination. Fund-administration platform import automation.'] },
+  { title: 'Aztec Group', role: 'Junior Depositary Analyst', dates: 'Feb 2021 · Aug 2022', lines: ['Asset confirmation and reconciliation for alternative investment funds. Depositary obligations and oversight duties. eFront reporting.'] },
+  { title: 'European Fund Administration', role: 'Intern Fund Accountant', dates: 'Nov 2019 · Nov 2020', lines: ['NAV calculations, financial-statement preparation, first-level controls and reconciliations. Year-end audit support.'] }
+];
+
+const education = [
+  { school: 'Erasmus School of Economics, University of Rotterdam', deg: 'MSc Economics & Business, International Economics', dates: '2017 · 2020' },
+  { school: 'University of Luxembourg', deg: 'BSc Economics, Law & Management', dates: '2014 · 2017' }
+];
+
+const skills = [
+  { k: 'Data analysis', v: 'Panel econometrics · fixed-effects OLS · large multi-source datasets · Python · advanced Excel' },
+  { k: 'Accounting systems', v: 'eFront · BOB50 · SAP · alternative-investment platforms' },
+  { k: 'IT / scripting', v: 'VBA · Python · Microsoft Power Automate' },
+  { k: 'Office', v: 'Advanced Excel · Word · PowerPoint' },
+  { k: 'Fund types', v: 'Private Equity · Private Debt · Real Estate' },
+  { k: 'AI tooling', v: 'Claude · Claude Code · ChatGPT · Glean · Even Realities G2 SDK (assembled stack)' },
+  { k: 'AI infra', v: 'MCP servers · Multi-agent orchestration · Knowledge bases · Local model serving' },
+  { k: 'Dev', v: 'TypeScript · Astro · React · GitHub Actions · Tailscale' },
+  { k: 'Frameworks', v: 'LuxGAAP · eCDF · CSSF / BCL filings' }
+];
+
+const reading = [
+  { t: 'Systems & ops quality', n: 'How operational excellence actually gets built and kept. Applies to finance ops as much as to engineering.' },
+  { t: 'Knowledge engineering', n: 'Encoding expertise into tools other people can use without becoming experts themselves.' },
+  { t: 'AI & cognition', n: 'Practical books on what current AI can and cannot do, and where it changes the work.' },
+  { t: 'Economics & finance', n: 'Continuing the line my degrees started. International economics, capital markets, regulation.' }
+];
+
+const languages = [
+  { c: 'EN', n: 'English' }, { c: 'DE', n: 'Deutsch' }, { c: 'FR', n: 'Français' },
+  { c: 'RU', n: 'Русский' }, { c: 'LU', n: 'Lëtzebuergesch' }, { c: 'UZ', n: 'Oʻzbekcha' }
+];
+
+const year = new Date().getFullYear();
+
+// Single source of truth for the case-study count. Derived, never typed.
+const caseCount = cases.length; // 9
+
+// Node layout (logical coordinates on a 1600 x 1100 canvas).
+const nodes = [
+  { id: 'identity', label: 'IDENTITY', sub: 'root', x: 800, y: 130, kind: 'root', status: 'live' },
+  { id: 'workflow', label: 'WORKFLOW', sub: 'live demo', x: 420, y: 360, kind: 'svc', status: 'live' },
+  { id: 'work', label: 'WORK', sub: caseCount + ' case studies', x: 800, y: 420, kind: 'svc', status: 'stable' },
+  { id: 'now', label: 'NOW', sub: 'current focus', x: 1180, y: 360, kind: 'svc', status: 'live' },
+  { id: 'cv', label: 'CV', sub: 'live record', x: 560, y: 700, kind: 'svc', status: 'stable' },
+  { id: 'reading', label: 'READING', sub: '4 themes', x: 1060, y: 700, kind: 'svc', status: 'stable' },
+  { id: 'languages', label: 'LANGUAGES', sub: 'x6', x: 1280, y: 560, kind: 'leaf', status: 'stable' },
+  { id: 'contact', label: 'CONTACT', sub: 'endpoint', x: 800, y: 950, kind: 'endpoint', status: 'open' }
+];
+
+// Edge relationships are first-class: typed and labeled like an architecture diagram.
+const edges = [
+  { a: 'identity', b: 'workflow', label: 'demonstrates' },
+  { a: 'identity', b: 'work', label: 'evidence' },
+  { a: 'identity', b: 'now', label: 'current state' },
+  { a: 'work', b: 'cv', label: 'backed by' },
+  { a: 'now', b: 'reading', label: 'inputs' },
+  { a: 'workflow', b: 'work', label: 'pattern of' },
+  { a: 'cv', b: 'languages', label: 'attribute' },
+  { a: 'cv', b: 'contact', label: 'reach' },
+  { a: 'work', b: 'contact', label: 'reach' },
+  { a: 'reading', b: 'contact', label: 'reach' }
+];
+
+// Section order for the linear / mobile-trace expression of the same graph.
+const sectionOrder = ['identity', 'workflow', 'work', 'now', 'cv', 'reading', 'languages', 'contact'];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Tom Scholtes / systems map</title>
+  <style>
+    :root {
+      --bg: #080c14;
+      --bg-2: #0a0f18;
+      --bg-grid: #101622;
+      --bg-grid-2: #141d2c;
+      --panel: #0c111b;
+      --panel-2: #0f161f;
+      --panel-3: #121b27;
+      --line: #1c2838;
+      --line-2: #283a4f;
+      --line-3: #35506c;
+      --ink: #e8eff8;
+      --ink-2: #afbccd;
+      --muted: #6f7e93;
+      --dim: #4a586c;
+      --cyan: #5cc8e0;
+      --cyan-deep: #2b8aa3;
+      --amber: #e0a85c;
+      --green: #6fcf97;
+      --wire: #2c4258;
+      --wire-hot: #5cc8e0;
+      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --serif: 'Instrument Serif', Georgia, serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+    a { color: inherit; }
+    ::selection { background: var(--cyan); color: #06121a; }
+
+    /* ============ TOP RAIL ============ */
+    .rail {
+      position: fixed; inset: 0 0 auto 0; z-index: 40;
+      display: flex; align-items: center; gap: 16px;
+      padding: 11px 18px;
+      background: linear-gradient(180deg, rgba(8,12,20,.97), rgba(8,12,20,.72));
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+    .rail .mark {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border: 1px solid var(--line-2);
+      font-family: var(--mono); font-weight: 700; font-size: 14px; color: var(--cyan);
+      border-radius: 5px; background: var(--panel-2);
+      box-shadow: inset 0 0 12px rgba(92,200,224,.12);
+    }
+    .rail .who { font-family: var(--mono); font-size: 13px; letter-spacing: .04em; }
+    .rail .who b { font-weight: 600; }
+    .rail .who span { color: var(--muted); }
+    .rail .health {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    .rail .health .led {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+      box-shadow: 0 0 0 3px rgba(111,207,151,.16);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .rail .health .led { animation: breathe 2.6s ease-in-out infinite; }
+    }
+    @keyframes breathe { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+    .rail .stat-strip {
+      margin-left: auto; display: flex; gap: 22px;
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+    }
+    .rail .stat-strip b { color: var(--ink); font-weight: 600; }
+    @media (max-width: 880px) { .rail .stat-strip { display: none; } }
+    @media (max-width: 600px) { .rail .health { display: none; } }
+
+    /* overview toggle in the rail */
+    .ovbtn {
+      font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--ink-2);
+      border: 1px solid var(--line-2); background: var(--panel-2);
+      border-radius: 5px; padding: 6px 11px; cursor: pointer;
+    }
+    .ovbtn:hover { border-color: var(--cyan); color: var(--cyan); }
+    .ovbtn[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); box-shadow: inset 0 0 14px rgba(92,200,224,.16); }
+    @media (max-width: 600px) { .ovbtn { display: none; } }
+
+    /* ============ LEGEND ============ */
+    .legend {
+      position: fixed; left: 18px; bottom: 18px; z-index: 35;
+      font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+      background: linear-gradient(180deg, rgba(15,22,31,.9), rgba(10,15,24,.86));
+      border: 1px solid var(--line-2);
+      border-radius: 8px; padding: 12px 14px; max-width: 300px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 18px 40px rgba(0,0,0,.5);
+    }
+    .legend .lh {
+      font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .legend .lh b { color: var(--cyan); font-weight: 500; letter-spacing: .14em; }
+    .legend .row { display: flex; align-items: center; gap: 8px; line-height: 1.5; }
+    .legend .row + .row { margin-top: 5px; }
+    .legend .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+    .legend .dot.sq { border-radius: 2px; }
+    .legend .seg {
+      width: 22px; height: 0; flex: none;
+      border-top: 2px solid var(--wire);
+    }
+    .legend .seg.flow { border-top-style: dashed; border-top-color: var(--cyan); }
+    .legend .div { height: 1px; background: var(--line); margin: 9px 0; }
+    .legend .hint { color: var(--dim); line-height: 1.5; }
+    .legend kbd {
+      font-family: var(--mono); font-size: 9.5px; color: var(--ink-2);
+      border: 1px solid var(--line-2); border-radius: 3px; padding: 1px 4px;
+      background: var(--panel);
+    }
+
+    /* ============ CANVAS / GRAPH ============ */
+    #stage {
+      position: fixed; inset: 0; z-index: 1;
+      background:
+        radial-gradient(1300px 760px at 56% 16%, #0f1a2a 0%, transparent 62%),
+        radial-gradient(900px 600px at 80% 90%, #0b141f 0%, transparent 60%),
+        var(--bg);
+      cursor: grab;
+      touch-action: none;
+    }
+    #stage.dragging { cursor: grabbing; }
+    /* dual-density blueprint grid: fine lines + bolder majors */
+    #stage::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(var(--bg-grid-2) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-grid-2) 1px, transparent 1px);
+      background-size: 44px 44px, 44px 44px, 220px 220px, 220px 220px;
+      opacity: .6;
+      mask-image: radial-gradient(circle at 52% 40%, #000 0%, transparent 80%);
+    }
+    /* faint corner registration ticks, reinforcing the diagram feel */
+    #stage::after {
+      content: 'SYS.MAP / v2 · 1600×1100 logical'; position: absolute;
+      left: 18px; top: 60px; pointer-events: none;
+      font-family: var(--mono); font-size: 9px; letter-spacing: .16em;
+      color: var(--dim); opacity: .6;
+    }
+    #viewport {
+      position: absolute; left: 0; top: 0;
+      width: 1600px; height: 1100px;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+    svg.wires { position: absolute; inset: 0; width: 1600px; height: 1100px; overflow: visible; pointer-events: none; }
+    .wire { fill: none; stroke: var(--wire); stroke-width: 1.4; stroke-linecap: round; }
+    .wire-cap { fill: var(--wire); }
+    .wire.dim { opacity: .28; }
+    .wire.hot {
+      stroke: var(--wire-hot); stroke-width: 2.2;
+      filter: drop-shadow(0 0 6px rgba(92,200,224,.55));
+    }
+    .wire-flow {
+      fill: none; stroke: var(--cyan); stroke-width: 2.2;
+      stroke-dasharray: 3 11; opacity: 0; stroke-linecap: round;
+    }
+    /* edge label as a little chip with a backing plate, so it reads on crossing wires */
+    .edge-label-bg {
+      fill: var(--bg-2); stroke: var(--line); stroke-width: 1;
+      rx: 3; opacity: 0;
+    }
+    .edge-label {
+      font-family: var(--mono); font-size: 10px; fill: var(--muted);
+      letter-spacing: .04em; text-transform: uppercase;
+      opacity: .55; paint-order: stroke; stroke: var(--bg); stroke-width: 3px;
+    }
+    .edge-label.dim { opacity: .2; }
+    .edge-label.hot { fill: var(--cyan); opacity: 1; stroke: var(--bg-2); }
+    .edge-label-bg.hot { opacity: .94; stroke: var(--line-3); }
+
+    .node {
+      position: absolute; transform: translate(-50%, -50%);
+      min-width: 134px;
+      background:
+        linear-gradient(180deg, var(--panel-3) 0%, var(--panel) 70%);
+      border: 1px solid var(--line-2);
+      border-radius: 9px; padding: 11px 13px 12px; cursor: pointer;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,.03) inset,
+        0 12px 34px rgba(0,0,0,.5),
+        0 2px 6px rgba(0,0,0,.4);
+      user-select: none;
+    }
+    .node .ntop {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--mono); font-size: 9px; color: var(--dim);
+      letter-spacing: .12em;
+    }
+    .node .ntag { color: var(--dim); }
+    .node .nstatus {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--muted); font-size: 8.5px; letter-spacing: .1em; text-transform: uppercase;
+    }
+    .node .led {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--wire); flex: none;
+    }
+    .node[data-status="live"] .led { background: var(--green); box-shadow: 0 0 7px rgba(111,207,151,.7); }
+    .node[data-status="stable"] .led { background: var(--cyan-deep); }
+    .node[data-status="open"] .led { background: var(--amber); box-shadow: 0 0 7px rgba(224,168,92,.6); }
+    @media (prefers-reduced-motion: no-preference) {
+      .node[data-status="live"] .led { animation: breathe 2.4s ease-in-out infinite; }
+    }
+    .node .nlabel {
+      font-family: var(--mono); font-weight: 700; font-size: 14.5px;
+      letter-spacing: .05em; margin-top: 6px; color: var(--ink);
+      display: flex; align-items: baseline; gap: 7px;
+    }
+    .node .nlabel .gly {
+      font-size: 11px; color: var(--dim); font-weight: 500;
+    }
+    .node .nsub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+    /* expanded preview content, only in overview mode */
+    .node .nprev {
+      display: none; font-size: 10.5px; line-height: 1.5; color: var(--ink-2);
+      margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line);
+      max-width: 280px;
+    }
+    .node .nprev .open {
+      display: inline-block; margin-top: 7px;
+      font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em;
+      color: var(--cyan); text-transform: uppercase;
+    }
+    body.overview .node { min-width: 240px; }
+    body.overview .node[data-kind="leaf"] { min-width: 200px; }
+    body.overview .node .nprev { display: block; }
+
+    .node[data-kind="root"] {
+      border-color: var(--cyan);
+      box-shadow:
+        0 0 0 1px rgba(92,200,224,.25),
+        0 14px 38px rgba(0,0,0,.55), 0 0 30px rgba(92,200,224,.12);
+    }
+    .node[data-kind="root"] .nlabel { color: var(--cyan); }
+    .node[data-kind="endpoint"] { border-color: var(--amber); }
+    .node[data-kind="endpoint"] .nlabel { color: var(--amber); }
+    .node[data-kind="leaf"] { min-width: 112px; opacity: .94; }
+    .node[data-kind="leaf"] .nlabel { font-size: 13px; }
+    .node.active {
+      border-color: var(--cyan);
+      box-shadow:
+        0 0 0 1px var(--cyan),
+        0 16px 44px rgba(0,0,0,.62),
+        0 0 32px rgba(92,200,224,.3);
+    }
+    .node:hover {
+      border-color: var(--line-3);
+      box-shadow:
+        0 0 0 1px rgba(92,200,224,.2),
+        0 16px 40px rgba(0,0,0,.6), 0 0 24px rgba(92,200,224,.14);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .node:hover { transform: translate(-50%, calc(-50% - 2px)); }
+    }
+
+    /* ============ DETAIL PANEL ============ */
+    #panel {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 50;
+      width: min(560px, 100vw);
+      background: linear-gradient(180deg, var(--panel-2) 0%, var(--panel) 100%);
+      border-left: 1px solid var(--line-2);
+      box-shadow: -34px 0 70px rgba(0,0,0,.55);
+      transform: translateX(101%);
+      display: flex; flex-direction: column;
+    }
+    #panel.open { transform: translateX(0); }
+    @media (prefers-reduced-motion: no-preference) {
+      #panel { transition: transform .42s cubic-bezier(.2,.8,.2,1); }
+      .wire, .edge-label, .edge-label-bg { transition: stroke .25s ease, fill .25s ease, stroke-width .25s ease, opacity .25s ease; }
+      .node { transition: border-color .2s ease, box-shadow .2s ease, transform .25s cubic-bezier(.2,.8,.2,1), min-width .42s cubic-bezier(.2,.8,.2,1); }
+      .node .nprev { transition: opacity .3s ease; }
+      #viewport { transition: transform .55s cubic-bezier(.2,.8,.2,1); }
+      #viewport.live { transition: none; }
+    }
+    #panel .phead {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 17px 22px 14px; border-bottom: 1px solid var(--line);
+      flex: none;
+      background: linear-gradient(180deg, rgba(18,27,39,.6), transparent);
+    }
+    #panel .phead .tag {
+      font-family: var(--mono); font-size: 10px; color: var(--cyan);
+      letter-spacing: .14em; text-transform: uppercase;
+      border: 1px solid var(--line-2); border-radius: 4px; padding: 3px 7px;
+      align-self: center; background: var(--panel-2);
+    }
+    #panel .phead h2 {
+      font-family: var(--serif); font-weight: 400; font-size: 31px;
+      line-height: 1.04; letter-spacing: -.01em; color: var(--ink);
+    }
+    #panel .phead .meta { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 4px; }
+    #panel .close {
+      margin-left: auto; flex: none; align-self: flex-start;
+      width: 30px; height: 30px; border: 1px solid var(--line-2);
+      background: var(--panel); color: var(--ink-2);
+      border-radius: 5px; cursor: pointer; font-size: 16px; line-height: 1;
+      font-family: var(--mono);
+    }
+    #panel .close:hover { border-color: var(--cyan); color: var(--cyan); }
+    #panel .pbody { padding: 20px 22px 64px; overflow-y: auto; flex: 1; }
+    /* edge-relations strip at top of each panel: the typed connections */
+    .relstrip { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+    .relstrip .rel {
+      font-family: var(--mono); font-size: 10px; color: var(--ink-2);
+      border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px;
+      cursor: pointer; background: var(--panel); display: inline-flex; gap: 6px; align-items: center;
+      text-decoration: none;
+    }
+    .relstrip .rel:hover { border-color: var(--cyan); color: var(--cyan); }
+    .relstrip .rel .v { color: var(--dim); text-transform: uppercase; letter-spacing: .06em; font-size: 8.5px; }
+    .relstrip .rel:hover .v { color: var(--cyan); }
+    #panel .lead {
+      font-family: var(--serif); font-size: 22px; line-height: 1.38;
+      color: var(--ink); margin-bottom: 4px;
+    }
+    #panel .eyebrow {
+      font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+      letter-spacing: .14em; text-transform: uppercase; margin: 22px 0 8px;
+    }
+    #panel p { color: var(--ink-2); margin: 10px 0; }
+    #panel p.note { color: var(--muted); font-size: 13.5px; }
+    #panel a.inline { color: var(--cyan); text-decoration: none; border-bottom: 1px solid rgba(92,200,224,.4); }
+    #panel a.inline:hover { border-bottom-color: var(--cyan); }
+    #panel em { font-style: italic; color: var(--cyan); }
+
+    .kv { display: grid; grid-template-columns: 116px 1fr; gap: 4px 16px; margin: 14px 0; }
+    .kv dt { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: .04em; padding-top: 2px; }
+    .kv dd { color: var(--ink-2); font-size: 14px; }
+
+    .stat3 { display: flex; gap: 26px; margin: 16px 0 6px; flex-wrap: wrap; }
+    .stat3 .s b { font-family: var(--mono); font-size: 26px; color: var(--cyan); display: block; line-height: 1; }
+    .stat3 .s span { font-family: var(--mono); font-size: 11px; color: var(--muted); display: block; margin-top: 5px; }
+
+    .case {
+      border: 1px solid var(--line); border-radius: 8px;
+      padding: 13px 15px; margin: 10px 0; background: var(--panel);
+      text-decoration: none; display: block; position: relative;
+    }
+    .case:hover { border-color: var(--line-2); }
+    .case::before {
+      content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 2px;
+      background: var(--line-2); border-radius: 2px;
+    }
+    .case:hover::before { background: var(--cyan); }
+    .case .top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .case .cn { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: .14em; }
+    .case .metric { font-family: var(--mono); font-size: 12px; color: var(--amber); text-align: right; }
+    .case .metric small { display: block; color: var(--muted); font-size: 10px; max-width: 180px; }
+    .case h4 { font-size: 15px; font-weight: 600; color: var(--ink); margin: 6px 0; }
+    .case h4 .arr { color: var(--cyan); }
+    .case .cb { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+    .case .tags { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .case .tags span {
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+      border: 1px solid var(--line); border-radius: 3px; padding: 2px 6px;
+    }
+
+    .pipe { display: grid; gap: 8px; margin: 12px 0; }
+    .pipe .st { display: grid; grid-template-columns: 24px 84px 1fr; gap: 12px; align-items: start; position: relative; }
+    .pipe .st .ix { font-family: var(--mono); font-size: 11px; color: var(--cyan); padding-top: 1px; }
+    .pipe .st .nm { font-family: var(--mono); font-size: 12px; color: var(--ink); font-weight: 600; }
+    .pipe .st .ds { font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+
+    .nowrow { padding: 12px 0; border-top: 1px solid var(--line); }
+    .nowrow:first-child { border-top: 0; }
+    .nowrow .nk { font-family: var(--mono); font-size: 11px; color: var(--cyan); letter-spacing: .1em; text-transform: uppercase; }
+    .nowrow .nv { font-size: 13.5px; color: var(--ink-2); margin-top: 4px; }
+
+    .role { padding: 13px 0; border-top: 1px solid var(--line); }
+    .role:first-of-type { border-top: 0; }
+    .role .rh { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+    .role .rh b { font-size: 15px; color: var(--ink); }
+    .role .rh .dt { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+    .role .rr { font-family: var(--mono); font-size: 12px; color: var(--amber); margin: 2px 0 7px; }
+    .role ul { list-style: none; }
+    .role li { font-size: 13px; color: var(--ink-2); padding-left: 16px; position: relative; margin: 5px 0; line-height: 1.45; }
+    .role li::before { content: '\2022'; position: absolute; left: 2px; color: var(--dim); }
+
+    .edu { padding: 9px 0; border-top: 1px solid var(--line); }
+    .edu b { font-size: 14px; color: var(--ink); display: block; }
+    .edu .d { font-size: 13px; color: var(--ink-2); }
+    .edu .dt { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+
+    .pub {
+      border: 1px solid var(--line-2); border-radius: 8px; padding: 14px;
+      background: var(--panel); margin-top: 8px;
+    }
+    .pub b { font-size: 14px; color: var(--ink); }
+    .pub .pn { font-family: var(--mono); font-size: 11px; color: var(--muted); margin: 6px 0; line-height: 1.5; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+    @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+    .gcard { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; background: var(--panel); }
+    .gcard b { font-size: 14px; color: var(--ink); display: block; margin-bottom: 5px; }
+    .gcard span { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+    .langgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 10px 0; }
+    @media (max-width: 480px) { .langgrid { grid-template-columns: repeat(2, 1fr); } }
+    .lang { border: 1px solid var(--line); border-radius: 8px; padding: 11px; text-align: center; background: var(--panel); }
+    .lang b { font-family: var(--mono); font-size: 17px; color: var(--cyan); display: block; }
+    .lang span { font-size: 12px; color: var(--ink-2); margin-top: 3px; display: block; }
+
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 4px; }
+    .btn {
+      font-family: var(--mono); font-size: 12.5px; text-decoration: none;
+      padding: 10px 16px; border-radius: 6px; letter-spacing: .02em; cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn.pri { background: var(--cyan); color: #06121a; font-weight: 600; }
+    .btn.ghost { border: 1px solid var(--line-2); color: var(--ink); background: transparent; }
+    .btn.ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .watermark {
+      font-family: var(--serif); font-size: 104px; color: var(--line-2);
+      line-height: .8; opacity: .35; margin: 6px 0 -14px; user-select: none;
+    }
+
+    .zoomctl {
+      position: fixed; right: 18px; bottom: 18px; z-index: 36;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .zoomctl button {
+      width: 36px; height: 36px; border: 1px solid var(--line-2);
+      background: rgba(12,17,27,.88); color: var(--ink); font-size: 17px;
+      border-radius: 6px; cursor: pointer; font-family: var(--mono);
+      backdrop-filter: blur(6px);
+    }
+    .zoomctl button:hover { border-color: var(--cyan); color: var(--cyan); }
+    .zoomctl button.reset { font-size: 11px; }
+
+    /* ============ MOBILE TRACE (the graph idea on phones) ============ */
+    #linear { display: none; }
+    #linear .lwrap { max-width: 760px; margin: 0 auto; padding: 70px 18px 90px; }
+    /* vertical trace spine running down the left of every section */
+    #linear .trace { position: relative; }
+    #linear .trace::before {
+      content: ''; position: absolute; left: 13px; top: 6px; bottom: 0; width: 2px;
+      background: linear-gradient(180deg, var(--cyan-deep), var(--wire) 30%, var(--wire));
+    }
+    #linear .lsec {
+      position: relative; padding: 26px 0 26px 42px;
+    }
+    #linear .lsec::before {
+      content: ''; position: absolute; left: 7px; top: 32px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--panel-3); border: 2px solid var(--line-3); z-index: 2;
+    }
+    #linear .lsec[data-status="live"]::before { border-color: var(--green); box-shadow: 0 0 9px rgba(111,207,151,.5); }
+    #linear .lsec[data-status="open"]::before { border-color: var(--amber); }
+    #linear .lsec[data-kind="root"]::before { border-color: var(--cyan); }
+    #linear .lsec .ledge {
+      font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--dim); position: absolute; left: 30px; top: -4px;
+    }
+    /* animated packet that runs down the spine */
+    #linear .packet {
+      position: absolute; left: 9px; width: 10px; height: 10px; border-radius: 50%;
+      background: var(--cyan); box-shadow: 0 0 12px 2px rgba(92,200,224,.7);
+      z-index: 3; top: 0; opacity: 0;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      #linear .packet.run { animation: trace 5.5s linear infinite; }
+    }
+    @keyframes trace { 0% { top: 0; opacity: 0; } 5% { opacity: 1; } 95% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+    #linear .eyebrow { font-family: var(--mono); font-size: 10.5px; color: var(--cyan); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
+    #linear h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(34px,9vw,52px); line-height: 1.02; letter-spacing: -.01em; margin-bottom: 14px; }
+    #linear h1 em { color: var(--cyan); font-style: italic; }
+    #linear h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(26px,6vw,34px); line-height: 1.06; margin-bottom: 10px; }
+    #linear h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 6px 0; }
+    #linear p { color: var(--ink-2); margin: 8px 0; }
+    #linear .lead { font-size: 17px; color: var(--ink-2); }
+    #linear em { font-style: italic; color: var(--cyan); }
+    #linear .mtoc {
+      display: flex; flex-wrap: wrap; gap: 7px; margin: 16px 0 4px;
+    }
+    #linear .mtoc a {
+      font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em;
+      text-decoration: none; color: var(--ink-2);
+      border: 1px solid var(--line-2); border-radius: 5px; padding: 6px 10px;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    #linear .mtoc a .d { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan-deep); }
+    #linear .mtoc a:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .skip {
+      position: fixed; left: -999px; top: 8px; z-index: 99;
+      background: var(--cyan); color: #06121a; padding: 8px 14px; border-radius: 5px;
+      font-family: var(--mono); font-size: 12px; text-decoration: none;
+    }
+    .skip:focus { left: 8px; }
+
+    /* show the trace, hide the canvas graph on small screens */
+    @media (max-width: 600px) {
+      body { overflow: auto; }
+      #stage, .legend, .zoomctl, #panel { display: none !important; }
+      #linear { display: block; }
+    }
+    /* no-JS fallback: the trace view is fully functional and content-identical */
+    .nojs #stage, .nojs .legend, .nojs .zoomctl, .nojs #panel, .nojs .ovbtn { display: none !important; }
+    .nojs #linear { display: block; }
+    .nojs body { overflow: auto; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+</head>
+<body class="nojs">
+  <a href="#linear" class="skip">Skip to linear view</a>
+
+  <!-- TOP RAIL -->
+  <header class="rail">
+    <span class="mark">T</span>
+    <span class="who"><b>Tom Scholtes</b> <span>/ systems map</span></span>
+    <span class="health"><span class="led"></span> all nodes online</span>
+    <div class="stat-strip">
+      <span><b>6 yrs</b> in Lux fund services</span>
+      <span><b>{caseCount}</b> case studies on file</span>
+      <span><b>6</b> languages spoken</span>
+    </div>
+    <button class="ovbtn" id="ovbtn" aria-pressed="false">Expand all</button>
+  </header>
+
+  <!-- ============ INTERACTIVE GRAPH ============ -->
+  <div id="stage" role="application" aria-label="Interactive architecture map of Tom Scholtes. A linear, screen-reader friendly version is available via the skip link.">
+    <div id="viewport">
+      <svg class="wires" id="wires" viewBox="0 0 1600 1100" aria-hidden="true"></svg>
+      {nodes.map(n => (
+        <button class="node" data-node={n.id} data-kind={n.kind} data-status={n.status}
+                style={`left:${n.x}px; top:${n.y}px;`}
+                aria-label={`${n.label} node, ${n.sub}. Open details.`}>
+          <span class="ntop">
+            <span class="ntag">{'<' + n.id + '/>'}</span>
+            <span class="nstatus"><span class="led"></span>{n.status}</span>
+          </span>
+          <span class="nlabel">{n.label}</span>
+          <span class="nsub">{n.sub}</span>
+          <span class="nprev" data-prev={n.id}></span>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- ============ LEGEND ============ -->
+  <div class="legend" aria-hidden="true">
+    <div class="lh"><span>Legend</span><b>SYS.MAP</b></div>
+    <div class="row"><span class="dot" style="background:var(--cyan)"></span> root node (identity)</div>
+    <div class="row"><span class="dot sq" style="background:var(--cyan-deep)"></span> service node</div>
+    <div class="row"><span class="dot" style="background:var(--amber)"></span> contact endpoint</div>
+    <div class="div"></div>
+    <div class="row"><span class="seg"></span> typed relation, labeled</div>
+    <div class="row"><span class="seg flow"></span> active request flow</div>
+    <div class="row"><span class="led" style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px rgba(111,207,151,.6)"></span> live · stable · open status</div>
+    <div class="div"></div>
+    <div class="hint">Drag to pan, scroll or pinch to zoom. Click a node to open its data. <kbd>E</kbd> expands all, <kbd>Esc</kbd> closes.</div>
+  </div>
+
+  <div class="zoomctl">
+    <button id="zin" aria-label="Zoom in">+</button>
+    <button id="zout" aria-label="Zoom out">−</button>
+    <button id="zreset" class="reset" aria-label="Fit graph to view">fit</button>
+  </div>
+
+  <!-- ============ DETAIL PANEL ============ -->
+  <aside id="panel" aria-label="Node detail panel">
+    <div class="phead">
+      <span class="tag" id="ptag">node</span>
+      <div>
+        <h2 id="ptitle">Title</h2>
+        <div class="meta" id="pmeta"></div>
+      </div>
+      <button class="close" id="pclose" aria-label="Close panel">×</button>
+    </div>
+    <div class="pbody" id="pbody"></div>
+  </aside>
+
+  <!-- ============ LINEAR / MOBILE TRACE FALLBACK ============ -->
+  <!-- Rendered by JS from the SAME section functions as the panel (single source of truth).
+       Static seed below keeps no-JS users fully served and content-identical. -->
+  <main id="linear">
+    <div class="lwrap">
+      <header style="padding-bottom:6px;">
+        <div class="eyebrow">Personal site · Luxembourg · systems map</div>
+        <h1>I build the automation behind <em>regulated finance</em> operations.</h1>
+        <p class="lead">A live architecture map of one person. Below, each node of the map rendered as a trace you can read top to bottom.</p>
+        <nav class="mtoc" id="mtoc" aria-label="Jump to node"></nav>
+      </header>
+      <div class="trace" id="trace">
+        <span class="packet" id="packet" aria-hidden="true"></span>
+        <!-- JS injects the node sections here. No-JS seed follows for resilience. -->
+        <noscript>
+          <div class="lsec"><div class="eyebrow">Identity</div><h2>I build the automation behind regulated finance operations.</h2><p>I'm Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and {caseCount} case studies of it shipping.</p></div>
+          <div class="lsec"><div class="eyebrow">Workflow automation, live demo</div><h2>See the automation run, on synthetic data.</h2><p>Point AI at the manual workflows underneath a finance desk. It surfaces what is unbooked, mismatched, or missing, builds the upload template, and drafts the counterparty email. The operator reviews and signs off; the human owns the decision.</p><p><a class="inline" style="color:var(--cyan)" href="/workflow-automation/">Open the live demo</a></p></div>
+          <div class="lsec"><div class="eyebrow">Work · {caseCount} case studies</div><h2>Patterns I've worked through.</h2>{cases.map(c => (<div style="margin:10px 0;"><b style="color:var(--ink)">{c.title}</b><p>{c.blurb}</p></div>))}</div>
+          <div class="lsec"><div class="eyebrow">Now</div><h2>What I'm focused on this quarter.</h2>{nowRows.map(r => (<p><b style="color:var(--cyan);font-family:var(--mono);font-size:12px;text-transform:uppercase;">{r.k}.</b> {r.v}</p>))}</div>
+          <div class="lsec"><div class="eyebrow">Live CV</div><h2>Six years in Luxembourg fund services.</h2>{roles.map(r => (<div style="margin:12px 0;"><b style="color:var(--ink)">{r.title} · {r.role}</b><div class="dt" style="font-family:var(--mono);font-size:11px;color:var(--muted)">{r.dates}</div><ul style="list-style:disc;padding-left:18px;">{r.lines.map(l => <li>{l}</li>)}</ul></div>))}<h3>Education</h3>{education.map(e => (<p><b style="color:var(--ink)">{e.school}</b>. {e.deg}. {e.dates}</p>))}<h3>Skills</h3>{skills.map(s => (<p><b style="color:var(--ink)">{s.k}.</b> {s.v}</p>))}<h3>Publication</h3><p><b style="color:var(--ink)">Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</b>. MSc thesis, Erasmus University Rotterdam, panel econometrics over 36 OECD economies, 1995 to 2018. <a class="inline" style="color:var(--cyan)" href="/thesis">Read</a></p></div>
+          <div class="lsec"><div class="eyebrow">Reading</div><h2>Mostly non-fiction.</h2>{reading.map(r => (<p><b style="color:var(--ink)">{r.t}.</b> {r.n}</p>))}</div>
+          <div class="lsec"><div class="eyebrow">Languages</div><h2>Six, used regularly.</h2><p>{languages.map(l => l.c + ' ' + l.n).join(' · ')}</p></div>
+          <div class="lsec"><div class="eyebrow">Contact</div><h2>If any of this is interesting, say hi.</h2><p>Always interested in conversations about data engineering, automation, applied AI, multi-agent systems, knowledge engineering, agent infrastructure, especially where they meet regulated workflows.</p><p><a class="inline" style="color:var(--cyan)" href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93">Message on LinkedIn</a> · <a class="inline" style="color:var(--cyan)" href="https://www.linkedin.com/in/tomscholtes93/">Profile</a> · <a class="inline" style="color:var(--cyan)" href="mailto:tom@tomscholtes.com">Email</a></p><p style="font-family:var(--mono);font-size:11px;color:var(--dim);">© {year} Tom Scholtes · Luxembourg · Personal site · opinions my own</p></div>
+        </noscript>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ DATA PAYLOAD + GRAPH ENGINE ============ -->
+  <script type="application/json" id="data">{JSON.stringify({ nodes, edges, cases, stages, nowRows, roles, education, skills, reading, languages, year, caseCount, sectionOrder })}</script>
+  <script>
+    document.body.classList.remove('nojs');
+
+    const DATA = JSON.parse(document.getElementById('data').textContent);
+    const CC = DATA.caseCount;
+    const stage = document.getElementById('stage');
+    const viewport = document.getElementById('viewport');
+    const wires = document.getElementById('wires');
+    const panel = document.getElementById('panel');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const nodeEls = {};
+    document.querySelectorAll('.node').forEach(el => { nodeEls[el.dataset.node] = el; });
+    const nodeMap = {};
+    DATA.nodes.forEach(n => { nodeMap[n.id] = n; });
+
+    const esc = (s) => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    /* ============ SINGLE SOURCE OF TRUTH: one set of section renderers ============
+       Both the detail panel AND the linear/mobile trace are produced from these,
+       so a copy edit (or a count) can never drift between surfaces.            */
+
+    const META = {
+      identity: { tag: 'root', meta: 'Personal site · Luxembourg', title: 'Tom Scholtes' },
+      workflow: { tag: 'service', meta: 'Live demo', title: 'Workflow automation' },
+      work: { tag: 'service', meta: CC + ' case studies on the page', title: 'Work' },
+      now: { tag: 'service', meta: '/ now · June 2026', title: 'Now' },
+      cv: { tag: 'service', meta: 'Live CV', title: 'Live CV' },
+      reading: { tag: 'service', meta: '4 themes', title: 'Reading' },
+      languages: { tag: 'leaf', meta: '6 languages, no levels stored', title: 'Languages' },
+      contact: { tag: 'endpoint', meta: 'Reach', title: 'Contact' }
+    };
+
+    function body(id) {
+      const D = DATA;
+      if (id === 'identity') return `
+        <p class="lead">I build the automation behind <em>regulated finance</em> operations.</p>
+        <p>I'm Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and case studies of it shipping.</p>
+        <div class="stat3">
+          <div class="s"><b>6 yrs</b><span>in Lux fund services</span></div>
+          <div class="s"><b>${CC}</b><span>case studies on file</span></div>
+          <div class="s"><b>6</b><span>languages spoken</span></div>
+        </div>
+        <div class="eyebrow">The map</div>
+        <p class="note">This is the root. Every other node hangs off it. Open WORK for the evidence, NOW for current state, WORKFLOW for the live demo, or follow an edge to CONTACT.</p>
+        <div class="btns">
+          <a class="btn pri" href="#" data-goto="work">See the work →</a>
+          <a class="btn ghost" href="#" data-goto="contact">Get in touch</a>
+        </div>`;
+      if (id === 'workflow') return `
+        <p class="lead">See the automation run, on synthetic data.</p>
+        <p>Point AI at the manual workflows underneath a finance desk. It surfaces what is unbooked, mismatched, or missing, builds the upload template, and drafts the counterparty email. The operator reviews and signs off; the human owns the decision. Click through a before-and-after process map and run it live.</p>
+        <div class="eyebrow">Pipeline stages</div>
+        <div class="pipe">${D.stages.map((s,i)=>`<div class="st"><span class="ix">${String(i+1).padStart(2,'0')}</span><span class="nm">${esc(s.k)}</span><span class="ds">${esc(s.v)}</span></div>`).join('')}</div>
+        <div class="btns"><a class="btn pri" href="/workflow-automation/">Open the live demo</a></div>`;
+      if (id === 'work') return `
+        <p class="lead">Patterns I've worked through.</p>
+        <p class="note">${CC} sanitised case studies. Employer name, entity names and figures removed. Notes on how I think about this kind of work in fund services.</p>
+        ${D.cases.map(c => `
+          <a class="case" href="${c.href}">
+            <div class="top"><span class="cn">Case ${c.n}</span><span class="metric">${esc(c.metric)}<small>${esc(c.mlabel)}</small></span></div>
+            <h4>${esc(c.title)} <span class="arr">→</span></h4>
+            <div class="cb">${esc(c.blurb)}</div>
+            <div class="tags">${c.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div>
+          </a>`).join('')}`;
+      if (id === 'now') return `
+        <p class="lead">What I'm focused on this quarter.</p>
+        <p class="note">A public note of where my head is right now, in the spirit of <em>nownownow.com</em>. I update it when things change, not on a schedule.</p>
+        ${D.nowRows.map(r => `<div class="nowrow"><div class="nk">${esc(r.k)}</div><div class="nv">${esc(r.v)}${r.cta?` <a class="inline" href="${r.cta.href}">${esc(r.cta.label)} →</a>`:''}</div></div>`).join('')}`;
+      if (id === 'cv') return `
+        <p class="lead">Six years in Luxembourg fund services.</p>
+        <p class="note">Updated as roles, projects and credentials change. The condensed PDF version is on request.</p>
+        <div class="eyebrow">Experience · 5 roles · 6+ years</div>
+        ${D.roles.map(r => `<div class="role"><div class="rh"><b>${esc(r.title)}</b><span class="dt">${esc(r.dates)}</span></div><div class="rr">${esc(r.role)}</div><ul>${r.lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>`).join('')}
+        <div class="eyebrow">Education</div>
+        ${D.education.map(e=>`<div class="edu"><b>${esc(e.school)}</b><span class="d">${esc(e.deg)}</span> <span class="dt">${esc(e.dates)}</span></div>`).join('')}
+        <div class="eyebrow">Skills</div>
+        <dl class="kv">${D.skills.map(s=>`<dt>${esc(s.k)}</dt><dd>${esc(s.v)}</dd>`).join('')}</dl>
+        <div class="eyebrow">Publication</div>
+        <div class="pub"><b>Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</b><div class="pn">MSc thesis · Erasmus University Rotterdam · panel econometrics over 36 OECD economies, 1995 to 2018</div><a class="btn ghost" href="/thesis">Read</a></div>`;
+      if (id === 'reading') return `
+        <p class="lead">Mostly non-fiction.</p>
+        <p class="note">Themes I keep coming back to. A proper bookshelf with titles will go here once I've trimmed the list.</p>
+        <div class="grid2">${D.reading.map(r=>`<div class="gcard"><b>${esc(r.t)}</b><span>${esc(r.n)}</span></div>`).join('')}</div>`;
+      if (id === 'languages') return `
+        <p class="lead">Six, used regularly.</p>
+        <div class="langgrid">${D.languages.map(l=>`<div class="lang"><b>${esc(l.c)}</b><span>${esc(l.n)}</span></div>`).join('')}</div>`;
+      if (id === 'contact') return `
+        <div class="watermark">hi.</div>
+        <p class="lead">If any of this is <em>interesting</em>, say hi.</p>
+        <p>Always interested in conversations about data engineering, automation, applied AI, multi-agent systems, knowledge engineering, agent infrastructure, especially where they meet regulated workflows.</p>
+        <div class="btns">
+          <a class="btn pri" href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93">Message on LinkedIn</a>
+          <a class="btn ghost" href="https://www.linkedin.com/in/tomscholtes93/">View profile</a>
+          <a class="btn ghost" href="mailto:tom@tomscholtes.com">Email</a>
+        </div>
+        <div class="eyebrow">Endpoint</div>
+        <p class="note">tom@tomscholtes.com · linkedin.com/in/tomscholtes93 · © ${D.year} Tom Scholtes, Luxembourg. Personal site, opinions my own. Notes on AI in finance ops, a live CV, and a portfolio of work.</p>`;
+      return '';
+    }
+
+    /* short previews for the in-node overview state */
+    const PREV = {
+      identity: 'AI-augmented automation for regulated finance ops. Six years in Lux fund services, now designing the systems that do the work.',
+      workflow: 'Find, build, sign off, scale. A finance workflow run on synthetic data, human owns the decision.',
+      work: CC + ' sanitised case studies: regulatory notes, accounts QA, anonymisation, mailbox triage, reusable skill patterns.',
+      now: 'Building email automation. Testing frontier models on long context. Running an agentic memory exocortex across two machines.',
+      cv: '5 roles, 6+ years. SPV controller, fund and corporate services, NAV and depositary. MSc International Economics.',
+      reading: 'Systems and ops quality, knowledge engineering, AI and cognition, economics and finance.',
+      languages: 'EN · DE · FR · RU · LU · UZ. Six, used regularly.',
+      contact: 'LinkedIn, email. Conversations about automation, applied AI, multi-agent systems in regulated workflows.'
+    };
+
+    /* edge relations for a node, for the relstrip and node-to-node navigation */
+    function relationsFor(id) {
+      const out = [];
+      DATA.edges.forEach(e => {
+        if (e.a === id) out.push({ to: e.b, label: e.label, dir: 'out' });
+        else if (e.b === id) out.push({ to: e.a, label: e.label, dir: 'in' });
+      });
+      return out;
+    }
+
+    /* ============ WIRES (curved connectors with label chips) ============ */
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    DATA.edges.forEach((e) => {
+      const a = nodeMap[e.a], b = nodeMap[e.b];
+      const my = (a.y + b.y) / 2;
+      const d = `M ${a.x} ${a.y} C ${a.x} ${my}, ${b.x} ${my}, ${b.x} ${b.y}`;
+
+      const p = document.createElementNS(SVGNS, 'path');
+      p.setAttribute('d', d); p.setAttribute('class', 'wire');
+      p.dataset.a = e.a; p.dataset.b = e.b;
+      wires.appendChild(p);
+
+      const flow = document.createElementNS(SVGNS, 'path');
+      flow.setAttribute('d', d); flow.setAttribute('class', 'wire-flow');
+      flow.dataset.a = e.a; flow.dataset.b = e.b;
+      wires.appendChild(flow);
+
+      // label chip: backing rect + text, so labels read over crossing wires
+      const lx = (a.x + b.x) / 2;
+      const ly = my - 3;
+      const w = e.label.length * 6.2 + 12;
+      const rect = document.createElementNS(SVGNS, 'rect');
+      rect.setAttribute('x', lx - w / 2); rect.setAttribute('y', ly - 11);
+      rect.setAttribute('width', w); rect.setAttribute('height', 16);
+      rect.setAttribute('rx', 3); rect.setAttribute('class', 'edge-label-bg');
+      rect.dataset.a = e.a; rect.dataset.b = e.b;
+      wires.appendChild(rect);
+
+      const t = document.createElementNS(SVGNS, 'text');
+      t.setAttribute('x', lx); t.setAttribute('y', ly + 1);
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('class', 'edge-label');
+      t.dataset.a = e.a; t.dataset.b = e.b;
+      t.textContent = e.label;
+      wires.appendChild(t);
+    });
+
+    function highlightEdges(id) {
+      const all = wires.querySelectorAll('.wire, .edge-label, .edge-label-bg');
+      all.forEach(el => {
+        const rel = id && (el.dataset.a === id || el.dataset.b === id);
+        el.classList.toggle('hot', !!(id && rel));
+        el.classList.toggle('dim', !!(id && !rel));
+      });
+      wires.querySelectorAll('.wire-flow').forEach(el => {
+        const on = id && (el.dataset.a === id || el.dataset.b === id);
+        if (on && !reduce) { el.style.opacity = '.95'; el.classList.add('anim'); }
+        else { el.style.opacity = '0'; el.classList.remove('anim'); }
+      });
+    }
+
+    /* ============ PAN + ZOOM ============ */
+    let scale = 1, tx = 0, ty = 0;
+    const LOGW = 1600, LOGH = 1100;
+
+    function apply(animate) {
+      if (animate && !reduce) viewport.classList.remove('live');
+      else viewport.classList.add('live');
+      viewport.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    }
+    function fit() {
+      const vw = stage.clientWidth, vh = stage.clientHeight;
+      const pad = document.body.classList.contains('overview') ? 0.82 : 0.96;
+      scale = Math.min(vw / LOGW, vh / LOGH) * pad;
+      scale = Math.max(0.3, Math.min(scale, 1.4));
+      tx = (vw - LOGW * scale) / 2;
+      ty = (vh - LOGH * scale) / 2 + 14;
+      apply(true);
+    }
+    function focusNode(n, openScale) {
+      const vw = stage.clientWidth, vh = stage.clientHeight;
+      // below this width the panel is full-screen, so just center the node
+      const sideDrawer = vw > 900;
+      const panelW = (panel.classList.contains('open') && sideDrawer) ? Math.min(560, vw) : 0;
+      const visW = vw - panelW;
+      scale = openScale || Math.min(1.05, scale < 0.7 ? 0.85 : scale);
+      tx = visW / 2 - n.x * scale;
+      ty = vh / 2 - n.y * scale + 10;
+      apply(true);
+    }
+
+    /* drag */
+    let dragging = false, sx = 0, sy = 0, stx = 0, sty = 0, moved = false;
+    stage.addEventListener('pointerdown', (ev) => {
+      if (ev.target.closest('.node')) return;
+      dragging = true; moved = false;
+      sx = ev.clientX; sy = ev.clientY; stx = tx; sty = ty;
+      stage.classList.add('dragging');
+      stage.setPointerCapture(ev.pointerId);
+    });
+    stage.addEventListener('pointermove', (ev) => {
+      if (!dragging) return;
+      tx = stx + (ev.clientX - sx);
+      ty = sty + (ev.clientY - sy);
+      if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
+      apply(false);
+    });
+    function endDrag() { dragging = false; stage.classList.remove('dragging'); }
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    /* wheel zoom (anchored at cursor) */
+    stage.addEventListener('wheel', (ev) => {
+      ev.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const cx = ev.clientX - rect.left, cy = ev.clientY - rect.top;
+      const prev = scale;
+      const delta = -ev.deltaY * 0.0014;
+      scale = Math.max(0.3, Math.min(2.2, scale * (1 + delta)));
+      const k = scale / prev;
+      tx = cx - (cx - tx) * k;
+      ty = cy - (cy - ty) * k;
+      apply(false);
+    }, { passive: false });
+
+    /* pinch zoom */
+    let pinch = null;
+    stage.addEventListener('touchstart', (ev) => {
+      if (ev.touches.length === 2) {
+        const [a, b] = ev.touches;
+        pinch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), s: scale };
+      }
+    }, { passive: true });
+    stage.addEventListener('touchmove', (ev) => {
+      if (pinch && ev.touches.length === 2) {
+        const [a, b] = ev.touches;
+        const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        scale = Math.max(0.3, Math.min(2.2, pinch.s * (d / pinch.d)));
+        apply(false);
+      }
+    }, { passive: true });
+    stage.addEventListener('touchend', () => { pinch = null; }, { passive: true });
+
+    document.getElementById('zin').onclick = () => { scale = Math.min(2.2, scale * 1.2); apply(true); };
+    document.getElementById('zout').onclick = () => { scale = Math.max(0.3, scale / 1.2); apply(true); };
+    document.getElementById('zreset').onclick = () => { closePanel(); fit(); };
+
+    /* hover highlight */
+    Object.entries(nodeEls).forEach(([id, el]) => {
+      el.addEventListener('pointerenter', () => { if (!panel.classList.contains('open')) highlightEdges(id); });
+      el.addEventListener('pointerleave', () => { if (!panel.classList.contains('open')) highlightEdges(null); });
+      el.addEventListener('click', () => { if (moved) { moved = false; return; } openNode(id); });
+    });
+
+    /* fill in-node previews once */
+    Object.entries(PREV).forEach(([id, txt]) => {
+      const slot = document.querySelector(`.nprev[data-prev="${id}"]`);
+      if (slot) slot.innerHTML = esc(txt) + ` <span class="open">open node →</span>`;
+    });
+
+    /* ============ PANEL ============ */
+    let activeId = null;
+    function openNode(id) {
+      activeId = id;
+      if (document.body.classList.contains('overview')) setOverview(false);
+      Object.values(nodeEls).forEach(el => { el.classList.remove('active'); el.setAttribute('aria-pressed','false'); });
+      nodeEls[id].classList.add('active');
+      nodeEls[id].setAttribute('aria-pressed','true');
+      highlightEdges(id);
+
+      document.getElementById('ptag').textContent = META[id].tag;
+      document.getElementById('ptitle').textContent = META[id].title;
+      document.getElementById('pmeta').textContent = META[id].meta;
+
+      // relstrip: typed connections, clickable to traverse the graph
+      const rels = relationsFor(id).map(r =>
+        `<a class="rel" href="#" data-goto="${r.to}"><span class="v">${esc(r.label)}</span>${esc(META[r.to].title)}</a>`
+      ).join('');
+
+      const pbody = document.getElementById('pbody');
+      pbody.innerHTML = (rels ? `<div class="relstrip">${rels}</div>` : '') + body(id);
+      pbody.scrollTop = 0;
+      pbody.querySelectorAll('[data-goto]').forEach(b => {
+        b.addEventListener('click', (ev) => { ev.preventDefault(); openNode(b.dataset.goto); });
+      });
+
+      panel.classList.add('open');
+      focusNode(nodeMap[id]);
+      panel.focus && panel.setAttribute('tabindex','-1');
+    }
+    function closePanel() {
+      panel.classList.remove('open');
+      activeId = null;
+      Object.values(nodeEls).forEach(el => { el.classList.remove('active'); el.setAttribute('aria-pressed','false'); });
+      highlightEdges(null);
+    }
+    document.getElementById('pclose').onclick = closePanel;
+
+    /* ============ OVERVIEW (see-everything) MODE ============ */
+    function setOverview(on) {
+      document.body.classList.toggle('overview', on);
+      document.getElementById('ovbtn').setAttribute('aria-pressed', on ? 'true' : 'false');
+      document.getElementById('ovbtn').textContent = on ? 'Collapse' : 'Expand all';
+      if (on) { closePanel(); }
+      // let layout settle, then refit so all expanded nodes are visible at once
+      requestAnimationFrame(() => requestAnimationFrame(fit));
+    }
+    document.getElementById('ovbtn').onclick = () => setOverview(!document.body.classList.contains('overview'));
+
+    /* keyboard */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { if (document.body.classList.contains('overview')) setOverview(false); else closePanel(); }
+      if ((e.key === 'e' || e.key === 'E') && !e.metaKey && !e.ctrlKey && e.target.tagName !== 'INPUT') {
+        setOverview(!document.body.classList.contains('overview'));
+      }
+    });
+
+    /* node keyboard access */
+    Object.values(nodeEls).forEach(el => { el.setAttribute('tabindex', '0'); el.setAttribute('aria-pressed','false'); });
+    Object.entries(nodeEls).forEach(([id, el]) => {
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openNode(id); } });
+    });
+
+    window.addEventListener('resize', () => { if (activeId && !document.body.classList.contains('overview')) focusNode(nodeMap[activeId]); else fit(); });
+
+    /* ============ FLOW ANIMATION (motion-gated dashed stroke) ============ */
+    if (!reduce) {
+      let off = 0;
+      (function tick() {
+        off = (off - 0.55) % 14;
+        wires.querySelectorAll('.wire-flow.anim').forEach(el => { el.style.strokeDashoffset = off; });
+        requestAnimationFrame(tick);
+      })();
+
+      /* ambient telemetry: pulse one random edge's flow on a slow loop, so the map
+         feels alive even when idle, without ever obscuring content */
+      let ambient = null;
+      function ambientPulse() {
+        if (panel.classList.contains('open') || document.body.classList.contains('overview')) {
+          ambient = setTimeout(ambientPulse, 2600); return;
+        }
+        const flows = wires.querySelectorAll('.wire-flow');
+        const pick = flows[Math.floor(Math.random() * flows.length)];
+        if (pick) {
+          pick.style.opacity = '.5'; pick.classList.add('anim');
+          setTimeout(() => { if (!pick.dataset.held) { pick.style.opacity = '0'; pick.classList.remove('anim'); } }, 1700);
+        }
+        ambient = setTimeout(ambientPulse, 2400 + Math.random() * 1800);
+      }
+      setTimeout(ambientPulse, 2600);
+    }
+
+    /* ============ BOOT: fit, let it breathe, trace the edges. Do NOT force-open. ============ */
+    fit();
+    if (!reduce) {
+      // intro: sweep the flow along every edge once so the system "assembles"
+      setTimeout(() => {
+        const flows = Array.from(wires.querySelectorAll('.wire-flow'));
+        flows.forEach((el, i) => {
+          setTimeout(() => {
+            el.dataset.held = '1'; el.style.opacity = '.7'; el.classList.add('anim');
+            setTimeout(() => { delete el.dataset.held; el.style.opacity = '0'; el.classList.remove('anim'); }, 900);
+          }, i * 90);
+        });
+      }, 420);
+    }
+
+    /* ============ LINEAR / MOBILE TRACE: built from the SAME body() functions ============ */
+    (function buildLinear() {
+      const trace = document.getElementById('trace');
+      const toc = document.getElementById('mtoc');
+      const packet = document.getElementById('packet');
+      // remove the noscript seed content's siblings are fine; we append rendered sections
+      DATA.sectionOrder.forEach(id => {
+        const n = nodeMap[id];
+        const rels = relationsFor(id);
+        const inbound = rels.find(r => r.dir === 'in');
+        const sec = document.createElement('section');
+        sec.className = 'lsec';
+        sec.id = 'l-' + id;
+        sec.dataset.kind = n.kind;
+        sec.dataset.status = n.status;
+        sec.innerHTML =
+          (inbound ? `<span class="ledge">${esc(inbound.label)} ↑</span>` : '') +
+          `<div class="eyebrow">${esc(META[id].title)} · ${esc(META[id].meta)}</div>` +
+          body(id);
+        trace.appendChild(sec);
+
+        const a = document.createElement('a');
+        a.href = '#l-' + id;
+        a.innerHTML = `<span class="d" style="background:${n.kind==='root'?'var(--cyan)':n.kind==='endpoint'?'var(--amber)':'var(--cyan-deep)'}"></span>${esc(META[id].title)}`;
+        toc.appendChild(a);
+      });
+      // wire up in-trace data-goto links to jump within the trace
+      trace.querySelectorAll('[data-goto]').forEach(b => {
+        b.addEventListener('click', (ev) => { ev.preventDefault(); const t = document.getElementById('l-' + b.dataset.goto); if (t) t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); });
+      });
+      if (packet && !reduce) packet.classList.add('run');
+    })();
+  </script>
+</body>
+</html>

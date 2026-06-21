@@ -1,0 +1,954 @@
+---
+// Designer #5 - "Cinematic scrollytelling timeline"
+// Standalone, fully isolated homepage redesign concept for tomscholtes.com.
+// Self-contained single .astro file. All CSS + JS inline. No shared components.
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/jetbrains-mono/700.css';
+
+const year = new Date().getFullYear();
+
+// Chapter spine: drives both the side nav and the sticky scroll markers.
+const chapters = [
+  { id: 'open',     act: '00', kicker: 'Cold open',  label: 'Title' },
+  { id: 'workflow', act: '01', kicker: 'Live demo',  label: 'The automation' },
+  { id: 'work',     act: '02', kicker: 'Case file',  label: 'Patterns' },
+  { id: 'now',      act: '03', kicker: 'Present day', label: 'Now' },
+  { id: 'cv',       act: '04', kicker: 'Backstory',   label: 'Six years' },
+  { id: 'reading',  act: '05', kicker: 'Margins',     label: 'Reading' },
+  { id: 'lang',     act: '06', kicker: 'Voices',      label: 'Languages' },
+  { id: 'contact',  act: '07', kicker: 'End credits', label: 'Say hi' },
+];
+
+const stages = [
+  { n: '1', t: 'Find',     d: 'Reads the source files and surfaces what is unbooked, mismatched, or missing.' },
+  { n: '2', t: 'Build',    d: 'Generates the upload template for the accounting system and drafts the counterparty email.' },
+  { n: '3', t: 'Sign off', d: 'The operator reviews and approves. The human owns the decision.' },
+  { n: '4', t: 'Scale',    d: 'The same approach maps every other workflow in the company, from the existing mailbox.' },
+];
+
+const cases = [
+  { no: '01', metric: 'Indicative', mlabel: 'order of magnitude time savings on this pattern', title: 'Automated Regulatory Notes Generation', blurb: "A pattern for how a Claude skill can read a trial balance, identify entity type, and generate disclosure notes in a firm's chosen style. Tables, movement schedules, narrative.", tags: ['Claude skills', 'Word generation', 'LuxGAAP'], href: '/case/automated-regulatory-notes/' },
+  { no: '02', metric: 'Pre-audit', mlabel: 'automated cross-checker', title: 'Annual Accounts Quality Review', blurb: 'How I think about pre-audit cross-checking. A pattern that takes annual accounts (PDF) and source reconciliation (Excel), checks every cross-reference between primary statements and notes, and flags inconsistencies before the auditor finds them.', tags: ['PDF parsing', 'Excel', 'QA automation'], href: '/case/annual-accounts-quality-review/' },
+  { no: '03', metric: 'Hours to minutes', mlabel: 'share registers for KYC/AML reviews', title: 'Confidential Document Anonymisation', blurb: 'A pattern for aggregating raw transactional share-register data into net positions per shareholder per share class, applying rule-based redaction for non-strategic shareholders, and producing print-ready Excel and PDF.', tags: ['Data aggregation', 'Compliance', 'Multi-format'], href: '/case/confidential-document-anonymisation/' },
+  { no: '04', metric: 'Daily', mlabel: 'morning briefing automation', title: 'Cross-Platform Mailbox Intelligence', blurb: 'A pattern for triaging email and meeting-transcript backlogs into prioritised morning briefings. Surfaces unanswered messages, follow-ups, and half-finished commitments, organised by priority and workstream.', tags: ['M365', 'Outlook', 'Triage'], href: '/case/cross-platform-mailbox-intelligence/' },
+  { no: '05', metric: 'Onboarding', mlabel: 'structured payment and accounting guide', title: 'Process Documentation & Knowledge Transfer', blurb: 'Patterns for documenting payment and accounting workflows in a way new joiners can self-serve. Payment flow, exception handling, approval routing, recharge and intercompany cases.', tags: ['Technical writing', 'Process mapping'], href: '/case/process-documentation/' },
+  { no: '06', metric: 'Implementation', mlabel: 'contribution to platform rollout', title: 'Fund Accounting Platform Integration', blurb: 'Patterns I have worked through during fund-accounting platform rollouts. Pref-share reconciliation logic, waterfall validation approaches, edge-case discovery.', tags: ['Reconciliation', 'Vendor collab', 'Validation'], href: '/case/fund-accounting-platform-integration/' },
+  { no: '07', metric: 'Library', mlabel: 'of reusable Claude skill patterns', title: 'AI Skill Architecture & Reusable Tooling', blurb: 'A library of small, opinionated AI skill patterns. Notes generation, quality review, anonymisation, mailbox triage, classification. Each with deterministic inputs and outputs. From single-purpose skills to five-persona orchestration, see Projects.', tags: ['Skill design', 'Knowledge eng.', 'Infrastructure'], href: '/case/ai-skill-architecture/' },
+  { no: '08', metric: 'Pattern', mlabel: 'designed', title: 'Cross-system fund-data reconciliation architecture', blurb: 'Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed.', tags: ['Data integration', 'Master data', 'Internal proposal'], href: '/case/cross-system-reconciliation/' },
+  { no: '09', metric: 'Pattern', mlabel: 'personal automation architecture', title: 'End-to-end email automation', blurb: 'An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.', tags: ['Agentic', 'Self-review loop', 'Human-in-the-loop'], href: '/case/email-automation/' },
+];
+
+const nowRows = [
+  { k: 'Building', v: 'End-to-end email automation as a personal architecture. An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts the reply and proposes which attachments to include. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.', cta: { t: 'See the demo', h: '/workflow-automation/' } },
+  { k: 'Testing', v: 'Frontier models on large, long-context files. How far the current generation holds up running real workflows over very large inputs.', cta: null },
+  { k: 'Orchestrating', v: 'Workflow orchestration with n8n, extending the automation surface beyond a single agent.', cta: null },
+  { k: 'Running', v: 'An agentic memory system on my own infrastructure. A voice-first assistant over AR glasses with a memory that consolidates during sleep, running across two machines that talk to each other, turning ideas into video journals or music within hours.', cta: { t: 'See the project', h: '/projects/exocortex' } },
+  { k: 'Learning', v: 'Cloud computing and GPU inference, to serve models faster and at lower marginal cost.', cta: null },
+  { k: 'Throughline', v: 'Applied research on frontier models and frontier technologies. Curiosity is the throughline across all of it.', cta: null },
+];
+
+const roles = [
+  { co: 'Working in Controlling', role: 'SPV Controller', span: 'Mar 2025 · Present', bullets: ['End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in fund-administration platforms. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings.', 'Payment automation across the SPV book: batch generation, exception routing, recharge / intercompany cases.', 'Cross-system fund-data integration architecture.', 'Task management workstream via MCP: Outlook + Monday.com wired into Claude Code through MCP.'] },
+  { co: 'Alter Domus', role: 'Fund & Corporate Services Officer', span: 'Feb 2023 · Mar 2025', bullets: ['Full-cycle accounting for management companies, funds, SPVs and GPs. NAVs, financial statements, CSSF/BCL regulatory filings. Drove process improvements through technology and structured methodologies.'] },
+  { co: 'Waystone Administration Solutions', role: 'Junior Associate Fund Accountant', span: 'Sep 2022 · Jan 2023', bullets: ['Capital calls, distributions, OPEX payments. LuxGAAP financial statements. Audit coordination. Fund-administration platform import automation.'] },
+  { co: 'Aztec Group', role: 'Junior Depositary Analyst', span: 'Feb 2021 · Aug 2022', bullets: ['Asset confirmation and reconciliation for alternative investment funds. Depositary obligations and oversight duties. eFront reporting.'] },
+  { co: 'European Fund Administration', role: 'Intern Fund Accountant', span: 'Nov 2019 · Nov 2020', bullets: ['NAV calculations, financial-statement preparation, first-level controls and reconciliations. Year-end audit support.'] },
+];
+
+const education = [
+  { school: 'Erasmus School of Economics, University of Rotterdam', deg: 'MSc Economics & Business, International Economics', span: '2017 · 2020' },
+  { school: 'University of Luxembourg', deg: 'BSc Economics, Law & Management', span: '2014 · 2017' },
+];
+
+const skills = [
+  { k: 'Data analysis', v: 'Panel econometrics · fixed-effects OLS · large multi-source datasets · Python · advanced Excel' },
+  { k: 'Accounting systems', v: 'eFront · BOB50 · SAP · alternative-investment platforms' },
+  { k: 'IT / scripting', v: 'VBA · Python · Microsoft Power Automate' },
+  { k: 'Office', v: 'Advanced Excel · Word · PowerPoint' },
+  { k: 'Fund types', v: 'Private Equity · Private Debt · Real Estate' },
+  { k: 'AI tooling', v: 'Claude · Claude Code · ChatGPT · Glean · Even Realities G2 SDK (assembled stack)' },
+  { k: 'AI infra', v: 'MCP servers · Multi-agent orchestration · Knowledge bases · Local model serving' },
+  { k: 'Dev', v: 'TypeScript · Astro · React · GitHub Actions · Tailscale' },
+  { k: 'Frameworks', v: 'LuxGAAP · eCDF · CSSF / BCL filings' },
+];
+
+const reading = [
+  { t: 'Systems & ops quality', n: 'How operational excellence actually gets built and kept. Applies to finance ops as much as to engineering.' },
+  { t: 'Knowledge engineering', n: 'Encoding expertise into tools other people can use without becoming experts themselves.' },
+  { t: 'AI & cognition', n: 'Practical books on what current AI can and cannot do, and where it changes the work.' },
+  { t: 'Economics & finance', n: 'Continuing the line my degrees started. International economics, capital markets, regulation.' },
+];
+
+const languages = [
+  { code: 'EN', name: 'English' },
+  { code: 'DE', name: 'Deutsch' },
+  { code: 'FR', name: 'Français' },
+  { code: 'RU', name: 'Русский' },
+  { code: 'LU', name: 'Lëtzebuergesch' },
+  { code: 'UZ', name: 'Oʻzbekcha' },
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Tom Scholtes. Finance ops engineer who automates the work in reach.</title>
+  <meta name="description" content="Personal site, live CV, and a portfolio of automation I've built for regulated finance operations. Six years in Luxembourg fund services, now designing the systems that do the work." />
+  <style>
+    :root {
+      --ink: #f4f1ea;
+      --ink-dim: #a8a395;
+      --ink-faint: #6f6b60;
+      --bg: #0b0c0e;
+      --bg-2: #111317;
+      --panel: #15181d;
+      --line: #262a31;
+      --accent: #e4b363;
+      --accent-2: #6ea8c9;
+      --film: 1.5px;
+      --shell: clamp(20px, 5vw, 80px);
+      --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+      --sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Film grain + vignette overlay across the whole film */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        radial-gradient(120% 90% at 50% 0%, transparent 40%, rgba(0,0,0,0.55) 100%);
+      mix-blend-mode: multiply;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: -50%; z-index: 2; pointer-events: none; opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      body.is-playing::after { animation: grain 0.5s steps(3) infinite; }
+    }
+    @keyframes grain {
+      0% { transform: translate(0,0); }
+      33% { transform: translate(-3%, 2%); }
+      66% { transform: translate(2%, -3%); }
+      100% { transform: translate(0,0); }
+    }
+
+    a { color: inherit; }
+
+    /* ============ SCROLL PROGRESS SPINE ============ */
+    .spine {
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 40;
+      width: 74px;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 26px 0;
+      pointer-events: none;
+    }
+    .spine-rail {
+      position: absolute; top: 70px; bottom: 70px; left: 50%;
+      width: 2px; transform: translateX(-50%);
+      background: var(--line);
+    }
+    .spine-fill {
+      position: absolute; top: 70px; left: 50%; width: 2px;
+      transform: translateX(-50%); height: 0;
+      background: linear-gradient(var(--accent), var(--accent-2));
+      box-shadow: 0 0 12px rgba(228,179,99,0.5);
+    }
+    .spine-nodes {
+      position: relative; z-index: 2;
+      flex: 1; width: 100%;
+      display: flex; flex-direction: column; justify-content: space-between;
+      align-items: center; padding: 44px 0;
+      pointer-events: auto;
+    }
+    .node { position: relative; display: flex; align-items: center; }
+    .node b {
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid var(--ink-faint);
+      transition: transform .35s, background .35s, border-color .35s, box-shadow .35s;
+    }
+    .node.active b {
+      background: var(--accent); border-color: var(--accent);
+      transform: scale(1.5);
+      box-shadow: 0 0 0 4px rgba(228,179,99,0.18), 0 0 14px rgba(228,179,99,0.7);
+    }
+    .node .tip {
+      position: absolute; left: 26px; top: 50%; transform: translateY(-50%) translateX(-6px);
+      white-space: nowrap; opacity: 0; pointer-events: none;
+      font-family: var(--mono); font-size: 10px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--ink-dim);
+      background: var(--panel); border: 1px solid var(--line);
+      padding: 4px 8px; border-radius: 4px;
+      transition: opacity .25s, transform .25s;
+    }
+    .node:hover .tip, .node.active .tip { opacity: 1; transform: translateY(-50%) translateX(0); }
+    .node.active .tip { color: var(--accent); border-color: rgba(228,179,99,0.4); }
+    .spine-cap {
+      font-family: var(--mono); font-size: 10px; letter-spacing: .2em;
+      color: var(--ink-faint); writing-mode: vertical-rl; transform: rotate(180deg);
+    }
+    @media (max-width: 860px) { .spine { display: none; } }
+
+    /* ============ TOP BAR / CHAPTER NAV ============ */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px var(--shell);
+      backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(11,12,14,0.85), rgba(11,12,14,0));
+    }
+    .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .brand .mark {
+      width: 30px; height: 30px; display: grid; place-items: center;
+      border: 1.5px solid var(--accent); color: var(--accent);
+      font-family: var(--serif); font-size: 18px; border-radius: 3px;
+    }
+    .brand .name { font-weight: 600; font-size: 14px; letter-spacing: .01em; }
+    .topbar .progress-num {
+      font-family: var(--mono); font-size: 11px; color: var(--ink-dim);
+      letter-spacing: .16em;
+    }
+    .topbar .progress-num span { color: var(--accent); }
+
+    .chapnav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--ink);
+      background: rgba(21,24,29,0.7); border: 1px solid var(--line);
+      padding: 8px 13px; border-radius: 4px; cursor: pointer;
+    }
+    .chapnav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* chapter index overlay */
+    .index-overlay {
+      position: fixed; inset: 0; z-index: 60;
+      background: rgba(8,9,11,0.96);
+      display: none; flex-direction: column;
+      padding: clamp(24px,7vh,90px) var(--shell);
+      overflow-y: auto;
+    }
+    .index-overlay.open { display: flex; }
+    .index-overlay .ix-top {
+      display: flex; justify-content: space-between; align-items: baseline;
+      border-bottom: 1px solid var(--line); padding-bottom: 18px; margin-bottom: 10px;
+    }
+    .index-overlay .ix-top h2 {
+      font-family: var(--serif); font-weight: 400; font-size: clamp(28px,5vw,48px);
+      margin: 0;
+    }
+    .ix-close { font-family: var(--mono); font-size: 12px; background: none; border: none; color: var(--ink-dim); cursor: pointer; letter-spacing: .1em; }
+    .ix-close:hover { color: var(--accent); }
+    .ix-list a {
+      display: grid; grid-template-columns: 70px 1fr auto; gap: 20px; align-items: baseline;
+      padding: 20px 6px; border-bottom: 1px solid var(--line);
+      text-decoration: none; transition: padding-left .25s, color .25s;
+    }
+    .ix-list a:hover { padding-left: 20px; color: var(--accent); }
+    .ix-list .ix-act { font-family: var(--mono); color: var(--accent); font-size: 13px; }
+    .ix-list .ix-label { font-family: var(--serif); font-size: clamp(22px,3.4vw,34px); }
+    .ix-list .ix-kick { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: .14em; text-transform: uppercase; }
+
+    /* ============ STAGE LAYOUT ============ */
+    .reel { padding-left: 74px; position: relative; z-index: 5; }
+    @media (max-width: 860px) { .reel { padding-left: 0; } }
+
+    section.act {
+      position: relative;
+      padding: clamp(80px,12vh,150px) var(--shell);
+      border-top: 1px solid transparent;
+    }
+    .act-slate {
+      display: flex; align-items: center; gap: 16px;
+      font-family: var(--mono); font-size: 11px; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--ink-faint);
+      margin-bottom: 30px;
+    }
+    .act-slate .num {
+      color: var(--bg); background: var(--accent);
+      padding: 3px 9px; border-radius: 3px; font-weight: 700;
+    }
+    .act-slate .ln { flex: 1; height: 1px; background: var(--line); }
+
+    .reveal { opacity: 0; transform: translateY(34px); }
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal { transition: opacity .8s cubic-bezier(.16,.8,.3,1), transform .8s cubic-bezier(.16,.8,.3,1); }
+    }
+    .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; }
+    }
+    .d1 { transition-delay: .08s; } .d2 { transition-delay: .16s; }
+    .d3 { transition-delay: .24s; } .d4 { transition-delay: .32s; }
+
+    .eyebrow {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--accent);
+    }
+    h2.act-h {
+      font-family: var(--serif); font-weight: 400;
+      font-size: clamp(34px, 6.2vw, 76px); line-height: 1.03;
+      letter-spacing: -0.01em; margin: 14px 0 0;
+      max-width: 16ch;
+    }
+    .lede { color: var(--ink-dim); max-width: 60ch; margin-top: 22px; font-size: clamp(15px,1.5vw,18px); }
+    .lede em, .act-h em { color: var(--accent); font-style: italic; }
+
+    /* ============ ACT 00 - COLD OPEN ============ */
+    #open { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding-top: 120px; }
+    .open-eyebrow { color: var(--ink-dim); }
+    .open-title {
+      font-family: var(--serif); font-weight: 400;
+      font-size: clamp(44px, 9vw, 122px); line-height: 0.98;
+      letter-spacing: -0.02em; margin: 22px 0 0; max-width: 18ch;
+    }
+    .open-title em { color: var(--accent); font-style: italic; }
+    .open-lede { color: var(--ink-dim); max-width: 64ch; margin-top: 30px; font-size: clamp(15px,1.6vw,19px); }
+    .open-name {
+      font-family: var(--mono); font-size: 12px; letter-spacing: .26em;
+      text-transform: uppercase; color: var(--ink-faint);
+    }
+    .open-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 40px; }
+    .stats {
+      display: flex; flex-wrap: wrap; gap: clamp(24px,5vw,64px);
+      margin-top: 52px; padding-top: 30px; border-top: 1px solid var(--line);
+    }
+    .stat .v { font-family: var(--serif); font-size: clamp(34px,5vw,52px); line-height: 1; color: var(--ink); }
+    .stat .l { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--ink-dim); margin-top: 8px; text-transform: uppercase; }
+    .scroll-hint {
+      position: absolute; bottom: 28px; left: var(--shell);
+      font-family: var(--mono); font-size: 10px; letter-spacing: .24em;
+      text-transform: uppercase; color: var(--ink-faint);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .scroll-hint .bar { display: inline-block; width: 40px; height: 1px; background: var(--ink-faint); position: relative; overflow: hidden; }
+    @media (prefers-reduced-motion: no-preference) {
+      .scroll-hint .bar::after { content: ''; position: absolute; inset: 0; width: 40%; background: var(--accent); animation: sweep 2.4s ease-in-out infinite; }
+    }
+    @keyframes sweep { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
+
+    /* buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 9px;
+      font-size: 13px; font-weight: 600; letter-spacing: .02em;
+      padding: 13px 22px; border-radius: 4px; text-decoration: none;
+      border: 1px solid transparent; transition: transform .2s, background .2s, border-color .2s, color .2s;
+    }
+    .btn .arr { font-family: var(--mono); }
+    .btn-primary { background: var(--accent); color: #1a1407; }
+    .btn-primary:hover { transform: translateY(-2px); background: #efc279; }
+    .btn-ghost { border-color: var(--line); color: var(--ink); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ============ ACT 01 - WORKFLOW ============ */
+    .pipeline {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+      margin-top: 44px;
+    }
+    @media (max-width: 760px) { .pipeline { grid-template-columns: 1fr; } }
+    .stage {
+      position: relative; background: var(--panel);
+      border: 1px solid var(--line); border-radius: 7px;
+      padding: 22px 20px; overflow: hidden;
+      transition: border-color .35s, transform .35s, background .35s;
+    }
+    .stage::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--accent); transform: scaleY(0); transform-origin: top;
+      transition: transform .5s;
+    }
+    .stage.lit::before { transform: scaleY(1); }
+    .stage.lit { border-color: rgba(228,179,99,0.45); background: #181b21; transform: translateY(-4px); }
+    .stage .sn { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: .14em; }
+    .stage .st { font-family: var(--serif); font-size: 26px; margin: 6px 0 9px; }
+    .stage.lit .st { color: var(--accent); }
+    .stage .sd { font-size: 13.5px; color: var(--ink-dim); line-height: 1.55; }
+    .stage .conn {
+      position: absolute; right: -8px; top: 50%; z-index: 2;
+      font-family: var(--mono); color: var(--ink-faint); font-size: 14px;
+    }
+    @media (max-width: 760px) { .stage .conn { display: none; } }
+
+    /* ============ ACT 02 - CASE FILE ============ */
+    .casebar {
+      display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+      margin: 36px 0 8px; font-family: var(--mono); font-size: 11px;
+      color: var(--ink-faint); letter-spacing: .12em; text-transform: uppercase;
+    }
+    .cases { margin-top: 12px; }
+    .case {
+      display: grid; grid-template-columns: 120px 1fr; gap: clamp(18px,4vw,56px);
+      padding: 34px 0; border-top: 1px solid var(--line);
+      text-decoration: none; position: relative;
+      transition: padding-left .3s;
+    }
+    .case:hover { padding-left: 14px; }
+    .case:last-child { border-bottom: 1px solid var(--line); }
+    @media (max-width: 700px) { .case { grid-template-columns: 1fr; gap: 14px; } }
+    .case .left { }
+    .case .cno {
+      font-family: var(--mono); font-size: 12px; color: var(--accent);
+      letter-spacing: .16em;
+    }
+    .case .metric {
+      font-family: var(--serif); font-size: clamp(24px,3.4vw,40px); line-height: 1.05;
+      margin-top: 8px; color: var(--ink);
+    }
+    .case .mlabel { font-size: 12px; color: var(--ink-faint); margin-top: 6px; max-width: 22ch; line-height: 1.4; }
+    .case .ctitle {
+      font-family: var(--serif); font-size: clamp(22px,2.8vw,30px);
+      line-height: 1.12; transition: color .25s;
+    }
+    .case:hover .ctitle { color: var(--accent); }
+    .case .ctitle .arr { font-family: var(--mono); font-size: 0.7em; opacity: 0; transition: opacity .25s, transform .25s; display: inline-block; }
+    .case:hover .ctitle .arr { opacity: 1; transform: translateX(4px); }
+    .case .cblurb { color: var(--ink-dim); font-size: 14.5px; margin-top: 12px; max-width: 62ch; line-height: 1.6; }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+    .tag {
+      font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em;
+      color: var(--ink-dim); border: 1px solid var(--line);
+      padding: 3px 9px; border-radius: 99px;
+    }
+
+    /* ============ ACT 03 - NOW ============ */
+    .now-list { margin-top: 40px; }
+    .now-row {
+      display: grid; grid-template-columns: 200px 1fr; gap: clamp(16px,4vw,48px);
+      padding: 26px 0; border-top: 1px solid var(--line);
+    }
+    .now-row:last-child { border-bottom: 1px solid var(--line); }
+    @media (max-width: 700px) { .now-row { grid-template-columns: 1fr; gap: 8px; } }
+    .now-k {
+      font-family: var(--mono); font-size: 12px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent); padding-top: 3px;
+    }
+    .now-v { color: var(--ink-dim); font-size: 15px; line-height: 1.65; max-width: 64ch; }
+    .now-v .inline-cta {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 10px;
+      font-family: var(--mono); font-size: 12px; color: var(--ink);
+      text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 2px;
+    }
+    .now-v .inline-cta:hover { color: var(--accent); }
+    .now-v em { color: var(--ink); font-style: italic; }
+
+    /* ============ ACT 04 - CV ============ */
+    .cv-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(32px,5vw,72px); margin-top: 44px; }
+    @media (max-width: 900px) { .cv-grid { grid-template-columns: 1fr; } }
+    .cv-sub {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--ink-faint);
+      display: flex; align-items: center; gap: 12px; margin: 0 0 22px;
+    }
+    .cv-sub .ln { flex: 1; height: 1px; background: var(--line); }
+    .cv-sub .meta { color: var(--ink-dim); letter-spacing: .08em; }
+
+    .role { position: relative; padding: 0 0 30px 26px; border-left: 1px solid var(--line); }
+    .role:last-child { padding-bottom: 0; }
+    .role::before {
+      content: ''; position: absolute; left: -5px; top: 4px; width: 9px; height: 9px;
+      border-radius: 50%; background: var(--bg); border: 1.5px solid var(--accent);
+    }
+    .role .span { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: .1em; }
+    .role .rt { font-family: var(--serif); font-size: 24px; margin: 4px 0 2px; line-height: 1.1; }
+    .role .co { font-size: 13px; color: var(--ink-dim); margin-bottom: 12px; }
+    .role ul { margin: 0; padding: 0; list-style: none; }
+    .role li { position: relative; padding-left: 16px; font-size: 13.5px; color: var(--ink-dim); margin-bottom: 8px; line-height: 1.55; }
+    .role li::before { content: '\2013'; position: absolute; left: 0; color: var(--ink-faint); }
+
+    .edu-item { padding: 0 0 20px; }
+    .edu-item .span { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: .1em; }
+    .edu-item .school { font-family: var(--serif); font-size: 20px; margin: 3px 0 2px; line-height: 1.15; }
+    .edu-item .deg { font-size: 13px; color: var(--ink-dim); }
+
+    .skill-row { display: grid; grid-template-columns: 130px 1fr; gap: 14px; padding: 11px 0; border-top: 1px solid var(--line); }
+    .skill-row:first-of-type { border-top: none; }
+    @media (max-width: 480px) { .skill-row { grid-template-columns: 1fr; gap: 2px; } }
+    .skill-row .sk { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; padding-top: 2px; }
+    .skill-row .sv { font-size: 13px; color: var(--ink-dim); line-height: 1.5; }
+
+    .pub {
+      margin-top: 30px; padding: 24px; background: var(--panel);
+      border: 1px solid var(--line); border-radius: 7px;
+    }
+    .pub .pt { font-family: var(--serif); font-size: 21px; line-height: 1.25; }
+    .pub .pn { font-size: 12.5px; color: var(--ink-dim); margin: 10px 0 16px; line-height: 1.55; }
+
+    /* ============ ACT 05 - READING ============ */
+    .read-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 44px; }
+    @media (max-width: 640px) { .read-grid { grid-template-columns: 1fr; } }
+    .read-card {
+      padding: 26px 24px; background: var(--panel);
+      border: 1px solid var(--line); border-radius: 7px;
+      transition: border-color .3s, transform .3s;
+    }
+    .read-card:hover { border-color: rgba(228,179,99,0.4); transform: translateY(-3px); }
+    .read-card .rt { font-family: var(--serif); font-size: 23px; }
+    .read-card .rn { font-size: 13.5px; color: var(--ink-dim); margin-top: 10px; line-height: 1.6; }
+
+    /* ============ ACT 06 - LANGUAGES ============ */
+    .lang-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-top: 44px; }
+    @media (max-width: 760px) { .lang-grid { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 420px) { .lang-grid { grid-template-columns: repeat(2,1fr); } }
+    .lang {
+      aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+      background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+      transition: border-color .3s, background .3s;
+    }
+    .lang:hover { border-color: var(--accent); background: #181b21; }
+    .lang .code { font-family: var(--mono); font-size: 12px; letter-spacing: .2em; color: var(--accent); }
+    .lang .nm { font-family: var(--serif); font-size: clamp(18px,2.4vw,26px); margin-top: 8px; text-align: center; }
+
+    /* ============ ACT 07 - CONTACT / CREDITS ============ */
+    #contact { position: relative; overflow: hidden; min-height: 92vh; display: flex; flex-direction: column; justify-content: center; }
+    .credits-watermark {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      font-family: var(--serif); font-size: clamp(160px, 40vw, 540px);
+      color: rgba(228,179,99,0.045); line-height: 1; pointer-events: none; z-index: 0;
+      user-select: none;
+    }
+    #contact > .inner { position: relative; z-index: 2; }
+    .contact-h { font-family: var(--serif); font-weight: 400; font-size: clamp(38px,7vw,90px); line-height: 1.02; margin: 14px 0 0; }
+    .contact-h em { color: var(--accent); font-style: italic; }
+    .contact-body { color: var(--ink-dim); max-width: 60ch; margin-top: 24px; font-size: clamp(15px,1.6vw,18px); }
+    .contact-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+
+    /* ============ FOOTER ============ */
+    footer {
+      position: relative; z-index: 5;
+      padding: 56px var(--shell) 40px; border-top: 1px solid var(--line);
+      background: var(--bg-2);
+    }
+    .foot-grid { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 32px; }
+    @media (max-width: 760px) { .foot-grid { grid-template-columns: 1fr 1fr; gap: 28px; } }
+    .foot-tag { color: var(--ink-dim); font-size: 13.5px; margin-top: 14px; max-width: 34ch; line-height: 1.55; }
+    .foot-col h4 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 14px; }
+    .foot-col a { display: block; color: var(--ink-dim); text-decoration: none; font-size: 13.5px; padding: 4px 0; transition: color .2s; }
+    .foot-col a:hover { color: var(--accent); }
+    .foot-bottom {
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line);
+      font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: .06em;
+    }
+
+    .reel { padding-bottom: 0; }
+
+    @media (max-width: 600px) {
+      .topbar { padding: 12px var(--shell); }
+      .progress-num { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== PROGRESS SPINE ===== -->
+  <nav class="spine" aria-label="Chapter progress spine">
+    <div class="spine-cap" aria-hidden="true">SCROLL</div>
+    <div class="spine-nodes" id="spineNodes">
+      <div class="spine-rail" aria-hidden="true"></div>
+      <div class="spine-fill" id="spineFill" aria-hidden="true"></div>
+      {chapters.map((c) => (
+        <a class="node" href={`#${c.id}`} data-node={c.id} aria-label={`${c.act} ${c.label}`}>
+          <b></b>
+          <span class="tip">{c.act} / {c.label}</span>
+        </a>
+      ))}
+    </div>
+    <div class="spine-cap" aria-hidden="true">REEL</div>
+  </nav>
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="topbar">
+    <a class="brand" href="#open">
+      <span class="mark">T</span>
+      <span class="name">Tom Scholtes</span>
+    </a>
+    <div class="progress-num"><span id="curAct">00</span> / 07 &middot; <span id="pctRead">0</span>%</div>
+    <button class="chapnav-btn" id="openIndex" aria-haspopup="true">Chapters <span aria-hidden="true">&#9633;</span></button>
+  </header>
+
+  <!-- ===== CHAPTER INDEX OVERLAY ===== -->
+  <div class="index-overlay" id="indexOverlay" role="dialog" aria-modal="true" aria-label="Chapter index">
+    <div class="ix-top">
+      <h2>Chapter index</h2>
+      <button class="ix-close" id="closeIndex">Close &times;</button>
+    </div>
+    <div class="ix-list">
+      {chapters.map((c) => (
+        <a href={`#${c.id}`} class="ix-jump">
+          <span class="ix-act">{c.act}</span>
+          <span><span class="ix-label">{c.label}</span></span>
+          <span class="ix-kick">{c.kicker}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <main class="reel">
+    <!-- ===== ACT 00 - COLD OPEN ===== -->
+    <section class="act" id="open" data-chapter="open">
+      <div class="reveal in">
+        <div class="open-eyebrow eyebrow">Personal site &middot; Luxembourg</div>
+        <h1 class="open-title">I build the automation behind <em>regulated finance</em> operations.</h1>
+        <p class="open-name">Tom Scholtes &middot; Finance ops engineer who automates the work in reach</p>
+        <p class="open-lede">I'm Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and case studies of it shipping.</p>
+        <div class="open-cta">
+          <a class="btn btn-primary" href="#work">See the work <span class="arr">&rarr;</span></a>
+          <a class="btn btn-ghost" href="#contact">Get in touch</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="v">6 yrs</div><div class="l">in Lux fund services</div></div>
+          <div class="stat"><div class="v">7</div><div class="l">case studies on file</div></div>
+          <div class="stat"><div class="v">6</div><div class="l">languages spoken</div></div>
+        </div>
+      </div>
+      <div class="scroll-hint" aria-hidden="true">Begin the reel <span class="bar"></span></div>
+    </section>
+
+    <!-- ===== ACT 01 - WORKFLOW ===== -->
+    <section class="act" id="workflow" data-chapter="workflow">
+      <div class="act-slate reveal"><span class="num">ACT 01</span> Live demo <span class="ln"></span> The automation</div>
+      <div class="reveal d1">
+        <div class="eyebrow">Live demo</div>
+        <h2 class="act-h">See the automation run, on synthetic data.</h2>
+        <p class="lede">Point AI at the manual workflows underneath a finance desk. It surfaces what is unbooked, mismatched, or missing, builds the upload template, and drafts the counterparty email. The operator reviews and signs off; the human owns the decision. Click through a before-and-after process map and run it live.</p>
+      </div>
+      <div class="pipeline reveal d2">
+        {stages.map((s, i) => (
+          <div class="stage" data-stage={i}>
+            <div class="sn">STAGE {s.n}</div>
+            <div class="st">{s.t}</div>
+            <div class="sd">{s.d}</div>
+            {i < stages.length - 1 && <span class="conn" aria-hidden="true">&rarr;</span>}
+          </div>
+        ))}
+      </div>
+      <div class="reveal d3" style="margin-top:34px;">
+        <a class="btn btn-primary" href="/workflow-automation/">Open the live demo <span class="arr">&rarr;</span></a>
+      </div>
+    </section>
+
+    <!-- ===== ACT 02 - CASE FILE ===== -->
+    <section class="act" id="work" data-chapter="work">
+      <div class="act-slate reveal"><span class="num">ACT 02</span> Case file <span class="ln"></span> Patterns</div>
+      <div class="reveal d1">
+        <div class="eyebrow">Case studies</div>
+        <h2 class="act-h">Patterns I've worked through.</h2>
+        <p class="lede">Sanitised. Employer name, entity names and figures removed. Notes on how I think about this kind of work in fund services.</p>
+      </div>
+      <div class="casebar reveal d2"><span>9 cases on the reel</span></div>
+      <div class="cases">
+        {cases.map((c) => (
+          <a class="case reveal" href={c.href}>
+            <div class="left">
+              <div class="cno">Case {c.no}</div>
+              <div class="metric">{c.metric}</div>
+              <div class="mlabel">{c.mlabel}</div>
+            </div>
+            <div class="right">
+              <div class="ctitle">{c.title} <span class="arr" aria-hidden="true">&rarr;</span></div>
+              <p class="cblurb">{c.blurb}</p>
+              <div class="tags">
+                {c.tags.map((t) => <span class="tag">{t}</span>)}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- ===== ACT 03 - NOW ===== -->
+    <section class="act" id="now" data-chapter="now">
+      <div class="act-slate reveal"><span class="num">ACT 03</span> Present day <span class="ln"></span> Now</div>
+      <div class="reveal d1">
+        <div class="eyebrow">/ now &middot; June 2026</div>
+        <h2 class="act-h">What I'm focused on this quarter.</h2>
+        <p class="lede">A public note of where my head is right now, in the spirit of <em>nownownow.com</em>. I update it when things change, not on a schedule.</p>
+      </div>
+      <div class="now-list">
+        {nowRows.map((r) => (
+          <div class="now-row reveal">
+            <div class="now-k">{r.k}</div>
+            <div class="now-v">
+              {r.v}
+              {r.cta && <a class="inline-cta" href={r.cta.h}>{r.cta.t} <span aria-hidden="true">&rarr;</span></a>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ===== ACT 04 - CV ===== -->
+    <section class="act" id="cv" data-chapter="cv">
+      <div class="act-slate reveal"><span class="num">ACT 04</span> Backstory <span class="ln"></span> Six years</div>
+      <div class="reveal d1">
+        <div class="eyebrow">Live CV</div>
+        <h2 class="act-h">Six years in Luxembourg fund services.</h2>
+        <p class="lede">Updated as roles, projects and credentials change. The condensed PDF version is on request.</p>
+      </div>
+
+      <div class="cv-grid">
+        <div class="reveal d2">
+          <div class="cv-sub">Experience <span class="ln"></span><span class="meta">5 roles &middot; 6+ years</span></div>
+          {roles.map((r) => (
+            <div class="role">
+              <div class="span">{r.span}</div>
+              <div class="rt">{r.role}</div>
+              <div class="co">{r.co}</div>
+              <ul>{r.bullets.map((b) => <li>{b}</li>)}</ul>
+            </div>
+          ))}
+
+          <div class="cv-sub" style="margin-top:40px;">Education <span class="ln"></span></div>
+          {education.map((e) => (
+            <div class="edu-item">
+              <div class="span">{e.span}</div>
+              <div class="school">{e.school}</div>
+              <div class="deg">{e.deg}</div>
+            </div>
+          ))}
+        </div>
+
+        <div class="reveal d3">
+          <div class="cv-sub">Skills <span class="ln"></span></div>
+          {skills.map((s) => (
+            <div class="skill-row">
+              <div class="sk">{s.k}</div>
+              <div class="sv">{s.v}</div>
+            </div>
+          ))}
+
+          <div class="cv-sub" style="margin-top:36px;">Publication <span class="ln"></span></div>
+          <div class="pub">
+            <div class="pt">Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</div>
+            <div class="pn">MSc thesis &middot; Erasmus University Rotterdam &middot; panel econometrics over 36 OECD economies, 1995 to 2018</div>
+            <a class="btn btn-ghost" href="/thesis">Read <span class="arr">&rarr;</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ACT 05 - READING ===== -->
+    <section class="act" id="reading" data-chapter="reading">
+      <div class="act-slate reveal"><span class="num">ACT 05</span> Margins <span class="ln"></span> Reading</div>
+      <div class="reveal d1">
+        <div class="eyebrow">Reading</div>
+        <h2 class="act-h">Mostly non-fiction.</h2>
+        <p class="lede">Themes I keep coming back to. A proper bookshelf with titles will go here once I've trimmed the list.</p>
+      </div>
+      <div class="read-grid">
+        {reading.map((r) => (
+          <div class="read-card reveal">
+            <div class="rt">{r.t}</div>
+            <div class="rn">{r.n}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ===== ACT 06 - LANGUAGES ===== -->
+    <section class="act" id="lang" data-chapter="lang">
+      <div class="act-slate reveal"><span class="num">ACT 06</span> Voices <span class="ln"></span> Languages</div>
+      <div class="reveal d1">
+        <div class="eyebrow">Languages</div>
+        <h2 class="act-h">Six, used regularly.</h2>
+      </div>
+      <div class="lang-grid">
+        {languages.map((l) => (
+          <div class="lang reveal">
+            <div class="code">{l.code}</div>
+            <div class="nm">{l.name}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ===== ACT 07 - CONTACT / END CREDITS ===== -->
+    <section class="act" id="contact" data-chapter="contact">
+      <div class="credits-watermark" aria-hidden="true">hi.</div>
+      <div class="inner">
+        <div class="act-slate reveal"><span class="num">ACT 07</span> End credits <span class="ln"></span> Say hi</div>
+        <div class="reveal d1">
+          <div class="eyebrow">Contact</div>
+          <h2 class="contact-h">If any of this is <em>interesting</em>, say hi.</h2>
+          <p class="contact-body">Always interested in conversations about data engineering, automation, applied AI, multi-agent systems, knowledge engineering, agent infrastructure, especially where they meet regulated workflows.</p>
+          <div class="contact-cta">
+            <a class="btn btn-primary" href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93">Message on LinkedIn <span class="arr">&rarr;</span></a>
+            <a class="btn btn-ghost" href="https://www.linkedin.com/in/tomscholtes93/">View profile</a>
+            <a class="btn btn-ghost" href="mailto:tom@tomscholtes.com">Email</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="#open"><span class="mark">T</span><span class="name">Tom Scholtes</span></a>
+          <p class="foot-tag">Notes on AI in finance ops, a live CV, and a portfolio of work.</p>
+        </div>
+        <div class="foot-col">
+          <h4>Site</h4>
+          <a href="#now">Now</a>
+          <a href="#work">Work</a>
+          <a href="/projects">Projects</a>
+          <a href="/notes/">Notes</a>
+          <a href="#cv">CV</a>
+          <a href="#reading">Reading</a>
+        </div>
+        <div class="foot-col">
+          <h4>Elsewhere</h4>
+          <a href="https://www.linkedin.com/in/tomscholtes93/">LinkedIn</a>
+          <a href="/thesis">MSc thesis</a>
+        </div>
+        <div class="foot-col">
+          <h4>Contact</h4>
+          <a href="mailto:tom@tomscholtes.com">tom@tomscholtes.com</a>
+          <a href="#contact">Say hi</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>&copy; {year} Tom Scholtes &middot; Luxembourg</span>
+        <span>Personal site &middot; opinions my own</span>
+      </div>
+    </footer>
+  </main>
+
+  <script is:inline>
+    (function () {
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var chapters = ['open','workflow','work','now','cv','reading','lang','contact'];
+      var acts = ['00','01','02','03','04','05','06','07'];
+
+      // film grain only when in motion is allowed
+      if (!reduce) document.body.classList.add('is-playing');
+
+      // ---- Scroll reveals ----
+      var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+      if (reduce || !('IntersectionObserver' in window)) {
+        reveals.forEach(function (el) { el.classList.add('in'); });
+      } else {
+        var ro = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('in'); ro.unobserve(e.target); }
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+        reveals.forEach(function (el) { ro.observe(el); });
+      }
+
+      // ---- Progress spine fill + active node + top bar counters ----
+      var fill = document.getElementById('spineFill');
+      var nodes = Array.prototype.slice.call(document.querySelectorAll('.node'));
+      var curAct = document.getElementById('curAct');
+      var pctRead = document.getElementById('pctRead');
+      var sections = chapters.map(function (id) { return document.getElementById(id); });
+
+      function railHeight() {
+        var nodesBox = document.getElementById('spineNodes');
+        if (!nodesBox) return 0;
+        return nodesBox.clientHeight - 88; /* matches padding 44+44 */
+      }
+
+      var ticking = false;
+      function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function () {
+          var docH = document.documentElement.scrollHeight - window.innerHeight;
+          var pct = docH > 0 ? Math.min(1, Math.max(0, window.scrollY / docH)) : 0;
+          if (fill) fill.style.height = (pct * railHeight()) + 'px';
+          if (pctRead) pctRead.textContent = Math.round(pct * 100);
+
+          // determine active section: last one whose top crossed the 38% line
+          var marker = window.innerHeight * 0.38;
+          var activeIdx = 0;
+          for (var i = 0; i < sections.length; i++) {
+            var s = sections[i];
+            if (!s) continue;
+            if (s.getBoundingClientRect().top <= marker) activeIdx = i;
+          }
+          nodes.forEach(function (n, i) { n.classList.toggle('active', i === activeIdx); });
+          if (curAct) curAct.textContent = acts[activeIdx];
+        });
+        ticking = false;
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      onScroll();
+
+      // ---- Workflow pipeline cinematic cycle ----
+      var pStages = Array.prototype.slice.call(document.querySelectorAll('.stage'));
+      var pipeTimer = null;
+      function lightStage(idx) {
+        pStages.forEach(function (st, i) { st.classList.toggle('lit', i === idx); });
+      }
+      function startPipe() {
+        if (reduce || pipeTimer || !pStages.length) {
+          if (reduce) pStages.forEach(function (s) { s.classList.add('lit'); });
+          return;
+        }
+        var i = 0;
+        lightStage(0);
+        pipeTimer = setInterval(function () {
+          i = (i + 1) % pStages.length;
+          lightStage(i);
+        }, 1500);
+      }
+      if ('IntersectionObserver' in window && !reduce) {
+        var wf = document.getElementById('workflow');
+        var pio = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { startPipe(); }
+            else if (pipeTimer) { clearInterval(pipeTimer); pipeTimer = null; pStages.forEach(function (s) { s.classList.remove('lit'); }); }
+          });
+        }, { threshold: 0.3 });
+        if (wf) pio.observe(wf);
+      } else {
+        startPipe();
+      }
+      pStages.forEach(function (st, i) {
+        st.addEventListener('mouseenter', function () {
+          if (pipeTimer) { clearInterval(pipeTimer); pipeTimer = null; }
+          lightStage(i);
+        });
+      });
+
+      // ---- Chapter index overlay ----
+      var ov = document.getElementById('indexOverlay');
+      var openBtn = document.getElementById('openIndex');
+      var closeBtn = document.getElementById('closeIndex');
+      function openOv() { ov.classList.add('open'); document.body.style.overflow = 'hidden'; }
+      function closeOv() { ov.classList.remove('open'); document.body.style.overflow = ''; }
+      if (openBtn) openBtn.addEventListener('click', openOv);
+      if (closeBtn) closeBtn.addEventListener('click', closeOv);
+      Array.prototype.slice.call(document.querySelectorAll('.ix-jump')).forEach(function (a) {
+        a.addEventListener('click', closeOv);
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeOv(); });
+    })();
+  </script>
+</body>
+</html>
