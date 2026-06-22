@@ -12,7 +12,7 @@ Last update: 2026-06-22 12:28 by F43.
 - [x] V1d DevSwarm + all projects open in-window (Projects window already drills; routing added)
 - [x] V1e Fix Projects child view layout (the "long line" bug) — CSS width/wrap constraints added
 - [x] V2a Kill justified text in windows (left-align all) — verified N
-- [ ] V2b "Now" restyled to match "About"; tidy other messy windows
+- [x] V2b "Now" restyled to match "About" (single column, no dead gap); window widened 350->398
 - [ ] V3a Projects meta-analysis (real F43/F44 projects, incl. two-Claudes autonomous loops)
 - [ ] V3b "Now" content refresh
 - [ ] V4a Wallpaper + desktop polish (recover original screenshot feel)

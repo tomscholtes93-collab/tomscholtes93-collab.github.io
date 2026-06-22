@@ -1,0 +1,180 @@
+- generic [active]:
+  - generic:
+    - menubar "Desktop menu bar" [ref=e1]:
+      - generic [ref=e2]:
+        - generic [ref=e3]: T
+        - text: Tom Scholtes
+      - menuitem "About" [ref=e4] [cursor=pointer]
+      - menuitem "Work" [ref=e5] [cursor=pointer]
+      - menuitem "Now" [ref=e6] [cursor=pointer]
+      - menuitem "CV" [ref=e7] [cursor=pointer]
+      - menuitem "Notes" [ref=e8] [cursor=pointer]
+      - menuitem "Projects" [ref=e9] [cursor=pointer]
+      - menuitem "Reading" [ref=e10] [cursor=pointer]
+      - menuitem "Languages" [ref=e11] [cursor=pointer]
+      - menuitem "Contact" [ref=e12] [cursor=pointer]
+      - generic [ref=e13]: 12:27 PM
+    - generic [ref=e14]:
+      - dialog "About" [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - 'button "Close: About" [ref=e18] [cursor=pointer]'
+            - 'button "Minimize: About" [ref=e19] [cursor=pointer]'
+            - 'button "Maximize: About" [ref=e20] [cursor=pointer]'
+          - generic: About
+        - generic [ref=e22]:
+          - generic [ref=e23]: Personal site · Luxembourg
+          - heading "I build the automation behind regulated finance operations." [level=2] [ref=e24]:
+            - text: I build the automation behind
+            - emphasis [ref=e25]: regulated finance
+            - text: operations.
+          - paragraph [ref=e26]: "I'm Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and case studies of it shipping."
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - strong [ref=e29]: 6 yrs
+              - text: in Lux fund services
+            - generic [ref=e30]:
+              - strong [ref=e31]: "7"
+              - text: case studies on file
+            - generic [ref=e32]:
+              - strong [ref=e33]: "6"
+              - text: languages spoken
+      - dialog "Work" [ref=e42]:
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - 'button "Close: Work" [ref=e45] [cursor=pointer]'
+            - 'button "Minimize: Work" [ref=e46] [cursor=pointer]'
+            - 'button "Maximize: Work" [ref=e47] [cursor=pointer]'
+          - generic: Work
+        - generic [ref=e49]:
+          - button "← Back" [disabled] [ref=e51]
+          - generic [ref=e52]:
+            - paragraph [ref=e53]: Sanitised. Employer name, entity names and figures removed. Notes on how I think about this kind of work in fund services.
+            - list [ref=e54]:
+              - listitem [ref=e55]:
+                - button "Automated Regulatory Notes Generation Case 01 A pattern for how a Claude skill can read a trial balance, identify entity type, and generate disclosure notes in a firm's chosen style. Tables, movement schedules, narrative." [ref=e56] [cursor=pointer]:
+                  - generic [ref=e57]: Automated Regulatory Notes Generation Case 01
+                  - generic [ref=e58]: A pattern for how a Claude skill can read a trial balance, identify entity type, and generate disclosure notes in a firm's chosen style. Tables, movement schedules, narrative.
+              - listitem [ref=e59]:
+                - button "Annual Accounts Quality Review Case 02 How I think about pre-audit cross-checking. A pattern that takes annual accounts (PDF) and source reconciliation (Excel), checks every cross-reference between primary statements and notes, and flags inconsistencies before the auditor finds them." [ref=e60] [cursor=pointer]:
+                  - generic [ref=e61]: Annual Accounts Quality Review Case 02
+                  - generic [ref=e62]: How I think about pre-audit cross-checking. A pattern that takes annual accounts (PDF) and source reconciliation (Excel), checks every cross-reference between primary statements and notes, and flags inconsistencies before the auditor finds them.
+              - listitem [ref=e63]:
+                - button "Confidential Document Anonymisation Case 03 A pattern for aggregating raw transactional share-register data into net positions per shareholder per share class, applying rule-based redaction for non-strategic shareholders, and producing print-ready Excel and PDF." [ref=e64] [cursor=pointer]:
+                  - generic [ref=e65]: Confidential Document Anonymisation Case 03
+                  - generic [ref=e66]: A pattern for aggregating raw transactional share-register data into net positions per shareholder per share class, applying rule-based redaction for non-strategic shareholders, and producing print-ready Excel and PDF.
+              - listitem [ref=e67]:
+                - button "Cross-Platform Mailbox Intelligence Case 04 A pattern for triaging email and meeting-transcript backlogs into prioritised morning briefings. Surfaces unanswered messages, follow-ups, and half-finished commitments, organised by priority and workstream." [ref=e68] [cursor=pointer]:
+                  - generic [ref=e69]: Cross-Platform Mailbox Intelligence Case 04
+                  - generic [ref=e70]: A pattern for triaging email and meeting-transcript backlogs into prioritised morning briefings. Surfaces unanswered messages, follow-ups, and half-finished commitments, organised by priority and workstream.
+              - listitem [ref=e71]:
+                - button "Process Documentation & Knowledge Transfer Case 05 Patterns for documenting payment and accounting workflows in a way new joiners can self-serve. Payment flow, exception handling, approval routing, recharge and intercompany cases." [ref=e72] [cursor=pointer]:
+                  - generic [ref=e73]: Process Documentation & Knowledge Transfer Case 05
+                  - generic [ref=e74]: Patterns for documenting payment and accounting workflows in a way new joiners can self-serve. Payment flow, exception handling, approval routing, recharge and intercompany cases.
+              - listitem [ref=e75]:
+                - button "Fund Accounting Platform Integration Case 06 Patterns I've worked through during fund-accounting platform rollouts. Pref-share reconciliation logic, waterfall validation approaches, edge-case discovery." [ref=e76] [cursor=pointer]:
+                  - generic [ref=e77]: Fund Accounting Platform Integration Case 06
+                  - generic [ref=e78]: Patterns I've worked through during fund-accounting platform rollouts. Pref-share reconciliation logic, waterfall validation approaches, edge-case discovery.
+              - listitem [ref=e79]:
+                - button "AI Skill Architecture & Reusable Tooling Case 07 A library of small, opinionated AI skill patterns. Notes generation, quality review, anonymisation, mailbox triage, classification. Each with deterministic inputs and outputs. From single-purpose skills to five-persona orchestration, see Projects." [ref=e80] [cursor=pointer]:
+                  - generic [ref=e81]: AI Skill Architecture & Reusable Tooling Case 07
+                  - generic [ref=e82]: A library of small, opinionated AI skill patterns. Notes generation, quality review, anonymisation, mailbox triage, classification. Each with deterministic inputs and outputs. From single-purpose skills to five-persona orchestration, see Projects.
+              - listitem [ref=e83]:
+                - button "Cross-system fund-data reconciliation architecture Case 08 Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed." [ref=e84] [cursor=pointer]:
+                  - generic [ref=e85]: Cross-system fund-data reconciliation architecture Case 08
+                  - generic [ref=e86]: Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed.
+              - listitem [ref=e87]:
+                - button "End-to-end email automation Case 09 An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision." [ref=e88] [cursor=pointer]:
+                  - generic [ref=e89]: End-to-end email automation Case 09
+                  - generic [ref=e90]: An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.
+      - dialog "Now" [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - 'button "Close: Now" [ref=e102] [cursor=pointer]'
+            - 'button "Minimize: Now" [ref=e103] [cursor=pointer]'
+            - 'button "Maximize: Now" [ref=e104] [cursor=pointer]'
+          - generic: Now
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - generic [ref=e109]: / now · June 2026
+            - generic [ref=e110]:
+              - heading "What I'm focused on this quarter." [level=2] [ref=e111]
+              - paragraph [ref=e112]: A public note of where my head is right now, in the spirit of nownownow.com. I update it when things change, not on a schedule.
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - generic [ref=e115]: Building
+              - generic [ref=e116]:
+                - text: End-to-end email automation as a personal architecture. An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts the reply and proposes which attachments to include. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.
+                - link "See the demo" [ref=e117] [cursor=pointer]:
+                  - /url: /workflow-automation/
+            - generic [ref=e118]:
+              - generic [ref=e119]: Testing
+              - generic [ref=e120]: Frontier models on large, long-context files. How far the current generation holds up running real workflows over very large inputs.
+            - generic [ref=e121]:
+              - generic [ref=e122]: Orchestrating
+              - generic [ref=e123]: Workflow orchestration with n8n, extending the automation surface beyond a single agent.
+            - generic [ref=e124]:
+              - generic [ref=e125]: Running
+              - generic [ref=e126]:
+                - text: An agentic memory system on my own infrastructure. A voice-first assistant over AR glasses with a memory that consolidates during sleep, running across two machines that talk to each other, turning ideas into video journals or music within hours.
+                - link "See the project" [ref=e127] [cursor=pointer]:
+                  - /url: /projects/exocortex
+            - generic [ref=e128]:
+              - generic [ref=e129]: Learning
+              - generic [ref=e130]: Cloud computing and GPU inference, to serve models faster and at lower marginal cost.
+            - generic [ref=e131]:
+              - generic [ref=e132]: Throughline
+              - generic [ref=e133]: Applied research on frontier models and frontier technologies. Curiosity is the throughline across all of it.
+    - toolbar "Dock" [ref=e142]:
+      - button "About" [ref=e143] [cursor=pointer]:
+        - generic [ref=e145]: About
+      - button "Work" [ref=e146] [cursor=pointer]:
+        - generic [ref=e148]: Work
+      - button "Now" [ref=e149] [cursor=pointer]:
+        - generic [ref=e151]: Now
+      - button "CV" [ref=e152] [cursor=pointer]:
+        - generic [ref=e154]: CV
+      - button "Notes" [ref=e155] [cursor=pointer]:
+        - generic [ref=e157]: Notes
+      - button "Projects" [ref=e158] [cursor=pointer]:
+        - generic [ref=e160]: Projects
+      - button "Reading" [ref=e161] [cursor=pointer]:
+        - generic [ref=e163]: Reading
+      - button "Languages" [ref=e164] [cursor=pointer]:
+        - generic [ref=e166]: Languages
+      - button "Contact" [ref=e167] [cursor=pointer]:
+        - generic [ref=e169]: Contact
+  - generic [ref=e170]:
+    - button "Display settings" [ref=e171] [cursor=pointer]:
+      - img [ref=e172]
+    - dialog "Display settings":
+      - generic:
+        - generic:
+          - generic: Display
+        - button "Close":
+          - img
+      - generic:
+        - generic:
+          - generic: Theme
+          - generic:
+            - button "Light"
+            - button "Dark"
+            - button "Ink"
+        - generic:
+          - generic: Accent
+          - generic:
+            - button "Terracotta"
+            - button "Navy"
+            - button "Forest"
+            - button "Amber"
+            - button "Violet"
+          - generic: Terracotta
+        - generic:
+          - generic: Density
+          - generic:
+            - button "Compact"
+            - button "Default"
+            - button "Airy"
+        - generic:
+          - generic: press D
+          - button "reset"
