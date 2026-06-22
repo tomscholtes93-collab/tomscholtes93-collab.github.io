@@ -15,14 +15,19 @@
 }
 
 /* ---- Desktop shell ------------------------------------------------------- */
+/* Wallpaper (V4a): a layered, on-brand "aurora" built only from theme tokens, so
+   it adapts across light / dark / midnight themes. Warm accent bloom top-right,
+   cool deep bloom top-left, a soft signal-green wash rising from the dock, over a
+   gentle diagonal paper gradient. Static (no motion) so it is reduced-motion-safe. */
 .os-canvas {
   position: fixed;
   inset: 0;
   overflow: hidden;
   background:
-    radial-gradient(1200px 700px at 78% -8%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
-    radial-gradient(900px 600px at 0% 110%, color-mix(in srgb, var(--deep) 14%, transparent), transparent 55%),
-    var(--bg-2);
+    radial-gradient(1100px 740px at 84% -12%, color-mix(in srgb, var(--accent) 17%, transparent), transparent 56%),
+    radial-gradient(820px 660px at -8% 4%, color-mix(in srgb, var(--deep) 20%, transparent), transparent 54%),
+    radial-gradient(1200px 900px at 50% 124%, color-mix(in srgb, var(--ok) 11%, transparent), transparent 60%),
+    linear-gradient(158deg, color-mix(in srgb, var(--bg) 86%, var(--accent) 5%), var(--bg-2) 78%);
 }
 
 /* faint dotted wallpaper grid */
@@ -34,6 +39,15 @@
   background-size: 26px 26px;
   opacity: .5;
   pointer-events: none;
+}
+
+/* soft vignette so windows lift off the wallpaper */
+.os-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(130% 120% at 50% 42%, transparent 60%, color-mix(in srgb, var(--ink) 10%, transparent) 100%);
 }
 
 /* ---- Menubar ------------------------------------------------------------- */
@@ -327,6 +341,35 @@
 .os-note-link a { color: var(--accent-ink); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; }
 .os-proj-metric { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
 .os-proj-metric strong { color: var(--ink); }
+
+/* ---- Status pills (V3a: running / live / legacy) ------------------------- */
+.os-status {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-left: 2px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.os-status-running {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 42%, var(--rule));
+  background: color-mix(in srgb, var(--ok) 9%, transparent);
+}
+.os-status-live {
+  color: var(--accent-ink);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--rule));
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+.os-status-legacy { color: var(--muted); opacity: .85; }
+.os-list-item .t .os-status { font-size: 9.5px; }
 .os-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
 .os-tag {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
@@ -335,6 +378,61 @@
   border: 1px solid var(--rule);
   border-radius: 999px;
   padding: 4px 10px;
+}
+
+/* ---- V2b: Now window reads like About (single column, no dead gap) ------- */
+/* The editorial `.now-row` is a 2-col grid (140-200px label column + value).
+   In a narrow window that leaves a big empty gutter and reads as messy, so
+   inside windows we stack label-over-value into one clean column, matching the
+   About window's calm single-column rhythm. */
+.os-win-body .now-row {
+  display: block;
+  padding: 13px 0;
+}
+.os-win-body .now-row:first-child { padding-top: 2px; }
+.os-win-body .now-row .k {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--accent-ink);
+}
+.os-win-body .now-row .v { font-size: 15px; line-height: 1.62; }
+.os-win-body .now-row .v .link { color: var(--accent-ink); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; }
+/* match About: drop the editorial section's top hairline + tighten the head */
+.os-win[data-app="now"] .os-win-body div[style*="border-top"] { border-top: 0 !important; }
+.os-win[data-app="now"] .os-win-body .sec-head { margin-bottom: 10px; }
+
+/* ---- Activity window: simulated autonomous workstreams (V4b) -------------- */
+.os-activity { display: flex; flex-direction: column; gap: 15px; }
+.os-activity-note {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11.5px; line-height: 1.5; color: var(--muted);
+  border-left: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  padding: 2px 0 2px 12px; margin: 0;
+}
+.os-proc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 15px; }
+.os-proc { display: flex; flex-direction: column; gap: 7px; }
+.os-proc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.os-proc-name { font-weight: 600; font-size: 14px; color: var(--ink); }
+.os-proc-bar {
+  height: 6px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+}
+.os-proc-fill {
+  display: block; height: 100%; width: 0; border-radius: 999px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 65%, var(--deep)), var(--accent));
+}
+.os-proc[data-state="done"] .os-proc-fill { background: color-mix(in srgb, var(--ok) 78%, var(--accent)); }
+.os-proc[data-state="queued"] .os-proc-fill { background: color-mix(in srgb, var(--muted) 60%, transparent); }
+.os-proc[data-state="running"] .os-proc-bar { box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent); }
+.os-proc-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.os-proc-meta { font-size: 12.5px; color: var(--muted); }
+.os-proc-pct {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11.5px; color: var(--ink-2);
+  font-variant-numeric: tabular-nums; flex: 0 0 auto;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .os-proc-fill { transition: width .9s var(--ease-out, ease); }
 }
 
 /* ---- About window -------------------------------------------------------- */
@@ -355,6 +453,31 @@
 .os-win-body .cases,
 .os-win-body .reading-grid,
 .os-win-body .lang-grid { grid-template-columns: 1fr; }
+
+/* ---- V2a: window content is ALWAYS left-aligned ------------------------- */
+/* The editorial layer justifies body prose at >= 600px (and html.kp justifies
+   at all widths). Inside windows that pushes headings off the left edge and
+   reads badly in a narrow column, so we force ragged-left everywhere and
+   neutralize the build-justify enhancer (it only upgrades elements whose
+   COMPUTED text-align is justify, so forcing left here opts them out too). */
+.os-win-body,
+.os-win-body :is(p, li, dd, dt, h1, h2, h3, h4, h5,
+  .lead, .lede, .sub, .blurb, .body, .v, .k, .now-row .v, .case p) {
+  text-align: left !important;
+  text-justify: auto;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+/* ---- V1e: drill-in child views read cleanly within the window column ----- */
+/* Constrain prose to the window width, wrap long tokens, and keep code/pre
+   from forcing a horizontal line that overflows the window. */
+.os-win-body .os-nav { max-width: 100%; }
+.os-note,
+.os-win-body .prose { max-width: 100%; overflow-wrap: anywhere; }
+.os-note :is(p, h3, h4, .lead, ul, ol) { max-width: 100%; }
+.os-note pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow-x: auto; }
+.os-note :is(code, a) { overflow-wrap: anywhere; word-break: break-word; }
 /* reveal animations never run inside windows (no scroll-into-view there) */
 .os-desktop .reveal,
 .os-desktop .reveal[data-stagger] .reveal-item { opacity: 1 !important; transform: none !important; }
