@@ -14,3 +14,40 @@ export const CASE_SLUG: Record<string, string> = {
   '08': 'cross-system-reconciliation',
   '09': 'email-automation',
 };
+
+// Cases 08 + 09 are pattern write-ups that are intentionally English-only across
+// every locale (they are generic architecture sketches, not translated copy).
+// Extracted here so the editorial CaseStudies layer AND the tomOS Work window
+// render from a single source (no copy authored twice).
+export interface ExtraCase {
+  n: string;
+  title: string;
+  metric: string;
+  label: string;
+  blurb: string;
+  tags: string[];
+  slug: string;
+}
+
+export const EXTRA_CASES: ExtraCase[] = [
+  {
+    n: '08',
+    title: 'Cross-system fund-data reconciliation architecture',
+    metric: 'Pattern',
+    label: 'designed',
+    blurb:
+      'Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed.',
+    tags: ['Data integration', 'Master data', 'Internal proposal'],
+    slug: 'cross-system-reconciliation',
+  },
+  {
+    n: '09',
+    title: 'End-to-end email automation',
+    metric: 'Pattern',
+    label: 'personal automation architecture',
+    blurb:
+      'An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.',
+    tags: ['Agentic', 'Self-review loop', 'Human-in-the-loop'],
+    slug: 'email-automation',
+  },
+];

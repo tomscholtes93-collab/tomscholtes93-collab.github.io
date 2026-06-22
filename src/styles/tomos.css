@@ -355,6 +355,31 @@
 .os-win-body .cases,
 .os-win-body .reading-grid,
 .os-win-body .lang-grid { grid-template-columns: 1fr; }
+
+/* ---- V2a: window content is ALWAYS left-aligned ------------------------- */
+/* The editorial layer justifies body prose at >= 600px (and html.kp justifies
+   at all widths). Inside windows that pushes headings off the left edge and
+   reads badly in a narrow column, so we force ragged-left everywhere and
+   neutralize the build-justify enhancer (it only upgrades elements whose
+   COMPUTED text-align is justify, so forcing left here opts them out too). */
+.os-win-body,
+.os-win-body :is(p, li, dd, dt, h1, h2, h3, h4, h5,
+  .lead, .lede, .sub, .blurb, .body, .v, .k, .now-row .v, .case p) {
+  text-align: left !important;
+  text-justify: auto;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+/* ---- V1e: drill-in child views read cleanly within the window column ----- */
+/* Constrain prose to the window width, wrap long tokens, and keep code/pre
+   from forcing a horizontal line that overflows the window. */
+.os-win-body .os-nav { max-width: 100%; }
+.os-note,
+.os-win-body .prose { max-width: 100%; overflow-wrap: anywhere; }
+.os-note :is(p, h3, h4, .lead, ul, ol) { max-width: 100%; }
+.os-note pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow-x: auto; }
+.os-note :is(code, a) { overflow-wrap: anywhere; word-break: break-word; }
 /* reveal animations never run inside windows (no scroll-into-view there) */
 .os-desktop .reveal,
 .os-desktop .reveal[data-stagger] .reveal-item { opacity: 1 !important; transform: none !important; }
