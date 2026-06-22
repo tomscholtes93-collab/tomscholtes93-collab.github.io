@@ -19,6 +19,7 @@ Last update: 2026-06-22 08:11 by F43.
 ## F44 cross-test: 38/38 PASS (playwright 1.61, same dist). Peer critique requested (msg 20260622T060725Z-22ec); reply pending, not a DONE gate per orchestrator DoD.
 ## Build: PASSES clean (exit 0), 75 pages, as of 2026-06-22 08:10
 ## DONE sentinel: PRESENT (BUILD-DONE written 2026-06-22 08:11)
+## PR: #20 OPEN, base main (https://github.com/tomscholtes93-collab/tomscholtes93-collab.github.io/pull/20) — STOPPED at PR; Tom merges. NEVER merged by F43.
 
 ## Log
 - 2026-06-22 00:30 F43: branch created off lab/homepage-tournament. v4 engine audited: HAS drag/focus/minimize/close/dock + Esc; MISSING maximize/restore and resize; third light only does a weak "wider" toggle. Routes: /notes,/projects,/thesis (+i18n). Content partly single-sourced (caseStudies.ts, now.ts, headlines.ts). PLAN written. Next: W1+W2+W3 engine.
