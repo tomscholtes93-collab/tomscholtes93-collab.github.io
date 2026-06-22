@@ -14,3 +14,15 @@ tests/results/*.png
 # headless run / playwright artifacts (kept local, never shipped)
 .playwright-mcp/
 /tomos-*.png
+
+# internal build-tracking + dev scaffolding (kept local, never in the public repo)
+BUILD-PLAN.md
+BUILD-STATE.md
+BUILD-DONE
+TOMOS-AIOS-PLAN.md
+TOMOS-AIOS-STATE.md
+TOMOS-AIOS-DONE
+PLAN.md
+RESEARCH.md
+REVIEW.md
+tests/
