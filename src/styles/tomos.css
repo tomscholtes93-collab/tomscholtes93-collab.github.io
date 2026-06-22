@@ -337,6 +337,27 @@
   padding: 4px 10px;
 }
 
+/* ---- V2b: Now window reads like About (single column, no dead gap) ------- */
+/* The editorial `.now-row` is a 2-col grid (140-200px label column + value).
+   In a narrow window that leaves a big empty gutter and reads as messy, so
+   inside windows we stack label-over-value into one clean column, matching the
+   About window's calm single-column rhythm. */
+.os-win-body .now-row {
+  display: block;
+  padding: 13px 0;
+}
+.os-win-body .now-row:first-child { padding-top: 2px; }
+.os-win-body .now-row .k {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--accent-ink);
+}
+.os-win-body .now-row .v { font-size: 15px; line-height: 1.62; }
+.os-win-body .now-row .v .link { color: var(--accent-ink); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; }
+/* match About: drop the editorial section's top hairline + tighten the head */
+.os-win[data-app="now"] .os-win-body div[style*="border-top"] { border-top: 0 !important; }
+.os-win[data-app="now"] .os-win-body .sec-head { margin-bottom: 10px; }
+
 /* ---- About window -------------------------------------------------------- */
 .os-about { display: flex; flex-direction: column; gap: 14px; }
 .os-about-title { font-family: 'Instrument Serif', 'Times New Roman', serif; font-size: var(--step-3); line-height: 1.1; margin: 0; }
