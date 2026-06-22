@@ -1,0 +1,53 @@
+BUILD-DONE: hybrid tomOS desktop - all AC met, build green, interactions verified
+
+Branch: feat/hybrid-tomos-desktop (NOT merged; PR opened against main, Tom merges).
+
+WHAT SHIPPED
+One homepage, two layers, single-sourced content:
+- >= 1200px AND JS available: tomOS faux-desktop. Menubar (brand + 9 app launchers
+  + live clock), a canvas of draggable/resizable windows, and a dock.
+- < 1200px OR no JS: the existing editorial homepage, unchanged. It is also the
+  no-JS / reduced-data fallback. The split is pure CSS @media plus an html.js
+  class gate added in the Base head (no UA sniffing, safe for static GitHub Pages).
+
+NEW FILES
+- src/components/OsDesktop.astro  desktop layer; menubar + 9 windows + dock, conforms
+  to the src/scripts/tomos.js markup contract.
+- src/components/OsWindow.astro    window wrapper: titlebar + 3 traffic lights, role=dialog
+  + aria-label, programmatically focusable.
+- src/styles/tomos.css             all OS styling (menubar, windows, lights, 8 resize
+  handles, dock, maximized/minimized/focused states, focus-visible, @media split,
+  reduced-motion gate). Does NOT touch tokens.css / components.css theme vars.
+- tests/tomos.spec.mjs             portable Node + Playwright interaction proof (dev-only;
+  playwright intentionally not a project dependency).
+
+CHANGED
+- src/pages/index.astro   renders .editorial (default) + <OsDesktop/>; boots initTomOS()
+  with a double-init guard and astro:page-load rebind for View Transitions.
+- src/layouts/Base.astro  adds the `js` class to <html> in the existing head IIFE.
+- src/i18n/{en,de,fr,ru}.json  added 9 os.* keys (window/menu labels, light + nav aria,
+  hint) to ALL four locales; key parity verified by check-i18n.
+
+WORK ITEMS (BUILD-PLAN W1-W8) — all acceptance criteria met
+- W1 windowing engine: drag, focus-to-front, close hides, minimize -> dock, dock re-open. VERIFIED.
+- W2 maximize/restore: fills canvas, restores exact x/y/w/h, double-click titlebar toggles. VERIFIED.
+- W3 resize: 8 handles, min clamps (280x160), within canvas, touch handlers. VERIFIED (SE corner + clamps).
+- W4 OS-nav + Back: Notes + Projects drill-down with root list -> child view -> working Back + breadcrumb. VERIFIED (Notes).
+- W5 mobile = editorial: <1200 / no-JS shows editorial, tomOS hidden, no leakage. VERIFIED.
+- W6 single-source content: windows reuse the same components/collections + i18n keys; no copy authored twice.
+- W7 build + gates green: full npm run build exit 0 (check-i18n 317 keys x 4, check-notes 20/0, fonts, og, justify, astro, post-build). 75 pages.
+- W8 a11y + motion: role=dialog + aria-label per window, focus-visible on all controls, keyboard Enter opens, Esc closes focused, prefers-reduced-motion zeroes transitions. VERIFIED.
+
+VERIFICATION
+- npm run build: PASSES clean, exit 0.
+- Em-dash: grep -rP src/ public/ CLEAN; 0 in all built locale homepages.
+- Leakage: CLEAN across dist/{,,de/,fr/,ru/}index.html.
+- Playwright (tests/tomos.spec.mjs): 38/38 PASS on F43 (pw 1.60) AND 38/38 PASS on
+  F44 (pw 1.61) against the same dist. See tests/results/F43-results.md.
+
+NOTES
+- Two real CSS bugs found and fixed during verification: maximize was clamped by
+  .os-win max-width; .os-win (a <section>) inherited the global section padding
+  (~86px) which pushed the titlebar down and floored window height.
+- Peer critique requested from F44 via peer-mailbox (msg 20260622T060725Z-22ec);
+  reply pending and is not a gate for this orchestrator's Definition of DONE.

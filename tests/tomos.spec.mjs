@@ -22,7 +22,7 @@ const extraPaths = (process.env.PW_DIR ? process.env.PW_DIR.split(':') : []).fil
 const pwEntry = require.resolve('playwright', extraPaths.length ? { paths: extraPaths } : undefined);
 const { chromium } = require(pwEntry);
 
-const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..', 'dist');
+const ROOT = process.env.DIST_DIR || join(fileURLToPath(new URL('.', import.meta.url)), '..', 'dist');
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
@@ -131,6 +131,14 @@ try {
   check('D5 restore exact top', restored.top === pre.top, `${restored.top} vs ${pre.top}`);
   check('D6 restore exact width', restored.width === pre.width, `${restored.width} vs ${pre.width}`);
   check('D7 restore exact height', restored.height === pre.height || approx(restored.h, pre.h, 3), `${restored.height} vs ${pre.height}`);
+  // double-click titlebar toggles maximize (W2)
+  const preDbl = await rect('.os-win[data-app="work"]');
+  await page.dblclick('.os-win[data-app="work"] .os-titlebar', { position: { x: 200, y: 18 } });
+  const dblMax = await rect('.os-win[data-app="work"]');
+  check('D8 dblclick titlebar maximizes', approx(dblMax.w, canvas.w, 4), `w=${dblMax.w.toFixed(0)}`);
+  await page.dblclick('.os-win[data-app="work"] .os-titlebar', { position: { x: 200, y: 18 } });
+  const dblRestore = await rect('.os-win[data-app="work"]');
+  check('D9 dblclick titlebar restores prior geometry', dblRestore.width === preDbl.width && dblRestore.left === preDbl.left, `${dblRestore.width}/${dblRestore.left} vs ${preDbl.width}/${preDbl.left}`);
 
   // ---- E. resize from SE corner + min clamp ----
   const rs0 = await rect('.os-win[data-app="work"]');
@@ -168,6 +176,13 @@ try {
   check('G7 back returns to root list', !(await page.locator('.os-win[data-app="notes"] [data-os-view="root"]').isHidden()));
   check('G8 back disabled again at root', await page.locator('.os-win[data-app="notes"] [data-os-back]').isDisabled());
 
+  // ---- J. keyboard operability + Esc (W8) ----
+  await page.locator('.os-dock-item[data-open="cv"]').press('Enter');
+  check('J1 keyboard Enter on dock opens window', (await disp('.os-win[data-app="cv"]')) === 'flex');
+  check('J2 opened window is focused', await hasClass('.os-win[data-app="cv"]', 'focused'));
+  await page.keyboard.press('Escape');
+  check('J3 Esc closes focused window', (await disp('.os-win[data-app="cv"]')) === 'none');
+
   // ---- H. no console errors so far ----
   check('H console error-free during desktop run', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
 
@@ -178,8 +193,19 @@ try {
   const edDisp = await disp('.editorial');
   const edBox = await rect('.editorial');
   check('I2 editorial visible @480', edDisp !== 'none' && edBox && edBox.h > 100, `display=${edDisp} h=${edBox?.h?.toFixed(0)}`);
-
   await ctx.close();
+
+  // ---- K. reduced-motion gates all OS transitions (W8) ----
+  const rmCtx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  const rmPage = await rmCtx.newPage();
+  await rmPage.goto(base, { waitUntil: 'networkidle' });
+  await rmPage.waitForFunction(() => {
+    const w = document.querySelector('.os-win[data-app="work"]');
+    return w && getComputedStyle(w).display === 'flex';
+  }, null, { timeout: 8000 });
+  const rmDur = await rmPage.evaluate(() => getComputedStyle(document.querySelector('.os-win[data-app="work"]')).transitionDuration);
+  check('K reduced-motion -> no window transition', rmDur === '0s' || /^0s(,\s*0s)*$/.test(rmDur), `transition-duration=${rmDur}`);
+  await rmCtx.close();
 } catch (err) {
   console.error('SUITE ERROR:', err);
   exitCode = 2;

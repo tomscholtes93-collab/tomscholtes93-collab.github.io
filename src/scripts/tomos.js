@@ -1,5 +1,5 @@
 /*
- * tomOS windowing engine — drag, focus, minimize, maximize/restore, resize, dock,
+ * tomOS windowing engine: drag, focus, minimize, maximize/restore, resize, dock,
  * and in-window OS-nav (Back button). Desktop only (>= 1200px). Vanilla, no deps.
  *
  * MARKUP CONTRACT (the desktop layer must conform):
