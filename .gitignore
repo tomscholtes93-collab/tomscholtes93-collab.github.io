@@ -7,3 +7,6 @@ public/js/
 .env.*
 !.env.example
 .claude/
+
+# tomOS playwright screenshot artifacts (kept local)
+tests/results/*.png
