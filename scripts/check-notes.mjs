@@ -14,11 +14,12 @@ import { join } from 'node:path';
 const NOTES_DIR = 'src/content/notes';
 const LOCALES = ['en', 'de', 'fr', 'ru'];
 const EM_DASH = '—';
+// Denylist stored base64-encoded so the plaintext names do not sit in the
+// public repo source. Decoded at runtime; matching behavior is unchanged.
 const LEAKAGE_NAMES = [
   'U29maWE=', 'QmVrem9kYQ==', 'VHJpdG9u', 'Y29tcG9zaXRlLWtleXM=',
-  'SW52ZXN0cmFu', 'RGVhbHNwbHVz', 'THVrZQ==', 'Sm9ha2lt',
-  'QW5uYQ==', 'Q29ucmFk', 'QWRhbQ==',
-];
+  'SW52ZXN0cmFu', 'RGVhbHNwbHVz', 'THVrZQ==', 'Sm9ha2lt', 'QW5uYQ==', 'Q29ucmFk', 'QWRhbQ==',
+].map((s) => Buffer.from(s, 'base64').toString('utf8'));
 const HTML_RISK = /<\s*script|on\w+\s*=\s*["']|javascript:/i;
 
 const errors = [];

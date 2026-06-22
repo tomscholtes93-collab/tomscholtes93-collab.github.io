@@ -5,10 +5,13 @@ const I18N_DIR = 'src/i18n';
 const LOCALES = ['en', 'de', 'fr', 'ru'];
 const NON_DEFAULT = ['de', 'fr', 'ru'];
 const EM_DASH = '—';
+// Denylist of forbidden names, stored base64-encoded so the plaintext does not
+// sit in the public repo source. Decoded at runtime; matching behavior is
+// identical to the plaintext list.
 const LEAKAGE = [
   'U29maWE=', 'QmVrem9kYQ==', 'VHJpdG9u', 'Y29tcG9zaXRlLWtleXM=',
   'SW52ZXN0cmFu', 'RGVhbHNwbHVz', 'THVrZQ==', 'Sm9ha2lt', 'QW5uYQ==', 'Q29ucmFk', 'QWRhbQ==',
-];
+].map((s) => Buffer.from(s, 'base64').toString('utf8'));
 
 function loadDict(locale) {
   const raw = readFileSync(`${I18N_DIR}/${locale}.json`, 'utf8');
