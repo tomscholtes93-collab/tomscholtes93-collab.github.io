@@ -368,6 +368,11 @@
   border-color: color-mix(in srgb, var(--accent) 42%, var(--rule));
   background: color-mix(in srgb, var(--accent) 9%, transparent);
 }
+.os-status-shipped {
+  color: var(--deep);
+  border-color: color-mix(in srgb, var(--deep) 42%, var(--rule));
+  background: color-mix(in srgb, var(--deep) 9%, transparent);
+}
 .os-status-legacy { color: var(--muted); opacity: .85; }
 .os-list-item .t .os-status { font-size: 9.5px; }
 .os-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
