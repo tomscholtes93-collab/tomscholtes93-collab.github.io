@@ -9,7 +9,8 @@
  */
 import '../styles/tomos.css';
 import { getCollection } from 'astro:content';
-import CaseStudies from './CaseStudies.astro';
+import { CASE_IDS, CASE_SLUG, EXTRA_CASES } from '../content/caseStudies.ts';
+import { NOW_IDS } from '../content/now.ts';
 import Now from './Now.astro';
 import CV from './CV.astro';
 import Reading from './Reading.astro';
@@ -34,8 +35,9 @@ if (noteList.length === 0) {
     data.status === 'published' && slug.startsWith('en/'));
 }
 noteList = noteList.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const stripLocale = (slug: string) => slug.replace(/^[a-z]{2}\//, '');
 const notes = await Promise.all(
-  noteList.map(async (entry) => ({ entry, Content: (await entry.render()).Content })),
+  noteList.map(async (entry) => ({ entry, slug: stripLocale(entry.slug), Content: (await entry.render()).Content })),
 );
 const notesHref = localizePath('/notes/', locale);
 
@@ -44,6 +46,34 @@ const projectIds = ['devswarm', 'exocortex'] as const;
 const projectTags = (slug: string) =>
   [0, 1, 2, 3].map((i) => t(`projects.index.card.${slug}.tag.${i}`)).filter((s) => s && s.length > 0);
 const projectHref = (slug: string) => localizePath(`/projects/${slug}`, locale);
+
+// Work: cases drill in-window. Single-sourced from the SAME i18n keys the
+// editorial CaseStudies cards use (01-07), plus the shared EXTRA_CASES (08-09).
+// Each list button carries data-os-slug so the engine can route a /case/<slug>/
+// link straight to its in-window view instead of a full-page navigation.
+const workCases = [
+  ...CASE_IDS.map((n) => ({
+    view: vid(t(`home.work.case.${n}.title`)),
+    n,
+    slug: CASE_SLUG[n],
+    title: t(`home.work.case.${n}.title`),
+    metric: t(`home.work.case.${n}.metric`),
+    label: t(`home.work.case.${n}.label`),
+    blurb: t(`home.work.case.${n}.blurb`),
+    tags: [0, 1, 2].map((i) => t(`home.work.case.${n}.tag.${i}`)).filter((s) => s && s.length > 0),
+  })),
+  ...EXTRA_CASES.map((c) => ({
+    view: vid(c.title),
+    n: c.n,
+    slug: c.slug,
+    title: c.title,
+    metric: c.metric,
+    label: c.label,
+    blurb: c.blurb,
+    tags: c.tags,
+  })),
+];
+const caseHref = (slug: string) => `/case/${slug}/`;
 
 // Apps: drives menubar + dock. Window titles reuse existing nav.* keys where they
 // exist (parity already guaranteed across locales) plus two new os.win.* keys.
@@ -90,9 +120,38 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- Work (case studies) -->
+    <!-- Work (case studies; drill-down in-window, W4 / V1a) -->
     <OsWindow app="work" title={t('nav.work')} x={500} y={60} w={540} h={600}>
-      <CaseStudies />
+      <div data-os-nav class="os-nav">
+        <div class="os-navbar">
+          <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
+          <span class="os-crumb" data-os-crumb></span>
+        </div>
+        <div data-os-view="root">
+          <p class="os-list-lede">{t('home.work.blurb')}</p>
+          <ul class="os-list">
+            {workCases.map((c) => (
+              <li>
+                <button type="button" class="os-list-item" data-os-go={c.view} data-os-slug={c.slug}>
+                  <span class="t">{c.title} <span class="os-list-num">{`Case ${c.n}`}</span></span>
+                  <span class="s">{c.blurb}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {workCases.map((c) => (
+          <article class="os-note prose" data-os-view={c.view} data-os-slug={c.slug} hidden>
+            <h3>{c.title}</h3>
+            <p class="os-proj-metric"><strong>{c.metric}</strong> {c.label}</p>
+            <p class="lead">{c.blurb}</p>
+            <div class="os-tags">
+              {c.tags.map((tg) => <span class="os-tag">{tg}</span>)}
+            </div>
+            <p class="os-note-link"><a href={caseHref(c.slug)} target="_blank" rel="noopener">{c.title} ↗</a></p>
+          </article>
+        ))}
+      </div>
     </OsWindow>
 
     <!-- Now -->
@@ -115,9 +174,9 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
         <div data-os-view="root">
           <p class="os-list-lede">{t('notes.index.sub')}</p>
           <ul class="os-list">
-            {notes.map(({ entry }) => (
+            {notes.map(({ entry, slug }) => (
               <li>
-                <button type="button" class="os-list-item" data-os-go={vid(entry.data.title)}>
+                <button type="button" class="os-list-item" data-os-go={vid(entry.data.title)} data-os-slug={slug}>
                   <span class="t">{entry.data.title}</span>
                   <span class="s">{entry.data.summary}</span>
                 </button>
@@ -125,12 +184,12 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
             ))}
           </ul>
         </div>
-        {notes.map(({ entry, Content }) => (
-          <article class="os-note prose" data-os-view={vid(entry.data.title)} hidden>
+        {notes.map(({ entry, slug, Content }) => (
+          <article class="os-note prose" data-os-view={vid(entry.data.title)} data-os-slug={slug} hidden>
             <h3>{entry.data.title}</h3>
             <p class="lead">{entry.data.summary}</p>
             <Content />
-            <p class="os-note-link"><a href={`${notesHref}${entry.slug.replace(/^[a-z]{2}\//, '')}/`}>{t('notes.detail.back').replace('← ', '')} ↗</a></p>
+            <p class="os-note-link"><a href={`${notesHref}${slug}/`} target="_blank" rel="noopener">{t('notes.detail.back').replace('← ', '')} ↗</a></p>
           </article>
         ))}
       </div>
@@ -148,7 +207,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
           <ul class="os-list">
             {projectIds.map((id) => (
               <li>
-                <button type="button" class="os-list-item" data-os-go={vid(t(`projects.index.card.${id}.title`))}>
+                <button type="button" class="os-list-item" data-os-go={vid(t(`projects.index.card.${id}.title`))} data-os-slug={id}>
                   <span class="t">{t(`projects.index.card.${id}.title`)} <span class="os-list-num">{t(`projects.index.card.${id}.num`)}</span></span>
                   <span class="s">{t(`projects.index.card.${id}.body`)}</span>
                 </button>
@@ -157,14 +216,14 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
           </ul>
         </div>
         {projectIds.map((id) => (
-          <article class="os-note prose" data-os-view={vid(t(`projects.index.card.${id}.title`))} hidden>
+          <article class="os-note prose" data-os-view={vid(t(`projects.index.card.${id}.title`))} data-os-slug={id} hidden>
             <h3>{t(`projects.index.card.${id}.title`)}</h3>
             <p class="os-proj-metric"><strong>{t(`projects.index.card.${id}.metric`)}</strong> {t(`projects.index.card.${id}.label`)}</p>
             <p class="lead">{t(`projects.index.card.${id}.body`)}</p>
             <div class="os-tags">
               {projectTags(id).map((tg) => <span class="os-tag">{tg}</span>)}
             </div>
-            <p class="os-note-link"><a href={projectHref(id)}>{t(`projects.index.card.${id}.title`)} ↗</a></p>
+            <p class="os-note-link"><a href={projectHref(id)} target="_blank" rel="noopener">{t(`projects.index.card.${id}.title`)} ↗</a></p>
           </article>
         ))}
       </div>

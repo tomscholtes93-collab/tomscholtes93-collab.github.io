@@ -37,6 +37,7 @@ export function initTomOS() {
   const wins = Array.from(canvas.querySelectorAll('.os-win'));
   const dockItems = Array.from(root.querySelectorAll('.os-dock-item'));
   const winById = (id) => canvas.querySelector('.os-win[data-app="' + id + '"]');
+  const navByApp = {};           // app id -> its [data-os-nav] (drill-down windows only)
 
   const MIN_W = 280, MIN_H = 160, BAR = 44, DOCK = 72; // canvas insets for maximize
 
@@ -172,13 +173,63 @@ export function initTomOS() {
       if (crumb) crumb.textContent = stack.length <= 1 ? '' : top;
       const body = w.querySelector('.os-win-body'); if (body) body.scrollTop = 0;
     };
-    nav.querySelectorAll('[data-os-go]').forEach((t) => t.addEventListener('click', (e) => {
-      e.preventDefault(); const name = t.dataset.osGo;
+    const goTo = (name) => {
       if (name && nav.querySelector('[data-os-view="' + name + '"]')) { stack.push(name); render(); }
+    };
+    const reset = () => { stack.length = 1; render(); };
+    nav.querySelectorAll('[data-os-go]').forEach((t) => t.addEventListener('click', (e) => {
+      e.preventDefault(); goTo(t.dataset.osGo);
     }));
     if (back) back.addEventListener('click', (e) => { e.preventDefault(); if (stack.length > 1) { stack.pop(); render(); } });
     render();
+    // Expose drill helpers so internal-link routing (V1c) can open a window AND
+    // jump straight to a child view (e.g. a /case/<slug>/ link).
+    nav._osGoTo = goTo;
+    nav._osReset = reset;
+    if (w.dataset.app) navByApp[w.dataset.app] = nav;
   }
+
+  // ---- V1c: keep ALL navigation INSIDE the OS (no full-page nav) ----
+  // Any same-origin, same-tab <a> click inside a window is intercepted: if it
+  // maps to a drill-down window we open that window (and the right child view);
+  // otherwise we open the standalone page in a NEW TAB so the OS is never left.
+  // Explicit target=_blank / mailto: / external links open normally.
+  const LOC_RE = /^\/(?:de|fr|ru)(?=\/|$)/;
+  function routeInternal(url) {
+    let path = url.pathname.replace(/\/+$/, '').replace(LOC_RE, '');
+    let appId = null, slug = null;
+    const seg = (base) => path === base ? '' : path.slice(base.length + 1);
+    if (path === '/case' || path.startsWith('/case/')) { appId = 'work'; slug = seg('/case'); }
+    else if (path === '/projects' || path.startsWith('/projects/')) { appId = 'projects'; slug = seg('/projects'); }
+    else if (path === '/notes' || path.startsWith('/notes/')) { appId = 'notes'; slug = seg('/notes'); }
+    else return false;
+    if (!winById(appId)) return false;
+    openWin(appId);
+    const w = winById(appId); if (w && w.focus) w.focus({ preventScroll: true });
+    const nav = navByApp[appId];
+    if (nav) {
+      if (nav._osReset) nav._osReset();
+      if (slug && nav._osGoTo) {
+        const esc = (window.CSS && CSS.escape) ? CSS.escape(slug) : slug.replace(/"/g, '\\"');
+        const btn = nav.querySelector('[data-os-go][data-os-slug="' + esc + '"]');
+        if (btn && btn.dataset.osGo) nav._osGoTo(btn.dataset.osGo);
+      }
+    }
+    return true;
+  }
+  canvas.addEventListener('click', (e) => {
+    if (!isDesktop()) return;
+    const a = e.target.closest('a[href]');
+    if (!a || !canvas.contains(a)) return;
+    const href = a.getAttribute('href') || '';
+    if (a.target === '_blank' || a.hasAttribute('download')) return;     // open normally
+    if (/^(?:mailto:|tel:|sms:|#)/i.test(href)) return;                  // non-navigational
+    let url; try { url = new URL(href, location.href); } catch (_e) { return; }
+    if (url.origin !== location.origin) return;                         // external -> normal
+    e.preventDefault();                                                  // never full-page nav inside the OS
+    if (routeInternal(url)) return;
+    window.open(url.href, '_blank', 'noopener');                         // standalone page, OS intact
+  });
 
   // ---- init ----
   const defaultOpen = (root.dataset.osDefault || 'about,work,now').split(',').map((s) => s.trim());
