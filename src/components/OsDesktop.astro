@@ -91,6 +91,7 @@ const apps = [
   { id: 'about', label: t('os.win.about') },
   { id: 'work', label: t('nav.work') },
   { id: 'now', label: t('nav.now') },
+  { id: 'activity', label: t('os.win.activity') },
   { id: 'cv', label: t('nav.cv') },
   { id: 'notes', label: t('nav.notes') },
   { id: 'projects', label: t('nav.projects') },
@@ -99,9 +100,24 @@ const apps = [
   { id: 'contact', label: t('nav.contact') },
 ];
 
+// V4b: simulated autonomous workstreams (clearly illustrative; deterministic,
+// reduced-motion-safe). `state` is the INITIAL state; src/scripts/tomos.js drives
+// the progress bars + status pills client-side. Tied to the real project surfaces
+// (mailbox triage, reconciliation, peer loop, notes, graph, memory) so it reads as
+// this OS doing work, not random noise.
+const workstreams = [
+  { id: 'mailbox', state: 'running', delay: 0, init: 64 },
+  { id: 'reconcile', state: 'running', delay: 1, init: 58 },
+  { id: 'peer', state: 'running', delay: 0, init: 72 },
+  { id: 'notes', state: 'done', delay: 0, init: 100 },
+  { id: 'graph', state: 'done', delay: 0, init: 100 },
+  { id: 'memory', state: 'queued', delay: 3, init: 0 },
+];
+const statusKey = (s: string) => s === 'running' ? 'os.status.running' : s === 'done' ? 'os.status.done' : 'os.status.queued';
+
 const h = 'editorial'; // headline variant shown in the About window (same key family as Hero)
 ---
-<div class="os-desktop" data-os data-os-default="about,work,now" aria-hidden="false">
+<div class="os-desktop" data-os data-os-default="about,work,now,activity" aria-hidden="false">
   <!-- Menubar -->
   <div class="os-menubar" data-os-menubar role="menubar" aria-label={t('os.aria.menubar')}>
     <span class="os-brand"><span class="os-brand-mark">T</span>{t('nav.brand')}</span>
@@ -167,6 +183,34 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     <!-- Now -->
     <OsWindow app="now" title={t('nav.now')} x={1018} y={60} w={398} h={560}>
       <Now />
+    </OsWindow>
+
+    <!-- Activity: simulated autonomous workstreams (AIOS signature, V4b) -->
+    <OsWindow app="activity" title={t('os.win.activity')} x={40} y={506} w={446} h={306}>
+      <div
+        class="os-activity"
+        data-os-activity
+        data-label-running={t('os.status.running')}
+        data-label-done={t('os.status.done')}
+        data-label-queued={t('os.status.queued')}
+      >
+        <p class="os-activity-note">{t('os.activity.note')}</p>
+        <ul class="os-proc-list">
+          {workstreams.map((ws) => (
+            <li class="os-proc" data-proc={ws.id} data-state={ws.state} data-delay={ws.delay}>
+              <div class="os-proc-head">
+                <span class="os-proc-name">{t(`os.activity.ws.${ws.id}.name`)}</span>
+                <span class={`os-status os-status-${ws.state}`} data-proc-status>{t(statusKey(ws.state))}</span>
+              </div>
+              <div class="os-proc-bar"><span class="os-proc-fill" style={`width:${ws.init}%`}></span></div>
+              <div class="os-proc-foot">
+                <span class="os-proc-meta">{t(`os.activity.ws.${ws.id}.meta`)}</span>
+                <span class="os-proc-pct" data-proc-pct>{`${ws.init}%`}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </OsWindow>
 
     <!-- CV -->

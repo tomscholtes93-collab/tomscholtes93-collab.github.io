@@ -342,5 +342,21 @@
   "projects.index.card.knowledge-graph.tag.3": "Self-hosted",
   "os.status.running": "Активен",
   "os.status.live": "Live",
-  "os.status.legacy": "Legacy"
+  "os.status.legacy": "Legacy",
+  "os.win.activity": "Активность",
+  "os.activity.note": "Иллюстративно. Симулированный вид автономных рабочих потоков, не живые данные.",
+  "os.status.done": "Готово",
+  "os.status.queued": "В очереди",
+  "os.activity.ws.mailbox.name": "Триаж почты",
+  "os.activity.ws.mailbox.meta": "Классификация входящих и подготовка черновиков ответов",
+  "os.activity.ws.reconcile.name": "Прогон сверки",
+  "os.activity.ws.reconcile.meta": "Сопоставление данных между источниками",
+  "os.activity.ws.peer.name": "Peer-цикл",
+  "os.activity.ws.peer.meta": "Два агента сходятся к одной цели",
+  "os.activity.ws.notes.name": "Генерация примечаний",
+  "os.activity.ws.notes.meta": "Подготовка примечаний к отчётности",
+  "os.activity.ws.graph.name": "Пересборка knowledge graph",
+  "os.activity.ws.graph.meta": "Извлечение сущностей и связей",
+  "os.activity.ws.memory.name": "Консолидация памяти",
+  "os.activity.ws.memory.meta": "Ночное слияние профиля и архива"
 }
