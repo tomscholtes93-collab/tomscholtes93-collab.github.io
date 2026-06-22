@@ -447,7 +447,19 @@
 /* ---- Neutralize editorial section chrome inside windows ------------------ */
 .os-win-body .container { width: 100%; max-width: none; margin: 0; padding: 0; }
 .os-win-body section { padding: 0; background: none; }
-.os-win-body .sec-head { margin-bottom: 18px; }
+/* The editorial `.sec-head` is a 2-col grid (eyebrow | heading+blurb, 64px gap).
+   In a narrow window that strands the heading in the right column with a big
+   empty gutter (the "Now" complaint). Collapse it to one calm left-aligned
+   column inside windows, matching the About window. */
+.os-win-body .sec-head {
+  display: block;
+  gap: 0;
+  align-items: start;
+  margin-bottom: 18px;
+}
+.os-win-body .sec-head > .eyebrow { display: block; margin-bottom: 10px; }
+.os-win-body .sec-head h2 { margin-top: 0; }
+.os-win-body .sec-head .blurb { margin-top: 10px; max-width: none; }
 .os-win-body h2 { font-size: var(--step-3); line-height: 1.12; }
 .os-win-body .blurb { font-size: 14.5px; }
 .os-win-body .cases,
