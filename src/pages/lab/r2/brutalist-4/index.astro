@@ -1,0 +1,1003 @@
+---
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/jetbrains-mono/700.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/instrument-serif/400.css';
+
+const year = new Date().getFullYear();
+
+// ---- DATA (verbatim from parent) ----
+// nav: [index, name, target]. `target` is either an in-page id (#id) or a route (/...).
+// `kind` derived below: 'page' = in-page anchor + smooth scroll; 'route' = navigate away.
+const nav = [
+  ['00', 'Now', '#now'],
+  ['01', 'Work', '#work'],
+  ['02', 'Projects', '/projects/'],
+  ['03', 'Notes', '/notes/'],
+  ['04', 'Workflow Automation', '#workflow'],
+  ['05', 'CV', '#cv'],
+  ['06', 'Thesis', '#cv-thesis'],
+  ['07', 'Reading', '#reading'],
+  ['08', 'Contact', '#contact'],
+];
+
+const stages = [
+  ['Find', 'Reads the source files and surfaces what is unbooked, mismatched, or missing.'],
+  ['Build', 'Generates the upload template for the accounting system and drafts the counterparty email.'],
+  ['Sign off', 'The operator reviews and approves. The human owns the decision.'],
+  ['Scale', 'The same approach maps every other workflow in the company, from the existing mailbox.'],
+];
+
+const cases = [
+  {
+    no: '01', metric: 'Indicative', mlabel: 'order of magnitude time savings on this pattern',
+    title: 'Automated Regulatory Notes Generation',
+    blurb: 'A pattern for how a Claude skill can read a trial balance, identify entity type, and generate disclosure notes in a firm’s chosen style. Tables, movement schedules, narrative.',
+    tags: ['Claude skills', 'Word generation', 'LuxGAAP'], href: '/case/automated-regulatory-notes/', status: 'shipped',
+  },
+  {
+    no: '02', metric: 'Pre-audit', mlabel: 'automated cross-checker',
+    title: 'Annual Accounts Quality Review',
+    blurb: 'How I think about pre-audit cross-checking. A pattern that takes annual accounts (PDF) and source reconciliation (Excel), checks every cross-reference between primary statements and notes, and flags inconsistencies before the auditor finds them.',
+    tags: ['PDF parsing', 'Excel', 'QA automation'], href: '/case/annual-accounts-quality-review/', status: 'shipped',
+  },
+  {
+    no: '03', metric: 'Hours to minutes', mlabel: 'share registers for KYC/AML reviews',
+    title: 'Confidential Document Anonymisation',
+    blurb: 'A pattern for aggregating raw transactional share-register data into net positions per shareholder per share class, applying rule-based redaction for non-strategic shareholders, and producing print-ready Excel and PDF.',
+    tags: ['Data aggregation', 'Compliance', 'Multi-format'], href: '/case/confidential-document-anonymisation/', status: 'shipped',
+  },
+  {
+    no: '04', metric: 'Daily', mlabel: 'morning briefing automation',
+    title: 'Cross-Platform Mailbox Intelligence',
+    blurb: 'A pattern for triaging email and meeting-transcript backlogs into prioritised morning briefings. Surfaces unanswered messages, follow-ups, and half-finished commitments, organised by priority and workstream.',
+    tags: ['M365', 'Outlook', 'Triage'], href: '/case/cross-platform-mailbox-intelligence/', status: 'shipped',
+  },
+  {
+    no: '05', metric: 'Onboarding', mlabel: 'structured payment and accounting guide',
+    title: 'Process Documentation & Knowledge Transfer',
+    blurb: 'Patterns for documenting payment and accounting workflows in a way new joiners can self-serve. Payment flow, exception handling, approval routing, recharge and intercompany cases.',
+    tags: ['Technical writing', 'Process mapping'], href: '/case/process-documentation/', status: 'shipped',
+  },
+  {
+    no: '06', metric: 'Implementation', mlabel: 'contribution to platform rollout',
+    title: 'Fund Accounting Platform Integration',
+    blurb: 'Patterns I’ve worked through during fund-accounting platform rollouts. Pref-share reconciliation logic, waterfall validation approaches, edge-case discovery.',
+    tags: ['Reconciliation', 'Vendor collab', 'Validation'], href: '/case/fund-accounting-platform-integration/', status: 'shipped',
+  },
+  {
+    no: '07', metric: 'Library', mlabel: 'of reusable Claude skill patterns',
+    title: 'AI Skill Architecture & Reusable Tooling',
+    blurb: 'A library of small, opinionated AI skill patterns. Notes generation, quality review, anonymisation, mailbox triage, classification. Each with deterministic inputs and outputs. From single-purpose skills to five-persona orchestration, see Projects.',
+    tags: ['Skill design', 'Knowledge eng.', 'Infrastructure'], href: '/case/ai-skill-architecture/', status: 'shipped',
+  },
+  {
+    no: '08', metric: 'Pattern', mlabel: 'designed',
+    title: 'Cross-system fund-data reconciliation architecture',
+    blurb: 'Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed.',
+    tags: ['Data integration', 'Master data', 'Internal proposal'], href: '/case/cross-system-reconciliation/', status: 'proposed',
+  },
+  {
+    no: '09', metric: 'Pattern', mlabel: 'personal automation architecture',
+    title: 'End-to-end email automation',
+    blurb: 'An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.',
+    tags: ['Agentic', 'Self-review loop', 'Human-in-the-loop'], href: '/case/email-automation/', status: 'personal',
+  },
+];
+
+const nowRows = [
+  { k: 'Building', v: 'End-to-end email automation as a personal architecture. An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts the reply and proposes which attachments to include. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.', cta: ['See the demo', '/workflow-automation/'] },
+  { k: 'Testing', v: 'Frontier models on large, long-context files. How far the current generation holds up running real workflows over very large inputs.' },
+  { k: 'Orchestrating', v: 'Workflow orchestration with n8n, extending the automation surface beyond a single agent.' },
+  { k: 'Running', v: 'An agentic memory system on my own infrastructure. A voice-first assistant over AR glasses with a memory that consolidates during sleep, running across two machines that talk to each other, turning ideas into video journals or music within hours.', cta: ['See the project', '/projects/exocortex'] },
+  { k: 'Learning', v: 'Cloud computing and GPU inference, to serve models faster and at lower marginal cost.' },
+  { k: 'Throughline', v: 'Applied research on frontier models and frontier technologies. Curiosity is the throughline across all of it.' },
+];
+
+const experience = [
+  ['Mar 2025 · Present', 'Working in Controlling', 'SPV Controller', [
+    'End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in fund-administration platforms. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings.',
+    'Payment automation across the SPV book: batch generation, exception routing, recharge / intercompany cases.',
+    'Cross-system fund-data integration architecture.',
+    'Task management workstream via MCP: Outlook + Monday.com wired into Claude Code through MCP.',
+  ]],
+  ['Feb 2023 · Mar 2025', 'Alter Domus', 'Fund & Corporate Services Officer', [
+    'Full-cycle accounting for management companies, funds, SPVs and GPs. NAVs, financial statements, CSSF/BCL regulatory filings. Drove process improvements through technology and structured methodologies.',
+  ]],
+  ['Sep 2022 · Jan 2023', 'Waystone Administration Solutions', 'Junior Associate Fund Accountant', [
+    'Capital calls, distributions, OPEX payments. LuxGAAP financial statements. Audit coordination. Fund-administration platform import automation.',
+  ]],
+  ['Feb 2021 · Aug 2022', 'Aztec Group', 'Junior Depositary Analyst', [
+    'Asset confirmation and reconciliation for alternative investment funds. Depositary obligations and oversight duties. eFront reporting.',
+  ]],
+  ['Nov 2019 · Nov 2020', 'European Fund Administration', 'Intern Fund Accountant', [
+    'NAV calculations, financial-statement preparation, first-level controls and reconciliations. Year-end audit support.',
+  ]],
+];
+
+const education = [
+  ['2017 · 2020', 'Erasmus School of Economics, University of Rotterdam', 'MSc Economics & Business, International Economics'],
+  ['2014 · 2017', 'University of Luxembourg', 'BSc Economics, Law & Management'],
+];
+
+const skills = [
+  ['Data analysis', 'Panel econometrics · fixed-effects OLS · large multi-source datasets · Python · advanced Excel'],
+  ['Accounting systems', 'eFront · BOB50 · SAP · alternative-investment platforms'],
+  ['IT / scripting', 'VBA · Python · Microsoft Power Automate'],
+  ['Office', 'Advanced Excel · Word · PowerPoint'],
+  ['Fund types', 'Private Equity · Private Debt · Real Estate'],
+  ['AI tooling', 'Claude · Claude Code · ChatGPT · Glean · Even Realities G2 SDK (assembled stack)'],
+  ['AI infra', 'MCP servers · Multi-agent orchestration · Knowledge bases · Local model serving'],
+  ['Dev', 'TypeScript · Astro · React · GitHub Actions · Tailscale'],
+  ['Frameworks', 'LuxGAAP · eCDF · CSSF / BCL filings'],
+];
+
+const reading = [
+  ['Systems & ops quality', 'How operational excellence actually gets built and kept. Applies to finance ops as much as to engineering.'],
+  ['Knowledge engineering', 'Encoding expertise into tools other people can use without becoming experts themselves.'],
+  ['AI & cognition', 'Practical books on what current AI can and cannot do, and where it changes the work.'],
+  ['Economics & finance', 'Continuing the line my degrees started. International economics, capital markets, regulation.'],
+];
+
+const languages = [
+  ['EN', 'English'],
+  ['DE', 'Deutsch'],
+  ['FR', 'Français'],
+  ['RU', 'Русский'],
+  ['LU', 'Lëtzebuergesch'],
+  ['UZ', 'Oʻzbekcha'],
+];
+
+// ---- DERIVED COUNTS (single source of truth; never hand-typed) ----
+const caseCount = cases.length;          // 9
+const roleCount = experience.length;     // 5
+const degreeCount = education.length;     // 2
+const skillCount = skills.length;        // 9
+const langCount = languages.length;      // 6
+const langWord = ['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine'][langCount] || String(langCount);
+
+const stats = [
+  ['6 yrs', 'in Lux fund services'],
+  [String(caseCount), 'case studies on file'],
+  [String(langCount), 'languages spoken'],
+];
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Tom Scholtes. Finance ops engineer who automates the work in reach.</title>
+  <style>
+    :root{
+      --ink:#0b0b0b;
+      --paper:#f3f1ea;
+      --panel:#e7e4da;
+      --line:#0b0b0b;
+      --accent:#ff3b00;
+      --mut:#6a6a64;
+      --mut2:#8c8c85;
+      --hair:1px;
+      --pad:clamp(14px,3.2vw,28px);
+      --rail:64px;          /* the left scan rail width: numerals live here */
+    }
+    *{box-sizing:border-box;}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:auto;}
+    @media (prefers-reduced-motion: no-preference){html{scroll-behavior:smooth;}}
+    body{
+      margin:0;
+      background:var(--paper);
+      color:var(--ink);
+      font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:13px;
+      line-height:1.45;
+      -webkit-font-smoothing:antialiased;
+    }
+    a{color:inherit;text-decoration:none;}
+    ::selection{background:var(--accent);color:var(--paper);}
+    /* anchored sections clear the sticky topbar when jumped to */
+    section[id], [id^="cv-"]{scroll-margin-top:96px;}
+
+    .wrap{max-width:1320px;margin:0 auto;border-left:var(--hair) solid var(--line);border-right:var(--hair) solid var(--line);}
+
+    /* ---- shared primitives ---- */
+    .row{display:grid;border-bottom:var(--hair) solid var(--line);}
+    .mono-cap{font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-size:10px;}
+    .mut{color:var(--mut);}
+
+    /* =========================================================
+       TOP BAR  (now a running instrument: shows "you are here")
+       ========================================================= */
+    .topbar{
+      display:grid;grid-template-columns:auto 1fr auto;align-items:stretch;
+      border-bottom:2px solid var(--line);position:sticky;top:0;z-index:40;background:var(--paper);
+    }
+    .brand{display:flex;align-items:center;gap:12px;padding:10px var(--pad);}
+    .tmark{
+      width:26px;height:26px;display:grid;place-items:center;background:var(--ink);color:var(--paper);
+      font-weight:700;font-size:14px;
+    }
+    .brand b{font-weight:700;letter-spacing:.04em;}
+    .brand .loc{margin-left:6px;}
+
+    /* live position read-out: the index numeral + name of the section in view */
+    .here{
+      display:flex;align-items:center;gap:0;border-left:var(--hair) solid var(--line);
+      font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+      min-width:0;overflow:hidden;
+    }
+    .here .h-ix{
+      background:var(--ink);color:var(--accent);padding:0 12px;display:flex;align-items:center;
+      font-size:14px;letter-spacing:0;height:100%;min-width:46px;justify-content:center;
+    }
+    .here .h-nm{padding:0 14px;display:flex;align-items:center;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .here .h-nm b{color:var(--ink);font-weight:700;}
+
+    .topbar-meta{display:flex;align-items:stretch;gap:0;border-left:var(--hair) solid var(--line);}
+    .langset{font-size:10px;letter-spacing:.14em;font-weight:500;display:flex;align-items:center;padding:0 14px;}
+    .saychip{
+      background:var(--accent);color:var(--paper);padding:0 16px;font-weight:700;font-size:10px;
+      letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;
+    }
+    @media (prefers-reduced-motion: no-preference){.saychip{transition:transform .12s ease;}}
+    .saychip:hover{transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--ink);}
+
+    /* =========================================================
+       STATUS STRIP  (replaces decorative marquee: carries info)
+       ========================================================= */
+    .strip{
+      display:grid;grid-template-columns:auto 1fr auto;align-items:stretch;
+      border-bottom:2px solid var(--line);background:var(--ink);color:var(--paper);
+      font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+    }
+    .strip > *{padding:7px 14px;display:flex;align-items:center;gap:8px;}
+    .strip .s-l{border-right:var(--hair) solid #3a3a3a;color:var(--accent);}
+    .strip .s-m{color:#cfcdc6;font-weight:500;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+    .strip .s-r{border-left:var(--hair) solid #3a3a3a;color:var(--mut2);justify-content:flex-end;}
+    .strip .live{width:7px;height:7px;background:var(--accent);border-radius:50%;display:inline-block;flex:0 0 auto;}
+    @media (prefers-reduced-motion: no-preference){.strip .live{animation:pulse 2.4s ease-in-out infinite;}}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+    /* =========================================================
+       INDEX / TABLE OF CONTENTS  (load-bearing, scroll-synced)
+       ========================================================= */
+    .toc-head{
+      display:grid;grid-template-columns:var(--rail) 1fr auto;align-items:center;
+      border-bottom:var(--hair) solid var(--line);background:var(--panel);
+    }
+    .toc-head .th-ix{border-right:var(--hair) solid var(--line);padding:9px 0;text-align:center;font-weight:700;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);}
+    .toc-head .th-t{padding:9px var(--pad);font-weight:700;font-size:10px;letter-spacing:.2em;text-transform:uppercase;}
+    .toc-head .th-hint{padding:9px var(--pad);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);text-align:right;}
+    .toc-head .th-hint kbd{
+      font-family:inherit;background:var(--ink);color:var(--paper);border:0;border-radius:0;
+      padding:2px 6px;font-size:9px;font-weight:700;letter-spacing:.06em;margin-left:4px;
+    }
+
+    .toc .row{grid-template-columns:var(--rail) 1fr 150px;align-items:stretch;}
+    .toc .row > *{padding:11px var(--pad);display:flex;align-items:center;}
+    .toc .ix{
+      font-weight:700;color:var(--accent);border-right:var(--hair) solid var(--line);
+      justify-content:center;padding-left:0;padding-right:0;font-size:14px;letter-spacing:0;
+    }
+    .toc .nm{font-size:clamp(15px,2.6vw,22px);font-weight:500;letter-spacing:-.01em;color:var(--ink);}
+    .toc .go{
+      text-align:right;justify-content:flex-end;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+      color:var(--mut);border-left:var(--hair) solid var(--line);gap:8px;
+    }
+    .toc .go .kind{font-size:8px;color:var(--mut2);}
+    @media (prefers-reduced-motion: no-preference){.toc .row{transition:background .1s,color .1s;}}
+    .toc .row:hover{background:var(--ink);color:var(--paper);}
+    .toc .row:hover .nm{color:var(--paper);}
+    .toc .row:hover .go{color:var(--accent);}
+    .toc .row:hover .ix{color:var(--accent);}
+    /* current-section state in the index (set by JS) */
+    .toc .row[data-current="1"]{background:var(--accent);color:var(--paper);}
+    .toc .row[data-current="1"] .nm{color:var(--paper);}
+    .toc .row[data-current="1"] .ix{color:var(--paper);border-right-color:rgba(243,241,234,.35);}
+    .toc .row[data-current="1"] .go{color:var(--paper);border-left-color:rgba(243,241,234,.35);}
+
+    /* =========================================================
+       SECTION HEADER  (clear rank: rail numeral + FIG tag)
+       ========================================================= */
+    .sec-head{
+      display:grid;grid-template-columns:var(--rail) 1fr;border-bottom:2px solid var(--line);
+      background:var(--ink);color:var(--paper);
+    }
+    .sec-head .big{
+      font-size:clamp(40px,9vw,90px);font-weight:700;line-height:.9;padding:10px 0;
+      text-align:center;border-right:var(--hair) solid #3a3a3a;
+      display:flex;align-items:center;justify-content:center;color:var(--paper);
+    }
+    .sec-head .htxt{padding:14px var(--pad);display:flex;flex-direction:column;justify-content:center;gap:6px;}
+    .sec-head .eyebrow{
+      font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;
+      display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+    }
+    .sec-head .eyebrow .fig{color:var(--mut2);}
+    .sec-head h2{margin:0;font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(22px,4.4vw,38px);line-height:1.05;letter-spacing:.005em;}
+    .sec-head h2 em{font-style:italic;color:var(--accent);}
+    .sec-head .blurb{font-size:11.5px;color:#cfcdc6;max-width:62ch;}
+    .sec-head .blurb i{font-style:italic;color:#fff;}
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+    .hero{display:grid;grid-template-columns:1.55fr 1fr;border-bottom:2px solid var(--line);}
+    .hero-l{padding:var(--pad);border-right:var(--hair) solid var(--line);}
+    .hero-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:18px;}
+    .hero-name{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(34px,7vw,82px);line-height:.94;letter-spacing:-.01em;margin:0 0 6px;}
+    .hero-role{font-size:11px;letter-spacing:.04em;color:var(--mut);max-width:60ch;margin-bottom:22px;}
+    .hero-head{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(24px,4.6vw,46px);line-height:1.04;margin:0 0 18px;}
+    .hero-head em{font-style:italic;color:var(--accent);}
+    .hero-lead{font-size:12.5px;line-height:1.65;max-width:64ch;margin:0 0 24px;}
+    .hero-cta{display:flex;gap:0;border:var(--hair) solid var(--line);width:fit-content;max-width:100%;flex-wrap:wrap;}
+    .btn{padding:12px 20px;font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;}
+    .btn.p{background:var(--accent);color:var(--paper);}
+    .btn.g{border-left:var(--hair) solid var(--line);}
+    @media (prefers-reduced-motion: no-preference){.btn{transition:background .12s,color .12s;}}
+    .btn.g:hover{background:var(--ink);color:var(--paper);}
+
+    .hero-r{display:grid;grid-template-rows:auto 1fr;}
+    .hero-stats{display:grid;}
+    .stat{padding:var(--pad);border-bottom:var(--hair) solid var(--line);}
+    .stat .v{font-size:clamp(34px,5vw,56px);font-weight:700;line-height:1;letter-spacing:-.02em;}
+    .stat .l{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-top:6px;}
+    .glyph{
+      flex:1;display:grid;place-items:center;overflow:hidden;position:relative;min-height:220px;
+      background:
+        repeating-linear-gradient(0deg, transparent 0 13px, rgba(11,11,11,.07) 13px 14px),
+        repeating-linear-gradient(90deg, transparent 0 13px, rgba(11,11,11,.07) 13px 14px);
+    }
+    .glyph .ts{font-family:"Instrument Serif",Georgia,serif;font-size:clamp(120px,24vw,260px);line-height:.8;color:var(--ink);opacity:.96;}
+    .glyph .sub{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);}
+
+    /* =========================================================
+       WORKFLOW STAGES
+       ========================================================= */
+    .stages{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:var(--hair) solid var(--line);}
+    .stage{padding:var(--pad);border-right:var(--hair) solid var(--line);}
+    .stage:last-child{border-right:0;}
+    .stage .n{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.14em;}
+    .stage h4{margin:6px 0 8px;font-size:15px;font-weight:700;}
+    .stage p{margin:0;font-size:11px;color:var(--mut);line-height:1.55;}
+    .wf-blurb{padding:var(--pad);border-bottom:var(--hair) solid var(--line);font-size:12px;line-height:1.6;max-width:80ch;}
+    .wf-cta{padding:14px var(--pad);border-bottom:2px solid var(--line);}
+
+    /* =========================================================
+       CASES  (stronger label/content contrast; status colour logic)
+       ========================================================= */
+    .case{
+      display:grid;grid-template-columns:var(--rail) 200px 1fr;border-bottom:var(--hair) solid var(--line);align-items:stretch;
+    }
+    .case > *{padding:16px var(--pad);}
+    .case .c-no{
+      font-size:clamp(26px,4.4vw,44px);font-weight:700;line-height:.9;color:var(--ink);
+      border-right:var(--hair) solid var(--line);display:flex;align-items:flex-start;justify-content:center;
+      padding-left:0;padding-right:0;
+    }
+    .case .c-metric{border-right:var(--hair) solid var(--line);display:flex;flex-direction:column;gap:8px;}
+    .case .c-metric .mv{font-family:"Instrument Serif",Georgia,serif;font-size:22px;line-height:1;color:var(--accent);}
+    .case .c-metric .ml{font-size:10px;color:var(--mut);letter-spacing:.04em;line-height:1.4;text-transform:uppercase;}
+    .case .c-body{display:flex;flex-direction:column;gap:10px;}
+    .case .c-title{font-size:clamp(15px,2.4vw,20px);font-weight:700;display:flex;justify-content:space-between;gap:14px;align-items:baseline;}
+    .case .c-title .arr{color:var(--accent);font-weight:700;}
+    .case .c-blurb{font-size:11.5px;color:#2a2a26;line-height:1.6;max-width:78ch;}
+    .case .c-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+    .tag{border:var(--hair) solid var(--line);padding:3px 8px;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;}
+    /* status pill: a second functional use of state, not just hot orange everywhere */
+    .pill{padding:3px 8px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border:var(--hair) solid var(--line);}
+    .pill.shipped{background:var(--ink);color:var(--paper);}
+    .pill.proposed{background:transparent;color:var(--ink);border-style:dashed;}
+    .pill.personal{background:var(--accent);color:var(--paper);border-color:var(--accent);}
+    @media (prefers-reduced-motion: no-preference){.case{transition:background .1s;}}
+    .case:hover{background:var(--panel);}
+    .case:hover .c-no{color:var(--accent);}
+
+    /* =========================================================
+       KEY/VALUE rows (Now)  + stronger key column contrast
+       ========================================================= */
+    .kv{display:grid;grid-template-columns:200px 1fr;border-bottom:var(--hair) solid var(--line);}
+    .kv .k{padding:16px var(--pad);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;border-right:var(--hair) solid var(--line);color:var(--accent);}
+    .kv .v{padding:16px var(--pad);font-size:11.5px;line-height:1.65;}
+    .kv .v a{color:var(--ink);font-weight:700;border-bottom:2px solid var(--accent);}
+    .kv .v a:hover{background:var(--accent);color:var(--paper);}
+
+    /* =========================================================
+       CV
+       ========================================================= */
+    .cv-sub{display:grid;grid-template-columns:200px 1fr;border-bottom:2px solid var(--line);background:var(--panel);}
+    .cv-sub .lbl{padding:10px var(--pad);font-weight:700;text-transform:uppercase;letter-spacing:.16em;font-size:11px;border-right:var(--hair) solid var(--line);}
+    .cv-sub .sum{padding:10px var(--pad);font-size:11px;color:var(--mut);letter-spacing:.04em;display:flex;align-items:center;}
+    .job{display:grid;grid-template-columns:200px 1fr;border-bottom:var(--hair) solid var(--line);}
+    .job .when{padding:16px var(--pad);font-size:11px;color:var(--mut);border-right:var(--hair) solid var(--line);font-weight:500;}
+    .job .det{padding:16px var(--pad);}
+    .job .org{font-size:16px;font-weight:700;}
+    .job .title{font-size:12px;color:var(--accent);font-weight:500;margin:2px 0 10px;letter-spacing:.02em;}
+    .job ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;}
+    .job li{font-size:11.5px;line-height:1.55;padding-left:16px;position:relative;}
+    .job li::before{content:"/";position:absolute;left:0;color:var(--accent);font-weight:700;}
+    .pub .det .org{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:18px;line-height:1.2;}
+    .pub-cta{display:inline-block;margin-top:10px;font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;border-bottom:2px solid var(--accent);}
+
+    /* =========================================================
+       READING / LANGUAGES
+       ========================================================= */
+    .grid2{display:grid;grid-template-columns:1fr 1fr;}
+    .gcell{padding:var(--pad);border-bottom:var(--hair) solid var(--line);border-right:var(--hair) solid var(--line);}
+    .grid2 .gcell:nth-child(2n){border-right:0;}
+    .gcell h4{margin:0 0 8px;font-size:15px;font-weight:700;}
+    .gcell p{margin:0;font-size:11.5px;color:var(--mut);line-height:1.6;}
+
+    .langs{display:grid;grid-template-columns:repeat(6,1fr);}
+    .lang{padding:var(--pad);border-right:var(--hair) solid var(--line);text-align:center;}
+    .lang:last-child{border-right:0;}
+    .lang .code{font-size:clamp(28px,4vw,46px);font-weight:700;letter-spacing:-.02em;line-height:1;}
+    .lang .nm{font-size:10px;margin-top:8px;color:var(--mut);letter-spacing:.06em;}
+
+    /* =========================================================
+       CONTACT
+       ========================================================= */
+    .contact{position:relative;border-bottom:2px solid var(--line);overflow:hidden;background:var(--ink);color:var(--paper);}
+    .contact .wm{position:absolute;right:-2vw;top:50%;transform:translateY(-50%);font-family:"Instrument Serif",Georgia,serif;font-size:clamp(160px,34vw,420px);line-height:.7;color:rgba(255,255,255,.06);pointer-events:none;user-select:none;}
+    .contact-inner{position:relative;padding:var(--pad);z-index:2;}
+    .contact .eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;}
+    .contact h2{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(28px,6vw,60px);line-height:1.02;margin:12px 0;}
+    .contact h2 em{font-style:italic;color:var(--accent);}
+    .contact p{font-size:12.5px;line-height:1.65;max-width:64ch;color:#cfcdc6;margin:0 0 22px;}
+    .contact-cta{display:flex;border:var(--hair) solid #555;width:fit-content;max-width:100%;flex-wrap:wrap;}
+    .contact-cta a{padding:13px 20px;font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;border-left:var(--hair) solid #555;}
+    .contact-cta a:first-child{border-left:0;background:var(--accent);color:var(--paper);}
+    @media (prefers-reduced-motion: no-preference){.contact-cta a{transition:background .12s,color .12s;}}
+    .contact-cta a:not(:first-child):hover{background:var(--paper);color:var(--ink);}
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+    footer{background:var(--ink);color:var(--paper);}
+    .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;border-bottom:var(--hair) solid #333;}
+    .foot-grid > div{padding:var(--pad);border-right:var(--hair) solid #333;}
+    .foot-grid > div:last-child{border-right:0;}
+    .foot-brand b{font-weight:700;}
+    .foot-brand .tag{font-size:11px;color:#aaa;margin-top:10px;line-height:1.5;max-width:34ch;}
+    .foot-col h5{margin:0 0 12px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;}
+    .foot-col a{display:block;font-size:11px;color:#ddd;padding:4px 0;}
+    .foot-col a:hover{color:var(--accent);}
+    .foot-bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px var(--pad);font-size:10px;color:#888;letter-spacing:.06em;}
+
+    /* =========================================================
+       KEY-JUMP TOAST  (aria-live announce of the signature interaction)
+       ========================================================= */
+    .toast{
+      position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(8px);
+      background:var(--ink);color:var(--paper);border:var(--hair) solid var(--accent);
+      padding:8px 14px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+      z-index:60;opacity:0;pointer-events:none;white-space:nowrap;
+    }
+    .toast .t-ix{color:var(--accent);margin-right:8px;}
+    .toast[data-show="1"]{opacity:1;transform:translateX(-50%) translateY(0);}
+    @media (prefers-reduced-motion: no-preference){.toast{transition:opacity .14s ease,transform .14s ease;}}
+
+    /* visually-hidden but screen-reader available */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+    @media (max-width:980px){
+      .here .h-nm{display:none;}
+    }
+    @media (max-width:820px){
+      .hero{grid-template-columns:1fr;}
+      .hero-l{border-right:0;border-bottom:var(--hair) solid var(--line);}
+      .hero-stats{grid-template-columns:repeat(3,1fr);}
+      .stat{border-right:var(--hair) solid var(--line);}
+      .stat:last-child{border-right:0;}
+      .glyph{min-height:200px;}
+      .stages{grid-template-columns:repeat(2,1fr);}
+      .stage:nth-child(2n){border-right:0;}
+      .foot-grid{grid-template-columns:1fr 1fr;}
+    }
+    @media (max-width:600px){
+      body{font-size:13px;}
+      .topbar{grid-template-columns:1fr;}
+      .here{display:none;}
+      .topbar-meta{border-left:0;border-top:var(--hair) solid var(--line);justify-content:space-between;}
+      .strip{grid-template-columns:1fr;}
+      .strip .s-l{border-right:0;border-bottom:var(--hair) solid #3a3a3a;}
+      .strip .s-r{border-left:0;border-top:var(--hair) solid #3a3a3a;justify-content:flex-start;}
+      .toc-head{grid-template-columns:44px 1fr;}
+      .toc-head .th-hint{display:none;}
+      .toc .row{grid-template-columns:44px 1fr;}
+      .toc .go{display:none;}
+      .sec-head{grid-template-columns:48px 1fr;}
+      .case{grid-template-columns:1fr;}
+      .case .c-no{border-right:0;border-bottom:var(--hair) solid var(--line);justify-content:flex-start;padding-left:var(--pad);}
+      .case .c-metric{border-right:0;border-bottom:var(--hair) solid var(--line);flex-direction:row;flex-wrap:wrap;align-items:baseline;}
+      .kv{grid-template-columns:1fr;}
+      .kv .k{border-right:0;border-bottom:var(--hair) solid var(--line);}
+      .cv-sub{grid-template-columns:1fr;}
+      .cv-sub .lbl{border-right:0;border-bottom:var(--hair) solid var(--line);}
+      .job{grid-template-columns:1fr;}
+      .job .when{border-right:0;border-bottom:var(--hair) solid var(--line);}
+      .grid2{grid-template-columns:1fr;}
+      .grid2 .gcell{border-right:0;}
+      .langs{grid-template-columns:repeat(3,1fr);}
+      .lang:nth-child(3n){border-right:0;}
+      .lang:nth-child(n+4){border-top:var(--hair) solid var(--line);}
+      .stages{grid-template-columns:1fr;}
+      .stage{border-right:0;}
+      .foot-grid{grid-template-columns:1fr;}
+      .foot-grid > div{border-right:0;border-bottom:var(--hair) solid #333;}
+      .toast{left:14px;right:14px;bottom:14px;transform:translateY(8px);white-space:normal;}
+      .toast[data-show="1"]{transform:translateY(0);}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- TOP BAR : brand + live "you are here" read-out -->
+    <div class="topbar">
+      <div class="brand">
+        <span class="tmark">T</span>
+        <b>Tom Scholtes</b>
+        <span class="mut mono-cap loc">Index / Luxembourg</span>
+      </div>
+      <div class="here" id="here" aria-hidden="true">
+        <span class="h-ix" id="hereIx">00</span>
+        <span class="h-nm">In view <b id="hereNm">Now</b></span>
+      </div>
+      <div class="topbar-meta">
+        <span class="langset mut">EN / DE / FR / RU</span>
+        <a class="saychip" href="#contact">Say hi</a>
+      </div>
+    </div>
+
+    <!-- STATUS STRIP : carries information, not decorative scroll -->
+    <div class="strip">
+      <div class="s-l"><span class="live" aria-hidden="true"></span> Now</div>
+      <div class="s-m">Finance ops engineer who automates the work in reach. Six years, Luxembourg fund services. PE, Private Debt, Real Estate.</div>
+      <div class="s-r">{caseCount} cases · {langCount} languages · live CV</div>
+    </div>
+
+    <!-- INDEX / TABLE OF CONTENTS -->
+    <div class="toc-head">
+      <div class="th-ix">Idx</div>
+      <div class="th-t">Index of the work</div>
+      <div class="th-hint">Press a number to jump<kbd>0</kbd><kbd>8</kbd></div>
+    </div>
+    <nav class="toc" id="toc" aria-label="Index">
+      {nav.map(([n, name, target]) => {
+        const isRoute = target.charAt(0) !== '#';
+        return (
+          <a class="row" href={target} data-ix={n} data-target={target} data-kind={isRoute ? 'route' : 'page'}>
+            <div class="ix">{n}</div>
+            <div class="nm">{name}</div>
+            <div class="go"><span class="kind">{isRoute ? 'page' : 'jump'}</span> &rarr;</div>
+          </a>
+        );
+      })}
+    </nav>
+
+    <!-- 00 NOW -->
+    <section id="now">
+      <div class="sec-head">
+        <div class="big">00</div>
+        <div class="htxt">
+          <div class="eyebrow">/ now · June 2026 <span class="fig">FIG. 00 / NOW</span></div>
+          <h2>What I'm focused on this quarter.</h2>
+          <div class="blurb">A public note of where my head is right now, in the spirit of <i>nownownow.com</i>. I update it when things change, not on a schedule.</div>
+        </div>
+      </div>
+      {nowRows.map((r) => (
+        <div class="kv">
+          <div class="k">{r.k}</div>
+          <div class="v">
+            {r.v}
+            {r.cta && (<> <a href={r.cta[1]}>{r.cta[0]} &rarr;</a></>)}
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <!-- 01 WORK / CASE STUDIES -->
+    <section id="work">
+      <div class="sec-head">
+        <div class="big">01</div>
+        <div class="htxt">
+          <div class="eyebrow">Case studies · {caseCount} on file <span class="fig">FIG. 01 / WORK</span></div>
+          <h2>Patterns I've <em>worked through</em>.</h2>
+          <div class="blurb">Sanitised. Employer name, entity names and figures removed. Notes on how I think about this kind of work in fund services. Solid pill is shipped; dashed is proposed internally; orange is personal.</div>
+        </div>
+      </div>
+      <div class="cases">
+        {cases.map((c) => (
+          <a class="case" href={c.href}>
+            <div class="c-no">{c.no}</div>
+            <div class="c-metric">
+              <span class="mv">{c.metric}</span>
+              <span class="ml">{c.mlabel}</span>
+            </div>
+            <div class="c-body">
+              <div class="c-title"><span>{c.title}</span><span class="arr">&rarr;</span></div>
+              <div class="c-blurb">{c.blurb}</div>
+              <div class="c-meta">
+                <span class={`pill ${c.status}`}>{c.status}</span>
+                {c.tags.map((t) => <span class="tag">{t}</span>)}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- 04 WORKFLOW AUTOMATION (kept on-page; 02 Projects + 03 Notes are routes) -->
+    <section id="workflow">
+      <div class="sec-head">
+        <div class="big">04</div>
+        <div class="htxt">
+          <div class="eyebrow">Live demo <span class="fig">FIG. 04 / WORKFLOW</span></div>
+          <h2>See the automation run, on synthetic data.</h2>
+          <div class="blurb">Point AI at the manual workflows underneath a finance desk. It surfaces what is unbooked, mismatched, or missing, builds the upload template, and drafts the counterparty email. The operator reviews and signs off; the human owns the decision. Click through a before-and-after process map and run it live.</div>
+        </div>
+      </div>
+      <div class="stages">
+        {stages.map(([t, d], i) => (
+          <div class="stage">
+            <div class="n">STAGE {String(i + 1).padStart(2, '0')}</div>
+            <h4>{t}</h4>
+            <p>{d}</p>
+          </div>
+        ))}
+      </div>
+      <div class="wf-cta">
+        <a class="btn p" href="/workflow-automation/" style="display:inline-block;border:1px solid var(--line);">Open the live demo &rarr;</a>
+      </div>
+    </section>
+
+    <!-- 05 CV  (Thesis = index 06, anchored at #cv-thesis inside this block) -->
+    <section id="cv">
+      <div class="sec-head">
+        <div class="big">05</div>
+        <div class="htxt">
+          <div class="eyebrow">Live CV <span class="fig">FIG. 05 / CV</span></div>
+          <h2>Six years in Luxembourg fund services.</h2>
+          <div class="blurb">Updated as roles, projects and credentials change. The condensed PDF version is on request.</div>
+        </div>
+      </div>
+
+      <div class="cv-sub"><div class="lbl">Experience</div><div class="sum">{roleCount} roles · 6+ years</div></div>
+      {experience.map(([when, org, title, bullets]) => (
+        <div class="job">
+          <div class="when">{when}</div>
+          <div class="det">
+            <div class="org">{org}</div>
+            <div class="title">{title}</div>
+            <ul>{bullets.map((b) => <li>{b}</li>)}</ul>
+          </div>
+        </div>
+      ))}
+
+      <div class="cv-sub"><div class="lbl">Education</div><div class="sum">{degreeCount} degrees</div></div>
+      {education.map(([when, org, title]) => (
+        <div class="job">
+          <div class="when">{when}</div>
+          <div class="det">
+            <div class="org">{org}</div>
+            <div class="title">{title}</div>
+          </div>
+        </div>
+      ))}
+
+      <div class="cv-sub"><div class="lbl">Skills</div><div class="sum">{skillCount} domains</div></div>
+      {skills.map(([k, v]) => (
+        <div class="kv">
+          <div class="k" style="color:var(--ink);font-size:12px;">{k}</div>
+          <div class="v">{v}</div>
+        </div>
+      ))}
+
+      <div class="cv-sub" id="cv-thesis"><div class="lbl">06 · Thesis</div><div class="sum">1 publication</div></div>
+      <div class="job pub">
+        <div class="when">MSc thesis</div>
+        <div class="det">
+          <div class="org">Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</div>
+          <div class="title" style="margin-top:8px;">MSc thesis · Erasmus University Rotterdam · panel econometrics over 36 OECD economies, 1995 to 2018</div>
+          <a class="pub-cta" href="/thesis">Read &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 READING -->
+    <section id="reading">
+      <div class="sec-head">
+        <div class="big">07</div>
+        <div class="htxt">
+          <div class="eyebrow">Reading <span class="fig">FIG. 07 / READING</span></div>
+          <h2>Mostly non-fiction.</h2>
+          <div class="blurb">Themes I keep coming back to. A proper bookshelf with titles will go here once I've trimmed the list.</div>
+        </div>
+      </div>
+      <div class="grid2">
+        {reading.map(([t, n]) => (
+          <div class="gcell">
+            <h4>{t}</h4>
+            <p>{n}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- LANGUAGES (no nav index of its own; lives under Reading as supporting figure) -->
+    <section id="languages">
+      <div class="sec-head">
+        <div class="big" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;">{langCount}</div>
+        <div class="htxt">
+          <div class="eyebrow">Languages <span class="fig">FIG. 07a / LANGUAGES</span></div>
+          <h2>{langWord}, used regularly.</h2>
+          <div class="blurb">Spoken regularly. Code and native name; no proficiency levels claimed.</div>
+        </div>
+      </div>
+      <div class="langs">
+        {languages.map(([code, nm]) => (
+          <div class="lang">
+            <div class="code">{code}</div>
+            <div class="nm">{nm}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- HERO (identity figure; kept above contact as the FIG.00 IDENTITY plate) -->
+    <section class="hero" id="top">
+      <div class="hero-l">
+        <div class="hero-eyebrow">Personal site · Luxembourg</div>
+        <h1 class="hero-name">Tom Scholtes</h1>
+        <div class="hero-role">Finance ops engineer who automates the work in reach. Builds AI-augmented automation for the operational work in regulated finance. Six years in Luxembourg fund services across PE, Private Debt and Real Estate.</div>
+        <p class="hero-head">I build the automation behind <em>regulated finance</em> operations.</p>
+        <p class="hero-lead">I'm Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and case studies of it shipping.</p>
+        <div class="hero-cta">
+          <a class="btn p" href="#work">See the work</a>
+          <a class="btn g" href="#contact">Get in touch</a>
+        </div>
+      </div>
+      <div class="hero-r">
+        <div class="hero-stats">
+          {stats.map(([v, l]) => (
+            <div class="stat">
+              <div class="v">{v}</div>
+              <div class="l">{l}</div>
+            </div>
+          ))}
+        </div>
+        <div class="glyph" aria-hidden="true">
+          <div class="ts">T</div>
+          <div class="sub">FIG. 00 / IDENTITY</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 CONTACT -->
+    <section class="contact" id="contact">
+      <div class="wm" aria-hidden="true">hi.</div>
+      <div class="contact-inner">
+        <div class="eyebrow">08 · Contact &nbsp; FIG. 08 / CONTACT</div>
+        <h2>If any of this is <em>interesting</em>, say hi.</h2>
+        <p>Always interested in conversations about data engineering, automation, applied AI, multi-agent systems, knowledge engineering, agent infrastructure, especially where they meet regulated workflows.</p>
+        <div class="contact-cta">
+          <a href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93">Message on LinkedIn</a>
+          <a href="https://www.linkedin.com/in/tomscholtes93/">View profile</a>
+          <a href="mailto:tom@tomscholtes.com">Email</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="tmark">T</span><b>Tom Scholtes</b>
+          </div>
+          <div class="tag">Notes on AI in finance ops, a live CV, and a portfolio of work.</div>
+        </div>
+        <div class="foot-col">
+          <h5>Site</h5>
+          <a href="/#now">Now</a>
+          <a href="/#work">Work</a>
+          <a href="/projects">Projects</a>
+          <a href="/notes/">Notes</a>
+          <a href="/#cv">CV</a>
+          <a href="/#reading">Reading</a>
+        </div>
+        <div class="foot-col">
+          <h5>Elsewhere</h5>
+          <a href="https://www.linkedin.com/in/tomscholtes93/">LinkedIn</a>
+          <a href="/thesis">MSc thesis</a>
+        </div>
+        <div class="foot-col">
+          <h5>Contact</h5>
+          <a href="mailto:tom@tomscholtes.com">tom@tomscholtes.com</a>
+          <a href="/#contact">Say hi</a>
+        </div>
+      </div>
+      <div class="foot-bot">
+        <span>&copy; {year} Tom Scholtes · Luxembourg</span>
+        <span>Personal site · opinions my own</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- aria-live announce for the keyboard signature -->
+  <div class="toast" id="toast" role="status" aria-live="polite"><span class="t-ix" id="toastIx"></span><span id="toastTx"></span></div>
+
+  <script>
+    /* =========================================================
+       SIGNATURE INTERACTION: the keyboard-driven index.
+       Every printed index number (00-08) jumps somewhere truthful.
+       - In-page entries scroll to their anchor (smooth).
+       - Off-page entries (02 Projects, 03 Notes) navigate to the route.
+       The map is built from the SAME nav table that prints the index,
+       so the keys can never contradict what is on screen.
+       ========================================================= */
+    (function () {
+      const toc = document.getElementById('toc');
+      if (!toc) return;
+
+      // Build {digit -> {target, kind, name, ix}} straight from the DOM rows.
+      const rows = Array.prototype.slice.call(toc.querySelectorAll('.row'));
+      const byDigit = {};
+      rows.forEach(function (row) {
+        const ix = row.getAttribute('data-ix');         // "00".."08"
+        const digit = String(parseInt(ix, 10));         // "0".."8"
+        byDigit[digit] = {
+          target: row.getAttribute('data-target'),
+          kind: row.getAttribute('data-kind'),
+          name: (row.querySelector('.nm') || {}).textContent || '',
+          ix: ix,
+          row: row,
+        };
+      });
+
+      const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function scrollToId(hash) {
+        const el = document.querySelector(hash);
+        if (!el) return false;
+        el.scrollIntoView({ behavior: prefersReduce ? 'auto' : 'smooth', block: 'start' });
+        return true;
+      }
+
+      // toast / aria-live announce
+      const toast = document.getElementById('toast');
+      const toastIx = document.getElementById('toastIx');
+      const toastTx = document.getElementById('toastTx');
+      let toastTimer = null;
+      function announce(ix, name) {
+        if (!toast) return;
+        toastIx.textContent = ix;
+        toastTx.textContent = name;
+        toast.setAttribute('data-show', '1');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.removeAttribute('data-show'); }, 1600);
+      }
+
+      // Make clicked index rows behave EXACTLY like the keyboard path:
+      // same target, same smooth scroll, for in-page entries.
+      rows.forEach(function (row) {
+        if (row.getAttribute('data-kind') !== 'page') return; // routes follow normal href
+        row.addEventListener('click', function (e) {
+          const hash = row.getAttribute('data-target');
+          if (hash && hash.charAt(0) === '#') {
+            e.preventDefault();
+            if (scrollToId(hash)) {
+              history.replaceState(null, '', hash);
+              announce(row.getAttribute('data-ix'), row.querySelector('.nm').textContent);
+            }
+          }
+        });
+      });
+
+      function jump(entry) {
+        if (!entry) return;
+        if (entry.kind === 'route') {
+          announce(entry.ix, entry.name + ' →');
+          window.location.href = entry.target;     // truthful navigation, no dead key
+          return;
+        }
+        if (scrollToId(entry.target)) {
+          history.replaceState(null, '', entry.target);
+          announce(entry.ix, entry.name);
+        }
+      }
+
+      function isTypingTarget(t) {
+        if (!t) return false;
+        if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') return true;
+        if (t.isContentEditable) return true;
+        return false;
+      }
+
+      window.addEventListener('keydown', function (e) {
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        if (isTypingTarget(e.target)) return;
+        if (e.key < '0' || e.key > '8') return;     // only the printed index digits
+        if (e.key.length !== 1) return;
+        const entry = byDigit[e.key];
+        if (!entry) return;
+        e.preventDefault();
+        jump(entry);
+      });
+
+      /* =========================================================
+         SCROLL-SYNCED "you are here" instrument.
+         Mirrors the current section's numeral in the topbar AND
+         highlights the matching index row, so the index reads as
+         live navigable state, not static decoration.
+         ========================================================= */
+      const hereIx = document.getElementById('hereIx');
+      const hereNm = document.getElementById('hereNm');
+
+      // Map each watched section element to its index entry.
+      // Languages has no nav number; it inherits 07 (Reading) for the read-out.
+      const watch = [
+        { id: 'now', ix: '00', nm: 'Now' },
+        { id: 'work', ix: '01', nm: 'Work' },
+        { id: 'workflow', ix: '04', nm: 'Workflow Automation' },
+        { id: 'cv', ix: '05', nm: 'CV' },
+        { id: 'reading', ix: '07', nm: 'Reading' },
+        { id: 'languages', ix: '07', nm: 'Reading' },
+        { id: 'top', ix: '00', nm: 'Identity' },
+        { id: 'contact', ix: '08', nm: 'Contact' },
+      ];
+      const watched = watch
+        .map(function (w) { const el = document.getElementById(w.id); return el ? { el: el, w: w } : null; })
+        .filter(Boolean);
+
+      const rowByIx = {};
+      rows.forEach(function (r) { rowByIx[r.getAttribute('data-ix')] = r; });
+
+      let currentIx = null;
+      function setCurrent(w) {
+        if (!w) return;
+        if (hereIx) hereIx.textContent = w.ix;
+        if (hereNm) hereNm.textContent = w.nm;
+        if (w.ix === currentIx) return;
+        currentIx = w.ix;
+        rows.forEach(function (r) { r.removeAttribute('data-current'); });
+        if (rowByIx[w.ix]) rowByIx[w.ix].setAttribute('data-current', '1');
+      }
+
+      if ('IntersectionObserver' in window) {
+        // Track the section whose header is nearest the top of the viewport.
+        const visible = new Map();
+        const io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (en.isIntersecting) visible.set(en.target, en.intersectionRatio);
+            else visible.delete(en.target);
+          });
+          // Pick the topmost visible watched section.
+          let best = null, bestTop = Infinity;
+          watched.forEach(function (item) {
+            if (!visible.has(item.el)) return;
+            const top = item.el.getBoundingClientRect().top;
+            if (top < bestTop) { bestTop = top; best = item.w; }
+          });
+          if (best) setCurrent(best);
+        }, { rootMargin: '-90px 0px -55% 0px', threshold: [0, 0.01, 0.2] });
+        watched.forEach(function (item) { io.observe(item.el); });
+      }
+
+      // Initialise read-out on load.
+      setCurrent({ ix: '00', nm: 'Now' });
+    })();
+  </script>
+</body>
+</html>

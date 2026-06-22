@@ -13,21 +13,43 @@ import Footer from '../components/Footer.astro';
 import RevealObserver from '../components/RevealObserver.astro';
 import DisplayPanel from '../components/islands/DisplayPanel.jsx';
 import TweaksPanel from '../components/islands/TweaksPanel.jsx';
+import OsDesktop from '../components/OsDesktop.astro';
 ---
 <Base jsonLd={true}>
-  <Nav active="home" />
-  <main>
-    <Hero />
-    <WorkflowAutomation />
-    <CaseStudies />
-    <Now />
-    <CV />
-    <Reading />
-    <Languages />
-    <Contact />
-  </main>
-  <Footer />
+  <!-- Editorial layer: default + the < 1200px and no-JS fallback. -->
+  <div class="editorial">
+    <Nav active="home" />
+    <main>
+      <Hero />
+      <WorkflowAutomation />
+      <CaseStudies />
+      <Now />
+      <CV />
+      <Reading />
+      <Languages />
+      <Contact />
+    </main>
+    <Footer />
+  </div>
+
+  <!-- tomOS desktop layer: shown only >= 1200px with JS (single-sourced content). -->
+  <OsDesktop />
+
   <DisplayPanel client:idle />
   <TweaksPanel client:idle />
   <RevealObserver />
+
+  <script>
+    import { initTomOS } from '../scripts/tomos.js';
+    function boot() {
+      const r = document.querySelector('[data-os]');
+      if (!r) return;
+      if (r.dataset.osBooted === '1') return; // guard against double-init on the same DOM
+      r.dataset.osBooted = '1';
+      initTomOS();
+    }
+    boot();
+    // Re-init after View Transition swaps (fresh DOM each navigation).
+    document.addEventListener('astro:page-load', boot);
+  </script>
 </Base>

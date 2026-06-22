@@ -1,0 +1,1221 @@
+---
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/jetbrains-mono/700.css';
+
+const year = new Date().getFullYear();
+
+// ---- Content model (verbatim from brief) ----
+const cases = [
+  {
+    n: '01',
+    metric: 'Indicative',
+    metricLabel: 'order of magnitude time savings on this pattern',
+    title: 'Automated Regulatory Notes Generation',
+    blurb: 'A pattern for how a Claude skill can read a trial balance, identify entity type, and generate disclosure notes in a firm’s chosen style. Tables, movement schedules, narrative.',
+    tags: ['Claude skills', 'Word generation', 'LuxGAAP'],
+    href: '/case/automated-regulatory-notes/',
+  },
+  {
+    n: '02',
+    metric: 'Pre-audit',
+    metricLabel: 'automated cross-checker',
+    title: 'Annual Accounts Quality Review',
+    blurb: 'How I think about pre-audit cross-checking. A pattern that takes annual accounts (PDF) and source reconciliation (Excel), checks every cross-reference between primary statements and notes, and flags inconsistencies before the auditor finds them.',
+    tags: ['PDF parsing', 'Excel', 'QA automation'],
+    href: '/case/annual-accounts-quality-review/',
+  },
+  {
+    n: '03',
+    metric: 'Hours to minutes',
+    metricLabel: 'share registers for KYC/AML reviews',
+    title: 'Confidential Document Anonymisation',
+    blurb: 'A pattern for aggregating raw transactional share-register data into net positions per shareholder per share class, applying rule-based redaction for non-strategic shareholders, and producing print-ready Excel and PDF.',
+    tags: ['Data aggregation', 'Compliance', 'Multi-format'],
+    href: '/case/confidential-document-anonymisation/',
+  },
+  {
+    n: '04',
+    metric: 'Daily',
+    metricLabel: 'morning briefing automation',
+    title: 'Cross-Platform Mailbox Intelligence',
+    blurb: 'A pattern for triaging email and meeting-transcript backlogs into prioritised morning briefings. Surfaces unanswered messages, follow-ups, and half-finished commitments, organised by priority and workstream.',
+    tags: ['M365', 'Outlook', 'Triage'],
+    href: '/case/cross-platform-mailbox-intelligence/',
+  },
+  {
+    n: '05',
+    metric: 'Onboarding',
+    metricLabel: 'structured payment and accounting guide',
+    title: 'Process Documentation & Knowledge Transfer',
+    blurb: 'Patterns for documenting payment and accounting workflows in a way new joiners can self-serve. Payment flow, exception handling, approval routing, recharge and intercompany cases.',
+    tags: ['Technical writing', 'Process mapping'],
+    href: '/case/process-documentation/',
+  },
+  {
+    n: '06',
+    metric: 'Implementation',
+    metricLabel: 'contribution to platform rollout',
+    title: 'Fund Accounting Platform Integration',
+    blurb: 'Patterns I’ve worked through during fund-accounting platform rollouts. Pref-share reconciliation logic, waterfall validation approaches, edge-case discovery.',
+    tags: ['Reconciliation', 'Vendor collab', 'Validation'],
+    href: '/case/fund-accounting-platform-integration/',
+  },
+  {
+    n: '07',
+    metric: 'Library',
+    metricLabel: 'of reusable Claude skill patterns',
+    title: 'AI Skill Architecture & Reusable Tooling',
+    blurb: 'A library of small, opinionated AI skill patterns. Notes generation, quality review, anonymisation, mailbox triage, classification. Each with deterministic inputs and outputs. From single-purpose skills to five-persona orchestration, see Projects.',
+    tags: ['Skill design', 'Knowledge eng.', 'Infrastructure'],
+    href: '/case/ai-skill-architecture/',
+  },
+  {
+    n: '08',
+    metric: 'Pattern',
+    metricLabel: 'designed',
+    title: 'Cross-system fund-data reconciliation architecture',
+    blurb: 'Designed a bridging architecture for reconciling two source-of-truth platforms in a fund-administration setting while the underlying master data model was still being scoped. Generic pattern. Proposed internally; not deployed.',
+    tags: ['Data integration', 'Master data', 'Internal proposal'],
+    href: '/case/cross-system-reconciliation/',
+  },
+  {
+    n: '09',
+    metric: 'Pattern',
+    metricLabel: 'personal automation architecture',
+    title: 'End-to-end email automation',
+    blurb: 'An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts a reply and proposes which attachments to attach. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.',
+    tags: ['Agentic', 'Self-review loop', 'Human-in-the-loop'],
+    href: '/case/email-automation/',
+  },
+];
+
+const stages = [
+  { k: 'Find', v: 'Reads the source files and surfaces what is unbooked, mismatched, or missing.' },
+  { k: 'Build', v: 'Generates the upload template for the accounting system and drafts the counterparty email.' },
+  { k: 'Sign off', v: 'The operator reviews and approves. The human owns the decision.' },
+  { k: 'Scale', v: 'The same approach maps every other workflow in the company, from the existing mailbox.' },
+];
+
+const nowRows = [
+  { k: 'Building', v: 'End-to-end email automation as a personal architecture. An incoming message triggers an agent that fetches attachments, reads them, searches across knowledge systems, delegates research, and once the answer is well grounded drafts the reply and proposes which attachments to include. A self-review loop runs the draft through a second model until it has no further comments, then hands a clean output to a human reviewer who owns the decision.', cta: { label: 'See the demo', href: '/workflow-automation/' } },
+  { k: 'Testing', v: 'Frontier models on large, long-context files. How far the current generation holds up running real workflows over very large inputs.' },
+  { k: 'Orchestrating', v: 'Workflow orchestration with n8n, extending the automation surface beyond a single agent.' },
+  { k: 'Running', v: 'An agentic memory system on my own infrastructure. A voice-first assistant over AR glasses with a memory that consolidates during sleep, running across two machines that talk to each other, turning ideas into video journals or music within hours.', cta: { label: 'See the project', href: '/projects/exocortex' } },
+  { k: 'Learning', v: 'Cloud computing and GPU inference, to serve models faster and at lower marginal cost.' },
+  { k: 'Throughline', v: 'Applied research on frontier models and frontier technologies. Curiosity is the throughline across all of it.' },
+];
+
+const roles = [
+  {
+    title: 'Working in Controlling', role: 'SPV Controller', period: 'Mar 2025 · Present',
+    bullets: [
+      'End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in fund-administration platforms. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings.',
+      'Payment automation across the SPV book: batch generation, exception routing, recharge / intercompany cases.',
+      'Cross-system fund-data integration architecture.',
+      'Task management workstream via MCP: Outlook + Monday.com wired into Claude Code through MCP.',
+    ],
+  },
+  {
+    title: 'Alter Domus', role: 'Fund & Corporate Services Officer', period: 'Feb 2023 · Mar 2025',
+    bullets: ['Full-cycle accounting for management companies, funds, SPVs and GPs. NAVs, financial statements, CSSF/BCL regulatory filings. Drove process improvements through technology and structured methodologies.'],
+  },
+  {
+    title: 'Waystone Administration Solutions', role: 'Junior Associate Fund Accountant', period: 'Sep 2022 · Jan 2023',
+    bullets: ['Capital calls, distributions, OPEX payments. LuxGAAP financial statements. Audit coordination. Fund-administration platform import automation.'],
+  },
+  {
+    title: 'Aztec Group', role: 'Junior Depositary Analyst', period: 'Feb 2021 · Aug 2022',
+    bullets: ['Asset confirmation and reconciliation for alternative investment funds. Depositary obligations and oversight duties. eFront reporting.'],
+  },
+  {
+    title: 'European Fund Administration', role: 'Intern Fund Accountant', period: 'Nov 2019 · Nov 2020',
+    bullets: ['NAV calculations, financial-statement preparation, first-level controls and reconciliations. Year-end audit support.'],
+  },
+];
+
+const education = [
+  { school: 'Erasmus School of Economics, University of Rotterdam', deg: 'MSc Economics & Business, International Economics', period: '2017 · 2020' },
+  { school: 'University of Luxembourg', deg: 'BSc Economics, Law & Management', period: '2014 · 2017' },
+];
+
+const skills = [
+  { k: 'Data analysis', v: 'Panel econometrics · fixed-effects OLS · large multi-source datasets · Python · advanced Excel' },
+  { k: 'Accounting systems', v: 'eFront · BOB50 · SAP · alternative-investment platforms' },
+  { k: 'IT / scripting', v: 'VBA · Python · Microsoft Power Automate' },
+  { k: 'Office', v: 'Advanced Excel · Word · PowerPoint' },
+  { k: 'Fund types', v: 'Private Equity · Private Debt · Real Estate' },
+  { k: 'AI tooling', v: 'Claude · Claude Code · ChatGPT · Glean · Even Realities G2 SDK (assembled stack)' },
+  { k: 'AI infra', v: 'MCP servers · Multi-agent orchestration · Knowledge bases · Local model serving' },
+  { k: 'Dev', v: 'TypeScript · Astro · React · GitHub Actions · Tailscale' },
+  { k: 'Frameworks', v: 'LuxGAAP · eCDF · CSSF / BCL filings' },
+];
+
+const reading = [
+  { t: 'Systems & ops quality', v: 'How operational excellence actually gets built and kept. Applies to finance ops as much as to engineering.' },
+  { t: 'Knowledge engineering', v: 'Encoding expertise into tools other people can use without becoming experts themselves.' },
+  { t: 'AI & cognition', v: 'Practical books on what current AI can and cannot do, and where it changes the work.' },
+  { t: 'Economics & finance', v: 'Continuing the line my degrees started. International economics, capital markets, regulation.' },
+];
+
+const languages = [
+  { code: 'EN', name: 'English' },
+  { code: 'DE', name: 'Deutsch' },
+  { code: 'FR', name: 'Français' },
+  { code: 'RU', name: 'Русский' },
+  { code: 'LU', name: 'Lëtzebuergesch' },
+  { code: 'UZ', name: 'Oʻzbekcha' },
+];
+
+// Dock apps: id, label, glyph
+const apps = [
+  { id: 'about', label: 'About', glyph: '⌘' },
+  { id: 'work', label: 'Projects', glyph: '▤' },
+  { id: 'demo', label: 'Live Demo', glyph: '▶' },
+  { id: 'now', label: 'Now', glyph: '●' },
+  { id: 'cv', label: 'CV', glyph: '☰' },
+  { id: 'reading', label: 'Reading', glyph: '▧' },
+  { id: 'lang', label: 'Languages', glyph: '¶' },
+  { id: 'contact', label: 'Contact', glyph: '✉' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="Personal site, live CV, and a portfolio of automation I've built for regulated finance operations. Six years in Luxembourg fund services, now designing the systems that do the work." />
+  <title>Tom Scholtes. Finance ops engineer who automates the work in reach.</title>
+  <style>
+    :root {
+      --bg-1: #0b1220;
+      --bg-2: #15233f;
+      --bg-3: #1f3a5f;
+      --grid: rgba(255,255,255,0.035);
+      --win: #f6f5f1;
+      --win-edge: #d9d6cd;
+      --ink: #171a1f;
+      --ink-soft: #565b66;
+      --ink-faint: #8b909b;
+      --accent: #2f6df0;
+      --accent-ink: #11357f;
+      --chrome: #e9e7e0;
+      --chrome-2: #dedcd3;
+      --bar: rgba(14,20,34,0.72);
+      --bar-ink: #e8edf6;
+      --good: #2ea043;
+      --warn: #e3a008;
+      --close: #ec5b53;
+      --radius: 12px;
+      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --sans: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --serif: 'Instrument Serif', Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 700px at 78% -10%, #2a4a7d 0%, transparent 55%),
+        radial-gradient(900px 600px at 10% 110%, #20406e 0%, transparent 55%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+      background-attachment: fixed;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+
+    /* faint desktop grid */
+    .desk-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 38px 38px;
+    }
+
+    a { color: inherit; }
+
+    /* ===================== MENU BAR ===================== */
+    .menubar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 34px;
+      display: flex; align-items: center; gap: 18px;
+      padding: 0 14px;
+      background: var(--bar);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: var(--bar-ink);
+      font-size: 12.5px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.25);
+    }
+    .menu-logo {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; border-radius: 5px;
+      background: linear-gradient(160deg, #fff, #c9d6ef);
+      color: #14243f; font-weight: 700; font-size: 11px;
+      font-family: var(--serif);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
+    }
+    .menu-app { font-weight: 600; letter-spacing: .2px; }
+    .menu-item {
+      opacity: .82; cursor: pointer; user-select: none;
+      padding: 2px 6px; border-radius: 5px; text-decoration: none;
+      font-weight: 500;
+    }
+    .menu-item:hover { background: rgba(255,255,255,0.12); opacity: 1; }
+    .menu-spacer { flex: 1; }
+    .menu-right { display: flex; align-items: center; gap: 14px; opacity: .85; font-family: var(--mono); }
+    .menu-langs { letter-spacing: 1px; }
+    @media (max-width: 760px) {
+      .menubar { gap: 10px; font-size: 11.5px; }
+      .menu-item.hide-sm { display: none; }
+    }
+
+    /* ===================== DESKTOP SHELL ===================== */
+    .shell {
+      position: relative; z-index: 1;
+      padding-top: 34px;
+    }
+
+    /* welcome sticky note on first paint */
+    .hint {
+      position: fixed; z-index: 1; right: 22px; top: 52px;
+      width: 220px;
+      background: #fff7c4;
+      color: #4a3d12;
+      border: 1px solid #e6d77a;
+      border-radius: 4px;
+      padding: 12px 14px 14px;
+      font-size: 12.5px; line-height: 1.45;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.32), 0 1px 0 rgba(255,255,255,0.6) inset;
+      transform: rotate(2deg);
+      font-family: var(--mono);
+    }
+    .hint b { font-weight: 700; }
+    .hint .pin { position:absolute; top:-7px; left:50%; width:10px;height:10px;border-radius:50%;background:#c0392b;box-shadow:0 2px 4px rgba(0,0,0,.4); transform: translateX(-50%);}
+    @media (max-width: 900px) { .hint { display: none; } }
+
+    /* ===================== WINDOWS (desktop) ===================== */
+    .canvas { position: relative; }
+
+    .win {
+      position: absolute;
+      background: var(--win);
+      border: 1px solid var(--win-edge);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 1px rgba(0,0,0,0.12), 0 20px 50px rgba(0,0,0,0.42);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      max-height: calc(100vh - 120px);
+    }
+    .win.focused {
+      box-shadow: 0 0 0 1px rgba(47,109,240,0.45), 0 1px 1px rgba(0,0,0,0.12), 0 26px 64px rgba(0,0,0,0.55);
+    }
+    .win.minimized { display: none; }
+
+    .titlebar {
+      display: flex; align-items: center; gap: 9px;
+      height: 32px; flex: 0 0 32px;
+      padding: 0 12px;
+      background: linear-gradient(180deg, var(--chrome), var(--chrome-2));
+      border-bottom: 1px solid var(--win-edge);
+      cursor: grab; user-select: none;
+    }
+    .titlebar:active { cursor: grabbing; }
+    .lights { display: flex; gap: 7px; align-items: center; }
+    .light { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.18); cursor: pointer; }
+    .light.c { background: var(--close); }
+    .light.m { background: var(--warn); }
+    .light.z { background: var(--good); }
+    .light span { display:none; }
+    .title {
+      font-family: var(--mono); font-size: 12px; font-weight: 500;
+      color: var(--ink-soft); letter-spacing: .2px;
+      margin-left: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .title b { color: var(--ink); font-weight: 700; }
+    .win-body {
+      padding: 20px 22px 24px;
+      overflow-y: auto;
+      flex: 1 1 auto;
+    }
+    .win-body::-webkit-scrollbar { width: 9px; }
+    .win-body::-webkit-scrollbar-thumb { background: #cfccc2; border-radius: 8px; border: 2px solid var(--win); }
+
+    /* typography inside windows */
+    .eyebrow {
+      font-family: var(--mono); font-size: 10.5px; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--accent-ink); font-weight: 500;
+      margin: 0 0 8px;
+    }
+    .h-serif {
+      font-family: var(--serif); font-weight: 400;
+      line-height: 1.04; letter-spacing: -.01em;
+      margin: 0 0 12px; color: var(--ink);
+    }
+    .body-p { font-size: 14px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 14px; }
+    .body-p em { font-style: italic; color: var(--ink); font-family: var(--serif); font-size: 1.05em; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 13px; font-weight: 600; font-family: var(--sans);
+      padding: 9px 15px; border-radius: 8px; text-decoration: none;
+      border: 1px solid transparent; cursor: pointer;
+    }
+    .btn.primary { background: var(--accent); color: #fff; box-shadow: 0 2px 0 rgba(17,53,127,0.4); }
+    .btn.primary:hover { background: #245fda; }
+    .btn.ghost { background: #fff; color: var(--accent-ink); border-color: var(--win-edge); }
+    .btn.ghost:hover { border-color: var(--accent); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .inline-link {
+      color: var(--accent-ink); font-weight: 600; text-decoration: none;
+      border-bottom: 1.5px solid rgba(47,109,240,0.4);
+    }
+    .inline-link:hover { border-bottom-color: var(--accent); }
+
+    .chip {
+      font-family: var(--mono); font-size: 10.5px; color: var(--ink-soft);
+      background: #ecebe4; border: 1px solid var(--win-edge);
+      padding: 3px 8px; border-radius: 20px; white-space: nowrap;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .divider { height: 1px; background: var(--win-edge); margin: 18px 0; border: 0; }
+
+    /* ===== ABOUT window ===== */
+    .about-stats { display: flex; gap: 22px; margin-top: 18px; flex-wrap: wrap; }
+    .stat .num { font-family: var(--serif); font-size: 34px; line-height: 1; color: var(--ink); }
+    .stat .lab { font-size: 11.5px; color: var(--ink-faint); margin-top: 4px; max-width: 92px; }
+    .meta-line { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin-top: 18px; }
+
+    /* ===== PROJECTS (finder) ===== */
+    .finder-toolbar {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+      margin-bottom: 14px;
+    }
+    .finder-toolbar .seg { background:#ecebe4; border:1px solid var(--win-edge); padding:3px 8px; border-radius:6px; }
+    .case-list { display: grid; gap: 10px; }
+    .case {
+      display: block; text-decoration: none;
+      border: 1px solid var(--win-edge); border-radius: 10px;
+      padding: 13px 15px; background: #fff;
+      transition: none;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .case { transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease; }
+      .case:hover { transform: translateY(-2px); }
+      .light:hover { filter: brightness(.92); }
+      .dock-item { transition: transform .16s cubic-bezier(.2,.8,.3,1.2); }
+    }
+    .case:hover { border-color: var(--accent); box-shadow: 0 8px 22px rgba(20,40,80,0.12); }
+    .case-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+    .case-n { font-family: var(--mono); font-size: 10.5px; color: var(--accent-ink); letter-spacing: 1px; }
+    .case-metric { text-align: right; }
+    .case-metric .mv { font-family: var(--serif); font-size: 16px; color: var(--ink); line-height: 1; }
+    .case-metric .ml { font-size: 9.5px; color: var(--ink-faint); max-width: 130px; margin-top: 2px; }
+    .case-title { font-size: 14.5px; font-weight: 700; color: var(--ink); margin: 2px 0 6px; }
+    .case-title .arr { color: var(--accent); }
+    .case-blurb { font-size: 12.5px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 9px; }
+
+    /* ===== DEMO (pipeline) ===== */
+    .pipe { display: grid; gap: 0; margin: 16px 0 4px; }
+    .pipe-stage {
+      display: grid; grid-template-columns: 30px 1fr; gap: 12px;
+      padding: 12px 0; border-top: 1px solid var(--win-edge);
+      position: relative;
+    }
+    .pipe-stage:first-child { border-top: 0; }
+    .pipe-num {
+      font-family: var(--mono); font-weight: 700; font-size: 12px;
+      color: #fff; background: var(--accent);
+      width: 26px; height: 26px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pipe-k { font-weight: 700; font-size: 13.5px; color: var(--ink); }
+    .pipe-v { font-size: 12.5px; line-height: 1.5; color: var(--ink-soft); margin-top: 2px; }
+
+    /* ===== NOW ===== */
+    .now-row { display: grid; grid-template-columns: 120px 1fr; gap: 16px; padding: 13px 0; border-top: 1px dashed var(--win-edge); }
+    .now-row:first-child { border-top: 0; }
+    .now-k { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--accent-ink); padding-top: 1px; }
+    .now-v { font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+    .now-v .inline-link { margin-left: 4px; }
+    @media (max-width: 520px) { .now-row { grid-template-columns: 1fr; gap: 4px; } }
+
+    /* ===== CV ===== */
+    .cv-section-h {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--ink); font-weight: 700; margin: 22px 0 12px;
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .cv-section-h .sum { font-weight: 500; color: var(--ink-faint); letter-spacing: .5px; text-transform: none; }
+    .role { padding: 12px 0; border-top: 1px solid var(--win-edge); }
+    .role:first-of-type { border-top: 0; }
+    .role-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+    .role-title { font-weight: 700; font-size: 14px; color: var(--ink); }
+    .role-sub { font-size: 12.5px; color: var(--accent-ink); font-weight: 600; }
+    .role-period { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); white-space: nowrap; }
+    .role ul { margin: 8px 0 0; padding-left: 18px; }
+    .role li { font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 5px; }
+    .edu-item { padding: 10px 0; border-top: 1px solid var(--win-edge); }
+    .edu-item:first-of-type { border-top: 0; }
+    .edu-school { font-weight: 700; font-size: 13.5px; color: var(--ink); }
+    .edu-deg { font-size: 12.5px; color: var(--ink-soft); }
+    .edu-period { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
+    .kv { display: grid; grid-template-columns: 130px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--win-edge); }
+    .kv:first-of-type { border-top: 0; }
+    .kv-k { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--accent-ink); }
+    .kv-v { font-size: 12.5px; line-height: 1.5; color: var(--ink-soft); }
+    @media (max-width: 520px) { .kv { grid-template-columns: 1fr; gap: 2px; } }
+    .pub {
+      background: #f0eee6; border: 1px solid var(--win-edge); border-radius: 9px;
+      padding: 14px 16px; margin-top: 6px;
+    }
+    .pub-title { font-family: var(--serif); font-size: 18px; line-height: 1.2; color: var(--ink); margin-bottom: 6px; }
+    .pub-note { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin-bottom: 10px; }
+
+    /* ===== READING ===== */
+    .read-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+    @media (max-width: 520px) { .read-grid { grid-template-columns: 1fr; } }
+    .read-card { border: 1px solid var(--win-edge); border-radius: 9px; padding: 13px 15px; background: #fff; }
+    .read-t { font-weight: 700; font-size: 13.5px; color: var(--ink); margin-bottom: 5px; }
+    .read-v { font-size: 12px; line-height: 1.5; color: var(--ink-soft); }
+
+    /* ===== LANGUAGES ===== */
+    .lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 6px; }
+    @media (max-width: 520px) { .lang-grid { grid-template-columns: 1fr 1fr; } }
+    .lang-card { border: 1px solid var(--win-edge); border-radius: 9px; padding: 14px 12px; text-align: center; background: #fff; }
+    .lang-code { font-family: var(--mono); font-weight: 700; font-size: 18px; color: var(--accent-ink); letter-spacing: 1px; }
+    .lang-name { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; }
+
+    /* ===== CONTACT ===== */
+    .contact-win { position: relative; }
+    .contact-mark {
+      position: absolute; right: 8px; bottom: -10px; z-index: 0;
+      font-family: var(--serif); font-size: 150px; line-height: 1;
+      color: rgba(47,109,240,0.07); pointer-events: none; user-select: none;
+    }
+    .contact-content { position: relative; z-index: 1; }
+
+    /* ===================== DOCK ===================== */
+    .dock {
+      position: fixed; left: 50%; bottom: 14px; z-index: 1000;
+      transform: translateX(-50%);
+      display: flex; align-items: flex-end; gap: 10px;
+      padding: 9px 12px;
+      background: rgba(18,26,44,0.6);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      max-width: calc(100vw - 24px);
+      overflow-x: auto;
+    }
+    .dock::-webkit-scrollbar { display: none; }
+    .dock-item {
+      position: relative; flex: 0 0 auto;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      cursor: pointer; border: 0; background: transparent; padding: 0;
+    }
+    .dock-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(160deg, #fbfaf6, #dfe6f4);
+      border: 1px solid rgba(255,255,255,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; color: #1b3a73;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .dock-item:hover .dock-icon { transform: translateY(-8px) scale(1.08); }
+    .dock-label {
+      font-size: 9.5px; color: var(--bar-ink); font-family: var(--mono);
+      letter-spacing: .3px; opacity: .75;
+    }
+    .dock-item.open .dock-icon { box-shadow: 0 4px 10px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.8), 0 0 0 2px rgba(120,170,255,0.55); }
+    .dock-item.open::after {
+      content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+      width: 4px; height: 4px; border-radius: 50%; background: #9cc0ff;
+    }
+
+    /* ===================== MOBILE STACK FALLBACK ===================== */
+    .mobile-only { display: none; }
+    @media (max-width: 760px) {
+      .canvas { display: none; }
+      .dock { display: none; }
+      .mobile-only { display: block; }
+      .shell { padding-bottom: 40px; }
+      .m-wrap { padding: 14px 12px 24px; display: grid; gap: 16px; }
+      .m-app {
+        background: var(--win); border: 1px solid var(--win-edge);
+        border-radius: 12px; overflow: hidden;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      }
+      .m-app .titlebar { cursor: default; }
+      .m-app .win-body { max-height: none; }
+      .about-stats { gap: 16px; }
+    }
+
+    /* focus ring accessibility */
+    a:focus-visible, button:focus-visible, .dock-item:focus-visible .dock-icon, .light:focus-visible {
+      outline: 2px solid #7aa6ff; outline-offset: 2px;
+    }
+
+    /* skip link */
+    .skip { position: absolute; left: -9999px; top: 0; }
+    .skip:focus { left: 8px; top: 40px; z-index: 2000; background:#fff; color:var(--ink); padding:8px 12px; border-radius:8px; }
+  </style>
+</head>
+<body>
+  <a href="#about-win" class="skip">Skip to content</a>
+  <div class="desk-grid" aria-hidden="true"></div>
+
+  <!-- ===================== MENU BAR ===================== -->
+  <div class="menubar" role="banner">
+    <span class="menu-logo" aria-hidden="true">T</span>
+    <span class="menu-app">Tom&nbsp;Scholtes</span>
+    <a class="menu-item hide-sm" data-open="now">Now</a>
+    <a class="menu-item hide-sm" data-open="work">Work</a>
+    <a class="menu-item hide-sm" href="/projects/">Projects</a>
+    <a class="menu-item hide-sm" href="/notes/">Notes</a>
+    <a class="menu-item hide-sm" href="/workflow-automation/">Workflow Automation</a>
+    <a class="menu-item" data-open="cv">CV</a>
+    <a class="menu-item hide-sm" href="/thesis/">Thesis</a>
+    <a class="menu-item" data-open="contact">Contact</a>
+    <span class="menu-spacer"></span>
+    <span class="menu-right">
+      <span class="menu-langs">EN&nbsp;/&nbsp;DE&nbsp;/&nbsp;FR&nbsp;/&nbsp;RU</span>
+      <a class="menu-item" data-open="contact" style="background:rgba(120,170,255,.18);">Say&nbsp;hi</a>
+      <span id="clock" aria-hidden="true">--:--</span>
+    </span>
+  </div>
+
+  <!-- sticky welcome note -->
+  <aside class="hint" aria-hidden="true">
+    <span class="pin"></span>
+    <b>tomOS</b> · a tiny desktop.<br />
+    Drag windows by the bar. Click the dock to open apps. Everything is here, nothing is hidden.
+  </aside>
+
+  <main class="shell">
+    <!-- ===================== DESKTOP CANVAS ===================== -->
+    <div class="canvas" id="canvas">
+
+      <!-- ABOUT -->
+      <section class="win" id="about-win" data-app="about" data-x="40" data-y="62" data-w="430" tabindex="-1">
+        <div class="titlebar">
+          <span class="lights">
+            <button class="light c" aria-label="Close About"><span>x</span></button>
+            <button class="light m" aria-label="Minimize About"><span>-</span></button>
+            <button class="light z" aria-label="Zoom About"><span>+</span></button>
+          </span>
+          <span class="title"><b>About</b> · tom@tomscholtes.com</span>
+        </div>
+        <div class="win-body">
+          <p class="eyebrow">Personal site · Luxembourg</p>
+          <h1 class="h-serif" style="font-size:34px;">I build the automation behind <em>regulated finance</em> operations.</h1>
+          <p class="body-p">I'm Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and case studies of it shipping.</p>
+          <div class="btn-row">
+            <a class="btn primary" data-open="work">See the work</a>
+            <a class="btn ghost" data-open="contact">Get in touch</a>
+          </div>
+          <div class="about-stats">
+            <div class="stat"><div class="num">6 yrs</div><div class="lab">in Lux fund services</div></div>
+            <div class="stat"><div class="num">7</div><div class="lab">case studies on file</div></div>
+            <div class="stat"><div class="num">6</div><div class="lab">languages spoken</div></div>
+          </div>
+          <p class="meta-line">~/ Notes on AI in finance ops, a live CV, and a portfolio of work.</p>
+        </div>
+      </section>
+
+      <!-- PROJECTS / WORK (finder) -->
+      <section class="win" id="work-win" data-app="work" data-x="492" data-y="62" data-w="520" tabindex="-1">
+        <div class="titlebar">
+          <span class="lights">
+            <button class="light c" aria-label="Close Projects"></button>
+            <button class="light m" aria-label="Minimize Projects"></button>
+            <button class="light z" aria-label="Zoom Projects"></button>
+          </span>
+          <span class="title"><b>Projects</b> · ~/case-studies (9 items)</span>
+        </div>
+        <div class="win-body">
+          <p class="eyebrow">Case studies</p>
+          <h2 class="h-serif" style="font-size:27px;">Patterns I've worked through.</h2>
+          <p class="body-p">Sanitised. Employer name, entity names and figures removed. Notes on how I think about this kind of work in fund services.</p>
+          <div class="finder-toolbar">
+            <span class="seg">Name</span><span class="seg">Metric</span><span class="seg">Tags</span>
+            <span style="margin-left:auto;">9 items</span>
+          </div>
+          <div class="case-list">
+            {cases.map((c) => (
+              <a class="case" href={c.href}>
+                <div class="case-top">
+                  <span class="case-n">CASE {c.n}</span>
+                  <span class="case-metric">
+                    <span class="mv">{c.metric}</span>
+                    <span class="ml">{c.metricLabel}</span>
+                  </span>
+                </div>
+                <div class="case-title">{c.title} <span class="arr">&rarr;</span></div>
+                <p class="case-blurb">{c.blurb}</p>
+                <div class="chips">{c.tags.map((t) => (<span class="chip">{t}</span>))}</div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- DEMO -->
+      <section class="win" id="demo-win" data-app="demo" data-x="40" data-y="430" data-w="430" tabindex="-1">
+        <div class="titlebar">
+          <span class="lights">
+            <button class="light c" aria-label="Close Live Demo"></button>
+            <button class="light m" aria-label="Minimize Live Demo"></button>
+            <button class="light z" aria-label="Zoom Live Demo"></button>
+          </span>
+          <span class="title"><b>Live Demo</b> · workflow.run</span>
+        </div>
+        <div class="win-body">
+          <p class="eyebrow">Live demo</p>
+          <h2 class="h-serif" style="font-size:25px;">See the automation run, on synthetic data.</h2>
+          <p class="body-p">Point AI at the manual workflows underneath a finance desk. It surfaces what is unbooked, mismatched, or missing, builds the upload template, and drafts the counterparty email. The operator reviews and signs off; the human owns the decision. Click through a before-and-after process map and run it live.</p>
+          <div class="pipe">
+            {stages.map((s, i) => (
+              <div class="pipe-stage">
+                <span class="pipe-num">{i + 1}</span>
+                <div><div class="pipe-k">{s.k}</div><div class="pipe-v">{s.v}</div></div>
+              </div>
+            ))}
+          </div>
+          <hr class="divider" />
+          <a class="btn primary" href="/workflow-automation/">Open the live demo</a>
+        </div>
+      </section>
+
+      <!-- NOW -->
+      <section class="win" id="now-win" data-app="now" data-x="492" data-y="498" data-w="520" tabindex="-1">
+        <div class="titlebar">
+          <span class="lights">
+            <button class="light c" aria-label="Close Now"></button>
+            <button class="light m" aria-label="Minimize Now"></button>
+            <button class="light z" aria-label="Zoom Now"></button>
+          </span>
+          <span class="title"><b>Now</b> · /now · June 2026</span>
+        </div>
+        <div class="win-body">
+          <p class="eyebrow">/ now · June 2026</p>
+          <h2 class="h-serif" style="font-size:25px;">What I'm focused on this quarter.</h2>
+          <p class="body-p">A public note of where my head is right now, in the spirit of <em>nownownow.com</em>. I update it when things change, not on a schedule.</p>
+          {nowRows.map((r) => (
+            <div class="now-row">
+              <div class="now-k">{r.k}</div>
+              <div class="now-v">{r.v}{r.cta && (<a class="inline-link" href={r.cta.href}>{r.cta.label} &rarr;</a>)}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- CV -->
+      <section class="win" id="cv-win" data-app="cv" data-x="40" data-y="92" data-w="560" tabindex="-1">
+        <div class="titlebar">
+          <span class="lights">
+            <button class="light c" aria-label="Close CV"></button>
+            <button class="light m" aria-label="Minimize CV"></button>
+            <button class="light z" aria-label="Zoom CV"></button>
+          </span>
+          <span class="title"><b>CV</b> · live_cv.md</span>
+        </div>
+        <div class="win-body">
+          <p class="eyebrow">Live CV</p>
+          <h2 class="h-serif" style="font-size:26px;">Six years in Luxembourg fund services.</h2>
+          <p class="body-p">Updated as roles, projects and credentials change. The condensed PDF version is on request.</p>
+
+          <div class="cv-section-h">Experience <span class="sum">5 roles · 6+ years</span></div>
+          {roles.map((r) => (
+            <div class="role">
+              <div class="role-head">
+                <div><span class="role-title">{r.title}</span> · <span class="role-sub">{r.role}</span></div>
+                <span class="role-period">{r.period}</span>
+              </div>
+              <ul>{r.bullets.map((b) => (<li>{b}</li>))}</ul>
+            </div>
+          ))}
+
+          <div class="cv-section-h">Education</div>
+          {education.map((e) => (
+            <div class="edu-item">
+              <div class="edu-school">{e.school}</div>
+              <div class="edu-deg">{e.deg}</div>
+              <div class="edu-period">{e.period}</div>
+            </div>
+          ))}
+
+          <div class="cv-section-h">Skills</div>
+          {skills.map((s) => (
+            <div class="kv"><div class="kv-k">{s.k}</div><div class="kv-v">{s.v}</div></div>
+          ))}
+
+          <div class="cv-section-h">Publication</div>
+          <div class="pub">
+            <div class="pub-title">Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</div>
+            <div class="pub-note">MSc thesis · Erasmus University Rotterdam · panel econometrics over 36 OECD economies, 1995 to 2018</div>
+            <a class="btn ghost" href="/thesis">Read &rarr;</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- READING -->
+      <section class="win" id="reading-win" data-app="reading" data-x="622" data-y="92" data-w="400" tabindex="-1">
+        <div class="titlebar">
+          <span class="lights">
+            <button class="light c" aria-label="Close Reading"></button>
+            <button class="light m" aria-label="Minimize Reading"></button>
+            <button class="light z" aria-label="Zoom Reading"></button>
+          </span>
+          <span class="title"><b>Reading</b> · shelf.app</span>
+        </div>
+        <div class="win-body">
+          <p class="eyebrow">Reading</p>
+          <h2 class="h-serif" style="font-size:25px;">Mostly non-fiction.</h2>
+          <p class="body-p">Themes I keep coming back to. A proper bookshelf with titles will go here once I've trimmed the list.</p>
+          <div class="read-grid">
+            {reading.map((r) => (
+              <div class="read-card"><div class="read-t">{r.t}</div><div class="read-v">{r.v}</div></div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- LANGUAGES -->
+      <section class="win" id="lang-win" data-app="lang" data-x="622" data-y="380" data-w="400" tabindex="-1">
+        <div class="titlebar">
+          <span class="lights">
+            <button class="light c" aria-label="Close Languages"></button>
+            <button class="light m" aria-label="Minimize Languages"></button>
+            <button class="light z" aria-label="Zoom Languages"></button>
+          </span>
+          <span class="title"><b>Languages</b> · locales</span>
+        </div>
+        <div class="win-body">
+          <p class="eyebrow">Languages</p>
+          <h2 class="h-serif" style="font-size:25px;">Six, used regularly.</h2>
+          <div class="lang-grid">
+            {languages.map((l) => (
+              <div class="lang-card"><div class="lang-code">{l.code}</div><div class="lang-name">{l.name}</div></div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section class="win contact-win" id="contact-win" data-app="contact" data-x="492" data-y="62" data-w="450" tabindex="-1">
+        <div class="titlebar">
+          <span class="lights">
+            <button class="light c" aria-label="Close Contact"></button>
+            <button class="light m" aria-label="Minimize Contact"></button>
+            <button class="light z" aria-label="Zoom Contact"></button>
+          </span>
+          <span class="title"><b>Contact</b> · say-hi</span>
+        </div>
+        <div class="win-body">
+          <span class="contact-mark" aria-hidden="true">hi.</span>
+          <div class="contact-content">
+            <p class="eyebrow">Contact</p>
+            <h2 class="h-serif" style="font-size:27px;">If any of this is <em>interesting</em>, say hi.</h2>
+            <p class="body-p">Always interested in conversations about data engineering, automation, applied AI, multi-agent systems, knowledge engineering, agent infrastructure, especially where they meet regulated workflows.</p>
+            <div class="btn-row">
+              <a class="btn primary" href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93">Message on LinkedIn</a>
+              <a class="btn ghost" href="https://www.linkedin.com/in/tomscholtes93/">View profile</a>
+              <a class="btn ghost" href="mailto:tom@tomscholtes.com">Email</a>
+            </div>
+            <hr class="divider" />
+            <p class="meta-line">tom@tomscholtes.com · © {year} Tom Scholtes · Luxembourg · Personal site · opinions my own</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================== MOBILE STACK ===================== -->
+    <div class="mobile-only">
+      <div class="m-wrap">
+        <!-- About -->
+        <article class="m-app">
+          <div class="titlebar"><span class="lights"><span class="light c"></span><span class="light m"></span><span class="light z"></span></span><span class="title"><b>About</b></span></div>
+          <div class="win-body">
+            <p class="eyebrow">Personal site · Luxembourg</p>
+            <h1 class="h-serif" style="font-size:28px;">I build the automation behind <em>regulated finance</em> operations.</h1>
+            <p class="body-p">I'm Tom. I build AI-augmented automation for the operational work in regulated finance: regulatory notes, accounts quality review, document workflows, mailbox triage, and the reusable tooling that ties them together. Six years in Luxembourg fund services across PE, Private Debt and Real Estate, now spent designing the systems that do the work instead of doing it by hand. This site is the evidence: a live CV, the patterns behind the work, and case studies of it shipping.</p>
+            <div class="btn-row">
+              <a class="btn primary" href="#m-work">See the work</a>
+              <a class="btn ghost" href="#m-contact">Get in touch</a>
+            </div>
+            <div class="about-stats">
+              <div class="stat"><div class="num">6 yrs</div><div class="lab">in Lux fund services</div></div>
+              <div class="stat"><div class="num">7</div><div class="lab">case studies on file</div></div>
+              <div class="stat"><div class="num">6</div><div class="lab">languages spoken</div></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Demo -->
+        <article class="m-app">
+          <div class="titlebar"><span class="lights"><span class="light c"></span><span class="light m"></span><span class="light z"></span></span><span class="title"><b>Live Demo</b></span></div>
+          <div class="win-body">
+            <p class="eyebrow">Live demo</p>
+            <h2 class="h-serif" style="font-size:24px;">See the automation run, on synthetic data.</h2>
+            <p class="body-p">Point AI at the manual workflows underneath a finance desk. It surfaces what is unbooked, mismatched, or missing, builds the upload template, and drafts the counterparty email. The operator reviews and signs off; the human owns the decision. Click through a before-and-after process map and run it live.</p>
+            <div class="pipe">
+              {stages.map((s, i) => (
+                <div class="pipe-stage"><span class="pipe-num">{i + 1}</span><div><div class="pipe-k">{s.k}</div><div class="pipe-v">{s.v}</div></div></div>
+              ))}
+            </div>
+            <hr class="divider" />
+            <a class="btn primary" href="/workflow-automation/">Open the live demo</a>
+          </div>
+        </article>
+
+        <!-- Work -->
+        <article class="m-app" id="m-work">
+          <div class="titlebar"><span class="lights"><span class="light c"></span><span class="light m"></span><span class="light z"></span></span><span class="title"><b>Projects</b></span></div>
+          <div class="win-body">
+            <p class="eyebrow">Case studies</p>
+            <h2 class="h-serif" style="font-size:24px;">Patterns I've worked through.</h2>
+            <p class="body-p">Sanitised. Employer name, entity names and figures removed. Notes on how I think about this kind of work in fund services.</p>
+            <div class="case-list">
+              {cases.map((c) => (
+                <a class="case" href={c.href}>
+                  <div class="case-top"><span class="case-n">CASE {c.n}</span><span class="case-metric"><span class="mv">{c.metric}</span><span class="ml">{c.metricLabel}</span></span></div>
+                  <div class="case-title">{c.title} <span class="arr">&rarr;</span></div>
+                  <p class="case-blurb">{c.blurb}</p>
+                  <div class="chips">{c.tags.map((t) => (<span class="chip">{t}</span>))}</div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </article>
+
+        <!-- Now -->
+        <article class="m-app">
+          <div class="titlebar"><span class="lights"><span class="light c"></span><span class="light m"></span><span class="light z"></span></span><span class="title"><b>Now</b></span></div>
+          <div class="win-body">
+            <p class="eyebrow">/ now · June 2026</p>
+            <h2 class="h-serif" style="font-size:24px;">What I'm focused on this quarter.</h2>
+            <p class="body-p">A public note of where my head is right now, in the spirit of <em>nownownow.com</em>. I update it when things change, not on a schedule.</p>
+            {nowRows.map((r) => (
+              <div class="now-row"><div class="now-k">{r.k}</div><div class="now-v">{r.v}{r.cta && (<a class="inline-link" href={r.cta.href}>{r.cta.label} &rarr;</a>)}</div></div>
+            ))}
+          </div>
+        </article>
+
+        <!-- CV -->
+        <article class="m-app">
+          <div class="titlebar"><span class="lights"><span class="light c"></span><span class="light m"></span><span class="light z"></span></span><span class="title"><b>CV</b></span></div>
+          <div class="win-body">
+            <p class="eyebrow">Live CV</p>
+            <h2 class="h-serif" style="font-size:24px;">Six years in Luxembourg fund services.</h2>
+            <p class="body-p">Updated as roles, projects and credentials change. The condensed PDF version is on request.</p>
+            <div class="cv-section-h">Experience <span class="sum">5 roles · 6+ years</span></div>
+            {roles.map((r) => (
+              <div class="role">
+                <div class="role-head"><div><span class="role-title">{r.title}</span> · <span class="role-sub">{r.role}</span></div><span class="role-period">{r.period}</span></div>
+                <ul>{r.bullets.map((b) => (<li>{b}</li>))}</ul>
+              </div>
+            ))}
+            <div class="cv-section-h">Education</div>
+            {education.map((e) => (
+              <div class="edu-item"><div class="edu-school">{e.school}</div><div class="edu-deg">{e.deg}</div><div class="edu-period">{e.period}</div></div>
+            ))}
+            <div class="cv-section-h">Skills</div>
+            {skills.map((s) => (<div class="kv"><div class="kv-k">{s.k}</div><div class="kv-v">{s.v}</div></div>))}
+            <div class="cv-section-h">Publication</div>
+            <div class="pub">
+              <div class="pub-title">Augmented gravity model: Institutions, Infrastructure and Globalization impact on bilateral exports among OECD countries</div>
+              <div class="pub-note">MSc thesis · Erasmus University Rotterdam · panel econometrics over 36 OECD economies, 1995 to 2018</div>
+              <a class="btn ghost" href="/thesis">Read &rarr;</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Reading -->
+        <article class="m-app">
+          <div class="titlebar"><span class="lights"><span class="light c"></span><span class="light m"></span><span class="light z"></span></span><span class="title"><b>Reading</b></span></div>
+          <div class="win-body">
+            <p class="eyebrow">Reading</p>
+            <h2 class="h-serif" style="font-size:24px;">Mostly non-fiction.</h2>
+            <p class="body-p">Themes I keep coming back to. A proper bookshelf with titles will go here once I've trimmed the list.</p>
+            <div class="read-grid">
+              {reading.map((r) => (<div class="read-card"><div class="read-t">{r.t}</div><div class="read-v">{r.v}</div></div>))}
+            </div>
+          </div>
+        </article>
+
+        <!-- Languages -->
+        <article class="m-app">
+          <div class="titlebar"><span class="lights"><span class="light c"></span><span class="light m"></span><span class="light z"></span></span><span class="title"><b>Languages</b></span></div>
+          <div class="win-body">
+            <p class="eyebrow">Languages</p>
+            <h2 class="h-serif" style="font-size:24px;">Six, used regularly.</h2>
+            <div class="lang-grid">
+              {languages.map((l) => (<div class="lang-card"><div class="lang-code">{l.code}</div><div class="lang-name">{l.name}</div></div>))}
+            </div>
+          </div>
+        </article>
+
+        <!-- Contact -->
+        <article class="m-app contact-win" id="m-contact">
+          <div class="titlebar"><span class="lights"><span class="light c"></span><span class="light m"></span><span class="light z"></span></span><span class="title"><b>Contact</b></span></div>
+          <div class="win-body">
+            <span class="contact-mark" aria-hidden="true">hi.</span>
+            <div class="contact-content">
+              <p class="eyebrow">Contact</p>
+              <h2 class="h-serif" style="font-size:24px;">If any of this is <em>interesting</em>, say hi.</h2>
+              <p class="body-p">Always interested in conversations about data engineering, automation, applied AI, multi-agent systems, knowledge engineering, agent infrastructure, especially where they meet regulated workflows.</p>
+              <div class="btn-row">
+                <a class="btn primary" href="https://www.linkedin.com/messaging/compose/?recipient=tomscholtes93">Message on LinkedIn</a>
+                <a class="btn ghost" href="https://www.linkedin.com/in/tomscholtes93/">View profile</a>
+                <a class="btn ghost" href="mailto:tom@tomscholtes.com">Email</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Mobile footer links -->
+        <article class="m-app">
+          <div class="win-body" style="padding:16px 18px;">
+            <p class="meta-line" style="margin-top:0;">Notes on AI in finance ops, a live CV, and a portfolio of work.</p>
+            <div class="chips" style="margin-top:12px;">
+              <a class="chip" href="/projects">Projects</a>
+              <a class="chip" href="/notes/">Notes</a>
+              <a class="chip" href="/workflow-automation/">Workflow Automation</a>
+              <a class="chip" href="/thesis">MSc thesis</a>
+              <a class="chip" href="https://www.linkedin.com/in/tomscholtes93/">LinkedIn</a>
+            </div>
+            <p class="meta-line">© {year} Tom Scholtes · Luxembourg · Personal site · opinions my own</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== DOCK ===================== -->
+  <nav class="dock" id="dock" aria-label="App launcher">
+    {apps.map((a) => (
+      <button class="dock-item" data-open={a.id} aria-label={`Open ${a.label}`}>
+        <span class="dock-icon" aria-hidden="true">{a.glyph}</span>
+        <span class="dock-label">{a.label}</span>
+      </button>
+    ))}
+  </nav>
+
+  <script>
+    (function () {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ---- clock ----
+      const clock = document.getElementById('clock');
+      function tick() {
+        if (!clock) return;
+        const d = new Date();
+        clock.textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      tick();
+      setInterval(tick, 15000);
+
+      // Only run the windowing engine on the desktop canvas.
+      const canvas = document.getElementById('canvas');
+      const isDesktop = () => window.matchMedia('(min-width: 761px)').matches;
+
+      let z = 100;
+      const wins = Array.from(document.querySelectorAll('.canvas .win'));
+      const dockItems = Array.from(document.querySelectorAll('.dock-item'));
+
+      function winById(id) { return document.querySelector('.canvas .win[data-app="' + id + '"]'); }
+      function dockById(id) { return document.querySelector('.dock-item[data-open="' + id + '"]'); }
+
+      // initial placement from data attributes
+      function place(w) {
+        const x = parseInt(w.dataset.x || '40', 10);
+        const y = parseInt(w.dataset.y || '60', 10);
+        const ww = parseInt(w.dataset.w || '440', 10);
+        w.style.left = x + 'px';
+        w.style.top = y + 'px';
+        w.style.width = ww + 'px';
+      }
+
+      function focusWin(w) {
+        wins.forEach((o) => o.classList.remove('focused'));
+        w.classList.add('focused');
+        w.style.zIndex = String(++z);
+        // titlebar menu app name reflect
+      }
+
+      function setDockState() {
+        dockItems.forEach((di) => {
+          const id = di.dataset.open;
+          const w = winById(id);
+          if (!w) return;
+          const visible = !w.classList.contains('minimized') && w.style.display !== 'none';
+          di.classList.toggle('open', visible);
+        });
+      }
+
+      function openWin(id) {
+        if (!isDesktop()) return;
+        const w = winById(id);
+        if (!w) return;
+        w.classList.remove('minimized');
+        w.style.display = 'flex';
+        focusWin(w);
+        setDockState();
+      }
+      function closeWin(w) {
+        w.style.display = 'none';
+        setDockState();
+      }
+      function minWin(w) {
+        w.classList.add('minimized');
+        setDockState();
+      }
+      function zoomWin(w) {
+        // toggle a wider layout (no fullscreen takeover, keep playful)
+        if (w.dataset.zoomed === '1') {
+          place(w);
+          w.dataset.zoomed = '0';
+        } else {
+          w.style.left = '24px';
+          w.style.top = '52px';
+          w.style.width = Math.min(window.innerWidth - 48, 760) + 'px';
+          w.dataset.zoomed = '1';
+        }
+        focusWin(w);
+      }
+
+      // init windows
+      if (canvas) {
+        // keep default arrangement so all content is visible without fuss:
+        // show the primary set, stash CV/Reading/Lang/Contact behind dock by default
+        // BUT requirement: all content visible/openable without fuss.
+        // We render all windows; default-open a clean subset, others reachable via dock.
+        const defaultOpen = ['about', 'work', 'demo', 'now'];
+        wins.forEach((w) => {
+          place(w);
+          const id = w.dataset.app;
+          if (defaultOpen.indexOf(id) === -1) {
+            w.style.display = 'none';
+          } else {
+            w.style.display = 'flex';
+          }
+          // focus interactions
+          w.addEventListener('mousedown', () => focusWin(w));
+
+          // traffic lights
+          const c = w.querySelector('.light.c');
+          const m = w.querySelector('.light.m');
+          const zz = w.querySelector('.light.z');
+          if (c) c.addEventListener('click', (e) => { e.stopPropagation(); closeWin(w); });
+          if (m) m.addEventListener('click', (e) => { e.stopPropagation(); minWin(w); });
+          if (zz) zz.addEventListener('click', (e) => { e.stopPropagation(); zoomWin(w); });
+
+          // drag
+          const bar = w.querySelector('.titlebar');
+          if (bar) enableDrag(w, bar);
+        });
+        // initial z order for default-open
+        defaultOpen.forEach((id) => { const w = winById(id); if (w) focusWin(w); });
+        const aboutW = winById('about'); if (aboutW) focusWin(aboutW);
+        setDockState();
+      }
+
+      // ---- drag engine ----
+      function enableDrag(w, handle) {
+        let sx = 0, sy = 0, ox = 0, oy = 0, dragging = false;
+
+        function down(e) {
+          if (e.target.closest('.light')) return;
+          dragging = true;
+          focusWin(w);
+          const p = point(e);
+          sx = p.x; sy = p.y;
+          ox = w.offsetLeft; oy = w.offsetTop;
+          document.body.style.userSelect = 'none';
+          window.addEventListener('mousemove', move);
+          window.addEventListener('mouseup', up);
+          window.addEventListener('touchmove', move, { passive: false });
+          window.addEventListener('touchend', up);
+        }
+        function move(e) {
+          if (!dragging) return;
+          if (e.cancelable) e.preventDefault();
+          const p = point(e);
+          let nx = ox + (p.x - sx);
+          let ny = oy + (p.y - sy);
+          // clamp within viewport-ish
+          nx = Math.max(4, Math.min(nx, window.innerWidth - 80));
+          ny = Math.max(38, Math.min(ny, window.innerHeight - 50));
+          w.style.left = nx + 'px';
+          w.style.top = ny + 'px';
+        }
+        function up() {
+          dragging = false;
+          document.body.style.userSelect = '';
+          window.removeEventListener('mousemove', move);
+          window.removeEventListener('mouseup', up);
+          window.removeEventListener('touchmove', move);
+          window.removeEventListener('touchend', up);
+        }
+        function point(e) {
+          if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          return { x: e.clientX, y: e.clientY };
+        }
+        handle.addEventListener('mousedown', down);
+        handle.addEventListener('touchstart', down, { passive: true });
+      }
+
+      // ---- openers: dock + menubar + in-window data-open ----
+      document.querySelectorAll('[data-open]').forEach((el) => {
+        if (el.classList.contains('light')) return;
+        el.addEventListener('click', (e) => {
+          const id = el.dataset.open;
+          if (!id) return;
+          if (isDesktop()) {
+            e.preventDefault();
+            openWin(id);
+            const w = winById(id);
+            if (w) {
+              w.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+              w.focus({ preventScroll: true });
+            }
+          } else {
+            // mobile: jump to the stacked section
+            const map = { work: '#m-work', contact: '#m-contact' };
+            const target = map[id];
+            if (target) { e.preventDefault(); document.querySelector(target).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); }
+          }
+        });
+      });
+
+      // keyboard: Esc closes focused window
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const f = document.querySelector('.canvas .win.focused');
+          if (f && isDesktop()) closeWin(f);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

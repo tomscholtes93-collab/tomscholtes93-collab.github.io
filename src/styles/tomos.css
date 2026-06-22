@@ -1,0 +1,377 @@
+/*
+ * tomos.css: desktop "tomOS" layer styling. Loaded only by OsDesktop.astro.
+ * Does NOT touch tokens.css / components.css theme vars; it consumes them.
+ *
+ * Layer split (W5): the editorial layer is the default and the < 1200px / no-JS
+ * fallback. The desktop layer opts in only with JS (html.js) at >= 1200px.
+ */
+
+/* ---- Layer visibility split ---------------------------------------------- */
+.os-desktop { display: none; }
+
+@media (min-width: 1200px) {
+  html.js .os-desktop { display: block; }
+  html.js .editorial { display: none; }
+}
+
+/* ---- Desktop shell ------------------------------------------------------- */
+.os-canvas {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 700px at 78% -8%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
+    radial-gradient(900px 600px at 0% 110%, color-mix(in srgb, var(--deep) 14%, transparent), transparent 55%),
+    var(--bg-2);
+}
+
+/* faint dotted wallpaper grid */
+.os-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(color-mix(in srgb, var(--ink) 8%, transparent) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: .5;
+  pointer-events: none;
+}
+
+/* ---- Menubar ------------------------------------------------------------- */
+.os-menubar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 44px;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  -webkit-backdrop-filter: saturate(150%) blur(14px);
+  backdrop-filter: saturate(150%) blur(14px);
+  border-bottom: 1px solid var(--rule);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+}
+
+.os-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--ink);
+  padding-right: 10px;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.os-brand-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.os-menu-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  padding: 5px 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.os-menu-item:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
+
+.os-menubar-spacer { flex: 1 1 auto; }
+
+.os-hint {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  margin-right: 14px;
+  opacity: .85;
+}
+@media (max-width: 1480px) { .os-hint { display: none; } }
+
+.os-clock {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  min-width: 48px;
+  text-align: right;
+}
+
+/* ---- Windows ------------------------------------------------------------- */
+.os-win {
+  position: absolute;
+  display: none;                 /* engine flips to flex on open */
+  flex-direction: column;
+  min-width: 280px;
+  min-height: 160px;
+  max-width: calc(100vw - 16px);
+  padding: 0;                    /* reset the global `section` --pad-y padding */
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 18px 50px -18px rgba(0,0,0,.32);
+  z-index: 100;
+}
+.os-win.focused {
+  box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 28px 70px -20px rgba(0,0,0,.45);
+  border-color: color-mix(in srgb, var(--accent) 36%, var(--rule));
+}
+.os-win.minimized { display: none !important; }
+.os-win.maximized { border-radius: 0; border-left: 0; border-right: 0; max-width: none; }
+
+/* Titlebar (drag handle) */
+.os-titlebar {
+  position: relative;
+  z-index: 5;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 14px;
+  background: color-mix(in srgb, var(--bg-2) 70%, var(--bg));
+  border-bottom: 1px solid var(--rule);
+  cursor: grab;
+  user-select: none;
+}
+.os-win.focused .os-titlebar { background: color-mix(in srgb, var(--bg-2) 92%, var(--bg)); }
+.os-titlebar:active { cursor: grabbing; }
+
+.os-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  letter-spacing: .01em;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Traffic lights */
+.os-lights { display: inline-flex; gap: 8px; align-items: center; }
+.os-light {
+  appearance: none;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+}
+.os-close { background: #ED6A5E; }
+.os-min   { background: #F4BE4F; }
+.os-max   { background: #61C554; }
+.os-win:not(.focused) .os-light { background: color-mix(in srgb, var(--muted) 55%, transparent); }
+.os-lights:hover .os-light::after,
+.os-light:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.42);
+}
+
+/* Window body */
+.os-win-body {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;                 /* let the body shrink + scroll so the window honors its height */
+  overflow: auto;
+  padding: 22px 24px 26px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---- Resize handles (8 dirs, W3) ---------------------------------------- */
+.os-resize { position: absolute; z-index: 20; }
+.os-resize-n { top: 0; left: 0; right: 0; height: 6px; cursor: ns-resize; }
+.os-resize-s { bottom: 0; left: 0; right: 0; height: 6px; cursor: ns-resize; }
+.os-resize-e { top: 0; bottom: 0; right: 0; width: 6px; cursor: ew-resize; }
+.os-resize-w { top: 0; bottom: 0; left: 0; width: 6px; cursor: ew-resize; }
+.os-resize-ne { top: 0; right: 0; width: 12px; height: 12px; cursor: nesw-resize; z-index: 21; }
+.os-resize-nw { top: 0; left: 0; width: 12px; height: 12px; cursor: nwse-resize; z-index: 21; }
+.os-resize-se { bottom: 0; right: 0; width: 14px; height: 14px; cursor: nwse-resize; z-index: 21; }
+.os-resize-sw { bottom: 0; left: 0; width: 12px; height: 12px; cursor: nesw-resize; z-index: 21; }
+/* a faint visible grip on the SE corner so resize is discoverable */
+.os-resize-se::after {
+  content: "";
+  position: absolute;
+  right: 3px; bottom: 3px;
+  width: 7px; height: 7px;
+  border-right: 2px solid color-mix(in srgb, var(--muted) 70%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--muted) 70%, transparent);
+  border-bottom-right-radius: 3px;
+}
+
+/* ---- Dock ---------------------------------------------------------------- */
+.os-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100vw - 32px);
+  padding: 7px 9px;
+  background: color-mix(in srgb, var(--bg) 76%, transparent);
+  -webkit-backdrop-filter: saturate(150%) blur(16px);
+  backdrop-filter: saturate(150%) blur(16px);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  box-shadow: 0 14px 40px -16px rgba(0,0,0,.4);
+  overflow-x: auto;
+}
+.os-dock-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.os-dock-item:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); transform: translateY(-2px); }
+.os-dock-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+  flex: 0 0 auto;
+}
+.os-dock-item.open .os-dock-dot { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.os-dock-item.open { color: var(--ink); }
+
+/* ---- In-window OS-nav (Back / drill-down, W4) ---------------------------- */
+.os-nav { display: flex; flex-direction: column; gap: 16px; }
+.os-navbar {
+  position: sticky;
+  top: -22px;                    /* counters body padding so it pins to top */
+  margin: -22px -24px 0;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+  z-index: 4;
+}
+.os-back {
+  appearance: none;
+  border: 1px solid var(--rule);
+  background: var(--bg);
+  color: var(--ink-2);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.os-back:hover:not(:disabled) { border-color: color-mix(in srgb, var(--accent) 45%, var(--rule)); color: var(--ink); }
+.os-back:disabled { opacity: .38; cursor: default; }
+.os-crumb {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.os-crumb:not(:empty)::before { content: "/ "; opacity: .6; }
+
+.os-list-lede { color: var(--muted); font-size: 14px; margin: 0 0 4px; max-width: 60ch; }
+.os-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.os-list-item {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-2) 40%, var(--bg));
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--ink);
+}
+.os-list-item:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--rule)); background: color-mix(in srgb, var(--accent) 6%, var(--bg)); }
+.os-list-item .t { font-weight: 600; font-size: 16px; }
+.os-list-item .s { color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+.os-list-num { color: var(--muted); font-weight: 400; font-size: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.os-note h3 { font-size: var(--step-3); margin: 0 0 6px; }
+.os-note .lead { color: var(--ink-2); font-size: 16px; margin: 0 0 14px; }
+.os-note-link { margin-top: 18px; }
+.os-note-link a { color: var(--accent-ink); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; }
+.os-proj-metric { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
+.os-proj-metric strong { color: var(--ink); }
+.os-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+.os-tag {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+/* ---- About window -------------------------------------------------------- */
+.os-about { display: flex; flex-direction: column; gap: 14px; }
+.os-about-title { font-family: 'Instrument Serif', 'Times New Roman', serif; font-size: var(--step-3); line-height: 1.1; margin: 0; }
+.os-about-title em { font-style: italic; color: var(--accent-ink); }
+.os-about p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.6; }
+.os-about-meta { display: flex; flex-wrap: wrap; gap: 16px 24px; margin-top: 4px; }
+.os-about-meta strong { display: block; font-size: 22px; color: var(--ink); font-family: 'Instrument Serif', 'Times New Roman', serif; }
+.os-about-meta div { font-size: 12.5px; color: var(--muted); }
+
+/* ---- Neutralize editorial section chrome inside windows ------------------ */
+.os-win-body .container { width: 100%; max-width: none; margin: 0; padding: 0; }
+.os-win-body section { padding: 0; background: none; }
+.os-win-body .sec-head { margin-bottom: 18px; }
+.os-win-body h2 { font-size: var(--step-3); line-height: 1.12; }
+.os-win-body .blurb { font-size: 14.5px; }
+.os-win-body .cases,
+.os-win-body .reading-grid,
+.os-win-body .lang-grid { grid-template-columns: 1fr; }
+/* reveal animations never run inside windows (no scroll-into-view there) */
+.os-desktop .reveal,
+.os-desktop .reveal[data-stagger] .reveal-item { opacity: 1 !important; transform: none !important; }
+
+/* ---- Focus visibility (W8) ----------------------------------------------- */
+.os-desktop :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.os-light:focus-visible { outline-offset: 3px; }
+
+/* ---- Motion language (W8): all transitions gated by reduced-motion ------- */
+@media (prefers-reduced-motion: no-preference) {
+  .os-menu-item,
+  .os-dock-item,
+  .os-list-item,
+  .os-back,
+  .os-win { transition: background .18s var(--ease-out, ease), color .18s var(--ease-out, ease), border-color .18s var(--ease-out, ease), transform .18s var(--ease-out, ease), box-shadow .22s var(--ease-out, ease); }
+}
