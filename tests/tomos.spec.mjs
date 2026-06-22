@@ -259,6 +259,16 @@ try {
   const changed = snapA.some((s, i) => s !== snapB[i]);
   check('O3 workstreams animate over time (deterministic)', changed, `A=${snapA.join(',')} | B=${snapB.join(',')}`);
 
+  // ---- P. Now matches About (single column) + projects show the real set ----
+  await page.evaluate(() => { const w = document.querySelector('.os-win[data-app="now"]'); if (w) { w.style.display = 'flex'; w.style.zIndex = '7000'; } });
+  const nowRowDisplay = await page.$eval('.os-win[data-app="now"] .now-row', (e) => getComputedStyle(e).display);
+  check('P1 Now restyled to single-column, About-like (V2b)', nowRowDisplay === 'block', `now-row display=${nowRowDisplay}`);
+  const projSlugs = await page.$$eval('.os-win[data-app="projects"] [data-os-view="root"] .os-list-item', (els) => els.map((e) => e.dataset.osSlug));
+  const legacyBadges = await page.locator('.os-win[data-app="projects"] [data-os-view="root"] .os-list-item .os-status-legacy').count();
+  check('P2 projects list shows the real researched set (V3a)',
+    ['autonomous-peers', 'sleeptime-memory', 'knowledge-graph', 'exocortex', 'devswarm'].every((s) => projSlugs.includes(s)) && legacyBadges >= 1,
+    `slugs=${projSlugs.join(',')} legacyBadges=${legacyBadges}`);
+
   // ---- I. mobile (480x880): editorial shows, tomOS hidden ----
   await page.setViewportSize({ width: 480, height: 880 });
   await page.waitForTimeout(120);

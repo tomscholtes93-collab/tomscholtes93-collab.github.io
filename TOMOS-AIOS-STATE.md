@@ -2,8 +2,8 @@
 
 Branch: `feat/tomos-aios-v2`. Spec: `TOMOS-AIOS-PLAN.md`. loopcron resumes every 5.5h until TOMOS-AIOS-DONE.
 
-## Status: V1 + V2a SHIPPED + VERIFIED. Build green, 50/50 playwright. V2b/V3/V4 next.
-Last update: 2026-06-22 12:28 by F43.
+## Status: DONE. All V1-V4 AC met, build green, 56/56 playwright. DONE sentinel written; PR open.
+Last update: 2026-06-22 12:47 by F43.
 
 ## Work items
 - [x] V1a Work window drill-down (case detail in-window) — verified L1-L8
@@ -18,8 +18,8 @@ Last update: 2026-06-22 12:28 by F43.
 - [x] V4a Wallpaper + desktop polish (layered token-based aurora + vignette; adapts across themes)
 - [x] V4b Simulated autonomous workstreams surface (Activity window; deterministic anim; reduced-motion-safe)
 
-## Build: tomOS v1 is LIVE on main (green). v2 build not run on this branch yet.
-## DONE sentinel: ABSENT (write TOMOS-AIOS-DONE only when DoD met)
+## Build: GREEN on feat/tomos-aios-v2 (check-i18n 360x4, check-notes 20 notes, full chain). 56/56 playwright on F43.
+## DONE sentinel: WRITTEN (TOMOS-AIOS-DONE). PR opened base main (NOT merged; Tom merges).
 
 ## V1b single-source decision (documented)
 The in-window Work case detail renders from the SAME i18n card keys
@@ -83,6 +83,9 @@ returns a static snapshot under prefers-reduced-motion (no interval, no bar
 transition). A standing "Illustrative ... not live data" note sits at the top.
 
 ## Log
+- 2026-06-22 12:47 F43: DONE. Added P1 (Now single-column) + P2 (real projects set) test
+  assertions -> 56/56 playwright. Final clean build green; em-dash + leakage sweeps clean;
+  i18n 360x4. Wrote TOMOS-AIOS-DONE sentinel. Opening PR base main (NOT merging; Tom merges).
 - 2026-06-22 12:45 F43: V4a + V4b SHIPPED. Upgraded wallpaper (token-based aurora +
   vignette). Added the Activity window: simulated autonomous workstreams with
   deterministic animated progress, status pills, reduced-motion-safe. Fixed two
