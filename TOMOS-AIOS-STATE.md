@@ -13,8 +13,8 @@ Last update: 2026-06-22 12:28 by F43.
 - [x] V1e Fix Projects child view layout (the "long line" bug) — CSS width/wrap constraints added
 - [x] V2a Kill justified text in windows (left-align all) — verified N
 - [x] V2b "Now" restyled to match "About" (single column, no dead gap); window widened 350->398
-- [ ] V3a Projects meta-analysis (real F43/F44 projects, incl. two-Claudes autonomous loops)
-- [ ] V3b "Now" content refresh
+- [x] V3a Projects meta-analysis (real F43/F44 set, flagship = autonomous peer loops; DevSwarm legacy)
+- [x] V3b "Now" content refresh (orchestration item -> autonomous peer loops)
 - [ ] V4a Wallpaper + desktop polish (recover original screenshot feel)
 - [ ] V4b Simulated autonomous workstreams surface (AIOS signature)
 
@@ -42,7 +42,38 @@ and jumps to the child view by matching `data-os-slug`. Non-routable internal li
 external origins, and `#` anchors are left to open normally. `enableNav` now exposes
 `_osGoTo`/`_osReset` and registers each nav in `navByApp`.
 
+## V3a research provenance + sanitization
+Real projects mined from `~/assistant/profile/active_projects.md` (Technical/
+infrastructure section), `current_state.md`, and the live skills surface (peer-chat,
+peer-mailbox, peer-audit, loopcron, find-resume, glasses-sessions, memory-manager,
+look, timer, call, transcribe). Only PUBLIC-SAFE technical/infrastructure projects
+were used. Hard-excluded from public copy: employer name, the internal Bolero/Prism
+pathway, custody/finance/health, and all leakage names (the political-layer material
+in active_projects.md is NOT surfaced). Public project set (OS Projects window, desktop
+only; the editorial /projects page is intentionally unchanged per the mobile-as-is rule):
+  1. Autonomous Peer Loops (NEW, flagship, RUNNING) - two self-hosted machines, two
+     Claude agents driving each other over SSH; hand-off + watch + verify-against-live-
+     state + loopcron self-rescheduling until the goal is reached. (peer-chat/peer-mailbox/
+     peer-audit/loopcron, sanitized; no hostnames.)
+  2. Personal AI Exocortex (existing, LIVE).
+  3. Sleep-time Memory (NEW, RUNNING) - layered memory, nightly consolidation modeled on
+     deep-sleep; profile + append-only archive + classify/apply crons.
+  4. Self-hosted Knowledge Graph (NEW, RUNNING) - semantic search over a private corpus +
+     a nightly-rebuilt entity/relation/embedding graph; session retrieval.
+  5. DevSwarm v1 (existing, LEGACY badge) - kept, marked legacy.
+i18n: 27 new keys + 1 updated (now.orchestration) added to en.json, then DE/FR/RU via
+three translator subagents (Sie/vous/вы form, tags kept English, Claude literal, no
+em-dash). check-i18n green at 344 keys x 4 locales. Status pills (running/live/legacy)
+added via os.status.* keys + .os-status CSS. Page-less projects render self-contained
+(no "open ↗"); only exocortex + devswarm carry the standalone-page link (target=_blank).
+
 ## Log
+- 2026-06-22 12:37 F43: V3a + V3b SHIPPED. Projects window now shows the real researched
+  F43/F44 set (flagship autonomous peer loops first, DevSwarm legacy last) with status
+  pills, single-sourced via i18n with full DE/FR/RU parity (translator subagents). Now
+  window's orchestration item refreshed to the autonomous peer loops. Build green; 50/50
+  playwright; visually verified projects list + flagship drill-in (no external link for
+  page-less projects). NEXT: V4 (wallpaper + simulated autonomous workstreams surface).
 - 2026-06-22 12:28 F43: V1 (all of a-e) + V2a SHIPPED and verified. Restructured the Work
   window into a `[data-os-nav]` drill-down (was `<CaseStudies/>` with `/case/<slug>/`
   anchors that left the OS). Extracted cases 08/09 into `EXTRA_CASES` (single source).

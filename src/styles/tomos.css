@@ -327,6 +327,35 @@
 .os-note-link a { color: var(--accent-ink); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; }
 .os-proj-metric { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
 .os-proj-metric strong { color: var(--ink); }
+
+/* ---- Status pills (V3a: running / live / legacy) ------------------------- */
+.os-status {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-left: 2px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.os-status-running {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 42%, var(--rule));
+  background: color-mix(in srgb, var(--ok) 9%, transparent);
+}
+.os-status-live {
+  color: var(--accent-ink);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--rule));
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+.os-status-legacy { color: var(--muted); opacity: .85; }
+.os-list-item .t .os-status { font-size: 9.5px; }
 .os-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
 .os-tag {
   font-family: 'JetBrains Mono', ui-monospace, monospace;

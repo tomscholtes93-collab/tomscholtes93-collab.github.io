@@ -41,8 +41,18 @@ const notes = await Promise.all(
 );
 const notesHref = localizePath('/notes/', locale);
 
-// Projects: single-sourced from the same i18n keys the /projects page uses.
-const projectIds = ['devswarm', 'exocortex'] as const;
+// Projects: single-sourced from the same i18n keys the /projects page uses
+// (DESKTOP-only; the editorial /projects page is unchanged per the mobile-as-is
+// rule). The real F43/F44 set, flagship first, DevSwarm kept but marked legacy.
+// hasPage = a standalone /projects/<slug>/ write-up exists (only those carry the
+// "open ↗" link; the rest are self-contained in-window).
+const osProjects = [
+  { id: 'autonomous-peers', status: 'running', hasPage: false },
+  { id: 'exocortex', status: 'live', hasPage: true },
+  { id: 'sleeptime-memory', status: 'running', hasPage: false },
+  { id: 'knowledge-graph', status: 'running', hasPage: false },
+  { id: 'devswarm', status: 'legacy', hasPage: true },
+] as const;
 const projectTags = (slug: string) =>
   [0, 1, 2, 3].map((i) => t(`projects.index.card.${slug}.tag.${i}`)).filter((s) => s && s.length > 0);
 const projectHref = (slug: string) => localizePath(`/projects/${slug}`, locale);
@@ -205,25 +215,27 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
         <div data-os-view="root">
           <p class="os-list-lede">{t('projects.index.sub')}</p>
           <ul class="os-list">
-            {projectIds.map((id) => (
+            {osProjects.map((p) => (
               <li>
-                <button type="button" class="os-list-item" data-os-go={vid(t(`projects.index.card.${id}.title`))} data-os-slug={id}>
-                  <span class="t">{t(`projects.index.card.${id}.title`)} <span class="os-list-num">{t(`projects.index.card.${id}.num`)}</span></span>
-                  <span class="s">{t(`projects.index.card.${id}.body`)}</span>
+                <button type="button" class="os-list-item" data-os-go={vid(t(`projects.index.card.${p.id}.title`))} data-os-slug={p.id}>
+                  <span class="t">{t(`projects.index.card.${p.id}.title`)} <span class={`os-status os-status-${p.status}`}>{t(`os.status.${p.status}`)}</span></span>
+                  <span class="s">{t(`projects.index.card.${p.id}.body`)}</span>
                 </button>
               </li>
             ))}
           </ul>
         </div>
-        {projectIds.map((id) => (
-          <article class="os-note prose" data-os-view={vid(t(`projects.index.card.${id}.title`))} data-os-slug={id} hidden>
-            <h3>{t(`projects.index.card.${id}.title`)}</h3>
-            <p class="os-proj-metric"><strong>{t(`projects.index.card.${id}.metric`)}</strong> {t(`projects.index.card.${id}.label`)}</p>
-            <p class="lead">{t(`projects.index.card.${id}.body`)}</p>
+        {osProjects.map((p) => (
+          <article class="os-note prose" data-os-view={vid(t(`projects.index.card.${p.id}.title`))} data-os-slug={p.id} hidden>
+            <h3>{t(`projects.index.card.${p.id}.title`)} <span class={`os-status os-status-${p.status}`}>{t(`os.status.${p.status}`)}</span></h3>
+            <p class="os-proj-metric"><strong>{t(`projects.index.card.${p.id}.metric`)}</strong> {t(`projects.index.card.${p.id}.label`)}</p>
+            <p class="lead">{t(`projects.index.card.${p.id}.body`)}</p>
             <div class="os-tags">
-              {projectTags(id).map((tg) => <span class="os-tag">{tg}</span>)}
+              {projectTags(p.id).map((tg) => <span class="os-tag">{tg}</span>)}
             </div>
-            <p class="os-note-link"><a href={projectHref(id)} target="_blank" rel="noopener">{t(`projects.index.card.${id}.title`)} ↗</a></p>
+            {p.hasPage && (
+              <p class="os-note-link"><a href={projectHref(p.id)} target="_blank" rel="noopener">{t(`projects.index.card.${p.id}.title`)} ↗</a></p>
+            )}
           </article>
         ))}
       </div>
