@@ -1,0 +1,199 @@
+---
+/*
+ * OsDesktop: the tomOS faux-desktop layer (>= 1200px only; CSS-gated, JS-driven).
+ * Conforms to the markup contract in src/scripts/tomos.js:
+ *   [data-os] root -> [data-os-menubar] + [data-os-canvas] (.os-win windows) + [data-os-dock].
+ * Every window REUSES the same content components / collections as the editorial
+ * layer (single source of truth, W6): no copy is authored twice. Notes + Projects
+ * windows carry [data-os-nav] for in-window drill-down + Back (W4).
+ */
+import '../styles/tomos.css';
+import { getCollection } from 'astro:content';
+import CaseStudies from './CaseStudies.astro';
+import Now from './Now.astro';
+import CV from './CV.astro';
+import Reading from './Reading.astro';
+import Languages from './Languages.astro';
+import Contact from './Contact.astro';
+import OsWindow from './OsWindow.astro';
+import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
+
+// Stable, selector-safe view id (the engine couples breadcrumb text to the
+// view name, so we keep it human-readable but strip chars that would break an
+// attribute selector).
+const vid = (s: string) => s.replace(/["\\]/g, '').trim();
+
+// Notes for the current locale, falling back to English if a locale has none.
+let noteList = await getCollection('notes', ({ data, slug }) =>
+  data.status === 'published' && slug.startsWith(`${locale}/`));
+if (noteList.length === 0) {
+  noteList = await getCollection('notes', ({ data, slug }) =>
+    data.status === 'published' && slug.startsWith('en/'));
+}
+noteList = noteList.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const notes = await Promise.all(
+  noteList.map(async (entry) => ({ entry, Content: (await entry.render()).Content })),
+);
+const notesHref = localizePath('/notes/', locale);
+
+// Projects: single-sourced from the same i18n keys the /projects page uses.
+const projectIds = ['devswarm', 'exocortex'] as const;
+const projectTags = (slug: string) =>
+  [0, 1, 2, 3].map((i) => t(`projects.index.card.${slug}.tag.${i}`)).filter((s) => s && s.length > 0);
+const projectHref = (slug: string) => localizePath(`/projects/${slug}`, locale);
+
+// Apps: drives menubar + dock. Window titles reuse existing nav.* keys where they
+// exist (parity already guaranteed across locales) plus two new os.win.* keys.
+const apps = [
+  { id: 'about', label: t('os.win.about') },
+  { id: 'work', label: t('nav.work') },
+  { id: 'now', label: t('nav.now') },
+  { id: 'cv', label: t('nav.cv') },
+  { id: 'notes', label: t('nav.notes') },
+  { id: 'projects', label: t('nav.projects') },
+  { id: 'reading', label: t('nav.reading') },
+  { id: 'languages', label: t('os.win.languages') },
+  { id: 'contact', label: t('nav.contact') },
+];
+
+const h = 'editorial'; // headline variant shown in the About window (same key family as Hero)
+---
+<div class="os-desktop" data-os data-os-default="about,work,now" aria-hidden="false">
+  <!-- Menubar -->
+  <div class="os-menubar" data-os-menubar role="menubar" aria-label={t('os.aria.menubar')}>
+    <span class="os-brand"><span class="os-brand-mark">T</span>{t('nav.brand')}</span>
+    {apps.map((a) => (
+      <button type="button" class="os-menu-item" data-open={a.id} role="menuitem">{a.label}</button>
+    ))}
+    <span class="os-menubar-spacer"></span>
+    <span class="os-hint">{t('os.hint')}</span>
+    <span class="os-clock" id="os-clock" aria-hidden="true"></span>
+  </div>
+
+  <!-- Canvas -->
+  <div class="os-canvas" data-os-canvas>
+
+    <!-- About -->
+    <OsWindow app="about" title={t('os.win.about')} x={40} y={60} w={430} h={430}>
+      <div class="os-about">
+        <span class="eyebrow">{t('home.hero.eyebrow')}</span>
+        <h2 class="os-about-title">{t(`home.hero.headlines.${h}.pre`)}<em>{t(`home.hero.headlines.${h}.em`)}</em>{t(`home.hero.headlines.${h}.post`)}</h2>
+        <p>{t('home.hero.lead')}</p>
+        <div class="os-about-meta">
+          <div><strong>{t('home.hero.meta.years.value')}</strong> {t('home.hero.meta.years.label')}</div>
+          <div><strong>{t('home.hero.meta.casestudies.value')}</strong> {t('home.hero.meta.casestudies.label')}</div>
+          <div><strong>{t('home.hero.meta.languages.value')}</strong> {t('home.hero.meta.languages.label')}</div>
+        </div>
+      </div>
+    </OsWindow>
+
+    <!-- Work (case studies) -->
+    <OsWindow app="work" title={t('nav.work')} x={500} y={60} w={540} h={600}>
+      <CaseStudies />
+    </OsWindow>
+
+    <!-- Now -->
+    <OsWindow app="now" title={t('nav.now')} x={1066} y={60} w={350} h={560}>
+      <Now />
+    </OsWindow>
+
+    <!-- CV -->
+    <OsWindow app="cv" title={t('nav.cv')} x={120} y={110} w={820} h={600}>
+      <CV />
+    </OsWindow>
+
+    <!-- Notes (drill-down, W4) -->
+    <OsWindow app="notes" title={t('nav.notes')} x={180} y={90} w={600} h={560}>
+      <div data-os-nav class="os-nav">
+        <div class="os-navbar">
+          <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
+          <span class="os-crumb" data-os-crumb></span>
+        </div>
+        <div data-os-view="root">
+          <p class="os-list-lede">{t('notes.index.sub')}</p>
+          <ul class="os-list">
+            {notes.map(({ entry }) => (
+              <li>
+                <button type="button" class="os-list-item" data-os-go={vid(entry.data.title)}>
+                  <span class="t">{entry.data.title}</span>
+                  <span class="s">{entry.data.summary}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {notes.map(({ entry, Content }) => (
+          <article class="os-note prose" data-os-view={vid(entry.data.title)} hidden>
+            <h3>{entry.data.title}</h3>
+            <p class="lead">{entry.data.summary}</p>
+            <Content />
+            <p class="os-note-link"><a href={`${notesHref}${entry.slug.replace(/^[a-z]{2}\//, '')}/`}>{t('notes.detail.back').replace('← ', '')} ↗</a></p>
+          </article>
+        ))}
+      </div>
+    </OsWindow>
+
+    <!-- Projects (drill-down, W4) -->
+    <OsWindow app="projects" title={t('nav.projects')} x={240} y={120} w={620} h={520}>
+      <div data-os-nav class="os-nav">
+        <div class="os-navbar">
+          <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
+          <span class="os-crumb" data-os-crumb></span>
+        </div>
+        <div data-os-view="root">
+          <p class="os-list-lede">{t('projects.index.sub')}</p>
+          <ul class="os-list">
+            {projectIds.map((id) => (
+              <li>
+                <button type="button" class="os-list-item" data-os-go={vid(t(`projects.index.card.${id}.title`))}>
+                  <span class="t">{t(`projects.index.card.${id}.title`)} <span class="os-list-num">{t(`projects.index.card.${id}.num`)}</span></span>
+                  <span class="s">{t(`projects.index.card.${id}.body`)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {projectIds.map((id) => (
+          <article class="os-note prose" data-os-view={vid(t(`projects.index.card.${id}.title`))} hidden>
+            <h3>{t(`projects.index.card.${id}.title`)}</h3>
+            <p class="os-proj-metric"><strong>{t(`projects.index.card.${id}.metric`)}</strong> {t(`projects.index.card.${id}.label`)}</p>
+            <p class="lead">{t(`projects.index.card.${id}.body`)}</p>
+            <div class="os-tags">
+              {projectTags(id).map((tg) => <span class="os-tag">{tg}</span>)}
+            </div>
+            <p class="os-note-link"><a href={projectHref(id)}>{t(`projects.index.card.${id}.title`)} ↗</a></p>
+          </article>
+        ))}
+      </div>
+    </OsWindow>
+
+    <!-- Reading -->
+    <OsWindow app="reading" title={t('nav.reading')} x={300} y={140} w={520} h={440}>
+      <Reading />
+    </OsWindow>
+
+    <!-- Languages -->
+    <OsWindow app="languages" title={t('os.win.languages')} x={360} y={150} w={440} h={380}>
+      <Languages />
+    </OsWindow>
+
+    <!-- Contact -->
+    <OsWindow app="contact" title={t('nav.contact')} x={420} y={130} w={620} h={440}>
+      <Contact />
+    </OsWindow>
+
+  </div>
+
+  <!-- Dock -->
+  <div class="os-dock" data-os-dock role="toolbar" aria-label={t('os.aria.dock')}>
+    {apps.map((a) => (
+      <button type="button" class="os-dock-item" data-open={a.id} aria-label={a.label}>
+        <span class="os-dock-dot"></span>
+        <span class="os-dock-label">{a.label}</span>
+      </button>
+    ))}
+  </div>
+</div>

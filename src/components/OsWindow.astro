@@ -1,0 +1,46 @@
+---
+/*
+ * OsWindow: a single tomOS window conforming to the tomos.js markup contract.
+ * Titlebar holds the three traffic lights (close / min / max) the engine binds
+ * to; .os-win-body is the scrollable content region filled via <slot/>.
+ * role="dialog" + aria-label per window; tabindex makes it programmatically
+ * focusable so the engine can focus() it on open and Esc can target it.
+ */
+import { t as translate, getLocale, type Locale } from '../i18n';
+
+interface Props {
+  app: string;
+  title: string;
+  x: number;
+  y: number;
+  w: number;
+  h?: number;
+}
+const { app, title, x, y, w, h } = Astro.props;
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+---
+<section
+  class="os-win"
+  data-app={app}
+  data-x={x}
+  data-y={y}
+  data-w={w}
+  data-h={h}
+  role="dialog"
+  aria-label={title}
+  tabindex="-1"
+>
+  <div class="os-titlebar">
+    <div class="os-lights">
+      <button type="button" class="os-light os-close" aria-label={`${t('os.light.close')}: ${title}`}></button>
+      <button type="button" class="os-light os-min" aria-label={`${t('os.light.min')}: ${title}`}></button>
+      <button type="button" class="os-light os-max" aria-label={`${t('os.light.max')}: ${title}`}></button>
+    </div>
+    <span class="os-title">{title}</span>
+  </div>
+  <div class="os-win-body">
+    <slot />
+  </div>
+</section>

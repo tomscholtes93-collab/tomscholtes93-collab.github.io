@@ -79,6 +79,9 @@ const OG_LOCALE: Record<Locale, string> = {
 
     <script is:inline>
       (function () {
+        // Mark JS as available so the tomOS desktop layer can opt in (>= 1200px).
+        // Without JS this class never lands and the editorial layer is the fallback.
+        document.documentElement.classList.add('js');
         var ACC = {
           terracotta: { a: '#C4623A', i: '#8A3F1E' },
           ink:        { a: '#1B2B4B', i: '#0E1A2E' },
