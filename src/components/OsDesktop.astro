@@ -9,7 +9,8 @@
  */
 import '../styles/tomos.css';
 import { getCollection } from 'astro:content';
-import CaseStudies from './CaseStudies.astro';
+import { CASE_IDS, CASE_SLUG, EXTRA_CASES } from '../content/caseStudies.ts';
+import { NOW_IDS } from '../content/now.ts';
 import Now from './Now.astro';
 import CV from './CV.astro';
 import Reading from './Reading.astro';
@@ -34,16 +35,55 @@ if (noteList.length === 0) {
     data.status === 'published' && slug.startsWith('en/'));
 }
 noteList = noteList.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const stripLocale = (slug: string) => slug.replace(/^[a-z]{2}\//, '');
 const notes = await Promise.all(
-  noteList.map(async (entry) => ({ entry, Content: (await entry.render()).Content })),
+  noteList.map(async (entry) => ({ entry, slug: stripLocale(entry.slug), Content: (await entry.render()).Content })),
 );
 const notesHref = localizePath('/notes/', locale);
 
-// Projects: single-sourced from the same i18n keys the /projects page uses.
-const projectIds = ['devswarm', 'exocortex'] as const;
+// Projects: single-sourced from the same i18n keys the /projects page uses
+// (DESKTOP-only; the editorial /projects page is unchanged per the mobile-as-is
+// rule). The real F43/F44 set, flagship first, DevSwarm kept but marked legacy.
+// hasPage = a standalone /projects/<slug>/ write-up exists (only those carry the
+// "open ↗" link; the rest are self-contained in-window).
+const osProjects = [
+  { id: 'autonomous-peers', status: 'running', hasPage: false },
+  { id: 'exocortex', status: 'live', hasPage: true },
+  { id: 'sleeptime-memory', status: 'running', hasPage: false },
+  { id: 'knowledge-graph', status: 'running', hasPage: false },
+  { id: 'devswarm', status: 'legacy', hasPage: true },
+] as const;
 const projectTags = (slug: string) =>
   [0, 1, 2, 3].map((i) => t(`projects.index.card.${slug}.tag.${i}`)).filter((s) => s && s.length > 0);
 const projectHref = (slug: string) => localizePath(`/projects/${slug}`, locale);
+
+// Work: cases drill in-window. Single-sourced from the SAME i18n keys the
+// editorial CaseStudies cards use (01-07), plus the shared EXTRA_CASES (08-09).
+// Each list button carries data-os-slug so the engine can route a /case/<slug>/
+// link straight to its in-window view instead of a full-page navigation.
+const workCases = [
+  ...CASE_IDS.map((n) => ({
+    view: vid(t(`home.work.case.${n}.title`)),
+    n,
+    slug: CASE_SLUG[n],
+    title: t(`home.work.case.${n}.title`),
+    metric: t(`home.work.case.${n}.metric`),
+    label: t(`home.work.case.${n}.label`),
+    blurb: t(`home.work.case.${n}.blurb`),
+    tags: [0, 1, 2].map((i) => t(`home.work.case.${n}.tag.${i}`)).filter((s) => s && s.length > 0),
+  })),
+  ...EXTRA_CASES.map((c) => ({
+    view: vid(c.title),
+    n: c.n,
+    slug: c.slug,
+    title: c.title,
+    metric: c.metric,
+    label: c.label,
+    blurb: c.blurb,
+    tags: c.tags,
+  })),
+];
+const caseHref = (slug: string) => `/case/${slug}/`;
 
 // Apps: drives menubar + dock. Window titles reuse existing nav.* keys where they
 // exist (parity already guaranteed across locales) plus two new os.win.* keys.
@@ -51,6 +91,7 @@ const apps = [
   { id: 'about', label: t('os.win.about') },
   { id: 'work', label: t('nav.work') },
   { id: 'now', label: t('nav.now') },
+  { id: 'activity', label: t('os.win.activity') },
   { id: 'cv', label: t('nav.cv') },
   { id: 'notes', label: t('nav.notes') },
   { id: 'projects', label: t('nav.projects') },
@@ -59,9 +100,24 @@ const apps = [
   { id: 'contact', label: t('nav.contact') },
 ];
 
+// V4b: simulated autonomous workstreams (clearly illustrative; deterministic,
+// reduced-motion-safe). `state` is the INITIAL state; src/scripts/tomos.js drives
+// the progress bars + status pills client-side. Tied to the real project surfaces
+// (mailbox triage, reconciliation, peer loop, notes, graph, memory) so it reads as
+// this OS doing work, not random noise.
+const workstreams = [
+  { id: 'mailbox', state: 'running', delay: 0, init: 64 },
+  { id: 'reconcile', state: 'running', delay: 1, init: 58 },
+  { id: 'peer', state: 'running', delay: 0, init: 72 },
+  { id: 'notes', state: 'done', delay: 0, init: 100 },
+  { id: 'graph', state: 'done', delay: 0, init: 100 },
+  { id: 'memory', state: 'queued', delay: 3, init: 0 },
+];
+const statusKey = (s: string) => s === 'running' ? 'os.status.running' : s === 'done' ? 'os.status.done' : 'os.status.queued';
+
 const h = 'editorial'; // headline variant shown in the About window (same key family as Hero)
 ---
-<div class="os-desktop" data-os data-os-default="about,work,now" aria-hidden="false">
+<div class="os-desktop" data-os data-os-default="about,work,now,activity" aria-hidden="false">
   <!-- Menubar -->
   <div class="os-menubar" data-os-menubar role="menubar" aria-label={t('os.aria.menubar')}>
     <span class="os-brand"><span class="os-brand-mark">T</span>{t('nav.brand')}</span>
@@ -90,14 +146,71 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- Work (case studies) -->
+    <!-- Work (case studies; drill-down in-window, W4 / V1a) -->
     <OsWindow app="work" title={t('nav.work')} x={500} y={60} w={540} h={600}>
-      <CaseStudies />
+      <div data-os-nav class="os-nav">
+        <div class="os-navbar">
+          <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
+          <span class="os-crumb" data-os-crumb></span>
+        </div>
+        <div data-os-view="root">
+          <p class="os-list-lede">{t('home.work.blurb')}</p>
+          <ul class="os-list">
+            {workCases.map((c) => (
+              <li>
+                <button type="button" class="os-list-item" data-os-go={c.view} data-os-slug={c.slug}>
+                  <span class="t">{c.title} <span class="os-list-num">{`Case ${c.n}`}</span></span>
+                  <span class="s">{c.blurb}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {workCases.map((c) => (
+          <article class="os-note prose" data-os-view={c.view} data-os-slug={c.slug} hidden>
+            <h3>{c.title}</h3>
+            <p class="os-proj-metric"><strong>{c.metric}</strong> {c.label}</p>
+            <p class="lead">{c.blurb}</p>
+            <div class="os-tags">
+              {c.tags.map((tg) => <span class="os-tag">{tg}</span>)}
+            </div>
+            <p class="os-note-link"><a href={caseHref(c.slug)} target="_blank" rel="noopener">{c.title} ↗</a></p>
+          </article>
+        ))}
+      </div>
     </OsWindow>
 
     <!-- Now -->
-    <OsWindow app="now" title={t('nav.now')} x={1066} y={60} w={350} h={560}>
+    <OsWindow app="now" title={t('nav.now')} x={1018} y={60} w={398} h={560}>
       <Now />
+    </OsWindow>
+
+    <!-- Activity: simulated autonomous workstreams (AIOS signature, V4b) -->
+    <OsWindow app="activity" title={t('os.win.activity')} x={40} y={506} w={446} h={306}>
+      <div
+        class="os-activity"
+        data-os-activity
+        data-label-running={t('os.status.running')}
+        data-label-done={t('os.status.done')}
+        data-label-queued={t('os.status.queued')}
+      >
+        <p class="os-activity-note">{t('os.activity.note')}</p>
+        <ul class="os-proc-list">
+          {workstreams.map((ws) => (
+            <li class="os-proc" data-proc={ws.id} data-state={ws.state} data-delay={ws.delay}>
+              <div class="os-proc-head">
+                <span class="os-proc-name">{t(`os.activity.ws.${ws.id}.name`)}</span>
+                <span class={`os-status os-status-${ws.state}`} data-proc-status>{t(statusKey(ws.state))}</span>
+              </div>
+              <div class="os-proc-bar"><span class="os-proc-fill" style={`width:${ws.init}%`}></span></div>
+              <div class="os-proc-foot">
+                <span class="os-proc-meta">{t(`os.activity.ws.${ws.id}.meta`)}</span>
+                <span class="os-proc-pct" data-proc-pct>{`${ws.init}%`}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </OsWindow>
 
     <!-- CV -->
@@ -115,9 +228,9 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
         <div data-os-view="root">
           <p class="os-list-lede">{t('notes.index.sub')}</p>
           <ul class="os-list">
-            {notes.map(({ entry }) => (
+            {notes.map(({ entry, slug }) => (
               <li>
-                <button type="button" class="os-list-item" data-os-go={vid(entry.data.title)}>
+                <button type="button" class="os-list-item" data-os-go={vid(entry.data.title)} data-os-slug={slug}>
                   <span class="t">{entry.data.title}</span>
                   <span class="s">{entry.data.summary}</span>
                 </button>
@@ -125,12 +238,12 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
             ))}
           </ul>
         </div>
-        {notes.map(({ entry, Content }) => (
-          <article class="os-note prose" data-os-view={vid(entry.data.title)} hidden>
+        {notes.map(({ entry, slug, Content }) => (
+          <article class="os-note prose" data-os-view={vid(entry.data.title)} data-os-slug={slug} hidden>
             <h3>{entry.data.title}</h3>
             <p class="lead">{entry.data.summary}</p>
             <Content />
-            <p class="os-note-link"><a href={`${notesHref}${entry.slug.replace(/^[a-z]{2}\//, '')}/`}>{t('notes.detail.back').replace('← ', '')} ↗</a></p>
+            <p class="os-note-link"><a href={`${notesHref}${slug}/`} target="_blank" rel="noopener">{t('notes.detail.back').replace('← ', '')} ↗</a></p>
           </article>
         ))}
       </div>
@@ -146,25 +259,27 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
         <div data-os-view="root">
           <p class="os-list-lede">{t('projects.index.sub')}</p>
           <ul class="os-list">
-            {projectIds.map((id) => (
+            {osProjects.map((p) => (
               <li>
-                <button type="button" class="os-list-item" data-os-go={vid(t(`projects.index.card.${id}.title`))}>
-                  <span class="t">{t(`projects.index.card.${id}.title`)} <span class="os-list-num">{t(`projects.index.card.${id}.num`)}</span></span>
-                  <span class="s">{t(`projects.index.card.${id}.body`)}</span>
+                <button type="button" class="os-list-item" data-os-go={vid(t(`projects.index.card.${p.id}.title`))} data-os-slug={p.id}>
+                  <span class="t">{t(`projects.index.card.${p.id}.title`)} <span class={`os-status os-status-${p.status}`}>{t(`os.status.${p.status}`)}</span></span>
+                  <span class="s">{t(`projects.index.card.${p.id}.body`)}</span>
                 </button>
               </li>
             ))}
           </ul>
         </div>
-        {projectIds.map((id) => (
-          <article class="os-note prose" data-os-view={vid(t(`projects.index.card.${id}.title`))} hidden>
-            <h3>{t(`projects.index.card.${id}.title`)}</h3>
-            <p class="os-proj-metric"><strong>{t(`projects.index.card.${id}.metric`)}</strong> {t(`projects.index.card.${id}.label`)}</p>
-            <p class="lead">{t(`projects.index.card.${id}.body`)}</p>
+        {osProjects.map((p) => (
+          <article class="os-note prose" data-os-view={vid(t(`projects.index.card.${p.id}.title`))} data-os-slug={p.id} hidden>
+            <h3>{t(`projects.index.card.${p.id}.title`)} <span class={`os-status os-status-${p.status}`}>{t(`os.status.${p.status}`)}</span></h3>
+            <p class="os-proj-metric"><strong>{t(`projects.index.card.${p.id}.metric`)}</strong> {t(`projects.index.card.${p.id}.label`)}</p>
+            <p class="lead">{t(`projects.index.card.${p.id}.body`)}</p>
             <div class="os-tags">
-              {projectTags(id).map((tg) => <span class="os-tag">{tg}</span>)}
+              {projectTags(p.id).map((tg) => <span class="os-tag">{tg}</span>)}
             </div>
-            <p class="os-note-link"><a href={projectHref(id)}>{t(`projects.index.card.${id}.title`)} ↗</a></p>
+            {p.hasPage && (
+              <p class="os-note-link"><a href={projectHref(p.id)} target="_blank" rel="noopener">{t(`projects.index.card.${p.id}.title`)} ↗</a></p>
+            )}
           </article>
         ))}
       </div>

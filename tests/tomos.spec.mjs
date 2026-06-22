@@ -186,6 +186,89 @@ try {
   // ---- H. no console errors so far ----
   check('H console error-free during desktop run', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
 
+  // ---- L. Work drill-down in-window + Back (V1a/V1b) ----
+  await page.click('.os-dock-item[data-open="work"]');
+  check('L1 work window opens', (await disp('.os-win[data-app="work"]')) === 'flex');
+  check('L2 work root list visible', !(await page.locator('.os-win[data-app="work"] [data-os-view="root"]').isHidden()));
+  check('L3 work back disabled at root', await page.locator('.os-win[data-app="work"] [data-os-back]').isDisabled());
+  check('L3b work list items are buttons (cannot navigate)',
+    (await page.locator('.os-win[data-app="work"] .os-list-item').first().evaluate((e) => e.tagName)) === 'BUTTON');
+  const urlBeforeDrill = page.url();
+  await page.click('.os-win[data-app="work"] .os-list-item'); // first case (Automated Regulatory Notes)
+  const workChild = await page.evaluate(() => {
+    const nav = document.querySelector('.os-win[data-app="work"] [data-os-nav]');
+    const views = [...nav.querySelectorAll('[data-os-view]')];
+    const shown = views.filter((v) => !v.hidden);
+    return { rootHidden: nav.querySelector('[data-os-view="root"]').hidden, shownCount: shown.length, shownName: shown[0]?.dataset.osView || '' };
+  });
+  check('L4 work drill-in renders detail in-window', workChild.rootHidden && workChild.shownCount === 1, JSON.stringify(workChild));
+  check('L5 drill-in did NOT navigate (same URL)', page.url() === urlBeforeDrill, page.url());
+  check('L6 work back enabled in child', !(await page.locator('.os-win[data-app="work"] [data-os-back]').isDisabled()));
+  check('L7 detail full-write-up link opens in a new tab (target=_blank)',
+    await page.locator(`.os-win[data-app="work"] [data-os-view="${workChild.shownName}"] .os-note-link a`).first().evaluate((a) => a.target === '_blank'));
+  await page.click('.os-win[data-app="work"] [data-os-back]');
+  check('L8 work back returns to root list', !(await page.locator('.os-win[data-app="work"] [data-os-view="root"]').isHidden()));
+
+  // ---- M. No in-window link performs a full-page navigation at 1440px (V1c) ----
+  ctx.on('page', (p) => { if (p !== page) p.close().catch(() => {}); }); // discard target=_blank popups
+  const baseUrl = page.url();
+  const baseOrigin = new URL(baseUrl).origin;
+  const APPS = ['work', 'notes', 'projects', 'now', 'cv', 'reading', 'languages', 'contact', 'about'];
+  let internalClicks = 0, navedAway = 0, blankLinks = 0;
+  for (const app of APPS) {
+    await page.evaluate((a) => {
+      const w = document.querySelector(`.os-win[data-app="${a}"]`);
+      if (w) { w.style.display = 'flex'; w.classList.remove('minimized'); w.style.zIndex = '5000'; }
+    }, app);
+    const anchors = await page.$$(`.os-win[data-app="${app}"] .os-win-body a[href]`);
+    for (const a of anchors) {
+      const meta = await a.evaluate((el) => ({ target: el.target, href: el.getAttribute('href') || '' }));
+      if (meta.target === '_blank') { blankLinks++; continue; }
+      let internal = false;
+      try {
+        const u = new URL(meta.href, baseUrl);
+        internal = u.origin === baseOrigin && !/^(mailto:|tel:|sms:)/i.test(meta.href) && !meta.href.startsWith('#');
+      } catch { internal = false; }
+      if (!internal) continue;
+      internalClicks++;
+      await a.click({ timeout: 1500 }).catch(() => {});
+      await page.waitForTimeout(20);
+      if (page.url() !== baseUrl) navedAway++;
+    }
+  }
+  check('M1 internal in-window links were exercised', internalClicks > 0, `internal=${internalClicks} blank=${blankLinks}`);
+  check('M2 no in-window link caused full-page navigation', navedAway === 0 && page.url() === baseUrl, `navedAway=${navedAway} url=${page.url()}`);
+
+  // ---- N. window prose is left-aligned, never justified (V2a) ----
+  await page.evaluate(() => { const w = document.querySelector('.os-win[data-app="now"]'); if (w) { w.style.display = 'flex'; w.style.zIndex = '6000'; } });
+  const nowAligns = await page.$$eval('.os-win[data-app="now"] .os-win-body p, .os-win[data-app="now"] .os-win-body .v',
+    (els) => els.map((e) => getComputedStyle(e).textAlign));
+  check('N window text left-aligned, not justified (V2a)',
+    nowAligns.length > 0 && nowAligns.every((a) => a === 'left' || a === 'start'), JSON.stringify(nowAligns));
+
+  // ---- O. Activity window: workstreams render + animate (V4b) ----
+  check('O1 activity window is open by default', (await disp('.os-win[data-app="activity"]')) === 'flex');
+  const procCount = await page.locator('.os-win[data-app="activity"] .os-proc').count();
+  const barCount = await page.locator('.os-win[data-app="activity"] .os-proc-fill').count();
+  check('O2 workstreams + progress bars render', procCount >= 4 && barCount === procCount, `procs=${procCount} bars=${barCount}`);
+  const snapA = await page.$$eval('.os-win[data-app="activity"] .os-proc',
+    (ps) => ps.map((p) => `${p.dataset.proc}:${p.dataset.state}:${p.querySelector('.os-proc-fill').style.width}`));
+  await page.waitForTimeout(3400); // >= 2 ticks (1500ms each)
+  const snapB = await page.$$eval('.os-win[data-app="activity"] .os-proc',
+    (ps) => ps.map((p) => `${p.dataset.proc}:${p.dataset.state}:${p.querySelector('.os-proc-fill').style.width}`));
+  const changed = snapA.some((s, i) => s !== snapB[i]);
+  check('O3 workstreams animate over time (deterministic)', changed, `A=${snapA.join(',')} | B=${snapB.join(',')}`);
+
+  // ---- P. Now matches About (single column) + projects show the real set ----
+  await page.evaluate(() => { const w = document.querySelector('.os-win[data-app="now"]'); if (w) { w.style.display = 'flex'; w.style.zIndex = '7000'; } });
+  const nowRowDisplay = await page.$eval('.os-win[data-app="now"] .now-row', (e) => getComputedStyle(e).display);
+  check('P1 Now restyled to single-column, About-like (V2b)', nowRowDisplay === 'block', `now-row display=${nowRowDisplay}`);
+  const projSlugs = await page.$$eval('.os-win[data-app="projects"] [data-os-view="root"] .os-list-item', (els) => els.map((e) => e.dataset.osSlug));
+  const legacyBadges = await page.locator('.os-win[data-app="projects"] [data-os-view="root"] .os-list-item .os-status-legacy').count();
+  check('P2 projects list shows the real researched set (V3a)',
+    ['autonomous-peers', 'sleeptime-memory', 'knowledge-graph', 'exocortex', 'devswarm'].every((s) => projSlugs.includes(s)) && legacyBadges >= 1,
+    `slugs=${projSlugs.join(',')} legacyBadges=${legacyBadges}`);
+
   // ---- I. mobile (480x880): editorial shows, tomOS hidden ----
   await page.setViewportSize({ width: 480, height: 880 });
   await page.waitForTimeout(120);
@@ -205,6 +288,12 @@ try {
   }, null, { timeout: 8000 });
   const rmDur = await rmPage.evaluate(() => getComputedStyle(document.querySelector('.os-win[data-app="work"]')).transitionDuration);
   check('K reduced-motion -> no window transition', rmDur === '0s' || /^0s(,\s*0s)*$/.test(rmDur), `transition-duration=${rmDur}`);
+  // V4b: workstream progress bars must not animate under reduced motion.
+  const rmFillDur = await rmPage.evaluate(() => {
+    const f = document.querySelector('.os-win[data-app="activity"] .os-proc-fill');
+    return f ? getComputedStyle(f).transitionDuration : 'MISSING';
+  });
+  check('K2 reduced-motion -> workstream bars static', rmFillDur === '0s' || /^0s(,\s*0s)*$/.test(rmFillDur), `fill transition-duration=${rmFillDur}`);
   await rmCtx.close();
 } catch (err) {
   console.error('SUITE ERROR:', err);

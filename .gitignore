@@ -10,3 +10,7 @@ public/js/
 
 # tomOS playwright screenshot artifacts (kept local)
 tests/results/*.png
+
+# headless run / playwright artifacts (kept local, never shipped)
+.playwright-mcp/
+/tomos-*.png
