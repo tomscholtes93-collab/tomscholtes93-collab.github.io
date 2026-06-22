@@ -115,6 +115,7 @@
   min-width: 280px;
   min-height: 160px;
   max-width: calc(100vw - 16px);
+  padding: 0;                    /* reset the global `section` --pad-y padding */
   background: var(--bg);
   border: 1px solid var(--rule);
   border-radius: 12px;
@@ -127,7 +128,7 @@
   border-color: color-mix(in srgb, var(--accent) 36%, var(--rule));
 }
 .os-win.minimized { display: none !important; }
-.os-win.maximized { border-radius: 0; border-left: 0; border-right: 0; }
+.os-win.maximized { border-radius: 0; border-left: 0; border-right: 0; max-width: none; }
 
 /* Titlebar (drag handle) */
 .os-titlebar {
@@ -188,6 +189,7 @@
   position: relative;
   z-index: 1;
   flex: 1 1 auto;
+  min-height: 0;                 /* let the body shrink + scroll so the window honors its height */
   overflow: auto;
   padding: 22px 24px 26px;
   -webkit-overflow-scrolling: touch;
