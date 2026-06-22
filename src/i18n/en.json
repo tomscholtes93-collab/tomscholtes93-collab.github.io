@@ -342,5 +342,21 @@
   "projects.index.card.knowledge-graph.tag.3": "Self-hosted",
   "os.status.running": "Running",
   "os.status.live": "Live",
-  "os.status.legacy": "Legacy"
+  "os.status.legacy": "Legacy",
+  "os.win.activity": "Activity",
+  "os.activity.note": "Illustrative. A simulated view of autonomous workstreams, not live data.",
+  "os.status.done": "Done",
+  "os.status.queued": "Queued",
+  "os.activity.ws.mailbox.name": "Mailbox triage",
+  "os.activity.ws.mailbox.meta": "Inbox classification and reply drafting",
+  "os.activity.ws.reconcile.name": "Reconciliation pass",
+  "os.activity.ws.reconcile.meta": "Cross-source data matching",
+  "os.activity.ws.peer.name": "Peer loop",
+  "os.activity.ws.peer.meta": "Two agents converging on a goal",
+  "os.activity.ws.notes.name": "Notes generation",
+  "os.activity.ws.notes.meta": "Disclosure-note drafting",
+  "os.activity.ws.graph.name": "Knowledge graph rebuild",
+  "os.activity.ws.graph.meta": "Entity and relation extraction",
+  "os.activity.ws.memory.name": "Memory consolidation",
+  "os.activity.ws.memory.meta": "Overnight profile and archive merge"
 }

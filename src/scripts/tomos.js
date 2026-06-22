@@ -231,6 +231,53 @@ export function initTomOS() {
     window.open(url.href, '_blank', 'noopener');                         // standalone page, OS intact
   });
 
+  // ---- V4b: simulated autonomous workstreams (deterministic, reduced-motion-safe) ----
+  function initActivity() {
+    const wrap = root.querySelector('[data-os-activity]');
+    if (!wrap) return;
+    const labels = {
+      running: wrap.dataset.labelRunning || 'Running',
+      done: wrap.dataset.labelDone || 'Done',
+      queued: wrap.dataset.labelQueued || 'Queued',
+    };
+    const procs = Array.from(wrap.querySelectorAll('.os-proc')).map((el, i) => ({
+      el,
+      i,
+      fill: el.querySelector('.os-proc-fill'),
+      statusEl: el.querySelector('[data-proc-status]'),
+      pctEl: el.querySelector('[data-proc-pct]'),
+      state: el.dataset.state || 'queued',
+      delay: parseInt(el.dataset.delay || '0', 10),
+      loops: el.dataset.proc === 'mailbox' || el.dataset.proc === 'peer' || el.dataset.proc === 'reconcile',
+      pct: el.dataset.state === 'done' ? 100 : el.dataset.state === 'queued' ? 0 : 52 + ((i * 11) % 28),
+      doneAt: 0,
+    }));
+    const render = (p) => {
+      const pct = Math.round(p.pct);
+      if (p.fill) p.fill.style.width = pct + '%';
+      if (p.pctEl) p.pctEl.textContent = pct + '%';
+      if (p.statusEl) { p.statusEl.textContent = labels[p.state] || ''; p.statusEl.className = 'os-status os-status-' + p.state; }
+      p.el.dataset.state = p.state;
+    };
+    procs.forEach(render);
+    if (reduce) return;                       // static snapshot; honor reduced motion
+    let tick = 0;
+    setInterval(() => {
+      tick++;
+      procs.forEach((p) => {
+        if (p.state === 'queued') {
+          if (tick >= p.delay) { p.state = 'running'; p.pct = 5; }
+        } else if (p.state === 'running') {
+          p.pct += 6 * (0.6 + ((p.i + tick) % 3) * 0.2);   // deterministic per (stream, tick)
+          if (p.pct >= 100) { p.pct = 100; p.state = 'done'; p.doneAt = tick; }
+        } else if (p.state === 'done' && p.loops && tick - p.doneAt >= 4) {
+          p.state = 'running'; p.pct = 6;                  // keep a few streams alive in a loop
+        }
+        render(p);
+      });
+    }, 1500);
+  }
+
   // ---- init ----
   const defaultOpen = (root.dataset.osDefault || 'about,work,now').split(',').map((s) => s.trim());
   wins.forEach((w) => {
@@ -248,6 +295,7 @@ export function initTomOS() {
   });
   defaultOpen.forEach((id) => { const w = winById(id); if (w) focusWin(w); });
   setDockState();
+  initActivity();
 
   // openers (dock + menubar + in-window)
   root.querySelectorAll('[data-open]').forEach((el) => {

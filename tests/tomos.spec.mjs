@@ -246,6 +246,19 @@ try {
   check('N window text left-aligned, not justified (V2a)',
     nowAligns.length > 0 && nowAligns.every((a) => a === 'left' || a === 'start'), JSON.stringify(nowAligns));
 
+  // ---- O. Activity window: workstreams render + animate (V4b) ----
+  check('O1 activity window is open by default', (await disp('.os-win[data-app="activity"]')) === 'flex');
+  const procCount = await page.locator('.os-win[data-app="activity"] .os-proc').count();
+  const barCount = await page.locator('.os-win[data-app="activity"] .os-proc-fill').count();
+  check('O2 workstreams + progress bars render', procCount >= 4 && barCount === procCount, `procs=${procCount} bars=${barCount}`);
+  const snapA = await page.$$eval('.os-win[data-app="activity"] .os-proc',
+    (ps) => ps.map((p) => `${p.dataset.proc}:${p.dataset.state}:${p.querySelector('.os-proc-fill').style.width}`));
+  await page.waitForTimeout(3400); // >= 2 ticks (1500ms each)
+  const snapB = await page.$$eval('.os-win[data-app="activity"] .os-proc',
+    (ps) => ps.map((p) => `${p.dataset.proc}:${p.dataset.state}:${p.querySelector('.os-proc-fill').style.width}`));
+  const changed = snapA.some((s, i) => s !== snapB[i]);
+  check('O3 workstreams animate over time (deterministic)', changed, `A=${snapA.join(',')} | B=${snapB.join(',')}`);
+
   // ---- I. mobile (480x880): editorial shows, tomOS hidden ----
   await page.setViewportSize({ width: 480, height: 880 });
   await page.waitForTimeout(120);
@@ -265,6 +278,12 @@ try {
   }, null, { timeout: 8000 });
   const rmDur = await rmPage.evaluate(() => getComputedStyle(document.querySelector('.os-win[data-app="work"]')).transitionDuration);
   check('K reduced-motion -> no window transition', rmDur === '0s' || /^0s(,\s*0s)*$/.test(rmDur), `transition-duration=${rmDur}`);
+  // V4b: workstream progress bars must not animate under reduced motion.
+  const rmFillDur = await rmPage.evaluate(() => {
+    const f = document.querySelector('.os-win[data-app="activity"] .os-proc-fill');
+    return f ? getComputedStyle(f).transitionDuration : 'MISSING';
+  });
+  check('K2 reduced-motion -> workstream bars static', rmFillDur === '0s' || /^0s(,\s*0s)*$/.test(rmFillDur), `fill transition-duration=${rmFillDur}`);
   await rmCtx.close();
 } catch (err) {
   console.error('SUITE ERROR:', err);

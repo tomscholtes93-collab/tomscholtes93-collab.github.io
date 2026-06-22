@@ -15,8 +15,8 @@ Last update: 2026-06-22 12:28 by F43.
 - [x] V2b "Now" restyled to match "About" (single column, no dead gap); window widened 350->398
 - [x] V3a Projects meta-analysis (real F43/F44 set, flagship = autonomous peer loops; DevSwarm legacy)
 - [x] V3b "Now" content refresh (orchestration item -> autonomous peer loops)
-- [ ] V4a Wallpaper + desktop polish (recover original screenshot feel)
-- [ ] V4b Simulated autonomous workstreams surface (AIOS signature)
+- [x] V4a Wallpaper + desktop polish (layered token-based aurora + vignette; adapts across themes)
+- [x] V4b Simulated autonomous workstreams surface (Activity window; deterministic anim; reduced-motion-safe)
 
 ## Build: tomOS v1 is LIVE on main (green). v2 build not run on this branch yet.
 ## DONE sentinel: ABSENT (write TOMOS-AIOS-DONE only when DoD met)
@@ -67,7 +67,29 @@ em-dash). check-i18n green at 344 keys x 4 locales. Status pills (running/live/l
 added via os.status.* keys + .os-status CSS. Page-less projects render self-contained
 (no "open ↗"); only exocortex + devswarm carry the standalone-page link (target=_blank).
 
+## V4 notes
+V4a: `.os-canvas` wallpaper rebuilt from theme tokens only (warm accent bloom +
+cool deep bloom + signal-green wash + diagonal paper gradient), plus a soft
+`::after` vignette so windows lift off it. Static (reduced-motion-safe), adapts
+across light/dark/midnight themes via color-mix.
+V4b: new "Activity" app (10th launcher, default-open) = a clearly-illustrative
+simulated workstreams surface. Six streams tied to the real project surfaces
+(mailbox triage, reconciliation, peer loop, notes, knowledge graph, memory),
+each with a status pill (running/done/queued), animated progress bar, and a
+percentage. Animation is DETERMINISTIC (pure function of stream index + tick, no
+Math.random): running streams advance, complete -> done, a few loop to keep the
+surface alive; the queued stream starts after a delay. `initActivity()` in tomos.js;
+returns a static snapshot under prefers-reduced-motion (no interval, no bar
+transition). A standing "Illustrative ... not live data" note sits at the top.
+
 ## Log
+- 2026-06-22 12:45 F43: V4a + V4b SHIPPED. Upgraded wallpaper (token-based aurora +
+  vignette). Added the Activity window: simulated autonomous workstreams with
+  deterministic animated progress, status pills, reduced-motion-safe. Fixed two
+  em-dashes (queued pct placeholder) flagged by the leakage grep. Tests extended:
+  O1-O3 (renders + animates over time) + K2 (reduced-motion bars static). Build green;
+  54/54 playwright (was 50); check-i18n 360x4 clean; no em-dash/leakage. All V1-V4 AC
+  now met. NEXT: final full verification, write TOMOS-AIOS-DONE, open PR (base main).
 - 2026-06-22 12:37 F43: V3a + V3b SHIPPED. Projects window now shows the real researched
   F43/F44 set (flagship autonomous peer loops first, DevSwarm legacy last) with status
   pills, single-sourced via i18n with full DE/FR/RU parity (translator subagents). Now
