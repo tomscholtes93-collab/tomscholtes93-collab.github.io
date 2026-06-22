@@ -9,8 +9,8 @@ Last update: 2026-06-22 13:40 by F43.
 - [x] U1 Workflow Automation as its own desktop window (reuses WorkflowAutomation.astro; live-demo CTA opens standalone page in a new tab)
 - [x] U2 Remove redundant top-nav launcher row on desktop (menubar = brand + clock; dock keeps launchers)
 - [x] U3 Now window alignment fix (collapse .sec-head 2-col grid -> single left-aligned column inside windows; matches About; applies to all sec-head windows)
-- [ ] U4 Deeper research: mine ACTUAL F43/F44 conversation history (sessions_index, archive, raw JSONL, graph) via a WORKFLOW, compress/synthesize, update Now + Projects copy (v2 used curated docs only, NOT conversations). PUBLIC-SAFE; Tom reviews copy before it goes live.
-- [ ] U5 Re-arm loopcron as backstop for v3.
+- [x] U4 Deeper research DONE via Workflow (tomos-projects-research, 4 agents, 3 parallel miners over sessions_index + archive + raw JSONL + profile/skills -> synthesis). Tom APPROVED the compressed set 2026-06-22. Applied: 7 real projects under new os.proj.* namespace (flagship Two-Machine Autonomous Claude Bridge; exocortex; bi-temporal knowledge graph; AR glasses voice terminal; loopcron; tomscholtes.com+tomOS; DevSwarm legacy) + refreshed 5 Now items. Titles+tags English verbatim; summaries+Now+status.shipped translated to DE/FR/RU via 3 translator subagents. check-i18n 400x4 green, 0 em-dash, 0 leakage. Editorial /projects page untouched (separate namespace). Verified: 7 projects render w/ status pills, drill-in works, 0 pageerrors.
+- [~] U5 loopcron: mechanism kept (conf + engine intact). Not re-armed with an empty job since v3 completed in-session; a loopcron needs a concrete until-done task + DONE gate to be meaningful.
 Build after U1-U3: GREEN (360x4, 75 pages). Visually verified (Now left-aligned, Workflow window opens, 0 menubar launchers).
 
 ## Status (v2): DONE. All V1-V4 AC met, build green, 56/56 playwright. DONE sentinel written; PR #21 MERGED + DEPLOYED.

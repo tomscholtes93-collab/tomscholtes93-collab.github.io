@@ -47,15 +47,22 @@ const notesHref = localizePath('/notes/', locale);
 // rule). The real F43/F44 set, flagship first, DevSwarm kept but marked legacy.
 // hasPage = a standalone /projects/<slug>/ write-up exists (only those carry the
 // "open ↗" link; the rest are self-contained in-window).
+// The real F43/F44 set from the projects-research workflow (mined from the
+// conversation history + memory, sanitized). Authored once under os.proj.*
+// (separate namespace from the editorial /projects page, which stays as-is).
+// `page` = a standalone /projects/<page>/ write-up exists (only those carry "open ↗").
 const osProjects = [
-  { id: 'autonomous-peers', status: 'running', hasPage: false },
-  { id: 'exocortex', status: 'live', hasPage: true },
-  { id: 'sleeptime-memory', status: 'running', hasPage: false },
-  { id: 'knowledge-graph', status: 'running', hasPage: false },
-  { id: 'devswarm', status: 'legacy', hasPage: true },
+  { id: 'autonomous-bridge', status: 'running', page: '' },
+  { id: 'exocortex', status: 'live', page: 'exocortex' },
+  { id: 'knowledge-graph', status: 'live', page: '' },
+  { id: 'glasses-terminal', status: 'live', page: '' },
+  { id: 'loopcron', status: 'shipped', page: '' },
+  { id: 'tomos-site', status: 'live', page: '' },
+  { id: 'devswarm', status: 'legacy', page: 'devswarm' },
 ] as const;
-const projectTags = (slug: string) =>
-  [0, 1, 2, 3].map((i) => t(`projects.index.card.${slug}.tag.${i}`)).filter((s) => s && s.length > 0);
+const projTitle = (id: string) => t(`os.proj.${id}.title`);
+const projSummary = (id: string) => t(`os.proj.${id}.summary`);
+const projTags = (id: string) => [0, 1, 2, 3].map((i) => t(`os.proj.${id}.t${i}`)).filter((s) => s && s.length > 0);
 const projectHref = (slug: string) => localizePath(`/projects/${slug}`, locale);
 
 // Work: cases drill in-window. Single-sourced from the SAME i18n keys the
@@ -267,24 +274,23 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
           <ul class="os-list">
             {osProjects.map((p) => (
               <li>
-                <button type="button" class="os-list-item" data-os-go={vid(t(`projects.index.card.${p.id}.title`))} data-os-slug={p.id}>
-                  <span class="t">{t(`projects.index.card.${p.id}.title`)} <span class={`os-status os-status-${p.status}`}>{t(`os.status.${p.status}`)}</span></span>
-                  <span class="s">{t(`projects.index.card.${p.id}.body`)}</span>
+                <button type="button" class="os-list-item" data-os-go={vid(projTitle(p.id))} data-os-slug={p.id}>
+                  <span class="t">{projTitle(p.id)} <span class={`os-status os-status-${p.status}`}>{t(`os.status.${p.status}`)}</span></span>
+                  <span class="s">{projSummary(p.id)}</span>
                 </button>
               </li>
             ))}
           </ul>
         </div>
         {osProjects.map((p) => (
-          <article class="os-note prose" data-os-view={vid(t(`projects.index.card.${p.id}.title`))} data-os-slug={p.id} hidden>
-            <h3>{t(`projects.index.card.${p.id}.title`)} <span class={`os-status os-status-${p.status}`}>{t(`os.status.${p.status}`)}</span></h3>
-            <p class="os-proj-metric"><strong>{t(`projects.index.card.${p.id}.metric`)}</strong> {t(`projects.index.card.${p.id}.label`)}</p>
-            <p class="lead">{t(`projects.index.card.${p.id}.body`)}</p>
+          <article class="os-note prose" data-os-view={vid(projTitle(p.id))} data-os-slug={p.id} hidden>
+            <h3>{projTitle(p.id)} <span class={`os-status os-status-${p.status}`}>{t(`os.status.${p.status}`)}</span></h3>
+            <p class="lead">{projSummary(p.id)}</p>
             <div class="os-tags">
-              {projectTags(p.id).map((tg) => <span class="os-tag">{tg}</span>)}
+              {projTags(p.id).map((tg) => <span class="os-tag">{tg}</span>)}
             </div>
-            {p.hasPage && (
-              <p class="os-note-link"><a href={projectHref(p.id)} target="_blank" rel="noopener">{t(`projects.index.card.${p.id}.title`)} ↗</a></p>
+            {p.page && (
+              <p class="os-note-link"><a href={projectHref(p.page)} target="_blank" rel="noopener">{projTitle(p.id)} ↗</a></p>
             )}
           </article>
         ))}
