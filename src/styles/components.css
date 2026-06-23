@@ -528,16 +528,10 @@ header.paper .lead,
   .feat-desc,
   .lesson-text,
   .proj-cards .card p {
-    text-align: justify;
-    text-justify: inter-word;
-    hyphens: auto;
-    -webkit-hyphens: auto;
-    /* Give the justify engine break points so inter-word spacing stays even,
-       without ugly stubs. 6 3 2 = hyphenate words >=6 chars, >=3 before the
-       break, >=2 after. -webkit-* longhands cover Safari (no hyphenate-limit-chars). */
-    -webkit-hyphenate-limit-before: 3;
-    -webkit-hyphenate-limit-after: 2;
-    hyphenate-limit-chars: 6 3 2;
+    /* Ragged-right: uniform word spacing, no rivers (Tom, 2026-06-23). */
+    text-align: left;
+    hyphens: manual;
+    -webkit-hyphens: manual;
     text-wrap: pretty;
   }
   /* Metadata, labels, mono fonts: stay left-aligned, no hyphenation. */
@@ -567,6 +561,8 @@ header.paper .lead,
    justify body prose at ALL widths incl. mobile; the JS evens the spacing so the
    narrow column has no rivers. Without JS the class is never added, so mobile
    stays ragged (this rule is absent) and never shows native justify rivers. */
+/* Justification fully retired (Tom, 2026-06-23): the JS enhancer is no longer
+   loaded, so html.kp is never set. Kept as left-aligned for safety if it ever is. */
 html.kp :is(
   .prose p, .paper-body p, .colo-grid .body p, .colo-grid .body,
   .sec-head .blurb, .hero .lead, .sub, .lede, .lead, .case p,
@@ -574,11 +570,9 @@ html.kp :is(
   .hyp .body, .find p, .high li, .method dd, .stack dd, .persona-desc,
   .run-log-desc, .feat-desc, .lesson-text, .proj-cards .card p
 ) {
-  text-align: justify;
-  text-justify: inter-word;
-  hyphens: auto;
-  -webkit-hyphens: auto;
-  hyphenate-limit-chars: 6 3 2;
+  text-align: left;
+  hyphens: manual;
+  -webkit-hyphens: manual;
 }
 /* Long words (German compounds, URLs) must break instead of forcing horizontal
    scroll on narrow screens. `anywhere` on headings also reduces their intrinsic

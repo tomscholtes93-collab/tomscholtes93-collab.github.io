@@ -95,17 +95,14 @@ const caseHref = (slug: string) => `/case/${slug}/`;
 
 // Apps: drives menubar + dock. Window titles reuse existing nav.* keys where they
 // exist (parity already guaranteed across locales) plus two new os.win.* keys.
+// Consolidated to 6 windows (Tom, 2026-06-23): the simple info sections fold into
+// one CV/Profile dossier; all windows open by default, tiled neatly.
 const apps = [
   { id: 'about', label: t('os.win.about') },
-  { id: 'work', label: t('nav.work') },
-  { id: 'workflow', label: t('nav.workflow') },
-  { id: 'now', label: t('nav.now') },
-  { id: 'activity', label: t('os.win.activity') },
   { id: 'cv', label: t('nav.cv') },
-  { id: 'notes', label: t('nav.notes') },
   { id: 'projects', label: t('nav.projects') },
-  { id: 'reading', label: t('nav.reading') },
-  { id: 'languages', label: t('os.win.languages') },
+  { id: 'notes', label: t('nav.notes') },
+  { id: 'activity', label: t('os.win.activity') },
   { id: 'contact', label: t('nav.contact') },
 ];
 
@@ -126,7 +123,7 @@ const statusKey = (s: string) => s === 'running' ? 'os.status.running' : s === '
 
 const h = 'editorial'; // headline variant shown in the About window (same key family as Hero)
 ---
-<div class="os-desktop" data-os data-os-default="about,work,now,activity" aria-hidden="false">
+<div class="os-desktop" data-os data-os-default="about,cv,projects,notes,activity,contact" aria-hidden="false">
   <!-- Menubar: brand + clock only. App launchers live in the dock (no duplicate
        top nav row on desktop). -->
   <div class="os-menubar" data-os-menubar role="banner" aria-label={t('os.aria.menubar')}>
@@ -139,8 +136,8 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
   <!-- Canvas -->
   <div class="os-canvas" data-os-canvas>
 
-    <!-- About -->
-    <OsWindow app="about" title={t('os.win.about')} x={40} y={60} w={430} h={430}>
+    <!-- About (top-left) -->
+    <OsWindow app="about" title={t('os.win.about')} x={28} y={58} w={362} h={328}>
       <div class="os-about">
         <span class="eyebrow">{t('home.hero.eyebrow')}</span>
         <h2 class="os-about-title">{t(`home.hero.headlines.${h}.pre`)}<em>{t(`home.hero.headlines.${h}.em`)}</em>{t(`home.hero.headlines.${h}.post`)}</h2>
@@ -153,53 +150,8 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- Work (case studies; drill-down in-window, W4 / V1a) -->
-    <OsWindow app="work" title={t('nav.work')} x={500} y={60} w={540} h={600}>
-      <div data-os-nav class="os-nav">
-        <div class="os-navbar">
-          <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
-          <span class="os-crumb" data-os-crumb></span>
-        </div>
-        <div data-os-view="root">
-          <p class="os-list-lede">{t('home.work.blurb')}</p>
-          <ul class="os-list">
-            {workCases.map((c) => (
-              <li>
-                <button type="button" class="os-list-item" data-os-go={c.view} data-os-slug={c.slug}>
-                  <span class="t">{c.title} <span class="os-list-num">{`Case ${c.n}`}</span></span>
-                  <span class="s">{c.blurb}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-        {workCases.map((c) => (
-          <article class="os-note prose" data-os-view={c.view} data-os-slug={c.slug} hidden>
-            <h3>{c.title}</h3>
-            <p class="os-proj-metric"><strong>{c.metric}</strong> {c.label}</p>
-            <p class="lead">{c.blurb}</p>
-            <div class="os-tags">
-              {c.tags.map((tg) => <span class="os-tag">{tg}</span>)}
-            </div>
-            <p class="os-note-link"><a href={caseHref(c.slug)} target="_blank" rel="noopener">{c.title} ↗</a></p>
-          </article>
-        ))}
-      </div>
-    </OsWindow>
-
-    <!-- Now -->
-    <OsWindow app="now" title={t('nav.now')} x={1018} y={60} w={398} h={560}>
-      <Now />
-    </OsWindow>
-
-    <!-- Workflow Automation (opens as a normal window; the "live demo" CTA opens
-         the standalone interactive page in a new tab, so the OS view stays intact) -->
-    <OsWindow app="workflow" title={t('nav.workflow')} x={250} y={170} w={600} h={420}>
-      <WorkflowAutomation />
-    </OsWindow>
-
-    <!-- Activity: simulated autonomous workstreams (AIOS signature, V4b) -->
-    <OsWindow app="activity" title={t('os.win.activity')} x={40} y={506} w={446} h={306}>
+    <!-- Activity: simulated autonomous workstreams (AIOS signature) (bottom-left) -->
+    <OsWindow app="activity" title={t('os.win.activity')} x={28} y={402} w={362} h={316}>
       <div
         class="os-activity"
         data-os-activity
@@ -226,44 +178,64 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- CV -->
-    <OsWindow app="cv" title={t('nav.cv')} x={120} y={110} w={820} h={600}>
-      <CV />
-    </OsWindow>
-
-    <!-- Notes (drill-down, W4) -->
-    <OsWindow app="notes" title={t('nav.notes')} x={180} y={90} w={600} h={560}>
+    <!-- CV / Profile dossier (center): CV + Now + Work + Workflow + Reading + Languages
+         in one [data-os-nav]; the root stacks every section, case studies drill into
+         child views with Back. Thesis is reached via the CV publication row's link. -->
+    <OsWindow app="cv" title={t('nav.cv')} x={400} y={58} w={606} h={560}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
           <span class="os-crumb" data-os-crumb></span>
         </div>
         <div data-os-view="root">
-          <p class="os-list-lede">{t('notes.index.sub')}</p>
-          <ul class="os-list">
-            {notes.map(({ entry, slug }) => (
-              <li>
-                <button type="button" class="os-list-item" data-os-go={vid(entry.data.title)} data-os-slug={slug}>
-                  <span class="t">{entry.data.title}</span>
-                  <span class="s">{entry.data.summary}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div class="os-dossier">
+            <CV />
+            <Now />
+            <section class="os-cv-sec">
+              <div class="sec-head">
+                <span class="eyebrow">{t('home.work.eyebrow')}</span>
+                <div>
+                  <h2>{t('home.work.heading')}</h2>
+                  <p class="blurb">{t('home.work.blurb')}</p>
+                </div>
+              </div>
+              <ul class="os-list">
+                {workCases.map((c) => (
+                  <li>
+                    <button type="button" class="os-list-item" data-os-go={c.view} data-os-slug={c.slug}>
+                      <span class="t">{c.title} <span class="os-list-num">{`Case ${c.n}`}</span></span>
+                      <span class="s">{c.blurb}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <WorkflowAutomation />
+            <Reading />
+            <Languages />
+          </div>
         </div>
-        {notes.map(({ entry, slug, Content }) => (
-          <article class="os-note prose" data-os-view={vid(entry.data.title)} data-os-slug={slug} hidden>
-            <h3>{entry.data.title}</h3>
-            <p class="lead">{entry.data.summary}</p>
-            <Content />
-            <p class="os-note-link"><a href={`${notesHref}${slug}/`} target="_blank" rel="noopener">{t('notes.detail.back').replace('← ', '')} ↗</a></p>
+        {workCases.map((c) => (
+          <article class="os-note prose" data-os-view={c.view} data-os-slug={c.slug} hidden>
+            <h3>{c.title}</h3>
+            <p class="os-proj-metric"><strong>{c.metric}</strong> {c.label}</p>
+            <p class="lead">{c.blurb}</p>
+            <div class="os-tags">
+              {c.tags.map((tg) => <span class="os-tag">{tg}</span>)}
+            </div>
+            <p class="os-note-link"><a href={caseHref(c.slug)} target="_blank" rel="noopener">{c.title} ↗</a></p>
           </article>
         ))}
       </div>
     </OsWindow>
 
-    <!-- Projects (drill-down, W4) -->
-    <OsWindow app="projects" title={t('nav.projects')} x={240} y={120} w={620} h={520}>
+    <!-- Contact (below the dossier, center) -->
+    <OsWindow app="contact" title={t('nav.contact')} x={400} y={628} w={606} h={170}>
+      <Contact />
+    </OsWindow>
+
+    <!-- Projects (drill-down) (top-right) -->
+    <OsWindow app="projects" title={t('nav.projects')} x={1018} y={58} w={396} h={330}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
@@ -297,19 +269,35 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- Reading -->
-    <OsWindow app="reading" title={t('nav.reading')} x={300} y={140} w={520} h={440}>
-      <Reading />
-    </OsWindow>
-
-    <!-- Languages -->
-    <OsWindow app="languages" title={t('os.win.languages')} x={360} y={150} w={440} h={380}>
-      <Languages />
-    </OsWindow>
-
-    <!-- Contact -->
-    <OsWindow app="contact" title={t('nav.contact')} x={420} y={130} w={620} h={440}>
-      <Contact />
+    <!-- Notes (drill-down) (bottom-right) -->
+    <OsWindow app="notes" title={t('nav.notes')} x={1018} y={402} w={396} h={316}>
+      <div data-os-nav class="os-nav">
+        <div class="os-navbar">
+          <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
+          <span class="os-crumb" data-os-crumb></span>
+        </div>
+        <div data-os-view="root">
+          <p class="os-list-lede">{t('notes.index.sub')}</p>
+          <ul class="os-list">
+            {notes.map(({ entry, slug }) => (
+              <li>
+                <button type="button" class="os-list-item" data-os-go={vid(entry.data.title)} data-os-slug={slug}>
+                  <span class="t">{entry.data.title}</span>
+                  <span class="s">{entry.data.summary}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {notes.map(({ entry, slug, Content }) => (
+          <article class="os-note prose" data-os-view={vid(entry.data.title)} data-os-slug={slug} hidden>
+            <h3>{entry.data.title}</h3>
+            <p class="lead">{entry.data.summary}</p>
+            <Content />
+            <p class="os-note-link"><a href={`${notesHref}${slug}/`} target="_blank" rel="noopener">{t('notes.detail.back').replace('← ', '')} ↗</a></p>
+          </article>
+        ))}
+      </div>
     </OsWindow>
 
   </div>
