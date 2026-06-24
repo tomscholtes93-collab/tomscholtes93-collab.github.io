@@ -50,6 +50,31 @@ export function initTomOS() {
   function geom(w) { return { left: w.style.left, top: w.style.top, width: w.style.width, height: w.style.height }; }
   function setGeom(w, g) { w.style.left = g.left; w.style.top = g.top; w.style.width = g.width; w.style.height = g.height; }
 
+  // ---- proportional tiling ----
+  // Position every windowed tile as a fraction (data-fx/fy/fw/fh) of the LIVE
+  // canvas, so the desktop fills any screen size with no wallpaper gaps. Runs at
+  // load and on resize. A window the user has dragged/resized (w._userPlaced) or
+  // maximized is left alone, so tiling never fights manual control. Floors keep
+  // narrow tiles usable on small desktops; the editorial layer covers < 1200px.
+  const GUT = 10;
+  function layoutTiles() {
+    if (!isDesktop()) return;
+    const W = canvas.clientWidth;
+    const Hu = Math.max(220, canvas.clientHeight - BAR - DOCK);
+    wins.forEach((w) => {
+      if (w._userPlaced || w.dataset.max === '1') return;
+      const fx = parseFloat(w.dataset.fx), fy = parseFloat(w.dataset.fy);
+      const fw = parseFloat(w.dataset.fw), fh = parseFloat(w.dataset.fh);
+      if ([fx, fy, fw, fh].some((n) => Number.isNaN(n))) return; // not a tiled window
+      const left = Math.round(fx * W) + GUT;
+      const top = BAR + Math.round(fy * Hu) + GUT;
+      const width = Math.max(150, Math.round(fw * W) - 2 * GUT);
+      const height = Math.max(110, Math.round(fh * Hu) - 2 * GUT);
+      w.style.left = left + 'px'; w.style.top = top + 'px';
+      w.style.width = width + 'px'; w.style.height = height + 'px';
+    });
+  }
+
   function focusWin(w) {
     wins.forEach((o) => o.classList.remove('focused'));
     w.classList.add('focused');
@@ -93,7 +118,7 @@ export function initTomOS() {
     const down = (e) => {
       if (e.target.closest('.os-light') || e.target.closest('[data-os-back]') || e.target.closest('[data-os-go]')) return;
       if (w.dataset.max === '1') return;     // do not drag while maximized
-      on = true; focusWin(w);
+      on = true; focusWin(w); w._userPlaced = true;   // opt out of auto-tiling
       const p = point(e); sx = p.x; sy = p.y; ox = w.offsetLeft; oy = w.offsetTop;
       document.body.style.userSelect = 'none';
       window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
@@ -127,7 +152,7 @@ export function initTomOS() {
       let sx, sy, sl, st, sw, sh, on = false;
       const down = (e) => {
         if (w.dataset.max === '1') return;
-        on = true; focusWin(w); e.stopPropagation();
+        on = true; focusWin(w); e.stopPropagation(); w._userPlaced = true; // opt out of auto-tiling
         const p = point(e); sx = p.x; sy = p.y;
         sl = w.offsetLeft; st = w.offsetTop; sw = w.offsetWidth; sh = w.offsetHeight;
         document.body.style.userSelect = 'none';
@@ -293,9 +318,15 @@ export function initTomOS() {
     enableResize(w);
     enableNav(w);
   });
+  layoutTiles();   // proportional initial placement (overrides the px fallback)
   defaultOpen.forEach((id) => { const w = winById(id); if (w) focusWin(w); });
   setDockState();
   initActivity();
+
+  // Re-tile on viewport change (debounced) and when crossing the desktop bp.
+  let _rt;
+  window.addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(layoutTiles, 120); });
+  if (mq.addEventListener) mq.addEventListener('change', layoutTiles);
 
   // openers (dock + menubar + in-window)
   root.querySelectorAll('[data-open]').forEach((el) => {
