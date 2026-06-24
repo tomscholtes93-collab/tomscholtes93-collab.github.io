@@ -126,8 +126,8 @@
   position: absolute;
   display: none;                 /* engine flips to flex on open */
   flex-direction: column;
-  min-width: 280px;
-  min-height: 160px;
+  min-width: 140px;              /* CSS backstop; JS enforces a 280px floor on manual resize, but proportional tiles may be narrower */
+  min-height: 100px;
   max-width: calc(100vw - 16px);
   padding: 0;                    /* reset the global `section` --pad-y padding */
   background: var(--bg);
@@ -207,6 +207,19 @@
   overflow: auto;
   padding: 22px 24px 26px;
   -webkit-overflow-scrolling: touch;
+}
+/* Flush body: no padding, no own scroll (the iframe scrolls). Used by the
+   Workflow window so its embedded page renders edge-to-edge as itself. */
+.os-win-body-flush {
+  padding: 0;
+  overflow: hidden;
+}
+.os-iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--bg);
 }
 
 /* ---- Resize handles (8 dirs, W3) ---------------------------------------- */

@@ -12,7 +12,6 @@ import { getCollection } from 'astro:content';
 import { CASE_IDS, CASE_SLUG, EXTRA_CASES } from '../content/caseStudies.ts';
 import { NOW_IDS } from '../content/now.ts';
 import Now from './Now.astro';
-import WorkflowAutomation from './WorkflowAutomation.astro';
 import CV from './CV.astro';
 import Reading from './Reading.astro';
 import Languages from './Languages.astro';
@@ -100,11 +99,18 @@ const caseHref = (slug: string) => `/case/${slug}/`;
 const apps = [
   { id: 'about', label: t('os.win.about') },
   { id: 'cv', label: t('nav.cv') },
+  { id: 'workflow', label: t('nav.workflow') },
   { id: 'projects', label: t('nav.projects') },
   { id: 'notes', label: t('nav.notes') },
   { id: 'activity', label: t('os.win.activity') },
   { id: 'contact', label: t('nav.contact') },
 ];
+
+// Workflow Automation lives in its OWN window now (was embedded in the CV
+// dossier). It keeps its standalone page's distinct visual style by rendering
+// /workflow-automation/ inside an isolated iframe. Explicit index.html so it
+// resolves on both dev and the static build (trailingSlash:'never').
+const workflowSrc = '/workflow-automation/index.html';
 
 // V4b: simulated autonomous workstreams (clearly illustrative; deterministic,
 // reduced-motion-safe). `state` is the INITIAL state; src/scripts/tomos.js drives
@@ -123,7 +129,7 @@ const statusKey = (s: string) => s === 'running' ? 'os.status.running' : s === '
 
 const h = 'editorial'; // headline variant shown in the About window (same key family as Hero)
 ---
-<div class="os-desktop" data-os data-os-default="about,cv,projects,notes,activity,contact" aria-hidden="false">
+<div class="os-desktop" data-os data-os-default="about,cv,workflow,projects,notes,activity,contact" aria-hidden="false">
   <!-- Menubar: brand + clock only. App launchers live in the dock (no duplicate
        top nav row on desktop). -->
   <div class="os-menubar" data-os-menubar role="banner" aria-label={t('os.aria.menubar')}>
@@ -137,7 +143,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
   <div class="os-canvas" data-os-canvas>
 
     <!-- About (top-left) -->
-    <OsWindow app="about" title={t('os.win.about')} x={28} y={58} w={362} h={328}>
+    <OsWindow app="about" title={t('os.win.about')} x={10} y={54} w={282} h={286} fx={0} fy={0} fw={0.21} fh={0.39}>
       <div class="os-about">
         <span class="eyebrow">{t('home.hero.eyebrow')}</span>
         <h2 class="os-about-title">{t(`home.hero.headlines.${h}.pre`)}<em>{t(`home.hero.headlines.${h}.em`)}</em>{t(`home.hero.headlines.${h}.post`)}</h2>
@@ -151,7 +157,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     </OsWindow>
 
     <!-- Activity: simulated autonomous workstreams (AIOS signature) (bottom-left) -->
-    <OsWindow app="activity" title={t('os.win.activity')} x={28} y={402} w={362} h={316}>
+    <OsWindow app="activity" title={t('os.win.activity')} x={10} y={360} w={282} h={286} fx={0} fy={0.39} fw={0.21} fh={0.39}>
       <div
         class="os-activity"
         data-os-activity
@@ -181,7 +187,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     <!-- CV / Profile dossier (center): CV + Now + Work + Workflow + Reading + Languages
          in one [data-os-nav]; the root stacks every section, case studies drill into
          child views with Back. Thesis is reached via the CV publication row's link. -->
-    <OsWindow app="cv" title={t('nav.cv')} x={400} y={58} w={606} h={560}>
+    <OsWindow app="cv" title={t('nav.cv')} x={312} y={54} w={513} h={591} fx={0.21} fy={0} fw={0.37} fh={0.78}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
@@ -210,7 +216,6 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
                 ))}
               </ul>
             </section>
-            <WorkflowAutomation />
             <Reading />
             <Languages />
           </div>
@@ -229,13 +234,27 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- Contact (below the dossier, center) -->
-    <OsWindow app="contact" title={t('nav.contact')} x={400} y={628} w={606} h={170}>
+    <!-- Contact: long full-width bar across the bottom -->
+    <OsWindow app="contact" title={t('nav.contact')} x={10} y={665} w={1420} h={152} fx={0} fy={0.78} fw={1} fh={0.22}>
       <Contact />
     </OsWindow>
 
-    <!-- Projects (drill-down) (top-right) -->
-    <OsWindow app="projects" title={t('nav.projects')} x={1018} y={58} w={396} h={330}>
+    <!-- Workflow Automation: its OWN window on the right. The body is an isolated
+         iframe of the standalone /workflow-automation/ page, so it keeps that
+         page's distinct visual style (different from the rest of the site) and
+         needs no in-OS drill-down or outbound navigation. -->
+    <OsWindow app="workflow" title={t('nav.workflow')} x={1076} y={54} w={354} h={591} fx={0.74} fy={0} fw={0.26} fh={0.78} flush={true}>
+      <iframe
+        class="os-iframe"
+        src={workflowSrc}
+        title={t('nav.workflow')}
+        loading="lazy"
+        referrerpolicy="no-referrer"
+      ></iframe>
+    </OsWindow>
+
+    <!-- Projects (drill-down) (mid-right column, top) -->
+    <OsWindow app="projects" title={t('nav.projects')} x={845} y={54} w={210} h={286} fx={0.58} fy={0} fw={0.16} fh={0.39}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
@@ -269,8 +288,8 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- Notes (drill-down) (bottom-right) -->
-    <OsWindow app="notes" title={t('nav.notes')} x={1018} y={402} w={396} h={316}>
+    <!-- Notes (drill-down) (mid-right column, bottom) -->
+    <OsWindow app="notes" title={t('nav.notes')} x={845} y={360} w={210} h={286} fx={0.58} fy={0.39} fw={0.16} fh={0.39}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
