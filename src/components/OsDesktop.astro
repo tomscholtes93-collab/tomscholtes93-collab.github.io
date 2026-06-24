@@ -143,7 +143,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
   <div class="os-canvas" data-os-canvas>
 
     <!-- About (top-left) -->
-    <OsWindow app="about" title={t('os.win.about')} x={10} y={54} w={282} h={286} fx={0} fy={0} fw={0.21} fh={0.39}>
+    <OsWindow app="about" title={t('os.win.about')} x={10} y={54} w={282} h={372} fx={0} fy={0} fw={0.21} fh={0.50}>
       <div class="os-about">
         <span class="eyebrow">{t('home.hero.eyebrow')}</span>
         <h2 class="os-about-title">{t(`home.hero.headlines.${h}.pre`)}<em>{t(`home.hero.headlines.${h}.em`)}</em>{t(`home.hero.headlines.${h}.post`)}</h2>
@@ -157,7 +157,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     </OsWindow>
 
     <!-- Activity: simulated autonomous workstreams (AIOS signature) (bottom-left) -->
-    <OsWindow app="activity" title={t('os.win.activity')} x={10} y={360} w={282} h={286} fx={0} fy={0.39} fw={0.21} fh={0.39}>
+    <OsWindow app="activity" title={t('os.win.activity')} x={10} y={446} w={282} h={372} fx={0} fy={0.50} fw={0.21} fh={0.50}>
       <div
         class="os-activity"
         data-os-activity
@@ -187,7 +187,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     <!-- CV / Profile dossier (center): CV + Now + Work + Workflow + Reading + Languages
          in one [data-os-nav]; the root stacks every section, case studies drill into
          child views with Back. Thesis is reached via the CV publication row's link. -->
-    <OsWindow app="cv" title={t('nav.cv')} x={312} y={54} w={513} h={591} fx={0.21} fy={0} fw={0.37} fh={0.78}>
+    <OsWindow app="cv" title={t('nav.cv')} x={312} y={54} w={513} h={372} fx={0.21} fy={0} fw={0.37} fh={0.50}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
@@ -234,8 +234,8 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- Contact: long full-width bar across the bottom -->
-    <OsWindow app="contact" title={t('nav.contact')} x={10} y={665} w={1420} h={152} fx={0} fy={0.78} fw={1} fh={0.22}>
+    <!-- Contact: same size as CV, stacked directly below it (center column, bottom half) -->
+    <OsWindow app="contact" title={t('nav.contact')} x={312} y={446} w={513} h={372} fx={0.21} fy={0.50} fw={0.37} fh={0.50}>
       <Contact />
     </OsWindow>
 
@@ -243,7 +243,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
          iframe of the standalone /workflow-automation/ page, so it keeps that
          page's distinct visual style (different from the rest of the site) and
          needs no in-OS drill-down or outbound navigation. -->
-    <OsWindow app="workflow" title={t('nav.workflow')} x={1076} y={54} w={354} h={591} fx={0.74} fy={0} fw={0.26} fh={0.78} flush={true}>
+    <OsWindow app="workflow" title={t('nav.workflow')} x={1076} y={54} w={354} h={764} fx={0.74} fy={0} fw={0.26} fh={1} flush={true}>
       <iframe
         class="os-iframe"
         src={workflowSrc}
@@ -254,7 +254,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     </OsWindow>
 
     <!-- Projects (drill-down) (mid-right column, top) -->
-    <OsWindow app="projects" title={t('nav.projects')} x={845} y={54} w={210} h={286} fx={0.58} fy={0} fw={0.16} fh={0.39}>
+    <OsWindow app="projects" title={t('nav.projects')} x={845} y={54} w={210} h={372} fx={0.58} fy={0} fw={0.16} fh={0.50}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
@@ -289,7 +289,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     </OsWindow>
 
     <!-- Notes (drill-down) (mid-right column, bottom) -->
-    <OsWindow app="notes" title={t('nav.notes')} x={845} y={360} w={210} h={286} fx={0.58} fy={0.39} fw={0.16} fh={0.39}>
+    <OsWindow app="notes" title={t('nav.notes')} x={845} y={446} w={210} h={372} fx={0.58} fy={0.50} fw={0.16} fh={0.50}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
