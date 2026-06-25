@@ -355,6 +355,96 @@
 .os-proj-metric { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
 .os-proj-metric strong { color: var(--ink); }
 
+/* ---- Notes hero tile: 50/50 split (latest note + browse | workflow) ------- */
+/* The Notes window is flush (no body padding); the two halves own their own
+   padding and scroll, staying EQUAL at any tile size (1fr 1fr). LEFT = latest
+   note in full + browsable list/drill-down. RIGHT = Workflow Automation iframe. */
+.os-notes-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* equal halves regardless of tile width */
+  height: 100%;
+  min-height: 0;
+}
+.os-notes-leftpane {
+  min-width: 0;                     /* allow the half to shrink + wrap, not overflow */
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 20px 24px;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  container-type: inline-size;      /* text below scales to THIS half's width */
+}
+.os-notes-rightpane {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+.os-notes-rightpane .os-iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--bg);
+}
+.os-notes-rightpane-label {
+  position: absolute;
+  top: 8px; left: 12px;
+  z-index: 2;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  padding: 2px 7px;
+  border-radius: 6px;
+  pointer-events: none;
+}
+.os-notes-featured-tag {
+  margin: 0 0 8px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+/* In the hero, the browse navbar is not sticky (it sits below the featured note,
+   so a sticky bar mid-scroll reads oddly). Keep it inline. */
+.os-notes-browse { gap: 14px; }
+.os-notes-browse .os-navbar {
+  position: static;
+  top: auto;
+  margin: 0;
+  padding: 0 0 12px;
+}
+
+/* ---- Responsive text: scale to each window via container-query units ------ */
+/* The site type scale (--step-*) is keyed to the VIEWPORT, so it never shrinks
+   inside a small window. Make every window body a container and size text in
+   cqi (1cqi = 1% of the window/pane width) with px floors + ceilings, so text
+   stays proportional to its window and content fits at any tile size. */
+.os-win-body { container-type: inline-size; }
+.os-win-body :is(p, li, dd, dt, .lead, .lede, .sub, .blurb, .body, .v, .k, .now-row .v) {
+  font-size: clamp(11.5px, 3.1cqi, 15px);
+}
+.os-win-body :is(h1, h2, h3),
+.os-about-title {
+  font-size: clamp(16px, 5.4cqi, 30px);
+  line-height: 1.14;
+}
+.os-win-body h4 { font-size: clamp(13px, 3.8cqi, 17px); }
+.os-list-item .t { font-size: clamp(12.5px, 3.4cqi, 16px); }
+.os-list-item .s { font-size: clamp(11px, 2.9cqi, 13.5px); }
+.os-about-meta strong { font-size: clamp(16px, 5cqi, 22px); }
+.os-proc-name { font-size: clamp(12px, 3.3cqi, 14px); }
+.os-activity-note { font-size: clamp(10px, 2.9cqi, 11.5px); }
+
 /* ---- Status pills (V3a: running / live / legacy) ------------------------- */
 .os-status {
   display: inline-block;
