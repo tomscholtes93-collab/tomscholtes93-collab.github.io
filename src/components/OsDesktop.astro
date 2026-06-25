@@ -41,6 +41,14 @@ const notes = await Promise.all(
 );
 const notesHref = localizePath('/notes/', locale);
 
+// The newest published note feeds the LEFT HALF of the Notes tile, rendered in
+// full. It updates automatically: add a note with a later publishDate and it
+// becomes the featured one (notes[] is sorted newest-first above). The RIGHT
+// HALF keeps the browsable list + drill-down. `FeaturedContent` is a capitalized
+// alias so Astro renders the stored component.
+const featured = notes[0] ?? null;
+const FeaturedContent = featured?.Content;
+
 // Projects: single-sourced from the same i18n keys the /projects page uses
 // (DESKTOP-only; the editorial /projects page is unchanged per the mobile-as-is
 // rule). The real F43/F44 set, flagship first, DevSwarm kept but marked legacy.
@@ -99,7 +107,6 @@ const caseHref = (slug: string) => `/case/${slug}/`;
 const apps = [
   { id: 'about', label: t('os.win.about') },
   { id: 'cv', label: t('nav.cv') },
-  { id: 'workflow', label: t('nav.workflow') },
   { id: 'projects', label: t('nav.projects') },
   { id: 'notes', label: t('nav.notes') },
   { id: 'activity', label: t('os.win.activity') },
@@ -129,7 +136,7 @@ const statusKey = (s: string) => s === 'running' ? 'os.status.running' : s === '
 
 const h = 'editorial'; // headline variant shown in the About window (same key family as Hero)
 ---
-<div class="os-desktop" data-os data-os-default="about,cv,workflow,projects,notes,activity,contact" aria-hidden="false">
+<div class="os-desktop" data-os data-os-default="about,cv,projects,notes,activity,contact" aria-hidden="false">
   <!-- Menubar: brand + clock only. App launchers live in the dock (no duplicate
        top nav row on desktop). -->
   <div class="os-menubar" data-os-menubar role="banner" aria-label={t('os.aria.menubar')}>
@@ -143,7 +150,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
   <div class="os-canvas" data-os-canvas>
 
     <!-- About (top-left) -->
-    <OsWindow app="about" title={t('os.win.about')} x={10} y={54} w={282} h={372} fx={0} fy={0} fw={0.21} fh={0.50}>
+    <OsWindow app="about" title={t('os.win.about')} x={10} y={54} w={268} h={372} fx={0} fy={0} fw={0.20} fh={0.50}>
       <div class="os-about">
         <span class="eyebrow">{t('home.hero.eyebrow')}</span>
         <h2 class="os-about-title">{t(`home.hero.headlines.${h}.pre`)}<em>{t(`home.hero.headlines.${h}.em`)}</em>{t(`home.hero.headlines.${h}.post`)}</h2>
@@ -157,7 +164,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     </OsWindow>
 
     <!-- Activity: simulated autonomous workstreams (AIOS signature) (bottom-left) -->
-    <OsWindow app="activity" title={t('os.win.activity')} x={10} y={446} w={282} h={372} fx={0} fy={0.50} fw={0.21} fh={0.50}>
+    <OsWindow app="activity" title={t('os.win.activity')} x={10} y={446} w={268} h={372} fx={0} fy={0.50} fw={0.20} fh={0.50}>
       <div
         class="os-activity"
         data-os-activity
@@ -187,7 +194,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     <!-- CV / Profile dossier (center): CV + Now + Work + Workflow + Reading + Languages
          in one [data-os-nav]; the root stacks every section, case studies drill into
          child views with Back. Thesis is reached via the CV publication row's link. -->
-    <OsWindow app="cv" title={t('nav.cv')} x={312} y={54} w={513} h={372} fx={0.21} fy={0} fw={0.37} fh={0.50}>
+    <OsWindow app="cv" title={t('nav.cv')} x={298} y={54} w={556} h={372} fx={0.20} fy={0} fw={0.40} fh={0.50}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
@@ -234,27 +241,14 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- Contact: same size as CV, stacked directly below it (center column, bottom half) -->
-    <OsWindow app="contact" title={t('nav.contact')} x={312} y={446} w={513} h={372} fx={0.21} fy={0.50} fw={0.37} fh={0.50}>
+    <!-- Contact (top-right). Workflow Automation no longer lives in its own
+         window: it is the RIGHT half of the Notes hero tile below. -->
+    <OsWindow app="contact" title={t('nav.contact')} x={1162} y={54} w={268} h={372} fx={0.80} fy={0} fw={0.20} fh={0.50}>
       <Contact />
     </OsWindow>
 
-    <!-- Workflow Automation: its OWN window on the right. The body is an isolated
-         iframe of the standalone /workflow-automation/ page, so it keeps that
-         page's distinct visual style (different from the rest of the site) and
-         needs no in-OS drill-down or outbound navigation. -->
-    <OsWindow app="workflow" title={t('nav.workflow')} x={1076} y={54} w={354} h={764} fx={0.74} fy={0} fw={0.26} fh={1} flush={true}>
-      <iframe
-        class="os-iframe"
-        src={workflowSrc}
-        title={t('nav.workflow')}
-        loading="lazy"
-        referrerpolicy="no-referrer"
-      ></iframe>
-    </OsWindow>
-
-    <!-- Projects (drill-down) (mid-right column, top) -->
-    <OsWindow app="projects" title={t('nav.projects')} x={845} y={54} w={210} h={372} fx={0.58} fy={0} fw={0.16} fh={0.50}>
+    <!-- Projects (drill-down) (top-right, left of Contact) -->
+    <OsWindow app="projects" title={t('nav.projects')} x={874} y={54} w={268} h={372} fx={0.60} fy={0} fw={0.20} fh={0.50}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
@@ -288,34 +282,67 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
       </div>
     </OsWindow>
 
-    <!-- Notes (drill-down) (mid-right column, bottom) -->
-    <OsWindow app="notes" title={t('nav.notes')} x={845} y={446} w={210} h={372} fx={0.58} fy={0.50} fw={0.16} fh={0.50}>
-      <div data-os-nav class="os-nav">
-        <div class="os-navbar">
-          <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
-          <span class="os-crumb" data-os-crumb></span>
-        </div>
-        <div data-os-view="root">
-          <p class="os-list-lede">{t('notes.index.sub')}</p>
-          <ul class="os-list">
-            {notes.map(({ entry, slug }) => (
-              <li>
-                <button type="button" class="os-list-item" data-os-go={vid(entry.data.title)} data-os-slug={slug}>
-                  <span class="t">{entry.data.title}</span>
-                  <span class="s">{entry.data.summary}</span>
-                </button>
-              </li>
+    <!-- Notes hero (bottom, wide): two EQUAL halves at any tile size.
+         LEFT half = the most recent note rendered in full (auto-updates when a
+         newer note is published) plus the browsable list + in-window drill-down
+         (the [data-os-nav] contract, unchanged).
+         RIGHT half = the Workflow Automation panel (the standalone page in an
+         isolated iframe; this replaces the old separate Workflow window). -->
+    <OsWindow app="notes" title={t('nav.notes')} x={298} y={446} w={1132} h={372} fx={0.20} fy={0.50} fw={0.80} fh={0.50} flush={true}>
+      <div class="os-notes-split">
+
+        <!-- LEFT: latest note (full) + browse/drill -->
+        <div class="os-notes-leftpane">
+          {featured && (
+            <article class="os-notes-featured os-note prose" data-os-featured>
+              <p class="os-notes-featured-tag">{t('notes.index.eyebrow')}</p>
+              <h3>{featured.entry.data.title}</h3>
+              <p class="lead">{featured.entry.data.summary}</p>
+              <FeaturedContent />
+              <p class="os-note-link"><a href={`${notesHref}${featured.slug}/`} target="_blank" rel="noopener">{t('notes.detail.back').replace('← ', '')} ↗</a></p>
+            </article>
+          )}
+          <div data-os-nav class="os-nav os-notes-browse">
+            <div class="os-navbar">
+              <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
+              <span class="os-crumb" data-os-crumb></span>
+            </div>
+            <div data-os-view="root">
+              <p class="os-list-lede">{t('notes.index.sub')}</p>
+              <ul class="os-list">
+                {notes.map(({ entry, slug }) => (
+                  <li>
+                    <button type="button" class="os-list-item" data-os-go={vid(entry.data.title)} data-os-slug={slug}>
+                      <span class="t">{entry.data.title}</span>
+                      <span class="s">{entry.data.summary}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {notes.map(({ entry, slug, Content }) => (
+              <article class="os-note prose" data-os-view={vid(entry.data.title)} data-os-slug={slug} hidden>
+                <h3>{entry.data.title}</h3>
+                <p class="lead">{entry.data.summary}</p>
+                <Content />
+                <p class="os-note-link"><a href={`${notesHref}${slug}/`} target="_blank" rel="noopener">{t('notes.detail.back').replace('← ', '')} ↗</a></p>
+              </article>
             ))}
-          </ul>
+          </div>
         </div>
-        {notes.map(({ entry, slug, Content }) => (
-          <article class="os-note prose" data-os-view={vid(entry.data.title)} data-os-slug={slug} hidden>
-            <h3>{entry.data.title}</h3>
-            <p class="lead">{entry.data.summary}</p>
-            <Content />
-            <p class="os-note-link"><a href={`${notesHref}${slug}/`} target="_blank" rel="noopener">{t('notes.detail.back').replace('← ', '')} ↗</a></p>
-          </article>
-        ))}
+
+        <!-- RIGHT: Workflow Automation (isolated iframe of the standalone page) -->
+        <div class="os-notes-rightpane">
+          <span class="os-notes-rightpane-label">{t('nav.workflow')}</span>
+          <iframe
+            class="os-iframe"
+            src={workflowSrc}
+            title={t('nav.workflow')}
+            loading="lazy"
+            referrerpolicy="no-referrer"
+          ></iframe>
+        </div>
+
       </div>
     </OsWindow>
 
