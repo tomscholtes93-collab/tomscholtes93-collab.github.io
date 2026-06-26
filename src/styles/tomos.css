@@ -581,6 +581,58 @@
 .os-win-body .reading-grid,
 .os-win-body .lang-grid { grid-template-columns: 1fr; }
 
+/* ---- Contact window: reflow the editorial CTA into a single vertical column
+   that fills the tile (Tom, 2026-06-26). The editorial `.cta-card` is built for
+   a full-width section: 80px padding, a 1.3fr/1fr grid, and a ~440px decorative
+   glyph. Dropped unchanged into the 268px Contact tile it overflowed by ~190px
+   and read as "cut off". Here it becomes one calm "long format" column, flush to
+   the window frame, sized so eyebrow + heading + body + all three actions fit
+   without a scrollbar. The tile's own dimensions are NOT changed. */
+/* container-type: size (vs the global inline-size) so type + spacing can scale
+   with the tile's HEIGHT too. Tiles are proportionally sized, so a short laptop
+   viewport gives a short tile; cqh-based clamps let the column compress to fit
+   instead of overflowing, while cqi keeps it proportional to width. */
+.os-win[data-app="contact"] .os-win-body { padding: 0; container-type: size; }
+.os-win[data-app="contact"] .cta-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: clamp(7px, 2.6cqh, 12px);
+  height: 100%;
+  padding: clamp(13px, 4.6cqh, 20px) clamp(15px, 5cqi, 20px) clamp(14px, 4.8cqh, 22px);
+  border-radius: 0;
+}
+.os-win[data-app="contact"] .cta-card h2 {
+  font-size: clamp(17px, 6.6cqh, 27px);
+  line-height: 1.06;
+  margin-top: clamp(4px, 1.8cqh, 8px) !important;  /* override inline margin-top:16px */
+}
+.os-win[data-app="contact"] .cta-card .right {
+  gap: clamp(6px, 2.4cqh, 10px);
+  margin-top: auto;             /* push body + actions to the foot of the column */
+}
+.os-win[data-app="contact"] .cta-card .right p {
+  font-size: clamp(10px, 3.9cqh, 13px);
+  line-height: 1.4;
+  max-width: none;
+  opacity: .82;
+}
+.os-win[data-app="contact"] .cta-card .btn {
+  padding: clamp(7px, 2.7cqh, 10px) 14px;
+  font-size: clamp(11.5px, 3.6cqh, 13px);
+  gap: 6px;
+}
+.os-win[data-app="contact"] .cta-card .btn-primary { width: 100%; justify-content: center; }
+.os-win[data-app="contact"] .cta-card .right > div { width: 100%; gap: 8px; }
+.os-win[data-app="contact"] .cta-card .right > div .btn { flex: 1 1 0; justify-content: center; }
+/* tame the decorative "hi." so it reads as a watermark, not an overflow */
+.os-win[data-app="contact"] .cta-bg {
+  font-size: clamp(96px, 46cqi, 150px);
+  right: -2%;
+  bottom: -6%;
+}
+
 /* ---- V2a: window content is ALWAYS left-aligned ------------------------- */
 /* The editorial layer justifies body prose at >= 600px (and html.kp justifies
    at all widths). Inside windows that pushes headings off the left edge and
