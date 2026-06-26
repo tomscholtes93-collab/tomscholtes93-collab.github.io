@@ -136,7 +136,7 @@ const statusKey = (s: string) => s === 'running' ? 'os.status.running' : s === '
 
 const h = 'editorial'; // headline variant shown in the About window (same key family as Hero)
 ---
-<div class="os-desktop" data-os data-os-default="about,cv,projects,notes,activity,contact" aria-hidden="false">
+<div class="os-desktop" data-os data-os-default="notes" aria-hidden="false">
   <!-- Menubar: brand + clock only. App launchers live in the dock (no duplicate
        top nav row on desktop). -->
   <div class="os-menubar" data-os-menubar role="banner" aria-label={t('os.aria.menubar')}>
@@ -288,7 +288,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
          (the [data-os-nav] contract, unchanged).
          RIGHT half = the Workflow Automation panel (the standalone page in an
          isolated iframe; this replaces the old separate Workflow window). -->
-    <OsWindow app="notes" title={t('nav.notes')} x={298} y={446} w={1132} h={372} fx={0.20} fy={0.50} fw={0.80} fh={0.50} flush={true}>
+    <OsWindow app="notes" title={t('nav.notes')} x={10} y={54} w={1420} h={760} fx={0} fy={0} fw={1} fh={1} flush={true}>
       <div class="os-notes-split">
 
         <!-- LEFT: latest note (full) + browse/drill -->
