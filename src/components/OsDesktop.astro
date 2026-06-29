@@ -136,7 +136,7 @@ const statusKey = (s: string) => s === 'running' ? 'os.status.running' : s === '
 
 const h = 'editorial'; // headline variant shown in the About window (same key family as Hero)
 ---
-<div class="os-desktop" data-os data-os-default="notes" aria-hidden="false">
+<div class="os-desktop" data-os data-os-default="about,cv,projects" aria-hidden="false">
   <!-- Menubar: brand + clock only. App launchers live in the dock (no duplicate
        top nav row on desktop). -->
   <div class="os-menubar" data-os-menubar role="banner" aria-label={t('os.aria.menubar')}>
@@ -150,7 +150,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
   <div class="os-canvas" data-os-canvas>
 
     <!-- About (top-left) -->
-    <OsWindow app="about" title={t('os.win.about')} x={10} y={54} w={268} h={372} fx={0} fy={0} fw={0.20} fh={0.50}>
+    <OsWindow app="about" title={t('os.win.about')} x={10} y={54} w={338} h={700} fx={0} fy={0} fw={0.28} fh={1}>
       <div class="os-about">
         <span class="eyebrow">{t('home.hero.eyebrow')}</span>
         <h2 class="os-about-title">{t(`home.hero.headlines.${h}.pre`)}<em>{t(`home.hero.headlines.${h}.em`)}</em>{t(`home.hero.headlines.${h}.post`)}</h2>
@@ -194,7 +194,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     <!-- CV / Profile dossier (center): CV + Now + Work + Workflow + Reading + Languages
          in one [data-os-nav]; the root stacks every section, case studies drill into
          child views with Back. Thesis is reached via the CV publication row's link. -->
-    <OsWindow app="cv" title={t('nav.cv')} x={298} y={54} w={556} h={372} fx={0.20} fy={0} fw={0.40} fh={0.50}>
+    <OsWindow app="cv" title={t('nav.cv')} x={358} y={54} w={492} h={700} fx={0.28} fy={0} fw={0.40} fh={1}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>
@@ -248,7 +248,7 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
     </OsWindow>
 
     <!-- Projects (drill-down) (top-right, left of Contact) -->
-    <OsWindow app="projects" title={t('nav.projects')} x={874} y={54} w={268} h={372} fx={0.60} fy={0} fw={0.20} fh={0.50}>
+    <OsWindow app="projects" title={t('nav.projects')} x={880} y={54} w={390} h={700} fx={0.68} fy={0} fw={0.32} fh={1}>
       <div data-os-nav class="os-nav">
         <div class="os-navbar">
           <button type="button" class="os-back" data-os-back>{`← ${t('os.nav.back')}`}</button>

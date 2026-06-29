@@ -25,9 +25,9 @@ export function initTomOS() {
 
   const DESKTOP = '(min-width: 1200px)';
   const mq = window.matchMedia(DESKTOP);
-  // Desktop mode is LOCKED at entry (html.os-mode, set in Base.astro head before paint),
-  // not read live, so interactions stay consistent with the locked layer: a window
-  // maximize or any width jitter never demotes the OS to the editorial layer mid-session.
+  // The active layer is reflected by html.os-mode (set in Base.astro head before paint to
+  // avoid a flash, then kept LIVE by syncLayer below on viewport breakpoint crossings).
+  // It tracks the VIEWPORT only, so an in-OS window maximize never flips the layer.
   const isDesktop = () => document.documentElement.classList.contains('os-mode');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -326,10 +326,18 @@ export function initTomOS() {
   setDockState();
   initActivity();
 
-  // Re-tile on viewport change (debounced) and when crossing the desktop bp.
+  // Re-tile on viewport change (debounced) and LIVE-switch the layer when crossing the
+  // 1200px breakpoint: entering desktop adds os-mode + tiles; dropping below removes it so
+  // the editorial page shows with no reload (Tom 2026-06-29). Viewport-only, so an in-OS
+  // window maximize never flips the layer.
   let _rt;
-  window.addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(layoutTiles, 120); });
-  if (mq.addEventListener) mq.addEventListener('change', layoutTiles);
+  function syncLayer() {
+    document.documentElement.classList.toggle('os-mode', mq.matches);
+    if (mq.matches) layoutTiles();
+  }
+  window.addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(syncLayer, 120); });
+  if (mq.addEventListener) mq.addEventListener('change', syncLayer);
+  else if (mq.addListener) mq.addListener(syncLayer);
 
   // openers (dock + menubar + in-window)
   root.querySelectorAll('[data-open]').forEach((el) => {
