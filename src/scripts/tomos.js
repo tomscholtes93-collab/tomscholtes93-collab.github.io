@@ -326,14 +326,38 @@ export function initTomOS() {
   setDockState();
   initActivity();
 
+  // ---- layer pref (Tom 2026-06-29): editorial is the DEFAULT; tomOS is opt-in ----
+  const LAYER_KEY = 'tomos:layer';
+  const prefIsOS = () => { try { return localStorage.getItem(LAYER_KEY) === 'os'; } catch (e) { return false; } };
+  const setPref = (v) => { try { localStorage.setItem(LAYER_KEY, v); } catch (e) {} };
+  function enterOS() {
+    if (!mq.matches) return;                 // tomOS only makes sense >= 1200px
+    setPref('os');
+    document.documentElement.classList.add('os-mode');
+    layoutTiles();                           // tiles were skipped while editorial; lay them now
+    defaultOpen.forEach((id) => { const w = winById(id); if (w) focusWin(w); });
+    setDockState();
+  }
+  function exitOS() {
+    setPref('editorial');
+    document.documentElement.classList.remove('os-mode');
+    window.scrollTo(0, 0);                    // land at the top of the editorial page
+  }
+  // Toggles live outside [data-os] (Nav button) and inside it (menubar Exit); query document.
+  document.querySelectorAll('[data-enter-tomos]').forEach((el) =>
+    el.addEventListener('click', (e) => { e.preventDefault(); enterOS(); }));
+  document.querySelectorAll('[data-exit-tomos]').forEach((el) =>
+    el.addEventListener('click', (e) => { e.preventDefault(); exitOS(); }));
+
   // Re-tile on viewport change (debounced) and LIVE-switch the layer when crossing the
-  // 1200px breakpoint: entering desktop adds os-mode + tiles; dropping below removes it so
-  // the editorial page shows with no reload (Tom 2026-06-29). Viewport-only, so an in-OS
-  // window maximize never flips the layer.
+  // 1200px breakpoint. os-mode is on ONLY when the visitor opted into tomOS AND the viewport
+  // is wide enough; dropping below 1200px always falls back to editorial with no reload
+  // (Tom 2026-06-29). Viewport-only, so an in-OS window maximize never flips the layer.
   let _rt;
   function syncLayer() {
-    document.documentElement.classList.toggle('os-mode', mq.matches);
-    if (mq.matches) layoutTiles();
+    const on = mq.matches && prefIsOS();
+    document.documentElement.classList.toggle('os-mode', on);
+    if (on) layoutTiles();
   }
   window.addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(syncLayer, 120); });
   if (mq.addEventListener) mq.addEventListener('change', syncLayer);

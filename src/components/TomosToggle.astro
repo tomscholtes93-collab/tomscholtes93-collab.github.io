@@ -1,0 +1,53 @@
+---
+/*
+ * TomosToggle: the opt-in entry into the tomOS desktop experience (Tom 2026-06-29).
+ * The editorial long-scroll page is the default on every viewport; this floating
+ * control lets a visitor switch into tomOS. It is:
+ *   - desktop only (>= 1200px) because tomOS only renders there;
+ *   - inside the editorial layer, so it disappears automatically once you are IN
+ *     tomOS (the editorial layer is display:none then; you leave via the menubar Exit);
+ *   - wired by src/scripts/tomos.js via [data-enter-tomos].
+ */
+import { t as translate, getLocale, type Locale } from '../i18n';
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+---
+<button type="button" class="tomos-fab" data-enter-tomos aria-label={t('nav.tomos.hint')} title={t('nav.tomos.hint')}>
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+    <rect x="2.5" y="4" width="19" height="13" rx="2" stroke="currentColor" stroke-width="1.7" />
+    <path d="M9 20.5h6M12 17v3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+  </svg>
+  <span>{t('nav.tomos')}</span>
+</button>
+
+<style>
+  .tomos-fab {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 40;
+    display: none; /* shown only >= 1200px (see media query) */
+    align-items: center;
+    gap: 9px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink-2);
+    background: var(--bg-2);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 9px 16px 9px 13px;
+    box-shadow: 0 8px 24px -14px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    transition: color 200ms ease, border-color 200ms ease, transform 200ms ease;
+  }
+  .tomos-fab svg { flex: none; color: var(--accent); }
+  .tomos-fab:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
+  .tomos-fab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (min-width: 1200px) { .tomos-fab { display: inline-flex; } }
+  @media (prefers-reduced-motion: reduce) {
+    .tomos-fab { transition: none; }
+    .tomos-fab:hover { transform: none; }
+  }
+</style>

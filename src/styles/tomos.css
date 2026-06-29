@@ -105,6 +105,11 @@ html.js.os-mode .editorial { display: none; }
 }
 .os-menu-item:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
 
+/* Exit tomOS: the always-visible way back to the editorial page (Tom 2026-06-29).
+   Bordered so it reads as an action, not a label; accent on hover. */
+.os-exit { border: 1px solid var(--rule); padding: 5px 11px; }
+.os-exit:hover { background: transparent; color: var(--accent); border-color: var(--accent); }
+
 .os-menubar-spacer { flex: 1 1 auto; }
 
 .os-hint {

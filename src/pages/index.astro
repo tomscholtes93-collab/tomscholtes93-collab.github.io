@@ -14,6 +14,7 @@ import RevealObserver from '../components/RevealObserver.astro';
 import DisplayPanel from '../components/islands/DisplayPanel.jsx';
 import TweaksPanel from '../components/islands/TweaksPanel.jsx';
 import OsDesktop from '../components/OsDesktop.astro';
+import TomosToggle from '../components/TomosToggle.astro';
 ---
 <Base jsonLd={true}>
   <!-- Editorial layer: default + the < 1200px and no-JS fallback. -->
@@ -30,6 +31,7 @@ import OsDesktop from '../components/OsDesktop.astro';
       <Contact />
     </main>
     <Footer />
+    <TomosToggle />
   </div>
 
   <!-- tomOS desktop layer: shown only >= 1200px with JS (single-sourced content). -->
