@@ -25,7 +25,10 @@ export function initTomOS() {
 
   const DESKTOP = '(min-width: 1200px)';
   const mq = window.matchMedia(DESKTOP);
-  const isDesktop = () => mq.matches;
+  // Desktop mode is LOCKED at entry (html.os-mode, set in Base.astro head before paint),
+  // not read live, so interactions stay consistent with the locked layer: a window
+  // maximize or any width jitter never demotes the OS to the editorial layer mid-session.
+  const isDesktop = () => document.documentElement.classList.contains('os-mode');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---- clock ----

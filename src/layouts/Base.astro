@@ -81,6 +81,13 @@ const OG_LOCALE: Record<Locale, string> = {
         // Mark JS as available so the tomOS desktop layer can opt in (>= 1200px).
         // Without JS this class never lands and the editorial layer is the fallback.
         document.documentElement.classList.add('js');
+        // Lock the layer (desktop tomOS vs editorial) to the ENTRY viewport, ONCE, here in
+        // the head before paint. A later width change (maximizing a window, a scrollbar
+        // appearing, an orientation flip) must NOT swap layers mid-session: entered-desktop
+        // stays desktop, entered-mobile stays mobile. Nothing updates this after load.
+        if (window.matchMedia('(min-width: 1200px)').matches) {
+          document.documentElement.classList.add('os-mode');
+        }
         var ACC = {
           terracotta: { a: '#C4623A', i: '#8A3F1E' },
           ink:        { a: '#1B2B4B', i: '#0E1A2E' },

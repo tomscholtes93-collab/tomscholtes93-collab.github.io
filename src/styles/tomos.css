@@ -9,10 +9,13 @@
 /* ---- Layer visibility split ---------------------------------------------- */
 .os-desktop { display: none; }
 
-@media (min-width: 1200px) {
-  html.js .os-desktop { display: block; }
-  html.js .editorial { display: none; }
-}
+/* Entry-locked layer split: the desktop layer shows only when JS set `os-mode` at load
+   (initial viewport >= 1200px), decided ONCE in Base.astro's head before paint. Using the
+   sticky class instead of a live `@media (min-width:1200px)` means maximizing a window or
+   any later width jitter can never flip to the editorial (mobile) layer. Entered-desktop
+   stays desktop; entered-mobile (no os-mode) keeps the editorial default. */
+html.js.os-mode .os-desktop { display: block; }
+html.js.os-mode .editorial { display: none; }
 
 /* ---- Desktop shell ------------------------------------------------------- */
 /* Wallpaper (V4a): a layered, on-brand "aurora" built only from theme tokens, so
