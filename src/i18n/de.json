@@ -153,6 +153,7 @@
   "home.workflow.cta": "Live-Demo öffnen",
   "home.workflow.eyebrow": "Live-Demo",
   "home.workflow.heading": "Sehen Sie die Automatisierung laufen, mit synthetischen Daten.",
+  "home.workflow.megaOverview": "Die größere Idee dahinter ist ein dauerhafter Orchestrator: ein System, das durchgehend läuft, ein Ziel in natürlicher Sprache entgegennimmt und die Arbeit an spezialisierte Agententeams übergibt, die mit der Zeit besser in ihrer Aufgabe werden. Statt der ersten Antwort eines einzelnen Modells zu vertrauen, setzt es viele Agenten ein, die ein Problem aus unabhängigen Blickwinkeln untersuchen und sich gegenseitig überprüfen, bevor etwas festgeschrieben wird. Die Finanz-Desk-Demo hier ist das kleine, auslieferbare Ende davon; dieselbe Methode ist darauf ausgelegt, auf nahezu jede Art von Arbeit zu skalieren.",
   "home.workflow.stage.build.desc": "Erstellt die Upload-Vorlage für das Buchhaltungssystem und entwirft die E-Mail an die Gegenpartei.",
   "home.workflow.stage.build.label": "Erstellen",
   "home.workflow.stage.find.desc": "Liest die Quelldateien und zeigt auf, was nicht gebucht, nicht abgeglichen oder nicht vorhanden ist.",

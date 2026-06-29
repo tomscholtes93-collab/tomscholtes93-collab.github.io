@@ -153,6 +153,7 @@
   "home.workflow.cta": "Open the live demo",
   "home.workflow.eyebrow": "Live demo",
   "home.workflow.heading": "See the automation run, on synthetic data.",
+  "home.workflow.megaOverview": "The bigger idea behind this is a persistent orchestrator: a system that stays running, takes a goal in plain language, and hands the work to specialized agent teams that get better at their jobs over time. Rather than trust one model's first answer, it runs many agents that research a problem from independent angles and cross-check each other before anything is committed. The finance-desk demo here is the small, shippable end of that; the same method is built to scale to almost any kind of work.",
   "home.workflow.stage.build.desc": "Generates the upload template for the accounting system and drafts the counterparty email.",
   "home.workflow.stage.build.label": "Build",
   "home.workflow.stage.find.desc": "Reads the source files and surfaces what is unbooked, mismatched, or missing.",

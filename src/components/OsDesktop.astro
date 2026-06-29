@@ -331,7 +331,8 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
           </div>
         </div>
 
-        <!-- RIGHT: Workflow Automation (isolated iframe of the standalone page) -->
+        <!-- RIGHT: Workflow Automation. Vertical order: live demo (iframe) ->
+             teaser video -> mega-orchestration overview. -->
         <div class="os-notes-rightpane">
           <span class="os-notes-rightpane-label">{t('nav.workflow')}</span>
           <iframe
@@ -341,6 +342,19 @@ const h = 'editorial'; // headline variant shown in the About window (same key f
             loading="lazy"
             referrerpolicy="no-referrer"
           ></iframe>
+          <figure class="os-notes-rightpane-video">
+            <video
+              class="os-teaser-video"
+              controls
+              preload="metadata"
+              playsinline
+              poster="/media/mega-orchestration-teaser-poster.jpg"
+            >
+              <source src="/media/mega-orchestration-teaser.mp4" type="video/mp4" />
+            </video>
+            <figcaption class="os-teaser-cap">Mega-orchestration in motion: a short teaser of the system running.</figcaption>
+          </figure>
+          <p class="os-notes-rightpane-lede">{t('home.workflow.megaOverview')}</p>
         </div>
 
       </div>

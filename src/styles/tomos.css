@@ -380,31 +380,62 @@
   position: relative;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;                 /* stack scrolls: iframe -> teaser -> overview */
   background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+.os-notes-rightpane-lede {
+  margin: 0;
+  padding: 16px 16px 20px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 64ch;
+  border-top: 1px solid var(--rule);  /* closes the stack below the teaser */
 }
 .os-notes-rightpane .os-iframe {
   display: block;
   width: 100%;
-  height: 100%;
+  flex: 0 0 auto;
+  height: clamp(360px, 50vh, 600px);  /* definite height: stack below it scrolls */
   border: 0;
   background: var(--bg);
 }
 .os-notes-rightpane-label {
-  position: absolute;
-  top: 8px; left: 12px;
-  z-index: 2;
+  flex: 0 0 auto;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 10px;
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--muted);
-  background: color-mix(in srgb, var(--bg) 78%, transparent);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  padding: 2px 7px;
-  border-radius: 6px;
-  pointer-events: none;
+  background: var(--bg);
+  padding: 8px 12px 6px;
+  border-bottom: 1px solid var(--rule);
+}
+/* Teaser video sits between the live-demo iframe and the mega-orchestration
+   overview. Responsive 16:9, controls, no autoplay (so no sound on load). */
+.os-notes-rightpane-video {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 14px 16px 16px;
+  background: var(--bg);
+}
+.os-teaser-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  background: #000;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+.os-teaser-cap {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
 }
 .os-notes-featured-tag {
   margin: 0 0 8px;

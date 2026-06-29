@@ -153,6 +153,7 @@
   "home.workflow.cta": "Ouvrir la démo en direct",
   "home.workflow.eyebrow": "Démo en direct",
   "home.workflow.heading": "Voyez l'automatisation à l'œuvre, sur des données synthétiques.",
+  "home.workflow.megaOverview": "L'idée plus large derrière tout cela est un orchestrateur persistant : un système qui reste en marche, reçoit un objectif en langage clair et confie le travail à des équipes d'agents spécialisés qui s'améliorent dans leur tâche au fil du temps. Plutôt que de se fier à la première réponse d'un seul modèle, il fait travailler de nombreux agents qui étudient un problème sous des angles indépendants et se vérifient mutuellement avant que quoi que ce soit ne soit validé. La démo du desk financier présentée ici en est la partie modeste et livrable ; la même méthode est conçue pour s'étendre à presque tout type de travail.",
   "home.workflow.stage.build.desc": "Génère le modèle d'import pour le système comptable et rédige l'e-mail à la contrepartie.",
   "home.workflow.stage.build.label": "Construire",
   "home.workflow.stage.find.desc": "Lit les fichiers sources et met en évidence ce qui n'est pas comptabilisé, incohérent ou manquant.",

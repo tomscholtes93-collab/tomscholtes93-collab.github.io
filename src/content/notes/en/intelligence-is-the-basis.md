@@ -1,6 +1,6 @@
 ---
 title: "Intelligence is the basis"
-summary: "My working thesis: intelligence, or information, is the basis of reality rather than a late accident of it; we are how it bootstraps itself by building AI; and its terminal form is creating nested simulations."
+summary: "My working thesis: intelligence, or information, is not a late accident of reality but its basis; we are how it bootstraps itself by building AI; and its terminal form is creating nested simulations."
 publishDate: 2026-06-26
 tags: ["intelligence", "philosophy-of-mind", "simulation"]
 related: ["the-cave-inside-the-cave", "the-remembering-assistant"]
@@ -13,8 +13,6 @@ sources:
     kind: external
 status: published
 ---
-
-*My working thesis, stated plainly and held loosely: intelligence is not a late accident of reality. It looks, more and more, like the basis of it.*
 
 Most of my working life now goes into building systems that think a little, then a little more: agents, memory, automation. Doing that every day pushed me toward a position I did not start with. The usual story is that physics comes first, then chemistry, then biology, and somewhere very late, after enough complexity has piled up, intelligence flickers on as a by-product. I have started to suspect the order is upside down. Information, and the processing of it, might sit nearer the bottom of the stack than the top.
 
