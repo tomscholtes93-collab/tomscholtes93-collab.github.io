@@ -339,14 +339,20 @@ export function initTomOS() {
   if (mq.addEventListener) mq.addEventListener('change', syncLayer);
   else if (mq.addListener) mq.addListener(syncLayer);
 
-  // openers (dock + menubar + in-window)
+  // openers (dock + menubar). A single click opens the window AND maximizes it, so
+  // a casual visitor gets a full, readable view immediately with no hidden
+  // double-click-to-expand gesture to discover (Tom 2026-06-29). Power users still
+  // tile/restore via the titlebar lights or double-click. (In-window drill-down
+  // links route through routeInternal and intentionally stay tiled.)
   root.querySelectorAll('[data-open]').forEach((el) => {
     if (el.classList.contains('os-light')) return;
     el.addEventListener('click', (e) => {
       const id = el.dataset.open; if (!id) return;
       if (!isDesktop()) return; // mobile uses the editorial layer
       e.preventDefault(); openWin(id);
-      const w = winById(id); if (w) w.focus && w.focus({ preventScroll: true });
+      const w = winById(id); if (!w) return;
+      if (w.dataset.max !== '1') maxWin(w);   // ensure a readable, focused view in one click
+      w.focus && w.focus({ preventScroll: true });
     });
   });
 
