@@ -81,17 +81,11 @@ const OG_LOCALE: Record<Locale, string> = {
         // Mark JS as available so the tomOS desktop layer can opt in (>= 1200px).
         // Without JS this class never lands and the editorial layer is the fallback.
         document.documentElement.classList.add('js');
-        // Layer choice (Tom 2026-06-29): the editorial long-scroll page is now the DEFAULT
-        // on every viewport. The tomOS desktop is OPT-IN: it loads before paint (no flash)
-        // only when the visitor has explicitly entered it (localStorage 'tomos:layer' === 'os')
-        // AND the viewport is >= 1200px. src/scripts/tomos.js keeps this live: dropping below
-        // 1200px falls back to editorial; the Nav "tomOS" button / menubar Exit toggle the pref.
-        try {
-          if (window.matchMedia('(min-width: 1200px)').matches &&
-              localStorage.getItem('tomos:layer') === 'os') {
-            document.documentElement.classList.add('os-mode');
-          }
-        } catch (e) {}
+        // tomOS desktop layer is OMITTED for now (Tom 2026-06-29): os-mode is never set,
+        // so the editorial page is the only layer (this also prevents a blank page for any
+        // visitor who still has a stale localStorage 'tomos:layer' === 'os' from testing).
+        // To re-enable, restore the >= 1200px + localStorage 'tomos:layer' === 'os' gate here
+        // and the OsDesktop render in src/pages/index.astro.
         var ACC = {
           terracotta: { a: '#C4623A', i: '#8A3F1E' },
           ink:        { a: '#1B2B4B', i: '#0E1A2E' },

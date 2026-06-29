@@ -1,6 +1,5 @@
 ---
 import Arr from './Arr.astro';
-import HeroComposition from './HeroComposition.astro';
 import { DEFAULT_HEADLINE } from '../content/headlines.ts';
 import { t as translate, getLocale, type Locale } from '../i18n';
 
@@ -24,6 +23,41 @@ const h = DEFAULT_HEADLINE;
         <div><strong>{t('home.hero.meta.languages.value')}</strong>{t('home.hero.meta.languages.label')}</div>
       </div>
     </div>
-    <HeroComposition />
+    <figure class="hero-video">
+      <video
+        class="hero-video-el"
+        controls
+        preload="metadata"
+        playsinline
+        poster="/media/mega-orchestration-teaser-poster.jpg"
+        aria-label={t('home.hero.video.cap')}
+      >
+        <source src="/media/mega-orchestration-teaser.mp4" type="video/mp4" />
+      </video>
+      <figcaption>{t('home.hero.video.cap')}</figcaption>
+    </figure>
   </div>
 </section>
+
+<style>
+  /* Hero video (replaces the rotating DevSwarm/accounts composition, Tom 2026-06-29).
+     Click-to-play with the poster as the still; metadata-only preload keeps it light. */
+  .hero-video { margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .hero-video-el {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    display: block;
+    background: #000;
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    box-shadow: 0 18px 44px -26px rgba(0, 0, 0, 0.5);
+    object-fit: cover;
+  }
+  .hero-video figcaption {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--muted);
+    text-align: left;
+  }
+</style>
