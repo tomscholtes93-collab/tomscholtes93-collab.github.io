@@ -37,9 +37,24 @@ export function t(
 }
 
 export function localizePath(path: string, locale: Locale): string {
-  const clean = path.startsWith('/') ? path : `/${path}`;
+  let clean = path.startsWith('/') ? path : `/${path}`;
+  // GitHub Pages 301s extensionless directory URLs to the trailing-slash form,
+  // so emit the slash form directly (canonicals, hreflang, internal links).
+  if (!clean.endsWith('/') && !/\.[a-z0-9]+$/i.test(clean)) clean += '/';
   if (locale === DEFAULT_LOCALE) return clean;
   return `/${locale}${clean === '/' ? '/' : clean}`;
+}
+
+// Strip a leading locale segment so a pre-localized path can never be
+// localized twice (the /de/de/... canonical bug, fixed 2026-07-02).
+export function delocalizePath(path: string): string {
+  const clean = path.startsWith('/') ? path : `/${path}`;
+  const segs = clean.split('/');
+  if ((NON_DEFAULT_LOCALES as readonly string[]).includes(segs[1] ?? '')) {
+    const rest = `/${segs.slice(2).join('/')}`;
+    return rest === '//' ? '/' : rest;
+  }
+  return clean;
 }
 
 export function localeDateFmt(locale: Locale): Intl.DateTimeFormat {

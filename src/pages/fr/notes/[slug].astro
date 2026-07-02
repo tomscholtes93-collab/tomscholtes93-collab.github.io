@@ -4,6 +4,7 @@ import Nav from '../../../components/Nav.astro';
 import Footer from '../../../components/Footer.astro';
 import RevealObserver from '../../../components/RevealObserver.astro';
 import PageVideo from '../../../components/PageVideo.astro';
+import JsonLdArticle from '../../../components/JsonLdArticle.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { t as translate, getLocale, localizePath, localeDateFmt, type Locale } from '../../../i18n';
 
@@ -38,8 +39,17 @@ const notesHref = localizePath('/notes/', locale);
 <Base
   title={`${entry.data.title} · Tom Scholtes`}
   description={entry.data.summary}
-  path={`/fr/notes/${displaySlug}/`}
+  path={`/notes/${displaySlug}/`}
+  ogType="article"
+  publishedTime={entry.data.publishDate.toISOString().slice(0, 10)}
 >
+  <JsonLdArticle
+    title={entry.data.title}
+    description={entry.data.summary}
+    datePublished={entry.data.publishDate}
+    tags={entry.data.tags}
+    path={`/notes/${displaySlug}/`}
+  />
   <Nav active="notes" />
   <main>
     <section>

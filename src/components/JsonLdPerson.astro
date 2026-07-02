@@ -1,15 +1,45 @@
 ---
+// Person + WebSite entity graph, rendered on the four home pages only.
+// Every claim here must already be published on the site (no-fabrication gate):
+// jobTitle and languages appear on the homepage, Erasmus University Rotterdam
+// on the thesis page, the knowsAbout topics in the case studies and notes.
+const SITE = 'https://tomscholtes.com';
 const data = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'Tom Scholtes',
-  jobTitle: 'Finance ops engineer',
-  nationality: { '@type': 'Country', name: 'Luxembourg' },
-  knowsLanguage: ['en', 'de', 'fr', 'ru', 'lb', 'uz'],
-  url: 'https://tomscholtes.com',
-  sameAs: [
-    'https://www.linkedin.com/in/tomscholtes93/',
-    'https://github.com/tomscholtes93-collab',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${SITE}/#person`,
+      name: 'Tom Scholtes',
+      jobTitle: 'Finance ops engineer',
+      nationality: { '@type': 'Country', name: 'Luxembourg' },
+      knowsLanguage: ['en', 'de', 'fr', 'ru', 'lb', 'uz'],
+      alumniOf: {
+        '@type': 'EducationalOrganization',
+        name: 'Erasmus University Rotterdam',
+      },
+      knowsAbout: [
+        'workflow automation',
+        'fund services operations',
+        'AI agents',
+        'Model Context Protocol (MCP)',
+        'retrieval-augmented generation',
+      ],
+      url: SITE,
+      image: `${SITE}/og/default.png`,
+      sameAs: [
+        'https://www.linkedin.com/in/tomscholtes93/',
+        'https://github.com/tomscholtes93-collab',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE}/#website`,
+      name: 'Tom Scholtes',
+      url: SITE,
+      inLanguage: ['en', 'de', 'fr', 'ru'],
+      publisher: { '@id': `${SITE}/#person` },
+    },
   ],
 };
 const json = JSON.stringify(data).replace(/</g, '\\u003c');

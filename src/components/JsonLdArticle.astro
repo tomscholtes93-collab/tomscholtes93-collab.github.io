@@ -1,0 +1,55 @@
+---
+// BlogPosting + BreadcrumbList structured data for note pages, one per locale.
+// Fed entirely from the note frontmatter (title, summary, publishDate, tags);
+// nothing here may state a fact that is not already published on the page.
+import { getLocale, localizePath, t as translate, type Locale } from '../i18n';
+
+interface Props {
+  title: string;
+  description: string;
+  datePublished: Date;
+  tags: string[];
+  path: string;
+}
+
+const { title, description, datePublished, tags, path } = Astro.props;
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+
+const SITE = 'https://tomscholtes.com';
+const url = SITE + localizePath(path, locale);
+const homeUrl = SITE + localizePath('/', locale);
+const notesUrl = SITE + localizePath('/notes/', locale);
+const published = datePublished.toISOString().slice(0, 10);
+
+const data = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BlogPosting',
+      headline: title,
+      description,
+      datePublished: published,
+      inLanguage: locale,
+      url,
+      mainEntityOfPage: url,
+      keywords: tags.join(', '),
+      image: `${SITE}/og/default.png`,
+      author: {
+        '@type': 'Person',
+        name: 'Tom Scholtes',
+        url: SITE,
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Tom Scholtes', item: homeUrl },
+        { '@type': 'ListItem', position: 2, name: translate('nav.notes', locale), item: notesUrl },
+        { '@type': 'ListItem', position: 3, name: title, item: url },
+      ],
+    },
+  ],
+};
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+<script type="application/ld+json" set:html={json} />
