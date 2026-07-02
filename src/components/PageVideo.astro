@@ -1,0 +1,87 @@
+---
+// Per-page video hero (website video pass, 2026-07-02). Follows the Hero.astro
+// teaser embed: click-to-play, poster still, metadata-only preload. Renders
+// nothing at all when the mp4/poster pair is absent from public/media/, so a
+// page whose video failed to render ships unchanged.
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { t as translate, getLocale, type Locale } from '../i18n';
+
+interface Props {
+  slug: string;
+  variant?: 'inline' | 'section';
+}
+const { slug, variant = 'inline' } = Astro.props;
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+
+const mp4 = `/media/${slug}.mp4`;
+const poster = `/media/${slug}-poster.jpg`;
+const hasVideo =
+  existsSync(join(process.cwd(), 'public', 'media', `${slug}.mp4`)) &&
+  existsSync(join(process.cwd(), 'public', 'media', `${slug}-poster.jpg`));
+---
+{hasVideo && variant === 'section' && (
+  <section class="page-video-band">
+    <div class="container">
+      <figure class="page-video">
+        <video
+          class="page-video-el"
+          controls
+          preload="metadata"
+          playsinline
+          poster={poster}
+          aria-label={t('pagevideo.cap')}
+        >
+          <source src={mp4} type="video/mp4" />
+        </video>
+        <figcaption>{t('pagevideo.cap')}</figcaption>
+      </figure>
+    </div>
+  </section>
+)}
+{hasVideo && variant === 'inline' && (
+  <figure class="page-video">
+    <video
+      class="page-video-el"
+      controls
+      preload="metadata"
+      playsinline
+      poster={poster}
+      aria-label={t('pagevideo.cap')}
+    >
+      <source src={mp4} type="video/mp4" />
+    </video>
+    <figcaption>{t('pagevideo.cap')}</figcaption>
+  </figure>
+)}
+
+<style>
+  .page-video-band { padding: 8px 0 0; }
+  .page-video-band .page-video { max-width: 920px; }
+  .page-video {
+    margin: 20px 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  .page-video-el {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    display: block;
+    background: #000;
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    box-shadow: 0 18px 44px -26px rgba(0, 0, 0, 0.5);
+    object-fit: cover;
+  }
+  .page-video figcaption {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--muted);
+    text-align: left;
+  }
+</style>
