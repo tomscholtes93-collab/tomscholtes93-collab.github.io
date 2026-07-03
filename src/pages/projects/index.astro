@@ -7,8 +7,8 @@ import { t as translate, getLocale, localizePath, type Locale } from '../../i18n
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
-const devswarmHref = localizePath('/projects/devswarm', locale);
-const exocortexHref = localizePath('/projects/exocortex', locale);
+const devswarmHref = localizePath('/projects/devswarm/', locale);
+const exocortexHref = localizePath('/projects/exocortex/', locale);
 const tagList = (slug: 'devswarm' | 'exocortex') =>
   [0, 1, 2, 3]
     .map((i) => t(`projects.index.card.${slug}.tag.${i}`))
@@ -19,7 +19,7 @@ const exocortexTags = tagList('exocortex');
 <Base
   title={t('meta.projects.title')}
   description={t('meta.projects.description')}
-  path="/projects"
+  path="/projects/"
 >
   <Nav active="projects" />
   <main>

@@ -21,3 +21,15 @@ const svg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" he
 
 await sharp(svg).png().toFile(OUT);
 console.log('og: default.png');
+
+// PNG fallbacks for the SVG favicon: Google wants a crawlable icon at a
+// multiple of 48px, Safari wants apple-touch-icon. Same mark as favicon.svg.
+const iconSvg = (size) => Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#0E0E0C"/>
+  <text x="32" y="46" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="42" font-weight="400" text-anchor="middle" fill="#F6F2EC">T</text>
+</svg>`);
+
+for (const [name, size] of [['favicon-48.png', 48], ['apple-touch-icon.png', 180]]) {
+  await sharp(iconSvg(size)).png().toFile(resolve(ROOT, 'public', name));
+  console.log(`og: ${name}`);
+}
