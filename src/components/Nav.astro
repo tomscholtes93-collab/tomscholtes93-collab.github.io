@@ -13,7 +13,6 @@ const t = (k: string) => translate(k, locale);
 const home = localizePath('/', locale);
 const projects = localizePath('/projects/', locale);
 const notes = localizePath('/notes/', locale);
-const thesis = localizePath('/thesis/', locale);
 ---
 <header class="nav" id="site-nav" data-open="false">
   <div class="container nav-inner">
@@ -28,9 +27,11 @@ const thesis = localizePath('/thesis/', locale);
       <a href={notes}>{t('nav.notes')}</a>
       <a href="/workflow-automation/">{t('nav.workflow')}</a>
       <a href={`${home}#cv`}>{t('nav.cv')}</a>
-      <a href={thesis}>{t('nav.thesis')}</a>
-      <a href={`${home}#reading`}>{t('nav.reading')}</a>
-      <a href={`${home}#contact`}>{t('nav.contact')}</a>
+      {/* Thesis and Reading stay reachable via the footer; the header keeps
+          6 primary links. Contact is menu-only: on desktop the Say-hi CTA
+          already targets #contact, on mobile the CTA is hidden so the menu
+          needs its own Contact entry. */}
+      <a href={`${home}#contact`} class="nav-link-menu-only">{t('nav.contact')}</a>
     </nav>
     <LangSwitcher />
     <a href={`${home}#contact`} class="nav-cta">{t('nav.cta')} <Arr /></a>
