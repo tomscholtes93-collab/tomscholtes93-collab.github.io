@@ -395,16 +395,20 @@
   display: block; max-width: 100%; max-height: 138px; width: auto;
   border: 1px solid var(--rule); border-radius: 4px;
 }
-/* Fallback for a missing cover file: plain spine with the title. */
+/* Fallback for a missing or broken cover: tinted spine with title + author.
+   Rendered next to every <img> but hidden while the image is alive; the
+   img's onerror handler (and the build-time file check) reveal it. */
 .book-shelf .spine {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; max-width: 96px; height: 138px; padding: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; width: 100%; max-width: 96px; height: 138px; padding: 10px;
   background: var(--bg-2); border: 1px solid var(--rule); border-radius: 4px;
 }
+.book-shelf .cover img + .spine { display: none; }
 .book-shelf .spine span {
   font-family: 'Instrument Serif', serif; font-style: italic;
   font-size: 13px; line-height: 1.25; text-align: center; color: var(--ink-2);
 }
+.book-shelf .spine .sa { font-style: normal; font-size: 11px; color: var(--muted); }
 .book-shelf .bt { display: block; margin-top: 10px; font-size: 12.5px; font-weight: 500; line-height: 1.35; }
 .book-shelf .ba { display: block; margin-top: 2px; font-size: 11.5px; color: var(--muted); line-height: 1.35; }
 
