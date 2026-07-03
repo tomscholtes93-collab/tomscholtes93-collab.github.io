@@ -381,6 +381,32 @@
 .reading-card { background: var(--bg); padding: 32px; }
 .reading-card .t { font-family: 'Instrument Serif', serif; font-size: 26px; line-height: 1.1; letter-spacing: -.01em; }
 .reading-card p { color: var(--ink-2); font-size: 14.5px; margin-top: 10px; margin-bottom: 0; }
+.book-shelf {
+  list-style: none;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 18px 14px;
+  margin: 24px 0 0; padding: 20px 0 0;
+  border-top: 1px solid var(--rule);
+}
+/* Fixed-height cover box, covers bottom-aligned like books standing on a
+   shelf; also reserves space so lazy-loaded images cause no layout shift. */
+.book-shelf .cover { display: flex; align-items: flex-end; height: 138px; }
+.book-shelf .cover img {
+  display: block; max-width: 100%; max-height: 138px; width: auto;
+  border: 1px solid var(--rule); border-radius: 4px;
+}
+/* Fallback for a missing cover file: plain spine with the title. */
+.book-shelf .spine {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; max-width: 96px; height: 138px; padding: 10px;
+  background: var(--bg-2); border: 1px solid var(--rule); border-radius: 4px;
+}
+.book-shelf .spine span {
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: 13px; line-height: 1.25; text-align: center; color: var(--ink-2);
+}
+.book-shelf .bt { display: block; margin-top: 10px; font-size: 12.5px; font-weight: 500; line-height: 1.35; }
+.book-shelf .ba { display: block; margin-top: 2px; font-size: 11.5px; color: var(--muted); line-height: 1.35; }
 
 /* languages */
 .lang-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
