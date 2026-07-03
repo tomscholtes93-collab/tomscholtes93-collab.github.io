@@ -156,11 +156,12 @@
     <div class="container">
       <span class="eyebrow">The patterns</span>
       <h2 class="h">Where a rollout actually gets hard is the edges.</h2>
-      <p class="lead">Across fund-accounting platform rollouts the recurring work is the same shape: getting pref-share reconciliation logic right, validating waterfall behaviour against expected outcomes, and discovering the edge cases a clean demo never shows. These are described here as approaches rather than tied to any one platform or engagement.</p>
+      <p class="lead">Across fund-accounting platform rollouts the recurring work is the same shape: getting pref-share reconciliation logic right, validating waterfall behaviour against expected outcomes, and discovering the edge cases a clean demo never shows. The hard part is rarely the configuration; it is the existing book, with its history and non-standard terms. These are described here as approaches rather than tied to any one platform or engagement.</p>
       <div class="high">
         <div><h3>Pref-share reconciliation</h3><ul>
           <li><strong>Logic</strong> for reconciling preferred-share positions consistently.</li>
-          <li><strong>Tie-outs</strong> against the source of truth.</li>
+          <li><strong>Accruals</strong> as well as positions; a preferred return builds over time, and both must tie out.</li>
+          <li><strong>Tie-outs</strong> against the source of truth, not the old system's copy of it.</li>
         </ul></div>
         <div><h3>Waterfall validation</h3><ul>
           <li><strong>Expected-vs-actual</strong> checks on distribution waterfalls.</li>
@@ -171,9 +172,20 @@
   </section>
   <section>
     <div class="container">
+      <span class="eyebrow">The working method</span>
+      <h2 class="h">Recompute it yourself, then argue with the platform.</h2>
+      <p class="lead">Build an independent expectation of what the platform should produce, then compare. Every difference has one of two answers: the platform is wrong, or the expectation is.</p>
+      <dl class="stack">
+        <dt>Scripted checks</dt><dd>Python against the spreadsheet exports, so whole batches of entities are re-checked, not spot-checked.</dd>
+        <dt>Feedback</dt><dd>Issues go to the vendor with the failing case attached; quirks get written down so nobody rediscovers them.</dd>
+      </dl>
+    </div>
+  </section>
+  <section>
+    <div class="container">
       <span class="eyebrow">Why approaches, not a product</span>
       <h2 class="h">The reusable thing is the method, not the tool.</h2>
-      <p class="lead">Platforms differ, but the discipline of validating a waterfall against what it should produce, and hunting deliberately for edge cases, transfers across all of them. Holding the knowledge as a method keeps it useful for the next rollout.</p>
+      <p class="lead">Platforms differ, but the discipline of validating a waterfall against what it should produce, and hunting deliberately for edge cases, transfers across all of them. So does the question of where the source of truth actually lives, covered separately in the <a href="/case/cross-system-reconciliation/" style="text-decoration:underline;">cross-system reconciliation</a> pattern. Holding the knowledge as a method rather than platform lore keeps it useful for the next rollout.</p>
       <p class="note-strip">A capability pattern. No vendor named, no employer process, no figures.</p>
     </div>
   </section>

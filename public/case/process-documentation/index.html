@@ -156,7 +156,7 @@
     <div class="container">
       <span class="eyebrow">The pattern</span>
       <h2 class="h">Write down the flow once, so it does not have to be explained ten times.</h2>
-      <p class="lead">The skill documents payment and accounting workflows in a structured way a new joiner can follow without hovering over someone's shoulder. It covers the payment flow itself, exception handling, approval routing, and the recharge and intercompany cases that usually live only in someone's head.</p>
+      <p class="lead">The skill documents payment and accounting workflows in a structured way a new joiner can follow without hovering over someone's shoulder. It covers the payment flow itself, exception handling, approval routing, and the recharge and intercompany cases that usually live only in someone's head. Each flow is written from the reader's seat: what arrives, what to check, who approves, what to do when it does not match.</p>
       <div class="high">
         <div><h3>What it documents</h3><ul>
           <li><strong>Payment flow</strong> from instruction to release.</li>
@@ -169,13 +169,32 @@
           <li><strong>Durable.</strong> Knowledge survives a person leaving.</li>
         </ul></div>
       </div>
+      <div class="arch"><div class="chain">
+        <span class="cn">Instruction</span><span class="ar">&rarr;</span>
+        <span class="cn">Checks</span><span class="ar">&rarr;</span>
+        <span class="cn acc">Approval</span><span class="ar">&rarr;</span>
+        <span class="cn">Release</span><span class="ar">&rarr;</span>
+        <span class="cn">Booking</span>
+      </div></div>
+    </div>
+  </section>
+  <section>
+    <div class="container">
+      <span class="eyebrow">Writing it down well</span>
+      <h2 class="h">A guide gets used, or it rots.</h2>
+      <p class="lead">What separates the two is structure, not effort.</p>
+      <dl class="stack">
+        <dt>One flow, one guide</dt><dd>Each workflow is its own short document, readable before doing the task once.</dd>
+        <dt>Exceptions in place</dt><dd>Failure cases sit beside the step where they happen, not in an appendix nobody finds.</dd>
+        <dt>Decisions explicit</dt><dd>When something does not match, it says who to ask and what to send.</dd>
+      </dl>
     </div>
   </section>
   <section>
     <div class="container">
       <span class="eyebrow">Why it matters</span>
       <h2 class="h">Undocumented process is a single point of failure.</h2>
-      <p class="lead">When a workflow only exists in one person's memory, every absence is a risk and every onboarding is slow. Turning it into a clear, structured guide moves the knowledge out of heads and into something a team can actually use and maintain.</p>
+      <p class="lead">When a workflow only exists in one person's memory, every absence is a risk and every onboarding is slow. In a regulated environment the stakes are higher: a process that cannot be explained cannot be audited. Turning it into a clear, structured guide moves the knowledge out of heads and into something a team can actually use and maintain. It also doubles as the specification when parts of the flow are later automated.</p>
       <p class="note-strip">A capability pattern. No employer process, no internal procedures reproduced.</p>
     </div>
   </section>
