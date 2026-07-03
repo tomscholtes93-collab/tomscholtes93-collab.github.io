@@ -438,7 +438,10 @@
 footer { padding: 48px 0 56px; color: var(--muted); border-top: 1px solid var(--rule); }
 .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; align-items: start; }
 @media (max-width: 760px) { .foot-grid { grid-template-columns: 1fr 1fr; } }
-.foot-grid h5 { font-family: 'JetBrains Mono', monospace; text-transform: uppercase; font-size: 11px; letter-spacing: .12em; color: var(--ink); margin: 0 0 14px; font-weight: 500; }
+/* Footer column headings are h2 for heading-order (no skipped levels after the
+   page's h2 sections); styled identically to the old h5 look. hyphens pinned to
+   the default so the global h2 hyphenation rule cannot alter rendering. */
+.foot-grid h2 { font-family: 'JetBrains Mono', monospace; text-transform: uppercase; font-size: 11px; letter-spacing: .12em; color: var(--ink); margin: 0 0 14px; font-weight: 500; hyphens: manual; -webkit-hyphens: manual; }
 .foot-grid a { display: block; padding: 4px 0; font-size: 14px; }
 .foot-grid a:hover { color: var(--ink); }
 .foot-bottom { margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 12.5px; font-family: 'JetBrains Mono', monospace; }
