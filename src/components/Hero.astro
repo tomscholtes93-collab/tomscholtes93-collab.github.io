@@ -1,11 +1,15 @@
 ---
 import Arr from './Arr.astro';
 import { DEFAULT_HEADLINE } from '../content/headlines.ts';
+import { CASE_IDS, EXTRA_CASES } from '../content/caseStudies.ts';
 import { t as translate, getLocale, type Locale } from '../i18n';
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
 const h = DEFAULT_HEADLINE;
+// Derived from the case collection so the hero meta can never drift from the
+// number of cards actually rendered in the Work section.
+const caseCount = CASE_IDS.length + EXTRA_CASES.length;
 ---
 <section class="hero">
   <div class="container hero-grid">
@@ -19,7 +23,7 @@ const h = DEFAULT_HEADLINE;
       </div>
       <div class="hero-meta">
         <div><strong>{t('home.hero.meta.years.value')}</strong>{t('home.hero.meta.years.label')}</div>
-        <div><strong>{t('home.hero.meta.casestudies.value')}</strong>{t('home.hero.meta.casestudies.label')}</div>
+        <div><strong>{caseCount}</strong>{t('home.hero.meta.casestudies.label')}</div>
         <div><strong>{t('home.hero.meta.languages.value')}</strong>{t('home.hero.meta.languages.label')}</div>
       </div>
     </div>

@@ -17,5 +17,37 @@ const t = (k: string) => translate(k, locale);
         </div>
       </div>
     </div>
+    {/* Real headless-browser render of the demo page (Bank Reconciliation
+        selected), not a mockup. Recapture after demo UI changes:
+        serve dist, open /workflow-automation/, Live demo tab -> Bank
+        Reconciliation, element-shot the widget card at 2x. */}
+    <a class="workflow-preview" href="/workflow-automation/" aria-label={t('home.workflow.cta')}>
+      <img
+        src="/media/workflow-demo-preview.png"
+        alt={t('home.workflow.heading')}
+        width="2012"
+        height="1618"
+        loading="lazy"
+        decoding="async"
+      />
+    </a>
   </div>
 </section>
+
+<style>
+  .workflow-preview {
+    display: block;
+    max-width: 840px;
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 18px 44px -26px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s ease;
+  }
+  .workflow-preview:hover { transform: translateY(-1px); }
+  .workflow-preview img { display: block; width: 100%; height: auto; }
+  @media (prefers-reduced-motion: reduce) {
+    .workflow-preview { transition: none; }
+    .workflow-preview:hover { transform: none; }
+  }
+</style>

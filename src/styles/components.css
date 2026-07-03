@@ -16,6 +16,8 @@
 }
 .nav-links { display: flex; gap: 28px; align-items: center; color: var(--ink-2); font-size: 14px; }
 .nav-links a:hover { color: var(--ink); }
+/* Links that only appear inside the mobile menu (desktop covers them via the CTA). */
+.nav-links .nav-link-menu-only { display: none; }
 .nav-cta {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 9px 14px; border-radius: 999px;
@@ -50,6 +52,7 @@
 @media (max-width: 720px) {
   .nav-toggle { display: inline-flex; }
   .nav-cta { display: none; }
+  .nav-links .nav-link-menu-only { display: block; }
   .nav-links {
     display: none;
     position: fixed;
