@@ -1,9 +1,57 @@
 ---
 import { t as translate, getLocale, type Locale } from '../i18n';
+import { resolveCover } from '../lib/book-covers';
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 const themeIds = [0, 1, 2, 3] as const;
+
+// Bookshelf data, indexed by theme id. Titles and authors are proper nouns
+// and stay untranslated across locales. Covers are self-hosted under
+// public/media/books (fetched once from the Open Library Covers API,
+// optimized to <=40KB). A cover that is null, or whose file is missing or
+// empty at build time (resolveCover), renders the spine fallback instead of
+// an image; a cover that fails to load at runtime swaps to the same spine
+// via onerror. A broken-image icon never appears.
+// [REAL] marks Tom's actual working references. Every other entry is an
+// [EXAMPLE]: a canonical, domain-fitting placeholder to swap at review.
+// Captions stay neutral: title + author only.
+type Book = { title: string; author: string; cover: string | null };
+const shelves: readonly Book[][] = [
+  // 0: Systems & ops quality. All [EXAMPLE].
+  [
+    { title: 'The Checklist Manifesto', author: 'Atul Gawande', cover: '/media/books/checklist-manifesto.jpg' },
+    { title: 'The Goal', author: 'Eliyahu Goldratt & Jeff Cox', cover: '/media/books/the-goal.jpg' },
+    { title: 'The Phoenix Project', author: 'Kim, Behr & Spafford', cover: '/media/books/phoenix-project.jpg' },
+    { title: 'High Output Management', author: 'Andrew S. Grove', cover: '/media/books/high-output-management.jpg' },
+  ],
+  // 1: Knowledge engineering. All [EXAMPLE].
+  [
+    { title: 'The Design of Everyday Things', author: 'Don Norman', cover: '/media/books/design-of-everyday-things.jpg' },
+    { title: 'Domain-Driven Design', author: 'Eric Evans', cover: '/media/books/domain-driven-design.jpg' },
+    { title: 'The Pragmatic Programmer', author: 'David Thomas & Andrew Hunt', cover: '/media/books/pragmatic-programmer.jpg' },
+    { title: 'Thinking in Systems', author: 'Donella H. Meadows', cover: '/media/books/thinking-in-systems.jpg' },
+  ],
+  // 2: AI & cognition. All [EXAMPLE].
+  [
+    { title: 'Thinking, Fast and Slow', author: 'Daniel Kahneman', cover: '/media/books/thinking-fast-and-slow.jpg' },
+    { title: 'The Alignment Problem', author: 'Brian Christian', cover: '/media/books/alignment-problem.jpg' },
+    { title: 'Prediction Machines', author: 'Agrawal, Gans & Goldfarb', cover: '/media/books/prediction-machines.jpg' },
+    { title: 'Deep Learning', author: 'Goodfellow, Bengio & Courville', cover: '/media/books/deep-learning.jpg' },
+  ],
+  // 3: Economics & finance. First two are [REAL]; the rest [EXAMPLE].
+  [
+    { title: 'Advances in Financial Machine Learning', author: 'Marcos López de Prado', cover: '/media/books/advances-financial-ml.jpg' },
+    { title: 'Systematic Trading', author: 'Robert Carver', cover: '/media/books/systematic-trading.jpg' },
+    { title: 'Against the Gods', author: 'Peter L. Bernstein', cover: '/media/books/against-the-gods.jpg' },
+    { title: 'This Time Is Different', author: 'Reinhart & Rogoff', cover: '/media/books/this-time-is-different.jpg' },
+  ],
+];
+// Build-time pre-pass: drop any cover whose file is missing or empty under
+// public/ so the spine placeholder renders instead of a dead <img>.
+const resolvedShelves = shelves.map((shelf) =>
+  shelf.map((b) => ({ ...b, cover: resolveCover(b.cover) })),
+);
 ---
 <section id="reading" class="reveal">
   <div class="container">
@@ -19,6 +67,26 @@ const themeIds = [0, 1, 2, 3] as const;
         <div class="reading-card">
           <div class="t">{t(`home.reading.themes.${i}.t`)}</div>
           <p>{t(`home.reading.themes.${i}.n`)}</p>
+          <ul class="book-shelf">
+            {resolvedShelves[i].map((b) => (
+              <li class="book">
+                <span class="cover">
+                  {b.cover && (
+                    <img
+                      src={b.cover}
+                      alt={`${b.title} cover`}
+                      loading="lazy"
+                      decoding="async"
+                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                    />
+                  )}
+                  <span class="spine" aria-hidden="true"><span>{b.title}</span><span class="sa">{b.author}</span></span>
+                </span>
+                <span class="bt">{b.title}</span>
+                <span class="ba">{b.author}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       ))}
     </div>
