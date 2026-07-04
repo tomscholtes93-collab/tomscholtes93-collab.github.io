@@ -87,7 +87,7 @@
   "home.now.items.orchestration.v": "A self-rescheduling job runner that drives build, browser self-test, and cross-machine test across multiple usage windows until the work completes.",
   "home.now.items.research.k": "Learning",
   "home.now.items.research.v": "A self-directed, project-based track in AI orchestration and automation engineering, anchored to a real build with a validation gate.",
-  "home.reading.blurb": "Themes I keep coming back to.",
+  "home.reading.blurb": "A curated shelf of standout books for each theme.",
   "home.reading.eyebrow": "Reading",
   "home.reading.heading": "Mostly non-fiction.",
   "home.reading.themes.0.n": "How operational excellence actually gets built and kept. Applies to finance ops as much as to engineering.",
