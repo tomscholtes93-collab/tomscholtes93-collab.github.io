@@ -7,44 +7,44 @@ const t = (k: string) => translate(k, locale);
 const themeIds = [0, 1, 2, 3] as const;
 
 // Bookshelf data, indexed by theme id. Titles and authors are proper nouns
-// and stay untranslated across locales. Covers are self-hosted under
-// public/media/books (fetched once from the Open Library Covers API,
-// optimized to <=40KB). A cover that is null, or whose file is missing or
-// empty at build time (resolveCover), renders the spine fallback instead of
-// an image; a cover that fails to load at runtime swaps to the same spine
-// via onerror. A broken-image icon never appears.
-// [REAL] marks Tom's actual working references. Every other entry is an
-// [EXAMPLE]: a canonical, domain-fitting placeholder to swap at review.
+// and stay untranslated across locales. A curated shelf of widely-recognized
+// top books per theme; every entry verified against the Open Library API
+// (title + author + the ISBN noted per line) on 2026-07-04. Covers are
+// self-hosted under public/media/books, fetched from the Open Library Covers
+// API by that ISBN and optimized to <=40KB. A cover that is null, or whose
+// file is missing or empty at build time (resolveCover), renders the spine
+// fallback instead of an image; a cover that fails to load at runtime swaps
+// to the same spine via onerror. A broken-image icon never appears.
 // Captions stay neutral: title + author only.
 type Book = { title: string; author: string; cover: string | null };
 const shelves: readonly Book[][] = [
-  // 0: Systems & ops quality. All [EXAMPLE].
+  // 0: Systems & ops quality
   [
-    { title: 'The Checklist Manifesto', author: 'Atul Gawande', cover: '/media/books/checklist-manifesto.jpg' },
-    { title: 'The Goal', author: 'Eliyahu Goldratt & Jeff Cox', cover: '/media/books/the-goal.jpg' },
-    { title: 'The Phoenix Project', author: 'Kim, Behr & Spafford', cover: '/media/books/phoenix-project.jpg' },
-    { title: 'High Output Management', author: 'Andrew S. Grove', cover: '/media/books/high-output-management.jpg' },
+    { title: 'The Checklist Manifesto', author: 'Atul Gawande', cover: '/media/books/checklist-manifesto.jpg' }, // ISBN 9780805091748
+    { title: 'The Goal', author: 'Eliyahu Goldratt & Jeff Cox', cover: '/media/books/the-goal.jpg' }, // ISBN 9780884271956
+    { title: 'The Phoenix Project', author: 'Kim, Behr & Spafford', cover: '/media/books/phoenix-project.jpg' }, // ISBN 9781942788294
+    { title: 'High Output Management', author: 'Andrew S. Grove', cover: '/media/books/high-output-management.jpg' }, // ISBN 9780679762881
   ],
-  // 1: Knowledge engineering. All [EXAMPLE].
+  // 1: Knowledge engineering
   [
-    { title: 'The Design of Everyday Things', author: 'Don Norman', cover: '/media/books/design-of-everyday-things.jpg' },
-    { title: 'Domain-Driven Design', author: 'Eric Evans', cover: '/media/books/domain-driven-design.jpg' },
-    { title: 'The Pragmatic Programmer', author: 'David Thomas & Andrew Hunt', cover: '/media/books/pragmatic-programmer.jpg' },
-    { title: 'Thinking in Systems', author: 'Donella H. Meadows', cover: '/media/books/thinking-in-systems.jpg' },
+    { title: 'The Design of Everyday Things', author: 'Don Norman', cover: '/media/books/design-of-everyday-things.jpg' }, // ISBN 9780465050659
+    { title: 'Domain-Driven Design', author: 'Eric Evans', cover: '/media/books/domain-driven-design.jpg' }, // ISBN 9780321125217
+    { title: 'The Pragmatic Programmer', author: 'David Thomas & Andrew Hunt', cover: '/media/books/pragmatic-programmer.jpg' }, // ISBN 9780135957059
+    { title: 'Thinking in Systems', author: 'Donella H. Meadows', cover: '/media/books/thinking-in-systems.jpg' }, // ISBN 9781603580557
   ],
-  // 2: AI & cognition. All [EXAMPLE].
+  // 2: AI & cognition
   [
-    { title: 'Thinking, Fast and Slow', author: 'Daniel Kahneman', cover: '/media/books/thinking-fast-and-slow.jpg' },
-    { title: 'The Alignment Problem', author: 'Brian Christian', cover: '/media/books/alignment-problem.jpg' },
-    { title: 'Prediction Machines', author: 'Agrawal, Gans & Goldfarb', cover: '/media/books/prediction-machines.jpg' },
-    { title: 'Deep Learning', author: 'Goodfellow, Bengio & Courville', cover: '/media/books/deep-learning.jpg' },
+    { title: 'Thinking, Fast and Slow', author: 'Daniel Kahneman', cover: '/media/books/thinking-fast-and-slow.jpg' }, // ISBN 9780374275631
+    { title: 'The Alignment Problem', author: 'Brian Christian', cover: '/media/books/alignment-problem.jpg' }, // ISBN 9780393635829
+    { title: 'Prediction Machines', author: 'Agrawal, Gans & Goldfarb', cover: '/media/books/prediction-machines.jpg' }, // ISBN 9781633695672
+    { title: 'Deep Learning', author: 'Goodfellow, Bengio & Courville', cover: '/media/books/deep-learning.jpg' }, // ISBN 9780262035613
   ],
-  // 3: Economics & finance. First two are [REAL]; the rest [EXAMPLE].
+  // 3: Economics & finance
   [
-    { title: 'Advances in Financial Machine Learning', author: 'Marcos López de Prado', cover: '/media/books/advances-financial-ml.jpg' },
-    { title: 'Systematic Trading', author: 'Robert Carver', cover: '/media/books/systematic-trading.jpg' },
-    { title: 'Against the Gods', author: 'Peter L. Bernstein', cover: '/media/books/against-the-gods.jpg' },
-    { title: 'This Time Is Different', author: 'Reinhart & Rogoff', cover: '/media/books/this-time-is-different.jpg' },
+    { title: 'Advances in Financial Machine Learning', author: 'Marcos López de Prado', cover: '/media/books/advances-financial-ml.jpg' }, // ISBN 9781119482086
+    { title: 'Systematic Trading', author: 'Robert Carver', cover: '/media/books/systematic-trading.jpg' }, // ISBN 9780857194459
+    { title: 'Against the Gods', author: 'Peter L. Bernstein', cover: '/media/books/against-the-gods.jpg' }, // ISBN 9780471121046
+    { title: 'This Time Is Different', author: 'Reinhart & Rogoff', cover: '/media/books/this-time-is-different.jpg' }, // ISBN 9780691142166
   ],
 ];
 // Build-time pre-pass: drop any cover whose file is missing or empty under
