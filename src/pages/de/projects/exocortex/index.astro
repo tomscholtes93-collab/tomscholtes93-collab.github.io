@@ -9,7 +9,7 @@ import NoteLink from '../../../../components/NoteLink.astro';
 ---
 <Base
   title="Persönliches KI-Exocortex · Tom Scholtes"
-  description="Ein persönlicher KI-Assistent auf smart glasses: Stimme aus den Gläsern, Pipeline über selbst gehostete Infrastruktur auf Fedora, geroutet über Claude Max, sodass keine Per-Token-API-Abrechnung anfällt. Mehrsprachig."
+  description="Ein persönlicher KI-Assistent auf smart glasses: Stimme aus den Gläsern, die Pipeline läuft auf selbst gehosteter Infrastruktur zu Hause, geroutet über Claude Max, sodass keine Per-Token-API-Abrechnung anfällt. Zwei Workstations in einem privaten Mesh, eine überlebensfähige Orchestrierungsschicht, ein geschichtetes Gedächtnis und von Tag eins an mehrsprachig."
   path="/projects/exocortex/"
 >
   <Nav active="projects" />
@@ -17,11 +17,17 @@ import NoteLink from '../../../../components/NoteLink.astro';
   <main>
     <header class="paper">
       <div class="container">
-        <span class="eyebrow">Nebenprojekt · laufend · Mai 2026</span>
+        <span class="eyebrow">Nebenprojekt · laufend seit Mai 2026</span>
         <h1 class="title">Stimme auf den Gläsern, <em>Claude</em> auf dem Server.</h1>
         <p class="sub">
-          Ein persönliches KI-Exocortex, zugänglich über Even Realities G2 smart glasses. Sprachabfrage auf den Gläsern, vollständige Pipeline läuft über selbst gehostete Infrastruktur auf einem Fedora-Server, alles geroutet über
-          <NoteLink slug="self-hosted-rag-claude-max">Claude Max OAuth</NoteLink>, sodass keine Per-Token-API-Abrechnung anfällt. Vom ersten Tag an mehrsprachig (Englisch, Deutsch, Russisch, Französisch) mit einer persönlichen Wissensbasis, die im Hintergrund ingestiert.
+          Ein persönliches KI-Exocortex, zugänglich über Even Realities G2 smart
+          glasses. Sprachabfrage auf den Gläsern, die vollständige Pipeline läuft
+          auf selbst gehosteter Infrastruktur zu Hause, alles geroutet über
+          <NoteLink slug="self-hosted-rag-claude-max">Claude Max OAuth</NoteLink>, sodass keine Per-Token-API-Abrechnung anfällt. Was
+          als ein Server begann, sind jetzt zwei Fedora-Workstations, ein Telefon
+          und die Brille in einem privaten Mesh, mit einer überlebensfähigen
+          Orchestrierungsschicht und einem geschichteten Gedächtnis dahinter. Vom
+          ersten Tag an mehrsprachig (Englisch, Deutsch, Russisch, Französisch).
         </p>
 
         <div class="actions">
@@ -31,10 +37,10 @@ import NoteLink from '../../../../components/NoteLink.astro';
 
         <div class="meta-row">
           <span><strong>4</strong> Arbeitssprachen</span>
-          <span><strong>~1-3 s</strong> Sonnet-Roundtrip von den Gläsern</span>
+          <span><strong>~1-3 s</strong> Sprach-Roundtrip von den Gläsern</span>
           <span><strong>$0</strong> Grenz-API-Kosten (Claude Max OAuth)</span>
-          <span><strong>1</strong> dauerhaft laufender Dienst (Meridian)</span>
-          <span><strong>Tag 5</strong> · Basisprozess abgeschlossen</span>
+          <span><strong>2</strong> Workstations in einem privaten Mesh</span>
+          <span><strong>1</strong> dauerhaft laufender Dienst</span>
         </div>
       </div>
     </header>
@@ -46,10 +52,18 @@ import NoteLink from '../../../../components/NoteLink.astro';
         <span class="eyebrow">Die Prämisse</span>
         <h2 class="h">Gespräch als primärer Input.</h2>
         <p class="lead">
-          Sich an einen Laptop setzen, ein Terminal öffnen, eine Frage tippen; diese ganze Schleife ist zu schwer für das meiste, was ich eine KI im Lauf eines Tages fragen will. Die Brille entfernt die Schleife. Stimme geht über das Knochenleitungsmikrofon hinein, ein paar Sekunden später lebt die Antwort auf den Gläsern. Kein Gerät aus der Tasche genommen, keine App geöffnet, kein Kontextwechsel.
+          Sich an einen Laptop setzen, ein Terminal öffnen, eine Frage tippen;
+          diese ganze Schleife ist zu schwer für das meiste, was ich eine KI im
+          Lauf eines Tages fragen will. Die Brille entfernt die Schleife. Stimme
+          geht über das Knochenleitungsmikrofon hinein, ein paar Sekunden später
+          lebt die Antwort auf den Gläsern. Kein Gerät aus der Tasche genommen,
+          keine App geöffnet, kein Kontextwechsel.
         </p>
         <p>
-          Das Ziel ist nicht, den Laptop für echte Arbeit zu ersetzen; es ist, die Zehn-Sekunden-Fragen tatsächlich zehn Sekunden dauern zu lassen, statt einer Minute Reibung, die dazu führt, dass sie nie gestellt werden.
+          Das Ziel ist nicht, den Laptop für echte Arbeit zu ersetzen; es ist,
+          die Zehn-Sekunden-Fragen tatsächlich zehn Sekunden dauern zu lassen,
+          statt einer Minute Reibung, die dazu führt, dass sie nie gestellt
+          werden.
         </p>
       </div>
     </section>
@@ -59,30 +73,112 @@ import NoteLink from '../../../../components/NoteLink.astro';
         <span class="eyebrow">Architektur</span>
         <h2 class="h">Selbst gehostet, Ende-zu-Ende.</h2>
         <p class="lead">
-          Stimme und Anzeige passieren auf den Gläsern. Alles andere läuft auf einem Fedora-Server zu Hause. Die Brille erreicht den Server über Tailscale, sodass die Latenz selbst dann ~6 ms beträgt, wenn ich nicht am Schreibtisch sitze.
+          Stimme und Anzeige passieren auf den Gläsern. Alles andere läuft zu
+          Hause. Das Setup ist von einem einzelnen Server auf zwei
+          Fedora-Workstations, das Telefon und die Brille gewachsen, alle in
+          einem privaten Mesh, erreicht über ein verschlüsseltes Overlay und SSH,
+          sodass die Latenz selbst dann nahe LAN bleibt (~6 ms), wenn ich nicht am
+          Schreibtisch sitze. Eine Workstation ist immer an und hält das Gedächtnis
+          und die Brücke von den Gläsern zu Claude; die andere ist ein
+          Compute-Node, der schwerere, orchestrierte Arbeit ausführt.
         </p>
 
         <ArchitectureExocortex />
 
         <div class="arch" style="margin-top:28px">
-<pre>G2-Brille                   (Stimme rein, Linsen-Anzeige raus)
+<pre>G2 glasses                (Stimme rein, Linsen-Anzeige raus)
     ↓ Bluetooth
-Pixel-7-Telefon              (Even-Realities-Companion-App)
-    ↓ Tailscale (LAN, ~6 ms)
-Fedora-43-Server
-    ↳ Even Terminal :3456     (die Brücke der Brille zu Claude)
-        ↳ Claude Code         (gepatcht: Sonnet-Default, MCPs auf Allowlist)
-            ↳ CLAUDE.md       (eine Quelle der Wahrheit für Tool-Routing)
-            ↳ openkb MCP      (persönliche Wissensbasis, stdio FastMCP)
-                ↳ openkb CLI
-                    ↳ LiteLLM → Meridian :4000 → Claude Max OAuth
-                        ↳ Sonnet 4.6
-            ↳ Notion / Asana / Calendar / Gmail MCPs
-            ↳ opus-thinker     (Subagent, beim wörtlichen "opus")</pre>
+Phone                     (Companion, Mesh-Node)
+    ↓ private mesh (verschlüsseltes Overlay + SSH, ~6 ms)
+Home · two Fedora workstations on one mesh
+    ↳ Always-on node      (Gedächtnis + die Brücke der Gläser zu Claude)
+        ↳ Claude Code     (schnelles Modell als Default, tiefes Modell per Opt-in)
+            ↳ Knowledge base   (selbst gehostet, erreicht über MCP)
+            ↳ Notes / Calendar / Mail (über MCP, pro Anfrage begrenzt)
+        ↳ Model router    (hält die Claude-Max-Session; keine Per-Token-Abrechnung)
+    ↳ Compute node        (orchestrierte schwere Jobs, überlebensfähige Worker)</pre>
         </div>
         <p style="margin-top:24px">
-          Eine systemd-Unit (Meridian) läuft dauerhaft; alles andere startet bei Bedarf. MCP-Server sind stdio-Subprozesse, die Claude Code beim Tool-Aufruf erzeugt; es gibt keinen Daemon, keinen Port, keinen Container.
+          Ein Dienst ist immer an; alles andere startet bei Bedarf. Die
+          MCP-Endpunkte sind stdio-Subprozesse, die der Agent beim Tool-Aufruf
+          erzeugt; es gibt keinen Daemon, keinen Bind-Port, keinen Container.
         </p>
+      </div>
+    </section>
+
+    <section class="reveal" id="orchestration">
+      <div class="container paper-body">
+        <span class="eyebrow">Die Orchestrierungsschicht</span>
+        <h2 class="h">Einmal sagen. Weggehen.</h2>
+        <p class="lead">
+          Das Ding auf den Gläsern bleibt dünn und schnell, sodass eine Frage
+          weiterhin in Sekunden zurückkommt. Wenn ein Job wirklich schwer ist,
+          wird er an einen Hintergrund-Orchestrator übergeben, der auf dem
+          Compute-Node läuft, die Arbeit plant und Worker-Sessions abschickt, die
+          das Gespräch überdauern, das sie gestartet hat. Das ist dieselbe Idee
+          wie mein
+          <NoteLink slug="mcp-workstream">MCP-Dev-Squad</NoteLink>, DevSwarm, gerichtet auf Alltagsarbeit statt auf Code.
+        </p>
+        <div class="feats">
+          <div class="feat">
+            <div class="feat-name">Co-Partner</div>
+            <div class="feat-tag">immer an · dünn</div>
+            <div class="feat-desc">Die Schicht, mit der man tatsächlich spricht. Sie beantwortet die schnellen Fragen selbst und übergibt alles Schwere an den Orchestrator, sodass die Gläser nie auf einen langen Job warten.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Orchestrator</div>
+            <div class="feat-tag">plant · verteilt</div>
+            <div class="feat-desc">Ein Hintergrundprozess, der eine Anfrage in einen Plan verwandelt und dann die Worker-Sessions erzeugt, die ihn ausführen. Er blockiert das Gespräch nie.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Überlebensfähiger Worker</div>
+            <div class="feat-tag">abgekoppelt · PPID 1</div>
+            <div class="feat-desc">Eine abgekoppelte Session, die weiterläuft, selbst nachdem die Gläser-Session geschlossen wurde. Sie erledigt den Job eigenständig bis zum Ende und stoppt dann.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Konvergenzbericht</div>
+            <div class="feat-tag">Dateien auf der Platte</div>
+            <div class="feat-desc">Jeder Worker meldet Fortschritt und ein Endergebnis in einfache Dateien auf der Platte. Status ist eine Zeile, die man jederzeit lesen kann, kein Stream, den man beobachten muss.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="memory">
+      <div class="container paper-body">
+        <span class="eyebrow">Gedächtnis &amp; Ontologie</span>
+        <h2 class="h">Ein Logbuch, kein Geist.</h2>
+        <p class="lead">
+          Die einzige echte Superkraft des Assistenten ist, dass er sich
+          <NoteLink slug="the-remembering-assistant">merkt, was ich ihn zu merken gebeten habe</NoteLink>. Das Gedächtnis ist ein Verzeichnis kleiner
+          Textdateien, keine Embedding-Wolke, die ich nicht sehen kann: explizit,
+          sodass nichts still aufgenommen wird; einsehbar, sodass ich jederzeit
+          alles lesen kann, was im Gedächtnis liegt; begrenzt, sodass der Default
+          Vergessen ist und Behalten die Ausnahme, die einen Grund braucht.
+        </p>
+        <p>
+          Die Schichten stapeln sich von roh zu dauerhaft. Eine heute-verfasste
+          Staging-Inbox speist ein reines Anhänge-Archiv dessen, was tatsächlich
+          gesagt wurde, das eine autoritative Profilschicht speist, die die Quelle
+          der Wahrheit ist. Ein nächtlicher Durchlauf erledigt die Konsolidierung
+          so, wie ich sie früher sonntags von Hand gemacht habe:
+          <NoteLink slug="when-the-assistant-sleeps">Konsolidierung im Schlaf</NoteLink>, entlehnt daran, wie ein Gehirn den Tag über Nacht in
+          stabile Struktur faltet, mit harten Gates (Identität, Gesundheit,
+          Finanzen und Recht kommen immer zu mir hoch) und einem git-Commit vor
+          jedem Apply als Rollback-Handhabe.
+        </p>
+        <dl class="stack">
+          <dt>Profilschicht</dt>
+          <dd>Die autoritative Menge dauerhafter Fakten. Nie still bearbeitet; Änderungen werden einer Staging-Datei vorgeschlagen und bei der Durchsicht übernommen.</dd>
+          <dt>Archiv</dt>
+          <dd>Ein reines Anhänge-Log dessen, was gesagt wurde, Tag für Tag. Die Quelle der Wahrheit dafür, was geschah, getrennt von dem, was behalten wurde.</dd>
+          <dt>Inbox</dt>
+          <dd>Die Staging-Zone für Kandidaten-Fakten, die im Lauf des Tages verfasst und gehalten werden, bis der nächtliche Durchlauf oder eine manuelle Durchsicht über Behalten oder Vergessen entscheidet.</dd>
+          <dt>Ontologie</dt>
+          <dd>Ein abgeleiteter Graph über die behaltenen Fakten: jeder Fakt trägt einen Typ und verlinkt zu verwandten, und eine selbst gehostete Wissensbasis kompiliert Quelldokumente zu einem abfragbaren Wiki mit dokumentübergreifenden Links.</dd>
+          <dt>Abruf</dt>
+          <dd>Ein <NoteLink slug="self-hosted-rag-claude-max">selbst gehostetes RAG</NoteLink> über diesem Korpus, erreicht über einen Sprachbefehl, ohne einen Drittanbieter-Indexdienst dazwischen.</dd>
+        </dl>
       </div>
     </section>
 
@@ -91,38 +187,78 @@ Fedora-43-Server
         <span class="eyebrow">Was End-to-End funktioniert</span>
         <h2 class="h">Verifiziert, auf den Gläsern.</h2>
         <p class="lead">
-          Stand Tag fünf: jeder dieser Pfade läuft sauber von einer Sprach-Eingabe bis zu einer Linsen-Anzeige. Der Tag in eckigen Klammern ist das Modell- + Tool-Use-Signal, das jede Antwort trägt, sodass ich immer weiß, welcher Pfad die Anfrage bedient hat.
+          Jeder dieser Pfade läuft sauber von einer Sprach-Eingabe bis zu einer
+          Linsen-Anzeige. Der Tag in eckigen Klammern ist das Modell- und
+          Tool-Use-Signal, das jede Antwort trägt, sodass ich immer weiß, welcher
+          Pfad die Anfrage bedient hat.
         </p>
         <div class="feats">
           <div class="feat">
             <div class="feat-name">Direkte Wissensabfrage</div>
             <div class="feat-tag">[sonnet] · ~1-3 s</div>
-            <div class="feat-desc">Stimme rein, Sonnet 4.6 antwortet aus dem Training, die Gläser zeigen das Ergebnis. Der Default-Pfad für die meisten Fragen.</div>
+            <div class="feat-desc">Stimme rein, das schnelle Modell antwortet aus dem Training, die Gläser zeigen das Ergebnis. Der Default-Pfad für die meisten Fragen.</div>
           </div>
           <div class="feat">
             <div class="feat-name">Persönlicher KB-Abruf</div>
             <div class="feat-tag">[sonnet + 1 Tool-Aufruf] · ~5-10 s</div>
-            <div class="feat-desc">Explizite Invokation liest aus dem lokalen openkb-Wiki: Verträge, Verwahrungs-Docs, Recherche, alles, was ingestiert ist.</div>
+            <div class="feat-desc">Explizite Invokation liest aus der lokalen Wissensbasis: Verträge, Referenzdokumente, Recherche, alles Ingestierte.</div>
           </div>
           <div class="feat">
-            <div class="feat-name">Notion-Schreiben per Stimme</div>
+            <div class="feat-name">Notizen per Stimme schreiben</div>
             <div class="feat-tag">[sonnet + 1 Tool-Aufruf]</div>
-            <div class="feat-desc">"Speichere das in Notion unter X" erzeugt eine Seite im richtigen Teamspace. Routing-Regeln leben in CLAUDE.md.</div>
+            <div class="feat-desc">"Speichere das unter X" erzeugt eine Seite am richtigen Ort. Routing-Regeln leben in einer Konfigurationsdatei, nicht in der Leitung.</div>
           </div>
           <div class="feat">
             <div class="feat-name">Tiefes Nachdenken auf Abruf</div>
             <div class="feat-tag">[opus-Subagent] · ~30-60 s</div>
-            <div class="feat-desc">Das wörtliche "opus" im Prompt eskaliert zu einem claude-opus-4-7-Subagenten. Bewusst langsam, für schwere Fragen.</div>
+            <div class="feat-desc">Das wörtliche Wort "opus" in einem Prompt eskaliert zu einem Subagenten für tiefes Nachdenken. Bewusst langsam, für schwere Fragen verwendet.</div>
           </div>
           <div class="feat">
             <div class="feat-name">Selbstheilende Dienste</div>
             <div class="feat-tag">systemd</div>
-            <div class="feat-desc">Sowohl Meridian als auch Even Terminal starten automatisch neu. Logs fließen in journalctl. Deckel zu am Netzteil hält die Kiste am Laufen.</div>
+            <div class="feat-desc">Der dauerhaft laufende Dienst und die Gläser-Brücke starten automatisch neu. Logs fließen ins Journal. Deckel zu am Netzteil hält die Kiste am Laufen.</div>
           </div>
           <div class="feat">
-            <div class="feat-name">Sechs-von-sechs-Healthcheck</div>
+            <div class="feat-name">Healthcheck mit einem Befehl</div>
             <div class="feat-tag">ein Befehl</div>
-            <div class="feat-desc">Ein einziges Skript prüft alle sechs beweglichen Teile: Even Terminal lauscht, Meridian antwortet, openkb erreichbar, MCP registriert, claude-CLI authentifiziert, Tailscale oben.</div>
+            <div class="feat-desc">Ein einziges Skript verifiziert die beweglichen Teile Ende-zu-Ende: die Brücke lauscht, der Router antwortet, die Wissensbasis erreichbar, die Tool-Schnittstelle registriert, die CLI authentifiziert, das Mesh oben.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="video">
+      <div class="container paper-body">
+        <span class="eyebrow">Erklärvideo</span>
+        <h2 class="h">Der Film oben, erklärt.</h2>
+        <p class="lead">
+          Jede Projektseite trägt einen kurzen Erklärfilm in kinetischer
+          Typografie, und der oben wurde genauso gebaut wie der Rest. Kein
+          Stock-Footage und keine Bildschirmaufnahme; jedes Bild wird von Code
+          gezeichnet, von einer lokalen neuronalen Stimme erzählt und aus einem
+          Briefing pro Seite zusammengesetzt, das jede Szene auf Formulierungen
+          zurückführt, die bereits auf der Seite stehen.
+        </p>
+        <div class="feats">
+          <div class="feat">
+            <div class="feat-name">Briefing pro Seite</div>
+            <div class="feat-tag">eine Quelle</div>
+            <div class="feat-desc">Ein einziges Briefing pro Seite definiert die Szenen, den Bildschirmtext und die Erzählung und heftet jede Aussage an eine Zeile, die bereits auf der Seite existiert.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Code-getriebene Animation</div>
+            <div class="feat-tag">Manim</div>
+            <div class="feat-desc">Szenen werden mit Manim aus einem gemeinsamen Vokabular von Helfern gerendert, sodass die ganze Video-Reihe eine Palette, eine Bewegungssprache und einen Look teilt.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Lokale neuronale Stimme</div>
+            <div class="feat-tag">TTS auf dem Gerät</div>
+            <div class="feat-desc">Die Erzählung wird von einer lokalen neuronalen Text-to-Speech-Stimme erzeugt, sodass weder Skript noch Audio je die Maschine verlassen, um einen gehosteten Dienst zu erreichen.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Integritäts-Gate</div>
+            <div class="feat-tag">keine Leaks · keine Erfindung</div>
+            <div class="feat-desc">Jedes Briefing wird vor dem Ausliefern geprüft: kein Geviertstrich, kein Durchsickern von Namen oder Infrastruktur und keine Aussage, die nicht bereits auf der Seite steht.</div>
           </div>
         </div>
       </div>
@@ -135,23 +271,23 @@ Fedora-43-Server
         <div class="lessons">
           <div class="lesson">
             <span class="lesson-kind">Auth-Caching</span>
-            <span class="lesson-text"><strong>Stale-Token-401-Schleife.</strong> Den Auth-Token in der Companion-App zu bearbeiten reicht nicht; die App cached Sessions. Sie müssen die App zwangs-stoppen, neu öffnen, den Token erneut einfügen, prüfen und speichern. Ohne Zwangs-Stopp stapeln sich hunderte 401er im Bridge-Log und Linsen-Anfragen hängen ewig.</span>
+            <span class="lesson-text"><strong>Stale-Token-401-Schleife.</strong> Den Auth-Token in der Companion-App zu bearbeiten reicht nicht; die App cached Sessions. Man muss die App zwangs-stoppen, neu öffnen, den Token erneut einfügen, prüfen und speichern. Ohne den Zwangs-Stopp stapeln sich hunderte 401er im Brücken-Log und Linsen-Anfragen hängen ewig.</span>
           </div>
           <div class="lesson">
             <span class="lesson-kind">systemd-Typ</span>
-            <span class="lesson-text"><strong>Type=forking + tmux übersteht Restart.</strong> Die tmux-Session der Bridge-Unit erhält Auth über <code>systemctl restart</code> hinweg; man kann patchen und neu starten, ohne das Telefon neu zu pairen. Type=simple macht das Gegenteil. Auf die harte Tour gelernt nach viermaligem Re-Pairing.</span>
+            <span class="lesson-text"><strong>Type=forking + tmux übersteht den Neustart.</strong> Die tmux-Session des Brücken-Dienstes erhält die Auth über einen Neustart hinweg; man kann patchen und neu starten, ohne das Telefon neu zu pairen. Type=simple macht das Gegenteil. Auf die harte Tour gelernt nach viermaligem Neu-Pairen.</span>
           </div>
           <div class="lesson">
             <span class="lesson-kind">API-Key-Hygiene</span>
-            <span class="lesson-text"><strong>Überall <code>ANTHROPIC_API_KEY</code> entsetzen.</strong> Wenn er in irgendeiner Shell gesetzt ist, umgeht LiteLLM den Meridian-Proxy still und stellt die echte API in Rechnung. Der ganze Punkt des Routings über Claude Max OAuth ist, die Grenzkosten bei null zu halten; eine verirrte Env-Var verbrennt das.</span>
+            <span class="lesson-text"><strong>Überall <code>ANTHROPIC_API_KEY</code> entfernen.</strong> Wenn er in irgendeiner Shell gesetzt ist, umgeht der Client den lokalen Router und stellt still die echte API in Rechnung. Der ganze Sinn des Routings über Claude Max OAuth ist, die Grenzkosten bei null zu halten; eine verirrte Env-Var verbrennt das.</span>
           </div>
           <div class="lesson">
             <span class="lesson-kind">Modellwahl</span>
-            <span class="lesson-text"><strong>openkb kompiliert auf Sonnet, nicht Haiku.</strong> Das ursprüngliche Architektur-Dokument sagte Haiku für den Wiki-Compile-Schritt. In der Praxis produziert Sonnet 4.6 stärkere Konzeptverknüpfungen und dichtere Cross-Doc-Graphen, und der Geschwindigkeitsunterschied spielt für einen Hintergrund-Job keine Rolle.</span>
+            <span class="lesson-text"><strong>Die Wissensbasis kompiliert auf dem schnellen Modell, nicht dem kleinsten.</strong> Das ursprüngliche Architektur-Dokument nannte das kleinste Modell für den Wiki-Compile-Schritt. In der Praxis produziert das schnelle Modell stärkere Konzeptverknüpfungen und dichtere Cross-Doc-Graphen, und der Geschwindigkeitsunterschied spielt für einen Hintergrund-Job keine Rolle.</span>
           </div>
           <div class="lesson">
             <span class="lesson-kind">Opt-in-Eskalation</span>
-            <span class="lesson-text"><strong>Opus ist nur Opt-in.</strong> Default Sonnet für Geschwindigkeit, Eskalation zu claude-opus-4-7 nur, wenn der Prompt wörtlich "opus" oder "use opus" enthält. Jede Antwort trägt einen Tag (<code>[sonnet]</code>, <code>[sonnet + N Tool-Aufrufe]</code>, <code>[opus-Subagent]</code>), sodass man immer weiß, welcher Pfad geantwortet hat.</span>
+            <span class="lesson-text"><strong>Das tiefe Modell ist nur Opt-in.</strong> Standardmäßig das schnelle Modell für Geschwindigkeit, Eskalation nur, wenn der Prompt wörtlich "opus" oder "use opus" enthält. Jede Antwort trägt einen Tag (<code>[sonnet]</code>, <code>[sonnet + N tool calls]</code>, <code>[opus subagent]</code>), sodass man immer weiß, welcher Pfad geantwortet hat.</span>
           </div>
         </div>
       </div>
@@ -163,21 +299,23 @@ Fedora-43-Server
         <h2 class="h">Ehrlich über das, was drin ist.</h2>
         <dl class="stack">
           <dt>Hardware</dt>
-          <dd>Even Realities G2 smart glasses · Pixel-7-Telefon · heimischer Fedora-43-Server · Smart Ring als zweite biometrische Erfassung. Tailscale-Mesh zwischen allen.</dd>
+          <dd>Even Realities G2 smart glasses · ein Telefon · zwei Fedora-Workstations zu Hause · ein Smart Ring als sekundäre biometrische Erfassung. Ein privates Mesh zwischen allen.</dd>
           <dt>Modelle</dt>
-          <dd>Claude Sonnet 4.6 als Default (<code>claude-sonnet-4-6</code>), Claude Opus 4.7 (<code>claude-opus-4-7</code>) auf Opt-in. Beide geroutet über Meridian, das per OAuth mit Claude Max spricht.</dd>
+          <dd>Ein schnelles Claude-Modell als Default, ein tieferes Claude-Modell bei Opt-in-Eskalation. Beide geroutet über einen lokalen Model-Router, der per OAuth mit Claude Max spricht.</dd>
           <dt>Bridge</dt>
-          <dd>Even Terminal (vendored, in-place gepatcht) auf <code>:3456</code>. Patch ist idempotent und übersteht npm-Upgrades.</dd>
+          <dd>Eine vendored Terminal-Brücke, in-place gepatcht, die die Gläser mit dem Agenten verbindet. Der Patch ist idempotent und übersteht Upgrades.</dd>
           <dt>Wissen</dt>
-          <dd>openkb, eine selbst gehostete persönliche KB mit FastMCP-stdio-Schnittstelle. Kompiliert ein abfragbares Wiki aus PDFs, Verträgen, Recherche-Notizen, Journals. Sonnet 4.6 macht den Compile.</dd>
+          <dd>Eine selbst gehostete persönliche Wissensbasis mit einer stdio-MCP-Schnittstelle. Sie kompiliert ein abfragbares Wiki aus PDFs, Verträgen, Recherche-Notizen und Journalen, und das schnelle Modell macht den Compile.</dd>
           <dt>Tool-Routing</dt>
-          <dd>Eine <code>CLAUDE.md</code> wird über <code>--setting-sources=user,project</code> automatisch in jede Session geladen. Explizite Regeln: openkb nur bei expliziter Invokation, Notion für "meine Notizen", Websuche für aktuelle Ereignisse, internes Wissen für alles andere.</dd>
+          <dd>Eine <code>CLAUDE.md</code>, automatisch in jede Session geladen. Explizite Regeln: die Wissensbasis nur bei expliziter Invokation, Notizen für "meine Notizen", Websuche für aktuelle Ereignisse, internes Wissen für alles andere.</dd>
+          <dt>Orchestrierung</dt>
+          <dd>Ein dünner Co-Partner auf den Gläsern übergibt schwere Arbeit an einen Hintergrund-Orchestrator auf dem Compute-Node, der überlebensfähige Worker abschickt, die in Dateien auf der Platte berichten.</dd>
           <dt>Dauerhaft an</dt>
-          <dd>Eine systemd-Unit (<code>meridian.service</code>, Type=simple). Alles andere startet bei Bedarf.</dd>
+          <dd>Ein Dienst ist immer an. Alles andere startet bei Bedarf.</dd>
           <dt>Sprachen</dt>
-          <dd>Englisch, Deutsch, Russisch, Französisch, live im Einsatz; juristisches und steuerliches Korpus ingestiert nachts in jeder.</dd>
+          <dd>Englisch, Deutsch, Russisch, Französisch, live im Einsatz; ein juristisches und steuerliches Korpus, das nachts in jeder ingestiert.</dd>
           <dt>Was kommt</dt>
-          <dd>POV-Videoaufnahme von den Gläsern in eine passive Gedächtnisschleife; eine kalenderbewusste Morgenbriefing-Pipeline; ein Personal-Life-Agentenschwarm im Geist von DevSwarm, aber für Nicht-Dev-Arbeit.</dd>
+          <dd>POV-Videoaufnahme von den Gläsern in eine passive Gedächtnisschleife; ein kalenderbewusstes Morgenbriefing; die Tool-Routing-Regeln für das Modell selbst lesbar machen, sodass es zur Anfragezeit wählt, statt einer festen Liste zu folgen.</dd>
         </dl>
       </div>
     </section>
