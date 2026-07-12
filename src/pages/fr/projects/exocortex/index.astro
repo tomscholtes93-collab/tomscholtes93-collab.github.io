@@ -38,7 +38,7 @@ import NoteLink from '../../../../components/NoteLink.astro';
 
         <div class="meta-row">
           <span><strong>4</strong> langues opérationnelles</span>
-          <span><strong>~1-3 s</strong> aller-retour vocal depuis les verres</span>
+          <span><strong>Opus 4.8</strong> par défaut sur chaque chemin, verres inclus</span>
           <span><strong>$0</strong> coût marginal API (Claude Max OAuth)</span>
           <span><strong>2</strong> postes de travail sur un même mesh privé</span>
           <span><strong>1</strong> service toujours actif</span>
@@ -93,7 +93,7 @@ Phone                     (compagnon, nœud du mesh)
     ↓ private mesh (overlay chiffré + SSH, ~6 ms)
 Home · two Fedora workstations on one mesh
     ↳ Always-on node      (mémoire + le pont des lunettes vers Claude)
-        ↳ Claude Code     (modèle rapide par défaut, modèle profond en opt-in)
+        ↳ Claude Code     (Claude Opus 4.8 par défaut ; modèle plus lourd seulement en opt-in)
             ↳ Knowledge base   (auto-hébergée, jointe via MCP)
             ↳ Notes / Calendar / Mail (via MCP, cadrés par requête)
         ↳ Model router    (détient la session Claude Max ; pas de facture au token)
@@ -197,23 +197,23 @@ Home · two Fedora workstations on one mesh
         <div class="feats">
           <div class="feat">
             <div class="feat-name">Requête directe sur les connaissances</div>
-            <div class="feat-tag">[sonnet] · ~1-3 s</div>
-            <div class="feat-desc">Voix en entrée, le modèle rapide répond depuis l'entraînement, les verres affichent le résultat. Le chemin par défaut pour la plupart des questions.</div>
+            <div class="feat-tag">[opus 4.8] · quelques secondes</div>
+            <div class="feat-desc">Voix en entrée, Claude Opus 4.8 répond depuis l'entraînement, les verres affichent le résultat. Le chemin par défaut pour la plupart des questions.</div>
           </div>
           <div class="feat">
             <div class="feat-name">Récupération depuis la KB personnelle</div>
-            <div class="feat-tag">[sonnet + 1 appel d'outil] · ~5-10 s</div>
+            <div class="feat-tag">[opus 4.8 + 1 appel d'outil] · ~5-10 s</div>
             <div class="feat-desc">Invocation explicite qui lit depuis la base de connaissances locale : contrats, documents de référence, recherche, tout ce qui a été ingéré.</div>
           </div>
           <div class="feat">
             <div class="feat-name">Écritures de notes à la voix</div>
-            <div class="feat-tag">[sonnet + 1 appel d'outil]</div>
+            <div class="feat-tag">[opus 4.8 + 1 appel d'outil]</div>
             <div class="feat-desc">« Enregistre ceci sous X » crée une page au bon endroit. Les règles de routage vivent dans un seul fichier de configuration, pas dans le flux.</div>
           </div>
           <div class="feat">
-            <div class="feat-name">Raisonnement profond à la demande</div>
-            <div class="feat-tag">[sous-agent opus] · ~30-60 s</div>
-            <div class="feat-desc">Le mot littéral « opus » dans une invite escalade vers un sous-agent de raisonnement profond. Lent à dessein, utilisé pour les questions dures.</div>
+            <div class="feat-name">Modèle plus lourd à la demande</div>
+            <div class="feat-tag">[fable] · ~30-60 s</div>
+            <div class="feat-desc">Le mot littéral « fable » dans une invite escalade vers un sous-agent Claude Fable 5. Uniquement en opt-in, jamais sélectionné automatiquement ; utilisé pour les questions les plus dures.</div>
           </div>
           <div class="feat">
             <div class="feat-name">Services qui se réparent</div>
@@ -285,11 +285,11 @@ Home · two Fedora workstations on one mesh
           </div>
           <div class="lesson">
             <span class="lesson-kind">Choix du modèle</span>
-            <span class="lesson-text"><strong>La base de connaissances compile sur le modèle rapide, pas le plus petit.</strong> Le document d'architecture initial indiquait le plus petit modèle pour l'étape de compilation du wiki. En pratique le modèle rapide produit un liage conceptuel plus fort et des graphes inter-documents plus denses, et la différence de vitesse n'importe pas pour un job en arrière-plan.</span>
+            <span class="lesson-text"><strong>La base de connaissances compile sur le modèle complet, pas le plus petit.</strong> Le document d'architecture initial indiquait le plus petit modèle pour l'étape de compilation du wiki. En pratique Claude Opus 4.8 produit un liage conceptuel plus fort et des graphes inter-documents plus denses, et la différence de vitesse n'importe pas pour un job en arrière-plan.</span>
           </div>
           <div class="lesson">
             <span class="lesson-kind">Escalade en opt-in</span>
-            <span class="lesson-text"><strong>Le modèle profond est uniquement en opt-in.</strong> Le modèle rapide par défaut pour la vitesse, escalade seulement quand l'invite contient littéralement « opus » ou « use opus ». Chaque réponse porte une étiquette (<code>[sonnet]</code>, <code>[sonnet + N tool calls]</code>, <code>[opus subagent]</code>) pour qu'on sache toujours quel chemin a répondu.</span>
+            <span class="lesson-text"><strong>Les modèles plus lourds sont uniquement en opt-in.</strong> Claude Opus 4.8 est le défaut sur chaque chemin ; un modèle plus lourd ou d'un autre fournisseur n'est jamais sélectionné automatiquement. Le mot « fable » escalade vers Claude Fable 5, et une revue Codex (OpenAI gpt-5.5) ne tourne que quand je demande une passe d'un second fournisseur. Chaque réponse porte une étiquette (<code>[opus 4.8]</code>, <code>[opus 4.8 + N tool calls]</code>, <code>[fable]</code>) pour qu'on sache toujours quel chemin a répondu.</span>
           </div>
         </div>
       </div>
@@ -303,11 +303,11 @@ Home · two Fedora workstations on one mesh
           <dt>Matériel</dt>
           <dd>Lunettes connectées Even Realities G2 · un téléphone · deux postes de travail Fedora à la maison · une bague intelligente en capture biométrique secondaire. Un seul mesh privé entre tous.</dd>
           <dt>Modèles</dt>
-          <dd>Un modèle Claude rapide par défaut, un modèle Claude plus profond en escalade opt-in. Tous deux routés par un routeur de modèles local qui parle à Claude Max via OAuth.</dd>
+          <dd>Claude Opus 4.8 par défaut (contexte 1M) sur chaque chemin, verres inclus. Claude Fable 5 en opt-in via le mot « fable », et une revue Codex (OpenAI gpt-5.5) d'un autre fournisseur uniquement quand je le demande explicitement ; aucun des deux n'est jamais sélectionné automatiquement. Tous routés par un routeur de modèles local qui parle à Claude Max via OAuth.</dd>
           <dt>Pont</dt>
           <dd>Un pont de terminal vendoré, patché sur place, qui relie les lunettes à l'agent. Le patch est idempotent et survit aux mises à jour.</dd>
           <dt>Connaissance</dt>
-          <dd>Une base de connaissances personnelle auto-hébergée avec une interface MCP stdio. Elle compile un wiki interrogeable à partir de PDFs, contrats, notes de recherche et journaux, et le modèle rapide fait la compilation.</dd>
+          <dd>Une base de connaissances personnelle auto-hébergée avec une interface MCP stdio. Elle compile un wiki interrogeable à partir de PDFs, contrats, notes de recherche et journaux, et Claude Opus 4.8 fait la compilation.</dd>
           <dt>Routage d'outils</dt>
           <dd>Un <code>CLAUDE.md</code> chargé automatiquement dans chaque session. Règles explicites : la base de connaissances uniquement sur invocation explicite, les notes pour « mes notes », la recherche web pour l'actualité, la connaissance interne pour tout le reste.</dd>
           <dt>Orchestration</dt>
