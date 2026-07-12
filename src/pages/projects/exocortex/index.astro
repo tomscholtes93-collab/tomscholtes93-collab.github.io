@@ -9,7 +9,7 @@ import NoteLink from '../../../components/NoteLink.astro';
 ---
 <Base
   title="Personal AI Exocortex · Tom Scholtes"
-  description="A personal AI assistant on smart glasses: voice from the lenses, pipeline through self-hosted infrastructure on Fedora, routed through Claude Max so there's no per-token API billing. Multilingual."
+  description="A personal AI assistant on smart glasses: voice from the lenses, the pipeline running on self-hosted infrastructure at home, routed through Claude Max so there is no per-token API billing. Two workstations on one private mesh, a survivable orchestration layer, a layered memory, and multilingual from day one."
   path="/projects/exocortex/"
 >
   <Nav active="projects" />
@@ -17,15 +17,17 @@ import NoteLink from '../../../components/NoteLink.astro';
   <main>
     <header class="paper">
       <div class="container">
-        <span class="eyebrow">Side project · ongoing · May 2026</span>
+        <span class="eyebrow">Side project · ongoing since May 2026</span>
         <h1 class="title">Voice on the lenses, <em>Claude</em> on the server.</h1>
         <p class="sub">
           A personal AI exocortex accessible through Even Realities G2 smart
-          glasses. Voice query on the lenses, full pipeline runs through
-          self-hosted infrastructure on a Fedora server, all routed through
-          <NoteLink slug="self-hosted-rag-claude-max">Claude Max OAuth</NoteLink> so there's no per-token API billing. Multilingual
-          from day one (English, German, Russian, French) with a personal
-          knowledge base ingesting in the background.
+          glasses. Voice query on the lenses, the full pipeline runs on
+          self-hosted infrastructure at home, all routed through
+          <NoteLink slug="self-hosted-rag-claude-max">Claude Max OAuth</NoteLink> so there is no per-token API billing. What
+          started as one server is now two Fedora workstations, a phone and the
+          glasses on one private mesh, with a survivable orchestration layer and
+          a layered memory behind them. Multilingual from day one (English,
+          German, Russian, French).
         </p>
 
         <div class="actions">
@@ -35,10 +37,10 @@ import NoteLink from '../../../components/NoteLink.astro';
 
         <div class="meta-row">
           <span><strong>4</strong> working languages</span>
-          <span><strong>~1-3 s</strong> Sonnet round-trip from the lenses</span>
+          <span><strong>~1-3 s</strong> voice round-trip from the lenses</span>
           <span><strong>$0</strong> marginal API cost (Claude Max OAuth)</span>
-          <span><strong>1</strong> always-on service (Meridian)</span>
-          <span><strong>Day 5</strong> · base process complete</span>
+          <span><strong>2</strong> workstations on one private mesh</span>
+          <span><strong>1</strong> always-on service</span>
         </div>
       </div>
     </header>
@@ -69,34 +71,109 @@ import NoteLink from '../../../components/NoteLink.astro';
         <span class="eyebrow">Architecture</span>
         <h2 class="h">Self-hosted, end-to-end.</h2>
         <p class="lead">
-          Voice and display happen on the glasses. Everything else runs on a
-          Fedora server at home. The glasses reach the server over Tailscale, so
-          latency is ~6 ms even when I'm not at the desk.
+          Voice and display happen on the glasses. Everything else runs at home.
+          The setup grew from a single server into two Fedora workstations, the
+          phone and the glasses, all on one private mesh reached over an
+          encrypted overlay and SSH, so latency stays near-LAN (~6 ms) even when
+          I'm not at the desk. One workstation is always on and holds the memory
+          and the bridge from the glasses to Claude; the other is a compute node
+          that runs heavier, orchestrated work.
         </p>
 
         <ArchitectureExocortex />
 
         <div class="arch" style="margin-top:28px">
-<pre>G2 glasses                   (voice in, lens display out)
+<pre>G2 glasses                (voice in, lens display out)
     ↓ Bluetooth
-Pixel 7 phone                (Even Realities companion app)
-    ↓ Tailscale (LAN, ~6 ms)
-Fedora 43 server
-    ↳ Even Terminal :3456     (the glasses bridge to Claude)
-        ↳ Claude Code         (patched: Sonnet default, MCPs allowlisted)
-            ↳ CLAUDE.md       (one source of truth for tool routing)
-            ↳ openkb MCP      (personal knowledge base, stdio FastMCP)
-                ↳ openkb CLI
-                    ↳ LiteLLM → Meridian :4000 → Claude Max OAuth
-                        ↳ Sonnet 4.6
-            ↳ Notion / Asana / Calendar / Gmail MCPs
-            ↳ opus-thinker     (subagent, on the literal word "opus")</pre>
+Phone                     (companion, mesh node)
+    ↓ private mesh (encrypted overlay + SSH, ~6 ms)
+Home · two Fedora workstations on one mesh
+    ↳ Always-on node      (memory + the glasses bridge to Claude)
+        ↳ Claude Code     (fast model by default, deep model on opt-in)
+            ↳ Knowledge base   (self-hosted, reached over MCP)
+            ↳ Notes / Calendar / Mail (over MCP, scoped per query)
+        ↳ Model router    (holds the Claude Max session; no per-token bill)
+    ↳ Compute node        (orchestrated heavy jobs, survivable workers)</pre>
         </div>
         <p style="margin-top:24px">
-          One systemd unit (Meridian) is always on; everything else launches on
-          demand. MCP servers are stdio subprocesses Claude Code spawns when a
-          tool is called; there's no daemon, no port, no container.
+          One service is always on; everything else launches on demand. The MCP
+          endpoints are stdio subprocesses the agent spawns when a tool is
+          called; there's no daemon, no bind port, no container.
         </p>
+      </div>
+    </section>
+
+    <section class="reveal" id="orchestration">
+      <div class="container paper-body">
+        <span class="eyebrow">The orchestration layer</span>
+        <h2 class="h">Say it once. Walk away.</h2>
+        <p class="lead">
+          The thing on the glasses stays thin and fast, so a question still comes
+          back in seconds. When a job is genuinely heavy, it gets handed to a
+          background orchestrator that runs on the compute node, plans the work,
+          and dispatches worker sessions that outlive the conversation that
+          started them. This is the same idea as my
+          <NoteLink slug="mcp-workstream">MCP dev squad</NoteLink>, DevSwarm, pointed at everyday work instead of code.
+        </p>
+        <div class="feats">
+          <div class="feat">
+            <div class="feat-name">Co-partner</div>
+            <div class="feat-tag">always on · thin</div>
+            <div class="feat-desc">The layer you actually talk to. It answers the fast questions itself and hands anything heavy to the orchestrator, so the glasses never wait on a long job.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Orchestrator</div>
+            <div class="feat-tag">plans · dispatches</div>
+            <div class="feat-desc">A background process that turns one request into a plan, then spawns the worker sessions to run it. It never blocks the conversation.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Survivable worker</div>
+            <div class="feat-tag">detached · PPID 1</div>
+            <div class="feat-desc">A detached session that keeps running even after the glasses session closes. It does the job to completion on its own, then stops.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Convergence report</div>
+            <div class="feat-tag">files on disk</div>
+            <div class="feat-desc">Each worker reports progress and a final result to plain files on disk. Status is a line you can read at any time, not a stream you have to watch.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="memory">
+      <div class="container paper-body">
+        <span class="eyebrow">Memory &amp; ontology</span>
+        <h2 class="h">A logbook, not a mind.</h2>
+        <p class="lead">
+          The assistant's only real superpower is that it
+          <NoteLink slug="the-remembering-assistant">remembers what I asked it to remember</NoteLink>. Memory is a directory of small
+          text files, not an embedding cloud I can't see: explicit, so nothing is
+          silently absorbed; inspectable, so I can read everything that is in
+          memory at any moment; bounded, so the default is forget and keep is the
+          exception that needs a reason.
+        </p>
+        <p>
+          The layers stack from raw to durable. A drafted-today staging inbox
+          feeds an append-only archive of what was actually said, which feeds an
+          authoritative profile layer that is the source of truth. A nightly pass
+          does the consolidation the way I used to do it by hand on a Sunday:
+          <NoteLink slug="when-the-assistant-sleeps">sleep-time consolidation</NoteLink>, borrowed from how a brain folds the day into
+          stable structure overnight, with hard gates (identity, health, finance
+          and legal always surface for me) and a git commit before every apply as
+          the rollback handle.
+        </p>
+        <dl class="stack">
+          <dt>Profile layer</dt>
+          <dd>The authoritative set of durable facts. Never silently edited; changes are proposed to a staging file and promoted on review.</dd>
+          <dt>Archive</dt>
+          <dd>An append-only log of what was said, day by day. The source of truth for what happened, distinct from what was kept.</dd>
+          <dt>Inbox</dt>
+          <dd>The staging zone for candidate facts drafted during the day, held until the nightly pass or a manual review decides keep or forget.</dd>
+          <dt>Ontology</dt>
+          <dd>A derived graph over the kept facts: each fact carries a type and links to related ones, and a self-hosted knowledge base compiles source documents into a queryable wiki with cross-document links.</dd>
+          <dt>Retrieval</dt>
+          <dd>A <NoteLink slug="self-hosted-rag-claude-max">self-hosted RAG</NoteLink> over that corpus, reached from a voice command, with no third-party indexing service in the middle.</dd>
+        </dl>
       </div>
     </section>
 
@@ -105,41 +182,76 @@ Fedora 43 server
         <span class="eyebrow">What works end-to-end</span>
         <h2 class="h">Verified, on the lenses.</h2>
         <p class="lead">
-          Status as of day five: each of these paths runs cleanly from a voice
-          prompt to a lens display. The tag in brackets is the model + tool-use
-          signal each response carries so I always know which path handled the
-          query.
+          Each of these paths runs cleanly from a voice prompt to a lens display.
+          The tag in brackets is the model and tool-use signal each response
+          carries, so I always know which path handled the query.
         </p>
         <div class="feats">
           <div class="feat">
             <div class="feat-name">Direct knowledge query</div>
             <div class="feat-tag">[sonnet] · ~1-3 s</div>
-            <div class="feat-desc">Voice in, Sonnet 4.6 answers from training, lenses show the result. The default path for most questions.</div>
+            <div class="feat-desc">Voice in, the fast model answers from training, the lenses show the result. The default path for most questions.</div>
           </div>
           <div class="feat">
             <div class="feat-name">Personal KB retrieval</div>
             <div class="feat-tag">[sonnet + 1 tool call] · ~5-10 s</div>
-            <div class="feat-desc">Explicit invocation reads from the local openkb wiki: contracts, custody docs, research, anything ingested.</div>
+            <div class="feat-desc">Explicit invocation reads from the local knowledge base: contracts, reference docs, research, anything ingested.</div>
           </div>
           <div class="feat">
-            <div class="feat-name">Notion writes by voice</div>
+            <div class="feat-name">Notes writes by voice</div>
             <div class="feat-tag">[sonnet + 1 tool call]</div>
-            <div class="feat-desc">"Save this to Notion under X" creates a page in the right teamspace. Routing rules live in CLAUDE.md.</div>
+            <div class="feat-desc">"Save this under X" creates a page in the right place. Routing rules live in one config file, not in the wire.</div>
           </div>
           <div class="feat">
             <div class="feat-name">Deep reasoning on demand</div>
             <div class="feat-tag">[opus subagent] · ~30-60 s</div>
-            <div class="feat-desc">The literal word "opus" in a prompt escalates to a claude-opus-4-7 subagent. Slow on purpose, used for hard questions.</div>
+            <div class="feat-desc">The literal word "opus" in a prompt escalates to a deep-reasoning subagent. Slow on purpose, used for hard questions.</div>
           </div>
           <div class="feat">
             <div class="feat-name">Self-healing services</div>
             <div class="feat-tag">systemd</div>
-            <div class="feat-desc">Both Meridian and Even Terminal auto-restart. Logs flow into journalctl. Lid close while plugged in keeps the box running.</div>
+            <div class="feat-desc">The always-on service and the glasses bridge auto-restart. Logs flow into the journal. Lid close while plugged in keeps the box running.</div>
           </div>
           <div class="feat">
-            <div class="feat-name">Six-of-six health check</div>
+            <div class="feat-name">One-command health check</div>
             <div class="feat-tag">one command</div>
-            <div class="feat-desc">A single script verifies all six moving parts: Even Terminal listening, Meridian responding, openkb reachable, MCP registered, claude CLI authed, Tailscale up.</div>
+            <div class="feat-desc">A single script verifies the moving parts end-to-end: the bridge listening, the router responding, the knowledge base reachable, the tool interface registered, the CLI authed, the mesh up.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="video">
+      <div class="container paper-body">
+        <span class="eyebrow">Explainer video</span>
+        <h2 class="h">The film at the top, explained.</h2>
+        <p class="lead">
+          Each project page carries a short kinetic-typography explainer, and the
+          one above was built the same way as the rest. No stock footage and no
+          screen recording; every frame is drawn by code, narrated by a local
+          neural voice, and assembled from a per-page brief that maps each scene
+          back to wording already on the page.
+        </p>
+        <div class="feats">
+          <div class="feat">
+            <div class="feat-name">Per-page brief</div>
+            <div class="feat-tag">one source</div>
+            <div class="feat-desc">A single brief per page defines the scenes, the on-screen text and the narration, and pins every claim to a line that already exists on the page.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Code-driven animation</div>
+            <div class="feat-tag">Manim</div>
+            <div class="feat-desc">Scenes are rendered from a shared vocabulary of helpers with Manim, so the whole set of videos shares one palette, one motion language and one look.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Local neural voice</div>
+            <div class="feat-tag">on-device TTS</div>
+            <div class="feat-desc">Narration is generated by a local neural text-to-speech voice, so no script or audio ever leaves the machine to reach a hosted service.</div>
+          </div>
+          <div class="feat">
+            <div class="feat-name">Integrity gate</div>
+            <div class="feat-tag">no leaks · no fabrication</div>
+            <div class="feat-desc">Every brief is checked before it ships: no em-dash, no leakage of names or infrastructure, and no claim that isn't already stated on the page.</div>
           </div>
         </div>
       </div>
@@ -156,19 +268,19 @@ Fedora 43 server
           </div>
           <div class="lesson">
             <span class="lesson-kind">systemd type</span>
-            <span class="lesson-text"><strong>Type=forking + tmux survives restart.</strong> The bridge unit's tmux session preserves auth across <code>systemctl restart</code>; you can patch and restart without re-pairing the phone. Type=simple does the opposite. Learned the hard way after re-pairing four times.</span>
+            <span class="lesson-text"><strong>Type=forking + tmux survives restart.</strong> The bridge service's tmux session preserves auth across a restart; you can patch and restart without re-pairing the phone. Type=simple does the opposite. Learned the hard way after re-pairing four times.</span>
           </div>
           <div class="lesson">
             <span class="lesson-kind">API key hygiene</span>
-            <span class="lesson-text"><strong>Unset <code>ANTHROPIC_API_KEY</code> everywhere.</strong> If it's set in any shell, LiteLLM bypasses the Meridian proxy and silently bills the real API. The whole point of routing through Claude Max OAuth is to keep marginal cost at zero; one stray env var burns that.</span>
+            <span class="lesson-text"><strong>Unset <code>ANTHROPIC_API_KEY</code> everywhere.</strong> If it's set in any shell, the client bypasses the local router and silently bills the real API. The whole point of routing through Claude Max OAuth is to keep marginal cost at zero; one stray env var burns that.</span>
           </div>
           <div class="lesson">
             <span class="lesson-kind">Model choice</span>
-            <span class="lesson-text"><strong>openkb compiles on Sonnet, not Haiku.</strong> Original architecture doc said Haiku for the wiki-compile step. In practice Sonnet 4.6 produces stronger concept linking and denser cross-doc graphs, and the speed difference doesn't matter for a background job.</span>
+            <span class="lesson-text"><strong>The knowledge base compiles on the fast model, not the smallest.</strong> The original architecture doc said the smallest model for the wiki-compile step. In practice the fast model produces stronger concept linking and denser cross-doc graphs, and the speed difference doesn't matter for a background job.</span>
           </div>
           <div class="lesson">
             <span class="lesson-kind">Opt-in escalation</span>
-            <span class="lesson-text"><strong>Opus is opt-in only.</strong> Default to Sonnet for speed, escalate to claude-opus-4-7 only when the prompt literally contains "opus" or "use opus". Every response carries a tag (<code>[sonnet]</code>, <code>[sonnet + N tool calls]</code>, <code>[opus subagent]</code>) so you always know which path answered.</span>
+            <span class="lesson-text"><strong>The deep model is opt-in only.</strong> Default to the fast model for speed, escalate only when the prompt literally contains "opus" or "use opus". Every response carries a tag (<code>[sonnet]</code>, <code>[sonnet + N tool calls]</code>, <code>[opus subagent]</code>) so you always know which path answered.</span>
           </div>
         </div>
       </div>
@@ -180,21 +292,23 @@ Fedora 43 server
         <h2 class="h">Honest about what's in the box.</h2>
         <dl class="stack">
           <dt>Hardware</dt>
-          <dd>Even Realities G2 smart glasses · Pixel 7 phone · home Fedora 43 server · smart ring as secondary biometric capture. Tailscale mesh between all of them.</dd>
+          <dd>Even Realities G2 smart glasses · a phone · two Fedora workstations at home · a smart ring as secondary biometric capture. One private mesh between all of them.</dd>
           <dt>Models</dt>
-          <dd>Claude Sonnet 4.6 by default (<code>claude-sonnet-4-6</code>), Claude Opus 4.7 (<code>claude-opus-4-7</code>) on opt-in. Both routed through Meridian, which talks to Claude Max via OAuth.</dd>
+          <dd>A fast Claude model by default, a deeper Claude model on opt-in escalation. Both routed through a local model router that talks to Claude Max over OAuth.</dd>
           <dt>Bridge</dt>
-          <dd>Even Terminal (vendored, patched in-place) on <code>:3456</code>. Patch is idempotent and survives npm upgrades.</dd>
+          <dd>A vendored terminal bridge, patched in place, that connects the glasses to the agent. The patch is idempotent and survives upgrades.</dd>
           <dt>Knowledge</dt>
-          <dd>openkb, a self-hosted personal KB with a FastMCP stdio interface. Compiles a queryable wiki from PDFs, contracts, research notes, journals. Sonnet 4.6 does the compile.</dd>
+          <dd>A self-hosted personal knowledge base with a stdio MCP interface. It compiles a queryable wiki from PDFs, contracts, research notes and journals, and the fast model does the compile.</dd>
           <dt>Tool routing</dt>
-          <dd>One <code>CLAUDE.md</code> auto-loaded into every session via <code>--setting-sources=user,project</code>. Explicit rules: openkb only on explicit invocation, Notion for "my notes", web search for current events, internal for everything else.</dd>
+          <dd>One <code>CLAUDE.md</code> auto-loaded into every session. Explicit rules: the knowledge base only on explicit invocation, notes for "my notes", web search for current events, internal knowledge for everything else.</dd>
+          <dt>Orchestration</dt>
+          <dd>A thin co-partner on the glasses hands heavy work to a background orchestrator on the compute node, which dispatches survivable workers that report to files on disk.</dd>
           <dt>Always-on</dt>
-          <dd>One systemd unit (<code>meridian.service</code>, Type=simple). Everything else launches on demand.</dd>
+          <dd>One service is always on. Everything else launches on demand.</dd>
           <dt>Languages</dt>
-          <dd>English, German, Russian, French, used live; legal and tax corpus ingesting overnight in each.</dd>
+          <dd>English, German, Russian, French, used live; a legal and tax corpus ingesting overnight in each.</dd>
           <dt>What's next</dt>
-          <dd>POV video capture from the lenses into a passive memory loop; a calendar-aware morning briefing pipeline; a personal-life agent swarm in the spirit of DevSwarm but for non-dev work.</dd>
+          <dd>POV video capture from the lenses into a passive memory loop; a calendar-aware morning briefing; making the tool-routing rules legible to the model itself, so it chooses at query time instead of following a fixed list.</dd>
         </dl>
       </div>
     </section>

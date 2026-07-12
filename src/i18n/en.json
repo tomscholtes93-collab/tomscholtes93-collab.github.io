@@ -277,7 +277,7 @@
   "projects.index.card.devswarm.tag.3": "Claude Code",
   "projects.index.card.devswarm.title": "DevSwarm v1",
   "projects.index.card.exocortex.body": "A personal AI assistant accessible through Even Realities G2 smart glasses. Voice from the lenses, pipeline through self-hosted infrastructure on Fedora, all routed through Claude Max OAuth so there's no per-token API billing. Multilingual: English, German, Russian, French.",
-  "projects.index.card.exocortex.label": "day 5 · base process complete",
+  "projects.index.card.exocortex.label": "ongoing · in daily use",
   "projects.index.card.exocortex.metric": "live",
   "projects.index.card.exocortex.num": "Project 02",
   "projects.index.card.exocortex.tag.0": "AR glasses",
