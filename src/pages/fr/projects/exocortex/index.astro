@@ -6,6 +6,8 @@ import ArchitectureExocortex from '../../../../components/ArchitectureExocortex.
 import RevealObserver from '../../../../components/RevealObserver.astro';
 import PageVideo from '../../../../components/PageVideo.astro';
 import NoteLink from '../../../../components/NoteLink.astro';
+import LoopsOnionExocortex from '../../../../components/LoopsOnionExocortex.astro';
+import AggregateArchitectureExocortex from '../../../../components/AggregateArchitectureExocortex.astro';
 ---
 <Base
   title="Exocortex IA personnel · Tom Scholtes"
@@ -25,7 +27,7 @@ import NoteLink from '../../../../components/NoteLink.astro';
           sur une infrastructure auto-hébergée à la maison, le tout routé par
           <NoteLink slug="self-hosted-rag-claude-max">Claude Max OAuth</NoteLink>, de sorte qu'il n'y a pas de facturation API au token. Ce
           qui a commencé comme un seul serveur, c'est maintenant deux postes de
-          travail Fedora, un téléphone et les lunettes sur un même mesh privé,
+          travail Linux, un téléphone et les lunettes sur un même mesh privé,
           avec une couche d'orchestration survivable et une mémoire en couches
           derrière eux. Multilingue dès le premier jour (anglais, allemand,
           russe, français).
@@ -76,7 +78,7 @@ import NoteLink from '../../../../components/NoteLink.astro';
         <p class="lead">
           La voix et l'affichage se passent sur les lunettes. Tout le reste
           tourne à la maison. Le dispositif est passé d'un seul serveur à deux
-          postes de travail Fedora, le téléphone et les lunettes, tous sur un
+          postes de travail Linux, le téléphone et les lunettes, tous sur un
           même mesh privé joint via un overlay chiffré et SSH, de sorte que la
           latence reste proche du LAN (~6 ms) même quand je ne suis pas au
           bureau. Un poste de travail est toujours actif et détient la mémoire et
@@ -91,7 +93,7 @@ import NoteLink from '../../../../components/NoteLink.astro';
     ↓ Bluetooth
 Phone                     (compagnon, nœud du mesh)
     ↓ private mesh (overlay chiffré + SSH, ~6 ms)
-Home · two Fedora workstations on one mesh
+Home · two Linux workstations on one mesh
     ↳ Always-on node      (mémoire + le pont des lunettes vers Claude)
         ↳ Claude Code     (Claude Opus 4.8 par défaut ; modèle plus lourd seulement en opt-in)
             ↳ Knowledge base   (auto-hébergée, jointe via MCP)
@@ -105,6 +107,20 @@ Home · two Fedora workstations on one mesh
           l'agent lance quand un outil est appelé ; pas de démon, pas de port
           d'écoute, pas de conteneur.
         </p>
+
+        <div style="margin-top:44px">
+          <h3 class="h" style="font-size:22px">Le tout, sur un seul tableau.</h3>
+          <p class="lead" style="margin-top:8px">
+            Une vue générique de l'ensemble d'un coup : les objets portés, le
+            mesh privé, le nœud toujours actif et le nœud de calcul avec
+            l'orchestrateur et tout ce qui l'entoure, les modèles utilisés sur
+            chaque chemin, et le déploiement encadré à la fin.
+          </p>
+          <AggregateArchitectureExocortex />
+          <p style="margin-top:16px">
+            <a href="/media/exocortex-architecture.excalidraw" download>Ouvrir la source éditable</a>, dessinée comme un seul tableau Excalidraw.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -143,6 +159,47 @@ Home · two Fedora workstations on one mesh
             <div class="feat-desc">Chaque worker rapporte sa progression et un résultat final dans de simples fichiers sur disque. Le statut est une ligne qu'on peut lire à tout moment, pas un flux qu'il faut surveiller.</div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="review-loops">
+      <div class="container paper-body">
+        <span class="eyebrow">Les boucles de revue</span>
+        <h2 class="h">Rien ne part sans revue.</h2>
+        <p class="lead">
+          Quand un job de ce montage déploie quelque chose de public, il passe
+          d'abord par une pile de boucles de revue, et depuis ce mois toute
+          cette pile est en production. Un worker produit l'artefact, puis
+          celui-ci doit passer chaque couche de l'intérieur vers l'extérieur :
+          d'abord une boucle same-model qui révise jusqu'à converger, puis une
+          boucle Codex cross-vendor sur gpt-5.5 plafonnée à deux tours, puis une
+          boucle Fable 5, plafonnée elle aussi à deux. Ce n'est qu'après le
+          passage de chaque couche que le déploiement a lieu. Une porte d'audit
+          de fuite distincte se tient hors de toute boucle et n'est jamais
+          sautée.
+        </p>
+
+        <LoopsOnionExocortex />
+
+        <p style="margin-top:28px">
+          Deux autres pièces sont passées en production avec les boucles. Le
+          <strong>Composer</strong> se place entre le co-partner et
+          l'orchestrateur, compile chaque ordre dicté et le valide contre un
+          schéma strict, de sorte qu'une requête silencieusement perdue est
+          rattrapée avant de faire des dégâts. Carry sauvegarde la place d'un
+          job quand il atteint une limite d'usage et le reprend à la fenêtre
+          suivante. Une pièce est encore en validation : un watchdog
+          cross-vendor qui déduit pourquoi un worker est mort quand le processus
+          mourant ne peut plus s'expliquer.
+        </p>
+        <p>
+          Les modèles sont les mêmes que sur les lunettes. Claude Opus 4.8 est
+          le défaut sur chaque chemin ; Fable 5 est le juge premium, dépensé
+          seulement sur du travail quasi final pour rester peu coûteux ; et
+          Codex, qui fait tourner gpt-5.5, est le second avis cross-vendor.
+          Trois fournisseurs touchent un diff avant qu'il ne parte en
+          production.
+        </p>
       </div>
     </section>
 
@@ -301,7 +358,7 @@ Home · two Fedora workstations on one mesh
         <h2 class="h">Honnête sur ce qu'il y a dans la boîte.</h2>
         <dl class="stack">
           <dt>Matériel</dt>
-          <dd>Lunettes connectées Even Realities G2 · un téléphone · deux postes de travail Fedora à la maison · une bague intelligente en capture biométrique secondaire. Un seul mesh privé entre tous.</dd>
+          <dd>Lunettes connectées Even Realities G2 · un téléphone · deux postes de travail Linux à la maison · une bague intelligente en capture biométrique secondaire. Un seul mesh privé entre tous.</dd>
           <dt>Modèles</dt>
           <dd>Claude Opus 4.8 par défaut (contexte 1M) sur chaque chemin, verres inclus. Claude Fable 5 en opt-in via le mot « fable », et une revue Codex (OpenAI gpt-5.5) d'un autre fournisseur uniquement quand je le demande explicitement ; aucun des deux n'est jamais sélectionné automatiquement. Tous routés par un routeur de modèles local qui parle à Claude Max via OAuth.</dd>
           <dt>Pont</dt>

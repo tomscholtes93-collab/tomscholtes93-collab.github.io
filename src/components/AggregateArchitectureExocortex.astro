@@ -1,0 +1,151 @@
+---
+// One aggregated, genericized view of the whole system: the wearables, the
+// private mesh, the always-on node and the compute node with the mega-orchestrator
+// and everything around it, the models used across every path, and the gated
+// deploy. Emulates an Excalidraw sketch: the site's architecture-SVG vocabulary
+// (so it themes and animates with the page) plus a light hand-drawn roughen filter
+// on the shapes. The editable source lives at /media/exocortex-architecture.excalidraw.
+// Labels are language-neutral, like the other diagrams on this page.
+---
+<svg class="arch-svg aggregate-arch" viewBox="0 0 920 624" role="img"
+     aria-label="Aggregated exocortex architecture. Wearables (G2 glasses, phone, smart ring) reach a private mesh over an encrypted overlay and SSH. The mesh connects an always-on node (co-partner, model router on Claude Max OAuth, layered memory, glasses bridge, and MCP endpoints for knowledge base, notes, calendar and mail) and a compute node (the mega-orchestrator daemon, Memory-Master, Planner, admission gate, a survivable worker, a review gate that runs same-model then Codex then Fable, plus a leakage-audit gate, the Composer, carry, a mutual medic, watchers, and a cross-vendor watchdog still in validation). Models used across every path: Opus 4.8 by default, Fable 5 on the word fable, and Codex gpt-5.5 for cross-vendor review. Everything ends at a gated deploy to production.">
+  <defs>
+    <filter id="rough-agg" x="-2%" y="-2%" width="104%" height="104%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="2" seed="7" result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.6" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </defs>
+
+  <!-- ============ SHAPES (roughened) ============ -->
+  <g filter="url(#rough-agg)">
+    <!-- wearables -->
+    <rect class="node-accent" x="235" y="26" width="130" height="46" rx="10" />
+    <rect class="node" x="395" y="26" width="130" height="46" rx="10" />
+    <rect class="node" x="555" y="26" width="130" height="46" rx="10" />
+    <path class="edge" d="M300 72 L 415 90" />
+    <path class="edge" d="M460 72 L 460 90" />
+    <path class="edge" d="M620 72 L 505 90" />
+    <!-- private mesh -->
+    <rect class="node" x="300" y="90" width="320" height="34" rx="17" />
+    <path class="edge" d="M400 124 L 255 140" />
+    <polygon class="edge" fill="currentColor" points="248,141 257,137 258,145" />
+    <path class="edge" d="M520 124 L 665 140" />
+    <polygon class="edge" fill="currentColor" points="672,141 662,137 663,145" />
+
+    <!-- containers -->
+    <rect x="24" y="140" width="428" height="310" rx="16" fill="none" stroke="currentColor" stroke-opacity="0.28" />
+    <rect x="468" y="140" width="428" height="310" rx="16" fill="none" stroke="currentColor" stroke-opacity="0.28" />
+
+    <!-- always-on node inner -->
+    <rect class="node-accent" x="44" y="192" width="194" height="46" rx="10" />
+    <rect class="node" x="258" y="192" width="174" height="46" rx="10" />
+    <rect class="node" x="44" y="252" width="194" height="44" rx="10" />
+    <rect class="node" x="258" y="252" width="174" height="44" rx="10" />
+    <rect class="node" x="44" y="316" width="92" height="40" rx="8" />
+    <rect class="node" x="148" y="316" width="92" height="40" rx="8" />
+    <rect class="node" x="252" y="316" width="92" height="40" rx="8" />
+    <rect class="node" x="356" y="316" width="76" height="40" rx="8" />
+
+    <!-- compute node inner -->
+    <rect class="node-accent" x="488" y="192" width="388" height="44" rx="10" />
+    <rect class="node" x="488" y="248" width="120" height="38" rx="8" />
+    <rect class="node" x="620" y="248" width="120" height="38" rx="8" />
+    <rect class="node" x="752" y="248" width="124" height="38" rx="8" />
+    <rect class="node" x="488" y="298" width="186" height="40" rx="10" />
+    <rect class="node-accent" x="690" y="298" width="186" height="40" rx="10" />
+    <rect class="node" x="488" y="352" width="120" height="38" rx="8" />
+    <rect class="node" x="620" y="352" width="120" height="38" rx="8" />
+    <rect class="node" x="752" y="352" width="124" height="38" rx="8" />
+    <rect class="node" x="488" y="400" width="120" height="38" rx="8" />
+    <rect class="node" x="620" y="400" width="120" height="38" rx="8" />
+    <rect class="node" x="752" y="400" width="124" height="38" rx="8" stroke-dasharray="5 4" />
+
+    <!-- handoff between nodes -->
+    <path class="edge" d="M452 214 L 464 214" />
+    <polygon class="edge" fill="currentColor" points="470,214 462,210 462,218" />
+
+    <!-- compute node to deploy -->
+    <path class="edge-accent" d="M682 450 C 660 468, 630 470, 612 476" />
+    <polygon class="edge" fill="currentColor" points="606,478 615,474 614,482" />
+    <rect class="node-accent" x="460" y="476" width="220" height="46" rx="10" />
+
+    <!-- models strip -->
+    <rect class="node-accent" x="160" y="540" width="200" height="44" rx="10" />
+    <rect class="node" x="380" y="540" width="200" height="44" rx="10" />
+    <rect class="node" x="600" y="540" width="200" height="44" rx="10" />
+  </g>
+
+  <!-- ============ TEXT (crisp) ============ -->
+  <text class="label" x="300" y="50" text-anchor="middle">G2 glasses</text>
+  <text class="sub"   x="300" y="66" text-anchor="middle">voice in · HUD out</text>
+  <text class="label" x="460" y="50" text-anchor="middle">Phone</text>
+  <text class="sub"   x="460" y="66" text-anchor="middle">companion · mesh node</text>
+  <text class="label" x="620" y="50" text-anchor="middle">Smart ring</text>
+  <text class="sub"   x="620" y="66" text-anchor="middle">biometric capture</text>
+
+  <text class="label" x="460" y="106" text-anchor="middle">private mesh</text>
+  <text class="sub"   x="460" y="120" text-anchor="middle">encrypted overlay + SSH · ~6 ms</text>
+
+  <text class="label" x="238" y="164" text-anchor="middle">Always-on node</text>
+  <text class="sub"   x="238" y="180" text-anchor="middle">always on · memory + the glasses bridge</text>
+  <text class="label" x="141" y="216" text-anchor="middle">co-partner</text>
+  <text class="sub"   x="141" y="231" text-anchor="middle">thin · talks to the glasses</text>
+  <text class="label" x="345" y="216" text-anchor="middle">model router</text>
+  <text class="sub"   x="345" y="231" text-anchor="middle">Claude Max OAuth · $0 marginal</text>
+  <text class="label" x="141" y="275" text-anchor="middle">glasses bridge</text>
+  <text class="sub"   x="141" y="289" text-anchor="middle">vendored, patched in place</text>
+  <text class="label" x="345" y="275" text-anchor="middle">layered memory</text>
+  <text class="sub"   x="345" y="289" text-anchor="middle">inbox to profile · git-gated</text>
+  <text class="label" x="90"  y="338" text-anchor="middle">KB</text>
+  <text class="sub"   x="90"  y="351" text-anchor="middle">self-hosted</text>
+  <text class="label" x="194" y="338" text-anchor="middle">Notes</text>
+  <text class="sub"   x="194" y="351" text-anchor="middle">journal</text>
+  <text class="label" x="298" y="338" text-anchor="middle">Calendar</text>
+  <text class="sub"   x="298" y="351" text-anchor="middle">schedule</text>
+  <text class="label" x="394" y="338" text-anchor="middle">Mail</text>
+  <text class="sub"   x="394" y="351" text-anchor="middle">inbox</text>
+  <text class="sub"   x="238" y="378" text-anchor="middle">MCP endpoints · stdio · scoped per query</text>
+  <text class="sub"   x="238" y="420" text-anchor="middle">one service always on; the rest launches on demand</text>
+
+  <text class="label" x="682" y="164" text-anchor="middle">Compute node</text>
+  <text class="sub"   x="682" y="180" text-anchor="middle">orchestrated heavy jobs · survivable workers</text>
+  <text class="label" x="682" y="214" text-anchor="middle">mega-orchestrator</text>
+  <text class="sub"   x="682" y="229" text-anchor="middle">daemon · never sleeps · watches the mailbox</text>
+  <text class="label" x="548" y="270" text-anchor="middle">Memory-Master</text>
+  <text class="sub"   x="548" y="282" text-anchor="middle">classify + slice</text>
+  <text class="label" x="680" y="270" text-anchor="middle">Planner</text>
+  <text class="sub"   x="680" y="282" text-anchor="middle">strategy + lenses</text>
+  <text class="label" x="814" y="270" text-anchor="middle">admission gate</text>
+  <text class="sub"   x="814" y="282" text-anchor="middle">capacity</text>
+  <text class="label" x="581" y="320" text-anchor="middle">survivable worker</text>
+  <text class="sub"   x="581" y="334" text-anchor="middle">detached · reports to disk</text>
+  <text class="label" x="783" y="320" text-anchor="middle">review gate</text>
+  <text class="sub"   x="783" y="334" text-anchor="middle">same-model to Codex to Fable</text>
+  <text class="label" x="548" y="374" text-anchor="middle">leakage-audit</text>
+  <text class="sub"   x="548" y="386" text-anchor="middle">never skipped</text>
+  <text class="label" x="680" y="374" text-anchor="middle">Composer</text>
+  <text class="sub"   x="680" y="386" text-anchor="middle">schema-checked orders</text>
+  <text class="label" x="814" y="374" text-anchor="middle">carry</text>
+  <text class="sub"   x="814" y="386" text-anchor="middle">resume on cap</text>
+  <text class="label" x="548" y="422" text-anchor="middle">mutual medic</text>
+  <text class="sub"   x="548" y="434" text-anchor="middle">every 15 min</text>
+  <text class="label" x="680" y="422" text-anchor="middle">watchers</text>
+  <text class="sub"   x="680" y="434" text-anchor="middle">convergence + notify</text>
+  <text class="label" x="814" y="422" text-anchor="middle">watchdog</text>
+  <text class="sub"   x="814" y="434" text-anchor="middle">in validation</text>
+
+  <text class="sub"   x="459" y="206" text-anchor="middle">handoff</text>
+
+  <text class="label" x="570" y="500" text-anchor="middle">deploy to production</text>
+  <text class="sub"   x="570" y="515" text-anchor="middle">this site, gated</text>
+
+  <text class="sub"   x="480" y="532" text-anchor="middle">models · used across every path</text>
+  <text class="label" x="260" y="564" text-anchor="middle">Opus 4.8</text>
+  <text class="sub"   x="260" y="578" text-anchor="middle">default on every path</text>
+  <text class="label" x="480" y="564" text-anchor="middle">Fable 5</text>
+  <text class="sub"   x="480" y="578" text-anchor="middle">on the word fable · opt-in</text>
+  <text class="label" x="700" y="564" text-anchor="middle">Codex · gpt-5.5</text>
+  <text class="sub"   x="700" y="578" text-anchor="middle">cross-vendor review</text>
+
+  <text class="sub"   x="460" y="608" text-anchor="middle">solid = live today    ·    dashed = in validation</text>
+</svg>

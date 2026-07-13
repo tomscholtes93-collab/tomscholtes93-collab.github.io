@@ -6,6 +6,8 @@ import ArchitectureExocortex from '../../../components/ArchitectureExocortex.ast
 import RevealObserver from '../../../components/RevealObserver.astro';
 import PageVideo from '../../../components/PageVideo.astro';
 import NoteLink from '../../../components/NoteLink.astro';
+import LoopsOnionExocortex from '../../../components/LoopsOnionExocortex.astro';
+import AggregateArchitectureExocortex from '../../../components/AggregateArchitectureExocortex.astro';
 ---
 <Base
   title="Personal AI Exocortex · Tom Scholtes"
@@ -24,7 +26,7 @@ import NoteLink from '../../../components/NoteLink.astro';
           glasses. Voice query on the lenses, the full pipeline runs on
           self-hosted infrastructure at home, all routed through
           <NoteLink slug="self-hosted-rag-claude-max">Claude Max OAuth</NoteLink> so there is no per-token API billing. What
-          started as one server is now two Fedora workstations, a phone and the
+          started as one server is now two Linux workstations, a phone and the
           glasses on one private mesh, with a survivable orchestration layer and
           a layered memory behind them. Multilingual from day one (English,
           German, Russian, French).
@@ -72,7 +74,7 @@ import NoteLink from '../../../components/NoteLink.astro';
         <h2 class="h">Self-hosted, end-to-end.</h2>
         <p class="lead">
           Voice and display happen on the glasses. Everything else runs at home.
-          The setup grew from a single server into two Fedora workstations, the
+          The setup grew from a single server into two Linux workstations, the
           phone and the glasses, all on one private mesh reached over an
           encrypted overlay and SSH, so latency stays near-LAN (~6 ms) even when
           I'm not at the desk. One workstation is always on and holds the memory
@@ -87,7 +89,7 @@ import NoteLink from '../../../components/NoteLink.astro';
     ↓ Bluetooth
 Phone                     (companion, mesh node)
     ↓ private mesh (encrypted overlay + SSH, ~6 ms)
-Home · two Fedora workstations on one mesh
+Home · two Linux workstations on one mesh
     ↳ Always-on node      (memory + the glasses bridge to Claude)
         ↳ Claude Code     (Claude Opus 4.8 default; heavier model only on opt-in)
             ↳ Knowledge base   (self-hosted, reached over MCP)
@@ -100,6 +102,20 @@ Home · two Fedora workstations on one mesh
           endpoints are stdio subprocesses the agent spawns when a tool is
           called; there's no daemon, no bind port, no container.
         </p>
+
+        <div style="margin-top:44px">
+          <h3 class="h" style="font-size:22px">The whole thing, on one board.</h3>
+          <p class="lead" style="margin-top:8px">
+            One genericized view of everything at once: the wearables, the
+            private mesh, the always-on node and the compute node with the
+            orchestrator and everything around it, the models used across every
+            path, and the gated deploy at the end.
+          </p>
+          <AggregateArchitectureExocortex />
+          <p style="margin-top:16px">
+            <a href="/media/exocortex-architecture.excalidraw" download>Open the editable source</a>, drawn as one Excalidraw board.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -137,6 +153,42 @@ Home · two Fedora workstations on one mesh
             <div class="feat-desc">Each worker reports progress and a final result to plain files on disk. Status is a line you can read at any time, not a stream you have to watch.</div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="reveal" id="review-loops">
+      <div class="container paper-body">
+        <span class="eyebrow">The review loops</span>
+        <h2 class="h">Nothing ships unreviewed.</h2>
+        <p class="lead">
+          When a job from this setup deploys something public, it runs itself
+          through a stack of review loops first, and as of this month that whole
+          stack is live. A worker produces the artifact, then it has to pass each
+          layer from the inside out: a same-model loop that revises until it
+          converges, then a cross-vendor Codex loop on gpt-5.5 capped at two
+          rounds, then a Fable 5 loop, also capped at two. Only after every layer
+          passes does it deploy. A separate leakage-audit gate sits outside every
+          loop and is never skipped.
+        </p>
+
+        <LoopsOnionExocortex />
+
+        <p style="margin-top:28px">
+          Two more pieces went live alongside the loops. The <strong>Composer</strong>
+          sits between the co-partner and the orchestrator, compiling each spoken
+          order and validating it against a strict schema, so a request that got
+          silently dropped is caught before it does any harm. Carry saves a job's
+          place when it hits a usage cap and resumes it in the next window. One
+          piece is still in validation: a cross-vendor watchdog that infers why a
+          worker died when the dying process cannot explain itself.
+        </p>
+        <p>
+          The models are the same ones on the glasses. Claude Opus 4.8 is the
+          default on every path; Fable 5 is the premium judge, spent only on
+          near-final work so it stays cheap; and Codex, running gpt-5.5, is the
+          cross-vendor second opinion. Three vendors touch one diff before it goes
+          live.
+        </p>
       </div>
     </section>
 
@@ -292,7 +344,7 @@ Home · two Fedora workstations on one mesh
         <h2 class="h">Honest about what's in the box.</h2>
         <dl class="stack">
           <dt>Hardware</dt>
-          <dd>Even Realities G2 smart glasses · a phone · two Fedora workstations at home · a smart ring as secondary biometric capture. One private mesh between all of them.</dd>
+          <dd>Even Realities G2 smart glasses · a phone · two Linux workstations at home · a smart ring as secondary biometric capture. One private mesh between all of them.</dd>
           <dt>Models</dt>
           <dd>Claude Opus 4.8 by default (1M context) on every path, glasses included. Claude Fable 5 on opt-in via the word "fable", and a cross-vendor Codex (OpenAI gpt-5.5) review only when I explicitly ask; neither is ever auto-selected. All routed through a local model router that talks to Claude Max over OAuth.</dd>
           <dt>Bridge</dt>
