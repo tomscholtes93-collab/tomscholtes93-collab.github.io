@@ -17,8 +17,6 @@ export const CASE_SLUG: Record<string, string> = {
 
 // Cases 08 + 09 are pattern write-ups that are intentionally English-only across
 // every locale (they are generic architecture sketches, not translated copy).
-// Extracted here so the editorial CaseStudies layer AND the tomOS Work window
-// render from a single source (no copy authored twice).
 export interface ExtraCase {
   n: string;
   title: string;

@@ -317,38 +317,6 @@ h2.h em { font-style: italic; color: var(--accent); }
 .stack dd { margin: 0; color: var(--ink-2); font-size: 15px; }
 .stack dd code { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 1px 6px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg-2); }
 
-/* what-works grid (exocortex page) */
-.feats {
-  margin-top: 28px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1px;
-  background: var(--rule);
-  border: 1px solid var(--rule);
-  border-radius: 14px;
-  overflow: hidden;
-}
-@media (max-width: 720px) { .feats { grid-template-columns: 1fr; } }
-.feat { background: var(--bg); padding: 22px 24px; }
-.feat-name { font-family: 'Instrument Serif', serif; font-size: 20px; line-height: 1.15; letter-spacing: -.01em; }
-.feat-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent-ink); text-transform: uppercase; letter-spacing: .08em; margin-top: 6px; }
-.feat-desc { color: var(--ink-2); font-size: 14.5px; margin-top: 10px; }
-
-/* lesson list (exocortex page) */
-.lessons { margin-top: 24px; border-top: 1px solid var(--rule); }
-.lesson {
-  padding: 22px 0;
-  border-bottom: 1px solid var(--rule);
-  display: grid;
-  grid-template-columns: minmax(120px, 180px) 1fr;
-  gap: 24px;
-  align-items: baseline;
-}
-@media (max-width: 720px) { .lesson { grid-template-columns: 1fr; gap: 6px; } }
-.lesson-kind { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-.lesson-text { color: var(--ink-2); font-size: 15px; }
-.lesson-text strong { color: var(--ink); font-weight: 500; }
-
 /* projects landing grid */
 .proj-cards {
   display: grid;

@@ -1,15 +1,14 @@
 ---
 import { NOW_IDS } from '../content/now.ts';
-import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
+import { t as translate, getLocale, type Locale } from '../i18n';
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 
 // Items that carry a trailing inline CTA link. Language-agnostic for the
-// static workflow page; localized for the exocortex project page.
+// static workflow page.
 const LINKS: Record<string, { href: string; label: string }> = {
   email: { href: '/workflow-automation/', label: t('home.now.cta.demo') },
-  exocortex: { href: localizePath('/projects/exocortex', locale), label: t('home.now.cta.project') },
 };
 ---
 <section id="now" class="reveal">

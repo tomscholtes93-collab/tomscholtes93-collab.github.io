@@ -9,14 +9,17 @@ const fmt = localeDateFmt(locale);
 const displaySlug = entry.slug.replace(/^(en|de|fr|ru)\//, '');
 const href = localizePath(`/notes/${displaySlug}/`, locale);
 const firstTag = entry.data.tags[0];
+const publishedDate = entry.data.publishDate.toISOString().slice(0, 10);
 ---
-<a href={href} class="note-card" data-astro-prefetch>
-  <span class="note-eyebrow eyebrow">
-    {fmt.format(entry.data.publishDate)}{firstTag ? ` · ${firstTag}` : ''}
-  </span>
-  <h3 class="serif note-card-title" transition:name={`note-title-${displaySlug}`}>
+<a href={href} class="note-entry" data-astro-prefetch>
+  <p class="note-entry-meta eyebrow">
+    <time datetime={publishedDate}>{fmt.format(entry.data.publishDate)}</time>
+    {firstTag && <><span aria-hidden="true">·</span><span>{firstTag}</span></>}
+  </p>
+  <h2 class="serif note-entry-title" transition:name={`note-title-${displaySlug}`}>
     {entry.data.title}
-  </h3>
-  <p class="note-card-summary">{entry.data.summary}</p>
-  <span class="note-card-path mono">/notes/{displaySlug}/</span>
+  </h2>
+  <p class="note-entry-summary" transition:name={`note-summary-${displaySlug}`}>
+    {entry.data.summary}
+  </p>
 </a>
