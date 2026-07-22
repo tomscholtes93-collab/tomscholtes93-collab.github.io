@@ -93,14 +93,6 @@ const OG_LOCALE: Record<Locale, string> = {
 
     <script is:inline>
       (function () {
-        // Mark JS as available so the tomOS desktop layer can opt in (>= 1200px).
-        // Without JS this class never lands and the editorial layer is the fallback.
-        document.documentElement.classList.add('js');
-        // tomOS desktop layer is OMITTED for now (Tom 2026-06-29): os-mode is never set,
-        // so the editorial page is the only layer (this also prevents a blank page for any
-        // visitor who still has a stale localStorage 'tomos:layer' === 'os' from testing).
-        // To re-enable, restore the >= 1200px + localStorage 'tomos:layer' === 'os' gate here
-        // and the OsDesktop render in src/pages/index.astro.
         var ACC = {
           terracotta: { a: '#C4623A', i: '#8A3F1E' },
           ink:        { a: '#1B2B4B', i: '#0E1A2E' },

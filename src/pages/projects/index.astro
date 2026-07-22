@@ -8,13 +8,9 @@ import { t as translate, getLocale, localizePath, type Locale } from '../../i18n
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 const devswarmHref = localizePath('/projects/devswarm/', locale);
-const exocortexHref = localizePath('/projects/exocortex/', locale);
-const tagList = (slug: 'devswarm' | 'exocortex') =>
-  [0, 1, 2, 3]
-    .map((i) => t(`projects.index.card.${slug}.tag.${i}`))
-    .filter((s) => s && s.length > 0);
-const devswarmTags = tagList('devswarm');
-const exocortexTags = tagList('exocortex');
+const devswarmTags = [0, 1, 2, 3]
+  .map((i) => t(`projects.index.card.devswarm.tag.${i}`))
+  .filter((s) => s && s.length > 0);
 ---
 <Base
   title={t('meta.projects.title')}
@@ -47,21 +43,6 @@ const exocortexTags = tagList('exocortex');
             <p>{t('projects.index.card.devswarm.body')}</p>
             <div class="tags">
               {devswarmTags.map((tg) => <span class="tag">{tg}</span>)}
-            </div>
-          </a>
-
-          <a class="card in-progress" href={exocortexHref}>
-            <div class="card-head">
-              <span class="card-num">{t('projects.index.card.exocortex.num')}</span>
-              <div class="card-metric">
-                <div class="card-metric-num">{t('projects.index.card.exocortex.metric')}</div>
-                <div class="card-metric-lbl">{t('projects.index.card.exocortex.label')}</div>
-              </div>
-            </div>
-            <h2>{t('projects.index.card.exocortex.title')}<span class="arr"> →</span></h2>
-            <p>{t('projects.index.card.exocortex.body')}</p>
-            <div class="tags">
-              {exocortexTags.map((tg) => <span class="tag">{tg}</span>)}
             </div>
           </a>
 

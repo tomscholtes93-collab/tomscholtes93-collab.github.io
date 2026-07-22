@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Tom Scholtes. Workflow-automation specialist for regulated finance.</title>
 <script>
-  /* When this page is embedded in the tomOS desktop iframe the visitor is already
+  /* When this page is embedded in an iframe on the site the visitor is already
      "home", so the standalone Back-to-home control is hidden (see .is-embedded).
      Runs before paint to avoid a flash. */
   if (window.self !== window.top) document.documentElement.classList.add('is-embedded');
@@ -159,7 +159,7 @@
   .nav-back:hover { color: var(--ink); border-color: var(--muted); background: rgba(130,160,175,0.06); transform: translateX(-1px); }
   .nav-back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .nav-back:hover { transform: none; } }
-  /* Embedded in the tomOS iframe: the visitor is already home, so hide Back. */
+  /* Embedded in an iframe: the visitor is already home, so hide Back. */
   .is-embedded .nav-back { display: none; }
   @media (max-width: 640px) { .brand-name { display: none; } }
 

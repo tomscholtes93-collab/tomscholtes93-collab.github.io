@@ -13,28 +13,20 @@ import Footer from '../components/Footer.astro';
 import RevealObserver from '../components/RevealObserver.astro';
 import DisplayPanel from '../components/islands/DisplayPanel.jsx';
 import TweaksPanel from '../components/islands/TweaksPanel.jsx';
-// tomOS desktop layer is OMITTED for now (Tom 2026-06-29): editorial is the only
-// layer. The components (OsDesktop.astro, TomosToggle.astro, scripts/tomos.js,
-// styles/tomos.css) remain on disk. To re-enable: re-add the imports + <OsDesktop />
-// + <TomosToggle /> + the initTomOS boot script below, and restore the os-mode gate
-// in Base.astro.
 ---
 <Base jsonLd={true}>
-  <!-- Editorial layer (the only layer for now). -->
-  <div class="editorial">
-    <Nav active="home" />
-    <main>
-      <Hero />
-      <WorkflowAutomation />
-      <CaseStudies />
-      <Now />
-      <CV />
-      <Reading />
-      <Languages />
-      <Contact />
-    </main>
-    <Footer />
-  </div>
+  <Nav active="home" />
+  <main>
+    <Hero />
+    <WorkflowAutomation />
+    <CaseStudies />
+    <Now />
+    <CV />
+    <Reading />
+    <Languages />
+    <Contact />
+  </main>
+  <Footer />
 
   <DisplayPanel client:idle />
   <TweaksPanel client:idle />
