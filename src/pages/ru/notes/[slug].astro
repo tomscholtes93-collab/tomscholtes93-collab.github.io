@@ -55,35 +55,39 @@ const notesHref = localizePath('/notes/', locale);
     <section>
       <div class="container">
         <article class="prose note-article">
-          <p class="eyebrow mono">{eyebrow}</p>
-          <h1 class="serif note-title" transition:name={`note-title-${displaySlug}`}>{entry.data.title}</h1>
-          <p class="lead note-summary" transition:name={`note-summary-${displaySlug}`}>{entry.data.summary}</p>
+          <header class="note-header">
+            <p class="eyebrow mono">{eyebrow}</p>
+            <h1 class="serif note-title" transition:name={`note-title-${displaySlug}`}>{entry.data.title}</h1>
+            <p class="lead note-summary" transition:name={`note-summary-${displaySlug}`}>{entry.data.summary}</p>
+          </header>
           <PageVideo slug={displaySlug} />
           <Content />
 
-          {entry.data.sources.length > 0 && (
-            <section class="note-sources">
-              <h2 class="eyebrow">{t('notes.detail.sources.heading')}</h2>
-              <ul>
-                {entry.data.sources.map((s) => (
-                  <li>{s.label} <span class="mono">· {s.kind}</span></li>
-                ))}
-              </ul>
-            </section>
-          )}
+          <footer class="note-footer">
+            {entry.data.sources.length > 0 && (
+              <section class="note-sources">
+                <h2 class="eyebrow">{t('notes.detail.sources.heading')}</h2>
+                <ul>
+                  {entry.data.sources.map((s) => (
+                    <li>{s.label} <span class="mono">· {s.kind}</span></li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
-          {relatedEntries.length > 0 && (
-            <section class="note-related">
-              <h2 class="eyebrow">{t('notes.detail.related.heading')}</h2>
-              <ul>
-                {relatedEntries.map((r) => (
-                  <li><a class="note-link" href={localizePath(`/notes/${r.slug.replace(/^ru\//, '')}/`, locale)} data-astro-prefetch>{r.data.title}</a></li>
-                ))}
-              </ul>
-            </section>
-          )}
+            {relatedEntries.length > 0 && (
+              <section class="note-related">
+                <h2 class="eyebrow">{t('notes.detail.related.heading')}</h2>
+                <ul>
+                  {relatedEntries.map((r) => (
+                    <li><a href={localizePath(`/notes/${r.slug.replace(/^ru\//, '')}/`, locale)} data-astro-prefetch>{r.data.title}</a></li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
-          <p class="back mono"><a href={notesHref}>{t('notes.detail.back')}</a></p>
+            <p class="back mono"><a href={notesHref}>{t('notes.detail.back')}</a></p>
+          </footer>
         </article>
       </div>
     </section>

@@ -21,7 +21,7 @@ const entries = (await getCollection('notes', ({ data, slug }) =>
 >
   <Nav active="notes" />
   <main>
-    <header class="paper">
+    <header class="paper notes-index-header">
       <div class="container">
         <span class="eyebrow">{t('notes.index.eyebrow')}</span>
         <h1 class="title">{t('notes.index.heading.pre')} <em>{t('notes.index.heading.em')}</em>{t('notes.index.heading.post')}</h1>
@@ -29,15 +29,15 @@ const entries = (await getCollection('notes', ({ data, slug }) =>
       </div>
     </header>
 
-    <section>
+    <section class="notes-index">
       <div class="container">
-        <div class="notes-grid">
+        <ol class="notes-list">
           {entries.map((entry, i) => (
-            <div class="reveal" style={`--reveal-delay: ${Math.min(i, 5) * 50}ms`}>
+            <li class="reveal" style={`--reveal-delay: ${Math.min(i, 5) * 50}ms`}>
               <NoteCard entry={entry} />
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   </main>
