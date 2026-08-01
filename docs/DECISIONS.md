@@ -308,6 +308,75 @@ file is then inert data.
 
 ---
 
+## 2026-08-01. Blog furniture: tags, archive and a feed built; pagination and search declined
+
+**Applied**, as amendment 1 to the front-door order. The phrase being tested is
+Tom's "a full-fledged blogging website". The previous series tested it against
+RSS alone and found RSS missing; the fuller list is tag index, tag filtering,
+pagination, date archive and search.
+
+**Built: navigable tags.** `/tags/` and `/tags/<tag>/` in four locales. The
+taxonomy already existed in the schema and rendered as decoration; a reader
+could see a subject and not follow it.
+
+**Tag identity is the ENGLISH tag; the label is the local one.** Amendment 1
+assumed the tags were a single lowercase-kebab ASCII set. They are translated
+per locale (`memory` / `gedächtnis` / `mémoire` / `память`), so a literal reading
+would have produced four disjoint namespaces and non-ASCII URL path segments.
+That last part is the disqualifying one: `post-build.mjs` XML-escapes the sitemap
+but does not URL-escape it, `ä` has both an NFC and an NFD spelling, and
+Cyrillic case folding is a separate question, all on a host with no redirects to
+repair a mistake with. `/de/tags/memory/` therefore displays "Gedächtnis".
+
+That mapping resolves a locale's tag to its English key **by array index**, so
+it holds only while each essay's `tags` array is positionally parallel across
+the four locales. Zod cannot express that, since it validates each file alone.
+`scripts/check-notes.mjs` now fails the build on it. The invariant is checked,
+not trusted.
+
+**Built: a date archive** at `/notes/archive/`, four locales, grouped by month
+on UTC parts because `publishDate` is coerced to midnight UTC and local
+`getMonth()` would misfile an essay published on the 1st.
+
+**Built: RSS**, four per-locale feeds at `/rss.xml` and its locale variants,
+linked from every page's head. No feed of any kind existed before; `/rss.xml`,
+`/feed.xml`, `/atom.xml`, `/rss` and `/feed` all returned 404. Hand-built rather
+than adding `@astrojs/rss`, because the format is frozen and small and this
+build deploys straight to production. `lastBuildDate` is the newest essay's
+publish date, not the build clock, so the file is deterministic.
+
+**Declined: pagination.** Seven published essays. A single page of seven rows is
+not a paging problem, and shipping a page 2 that is empty is worse than not
+having one. **It becomes worth building at roughly 25 to 30 published essays**,
+which is where a feed page stops being scannable in one screenful of scrolling
+and where the `/notes/archive/` grouping stops absorbing the growth on its own.
+At the current publication rate that is years away. Revisit at 25.
+
+**Declined: client-side search.** A search index over this corpus would ship
+roughly 45,000 words of JSON to every visitor, and the affordances that make it
+unnecessary now exist: 17 tag pages, a date archive, and a feed listing every
+essay on one screen. Search solves "I cannot find it among many"; a reader here
+does not have many. **It becomes worth building at roughly 40 to 50 essays, or
+sooner if the corpus stops being thematically narrow enough for 17 tags to
+partition it.** Server-side search is not an option on this host at any size.
+
+**Recorded, not fixed: the site carries zero analytics.** Verified 2026-08-01:
+no Plausible, Umami, GoatCounter, gtag, Google Tag Manager, Google Analytics,
+Matomo, PostHog, Fathom, Cloudflare Insights or Simple Analytics anywhere in
+`src/` or `public/`. The one `gtag` grep hit is the substring inside a `figtag`
+CSS class in a lab prototype. The live pages load exactly one external script,
+Astro's own `ClientRouter`, self-hosted under `/_astro/`, and zero third-party
+origins.
+
+**So the "no URL may move" rule protects traffic that cannot be shown to
+exist.** That is worth stating plainly rather than leaving as an assumption: the
+constraint is justified on the durability of published addresses and on the
+inbound links, citations and bookmarks that are known to be possible, not on
+measured traffic, because there is no measurement. Installing analytics is Tom's
+call and a privacy decision, and is deliberately NOT made here.
+
+---
+
 ## Standing: the build is the review
 
 There is no human review step between a push to `main` and production. The
