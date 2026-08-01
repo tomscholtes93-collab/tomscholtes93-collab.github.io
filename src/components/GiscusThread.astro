@@ -1,0 +1,109 @@
+---
+/* LAYER 2: real threads, one click from live.
+   ==========================================================================
+
+   Renders NOTHING until src/config/comments.ts has `enabled: true` and both
+   ids filled in. That is not caution, it is correctness: the giscus GitHub App
+   has to be installed through a browser OAuth grant that cannot be performed
+   headlessly, and `repoId` / `categoryId` have to be read off giscus.app. A
+   build that shipped this enabled without them would ship a widget that loads
+   and then reports an error to every reader. Four steps to switch on, written
+   down in GISCUS-ACTIVATION.md in this job's directory.
+
+   CLIENT-SIDE ONLY, and that is the quarantine boundary rather than a
+   performance choice. giscus fetches the discussion and renders it inside its
+   own iframe, at read time, in the reader's browser. No externally authored
+   byte is fetched during `npm run build`, written into src/content/notes/** or
+   src/i18n/*.json, or committed. Those two trees are guarded by exit-1 gates
+   (check-notes.mjs, check-i18n.mjs), so a stranger's em-dash or a denylisted
+   name landing in either would be a deploy freeze that any reader could
+   trigger on purpose. Nothing here can reach them.
+
+   THE SCRIPT IS INJECTED BY SCRIPT, not emitted as markup, because the theme
+   giscus should open in is only knowable in the browser: it lives in
+   localStorage['ts-display-prefs'] and is applied to <html data-theme> by the
+   blocking script in Base.astro. A statically emitted <script> tag would have
+   to guess.
+
+   THREAD IDENTITY IS BY SLUG AND IS EFFECTIVELY PERMANENT. See the long note
+   in src/config/comments.ts. Short version: mapping='specific' with the slug
+   as data-term gives one essay ONE conversation that all four locales share;
+   pathname mapping would give it four, splitting a small audience four ways.
+   Changing the term after threads exist orphans every one of them, with no
+   migration short of renaming discussions by hand. */
+import { comments, giscusReady } from '../config/comments';
+import type { Locale } from '../i18n';
+
+interface Props {
+  /** The unlocalized essay slug. This IS the thread identity. */
+  slug: string;
+  locale: Locale;
+}
+const { slug, locale } = Astro.props;
+const ready = giscusReady();
+---
+{ready && (
+  <div
+    class="note-comments"
+    id="comments"
+    data-giscus-repo={comments.repo}
+    data-giscus-repo-id={comments.repoId}
+    data-giscus-category-id={comments.categoryId}
+    data-giscus-term={slug}
+    data-giscus-lang={locale}
+  >
+  </div>
+)}
+{ready && (
+  <script is:inline data-astro-rerun>
+    (function () {
+      function mount() {
+        var host = document.getElementById('comments');
+        if (!host || host.dataset.giscusMounted === 'true') return;
+
+        /* giscus offers light, dark, dark_dimmed, preferred_color_scheme and a
+           custom stylesheet URL. This site has THREE themes; `ink` is a dark
+           theme, so it maps to dark rather than falling through to light.
+           preferred_color_scheme is deliberately not used: it would follow the
+           OS while the page follows the reader's stored choice, and the two
+           disagree for anyone who has ever touched the display panel. */
+        var siteTheme = document.documentElement.getAttribute('data-theme');
+        var theme = (siteTheme === 'dark' || siteTheme === 'ink') ? 'dark' : 'light';
+
+        var s = document.createElement('script');
+        s.src = 'https://giscus.app/client.js';
+        s.async = true;
+        s.crossOrigin = 'anonymous';
+        s.setAttribute('data-repo', host.dataset.giscusRepo);
+        s.setAttribute('data-repo-id', host.dataset.giscusRepoId);
+        s.setAttribute('data-category-id', host.dataset.giscusCategoryId);
+        /* 'specific' + the slug, NOT 'pathname'. One essay, one conversation,
+           shared by en/de/fr/ru. data-strict pins the match to that exact term
+           so a discussion with a similar title cannot be adopted by mistake. */
+        s.setAttribute('data-mapping', 'specific');
+        s.setAttribute('data-term', host.dataset.giscusTerm);
+        s.setAttribute('data-strict', '1');
+        s.setAttribute('data-reactions-enabled', '1');
+        s.setAttribute('data-emit-metadata', '0');
+        s.setAttribute('data-input-position', 'top');
+        s.setAttribute('data-theme', theme);
+        /* The thread is shared across locales; the widget's own chrome is not.
+           A Russian reader gets Russian buttons on the same conversation. */
+        s.setAttribute('data-lang', host.dataset.giscusLang || 'en');
+        s.setAttribute('data-loading', 'lazy');
+        host.appendChild(s);
+        host.dataset.giscusMounted = 'true';
+      }
+
+      /* The display panel is not mounted on essay pages, so theme cannot change
+         while reading and there is nothing to keep in sync. It IS reachable on
+         `/` and /about/, so a reader who changes it there and then opens an
+         essay gets the new theme on this page's first paint, which is when
+         mount() reads it. If DisplayPanel is ever added to an essay page, this
+         is where a giscus setConfig postMessage would go. */
+      if (document.readyState !== 'loading') mount();
+      else document.addEventListener('DOMContentLoaded', mount);
+      document.addEventListener('astro:page-load', mount);
+    })();
+  </script>
+)}

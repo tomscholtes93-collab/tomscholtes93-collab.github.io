@@ -6,6 +6,7 @@ import RevealObserver from '../../../components/RevealObserver.astro';
 import PageVideo from '../../../components/PageVideo.astro';
 import JsonLdArticle from '../../../components/JsonLdArticle.astro';
 import ReplySurface from '../../../components/ReplySurface.astro';
+import GiscusThread from '../../../components/GiscusThread.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { t as translate, getLocale, localizePath, localeDateFmt, type Locale } from '../../../i18n';
 
@@ -101,9 +102,13 @@ const essayUrl = new URL(
 
             <p class="back mono"><a href={notesHref}>{t('notes.detail.back')}</a></p>
 
-            {/* LAYER 1, always rendered. LAYER 2 (giscus) mounts below it and
-                only when src/config/comments.ts is switched on. */}
+            {/* LAYER 1, always rendered. LAYER 2 mounts below it and only when
+                src/config/comments.ts is switched on; while it is off,
+                GiscusThread renders literally nothing, not even its host div.
+                Thread identity is the SLUG, so one essay hosts one
+                conversation across all four locales. */}
             <ReplySurface title={entry.data.title} url={essayUrl} locale={locale} />
+            <GiscusThread slug={displaySlug} locale={locale} />
           </footer>
         </article>
       </div>
