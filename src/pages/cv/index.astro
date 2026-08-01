@@ -1,0 +1,27 @@
+---
+/* The CV's own address.
+   Created 2026-08-01, deliberately BEFORE the homepage #cv section is removed,
+   so the demotion is by address and is reversible by address. See
+   docs/DECISIONS.md, "The CV is demoted by address, not deleted".
+   No new i18n keys: every string here already exists, hand-translated, in all
+   four dictionaries. */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import CV from '../../components/CV.astro';
+import Footer from '../../components/Footer.astro';
+import { t as translate, getLocale, type Locale } from '../../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+---
+<Base
+  title={`${t('home.cv.eyebrow')} · Tom Scholtes`}
+  description={`${t('home.cv.heading')} ${t('home.cv.blurb')}`}
+  path="/cv/"
+>
+  <Nav active="cv" />
+  <main>
+    <CV reveal={false} />
+  </main>
+  <Footer />
+</Base>

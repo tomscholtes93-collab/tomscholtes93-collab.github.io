@@ -2,6 +2,15 @@
 import Arr from './Arr.astro';
 import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
 
+interface Props {
+  /* The homepage scroll-reveals this section. A standalone /cv/ page must not:
+     the reveal class hides content until an IntersectionObserver clears it, so
+     on a page whose only content IS this section, a visitor with JavaScript off
+     would get a blank page. Same fault as DEFECTS-FOUND.md D-1. */
+  reveal?: boolean;
+}
+const { reveal = true } = Astro.props;
+
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
 const thesisHref = localizePath('/thesis', locale);
@@ -61,7 +70,7 @@ const skills: [string, string][] = [
   ['Frameworks', 'LuxGAAP · eCDF · CSSF / BCL filings'],
 ];
 ---
-<section id="cv" class="reveal">
+<section id="cv" class={reveal ? 'reveal' : undefined}>
   <div class="container">
     <div class="sec-head">
       <span class="eyebrow">{t('home.cv.eyebrow')}</span>
