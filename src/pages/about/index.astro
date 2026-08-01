@@ -1,0 +1,56 @@
+---
+/* /about/ exists so that the root URL can become the publication without any
+   homepage content losing its address.
+
+   Created 2026-08-01, deliberately BEFORE `/` is repointed at the essay feed,
+   the same route-first order used for `/cv/` on the same day. This host serves
+   no per-path 301, so a section cannot be "moved"; it can only be given a new
+   address while the old one keeps returning 200. `/` still returns 200. What
+   changes in the next commit is what `/` renders, not whether it resolves.
+
+   Every section here renders the exact component it rendered on the homepage,
+   in the homepage's order, with no edits: Hero, Now, Reading, Languages,
+   Contact. The three fragment anchors #now, #reading and #contact therefore
+   resolve here, which is why Nav and Footer repoint at /about/#now rather than
+   at a fragment with no target.
+
+   WorkflowAutomation is the one homepage section NOT re-hosted here, because
+   it is the one that already had its own address: /workflow-automation/ builds
+   from public/ and is untouched.
+
+   DisplayPanel and TweaksPanel are deliberately NOT mounted here. They stay on
+   `/` and /lab/interactive/, exactly where PREFS-CONTRACT.md records them, so
+   the ts-display-prefs surface is byte-unchanged by this series.
+
+   See docs/DECISIONS.md. */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Hero from '../../components/Hero.astro';
+import Now from '../../components/Now.astro';
+import Reading from '../../components/Reading.astro';
+import Languages from '../../components/Languages.astro';
+import Contact from '../../components/Contact.astro';
+import Footer from '../../components/Footer.astro';
+import RevealObserver from '../../components/RevealObserver.astro';
+import { t as translate, getLocale, type Locale } from '../../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+---
+<Base
+  title={t('meta.about.title')}
+  description={t('meta.about.description')}
+  path="/about/"
+  jsonLd={true}
+>
+  <Nav active="about" />
+  <main>
+    <Hero />
+    <Now />
+    <Reading />
+    <Languages />
+    <Contact />
+  </main>
+  <Footer />
+  <RevealObserver />
+</Base>
