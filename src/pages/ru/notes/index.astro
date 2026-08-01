@@ -33,7 +33,7 @@ const entries = (await getCollection('notes', ({ data, slug }) =>
       <div class="container">
         <ol class="notes-list">
           {entries.map((entry, i) => (
-            <li class="reveal" style={`--reveal-delay: ${Math.min(i, 5) * 50}ms`}>
+            <li class="reveal" style={`--reveal-delay: ${Math.min(i, 6) * 45}ms`}>
               <NoteCard entry={entry} />
             </li>
           ))}

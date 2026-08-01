@@ -577,7 +577,6 @@ header.paper .lead,
   .prose p.note-summary,
   .paper-body p.eyebrow,
   .paper-body p.back,
-  .note-card-summary,
   .case-metric-lbl,
   .case-metric,
   .meta-row,
@@ -678,7 +677,19 @@ h2, h3, h4 {
 .notes-index-header {
   padding: var(--space-8) 0 var(--space-7);
 }
-.notes-index-header .container,
+/* PRECEDENCE MADE EXPLICIT (2026-08-01), and this was a live defect rather
+   than a tidy-up. The masthead element is <header class="paper
+   notes-index-header">, so `header.paper .container { max-width: 920px }`
+   above matches it at (0,2,1) and beat this rule at (0,2,0). The notes index
+   masthead has therefore been rendering 184px wider than the list beneath it,
+   left edge misaligned by 92px, since the two rules met. Repeating the
+   element and both classes takes this to (0,3,1) and the masthead finally
+   shares the list's frame, which is what the rule always claimed to do.
+
+   Same fault class as the accent inline style, the .prose collision and the
+   unstyled endmatter labels: two mechanisms expressing one intent, with the
+   winner decided by something nobody checked. */
+header.paper.notes-index-header .container,
 .notes-index .container {
   max-width: 46rem;
 }
@@ -731,9 +742,38 @@ h2, h3, h4 {
   font-size: var(--step-0);
   line-height: 1.5;
   margin: 0;
+  /* Was one line with white-space: nowrap and an ellipsis. That truncated at
+     roughly 95 characters in English and roughly 83 in Russian, because
+     Inter's Cyrillic average advance is 0.5396 em against Latin's 0.4675, so
+     it bit earliest exactly where the sentence needed the most room. German
+     and French summaries also run longer than their English sources. Two
+     lines, clamped. */
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* NOT optional. Unclamping turns this from a truncated line into multi-line
+     body text, and the track it wraps inside is 680px (the 46rem index cap
+     less 28px of .container padding a side), which is 88.2 characters in EN
+     and 76.4 in RU: both outside the 60 to 75 band, on the surface this
+     makeover targets. --measure is expressed in em of the element's own
+     font-size, so this one declaration gives it exactly --cpl characters at
+     whatever size and locale it renders. */
+  max-width: var(--measure);
+}
+
+/* A returning reader could not tell which of seven long-form essays they had
+   already read. Colour only, and that is a hard engine limit rather than a
+   design choice: every browser restricts :visited to the colour family and
+   refuses generated content and layout properties on it, to block history
+   sniffing. --muted-read against --ink-read is 5.90:1 versus 15.64:1 on
+   light, a difference large enough to scan and still above AA in its own
+   right. */
+.note-entry:visited .note-entry-title,
+.note-entry:visited .note-entry-summary {
+  color: var(--muted-read);
 }
 @media (prefers-reduced-motion: no-preference) {
   .note-entry-title {
@@ -745,11 +785,83 @@ h2, h3, h4 {
   color: var(--accent-ink);
 }
 
-/* note article (detail) */
+/* ============================================================================
+   note article (detail): the reading surface.
+
+   `.prose` was DROPPED from this element on 2026-08-01. Both classes sat on
+   <article class="prose note-article"> at equal specificity, so which one
+   owned the column width and the body size was decided purely by source
+   order. That collision caused two shipped defects on its own and silently
+   defeated a third party's paragraph interval. `.note-article` now owns the
+   surface outright and re-provides everything `.prose` was supplying;
+   `.prose` serves 404.astro alone.
+
+   THE GRID. Three tracks, so that running text and wide objects stop being
+   the same width. The frame is DERIVED from the measure rather than declared
+   beside it, which is what stops the Russian measure (736.6px at default
+   density) from clipping against the old hardcoded 46rem = 736px cap and
+   delivering 69.9 characters against a declared 70.
+
+   Set --bleed-lane to 0px to opt out: the two outer tracks collapse and every
+   element sits at the measure, with no other change required.
+   ========================================================================== */
 .note-article {
-  max-width: 46rem;
-  font-size: var(--step-0);
+  display: grid;
+  grid-template-columns:
+    [bleed-start] 1fr
+    [text-start] min(var(--measure), 100%)
+    [text-end] 1fr [bleed-end];
+  max-width: calc(var(--measure) + var(--bleed-lane));
+  margin: 0 auto;
+  font-size: var(--read-0);
+  line-height: var(--read-lh);
+  /* NOT --ink-2, which is the UI de-emphasis ink. 6000 words were being set
+     in it. */
+  color: var(--ink-read);
+  text-wrap: pretty;
+  hyphens: manual;
+  -webkit-hyphens: manual;
 }
+.note-article > * { grid-column: text-start / text-end; min-width: 0; }
+/* The escape lane: objects that are not running text extend into the right
+   margin instead of being trapped at the reading measure. */
+.note-article > :is(figure, pre, blockquote, .note-footer) {
+  grid-column: text-start / bleed-end;
+}
+
+/* The paragraph rhythm. The old gap was 16px against a 25.575px line box,
+   which is 0.626 of a line, so paragraph boundaries read WEAKER than line
+   boundaries: that is the mechanism that turns a 1999-character paragraph
+   into an undifferentiated slab. At exactly one line box they register with
+   no mark, rule, indent or ornament.
+
+   The plain declaration is the support floor and every engine parses it. `lh`
+   is a 2023 unit, and an `lh` value containing a var() is invalid at
+   computed-value time rather than a parse error on an older engine, so it
+   resolves to `unset` and does NOT fall back to an earlier declaration in the
+   same rule. Without this @supports gate the reading surface would lose
+   paragraph spacing outright rather than degrade. */
+.note-article > * + * { margin-top: var(--space-5); }
+@supports (margin-top: 1lh) {
+  .note-article > * + * { margin-top: calc(var(--rhythm) * 1lh); }
+  /* A full movement interval before each run-in head. Degrades to the
+     ordinary interval without :has(). */
+  .note-article > p:has(> strong:first-child) { margin-top: calc(var(--rhythm) * 1.5lh); }
+}
+
+/* The author's own hierarchy, finally styled. There are 22 paragraph-initial
+   bold lead-ins across five of the seven essays, mirrored in the Russian
+   translations, and in every single file the count of paragraph-initial bold
+   spans equals the count of ALL bold spans: bold is used in this corpus for
+   exactly one thing. No `strong` rule reached this surface before, so the
+   only authored structure in six essays that contain zero headings rendered
+   as default browser bold, and in Russian as a synthetic smear. */
+.note-article > p > strong:first-child {
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.004em;
+}
+
 .note-header {
   margin-bottom: var(--space-6);
 }
@@ -763,8 +875,12 @@ h2, h3, h4 {
 .note-article .note-title {
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
-  font-size: var(--step-4);
-  line-height: 1.05;
+  /* --cyr-display-scale is 1 outside ru, so the multiply is a no-op there. It
+     is folded into the SIZE DECLARATION rather than applied in the ru block:
+     `font-size: calc(1em * var(--cyr-display-scale))` there would resolve 1em
+     against the PARENT and silently discard --read-title. */
+  font-size: calc(var(--read-title) * var(--cyr-display-scale));
+  line-height: var(--read-lh-display);
   letter-spacing: -0.02em;
   color: var(--ink);
   max-width: 18ch;
@@ -772,18 +888,115 @@ h2, h3, h4 {
   text-wrap: balance;
 }
 .note-article .note-summary {
-  color: var(--ink-2);
-  font-size: var(--step-1);
-  line-height: 1.5;
+  color: var(--muted-read);
+  font-size: var(--read-lead);
+  line-height: var(--read-lh-lead);
   margin: 0;
   max-width: 58ch;
   text-wrap: pretty;
 }
-.note-article h2 {
-  margin-top: var(--space-7);
+/* Child combinator on purpose: the endmatter headings are h2 as well, and a
+   descendant selector here would tie with .note-footer h2 and be resolved by
+   source order. This way they simply do not compete. Inter 600 rather than
+   the display serif, which also makes them work in Russian. */
+.note-article > h2 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: var(--read-h2);
+  line-height: var(--read-lh-lead);
+  letter-spacing: 0;
+  color: var(--ink);
 }
-.note-article p {
-  margin: var(--space-4) 0;
+.note-article > h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: var(--read-0);
+  line-height: var(--read-lh-lead);
+  color: var(--ink);
+}
+@supports (margin-top: 1lh) {
+  .note-article > h2 { margin-top: calc(var(--rhythm) * 2lh); }
+  .note-article > h3 { margin-top: calc(var(--rhythm) * 1.5lh); }
+}
+.note-article > :is(ul, ol) {
+  padding-left: 1.2em;
+  margin-bottom: 0;
+}
+.note-article > :is(ul, ol) li { margin: 0; }
+.note-article > :is(ul, ol) li + li { margin-top: var(--space-2); }
+
+/* Body-prose links. Scoped to direct-child blocks so this never reaches the
+   endmatter links, which carry their own treatment below.
+   --accent-ink, not --accent: the matrix holds --accent to the 3.0:1 graphic
+   floor and --accent-ink to the 4.5:1 AA text floor, and a body link is text.
+   The old rule used --accent and computed 3.65:1 on the default theme. */
+.note-article > :is(p, ul, ol, blockquote, h2, h3) a {
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .note-article > :is(p, ul, ol, blockquote, h2, h3) a {
+    transition: text-decoration-color var(--dur-draw) var(--ease-out);
+  }
+}
+.note-article > :is(p, ul, ol, blockquote, h2, h3) a:hover,
+.note-article > :is(p, ul, ol, blockquote, h2, h3) a:focus-visible {
+  text-decoration-color: var(--accent);
+}
+
+/* Smaller and muted, NOT larger and accented. There is exactly one
+   blockquote in the corpus and it is a provenance line, not a quotation, so
+   this is deliberately not a pull-quote. */
+.note-article > blockquote {
+  font-size: var(--read-caption);
+  line-height: var(--read-lh-lead);
+  color: var(--muted-read);
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--rule);
+}
+.note-article > figcaption,
+.note-article figcaption {
+  font-size: var(--read-caption);
+  line-height: var(--read-lh-lead);
+  color: var(--muted-read);
+}
+.note-article > code,
+.note-article :not(pre) > code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.85em;
+  background: var(--bg-2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.note-article > pre {
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 16px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: var(--read-caption);
+  line-height: 1.5;
+}
+.note-article .eyebrow,
+.note-article .note-entry-meta {
+  font-size: var(--read-meta);
+}
+
+/* The ru display voice: FAMILY, WEIGHT AND TRACKING ONLY. The scale lives in
+   the size declarations above. Instrument Serif has ZERO Cyrillic
+   codepoints, so every .serif title in this locale fell back to whatever
+   generic serif the OS supplied, and the 2026-07-22 pass made those titles
+   more prominent, which made the fallback more visible rather than less. */
+html[lang="ru"] :is(.note-entry-title, .note-title, .serif) {
+  font-family: 'Inter', sans-serif;
+  font-weight: var(--cyr-display-weight);
+  letter-spacing: 0;
 }
 
 .note-footer {
@@ -799,8 +1012,22 @@ h2, h3, h4 {
   padding: 0;
   border: 0;
 }
+/* DECLARE THE FONT, do not rely on the absence of a competitor. These are
+   <h2 class="eyebrow">, clearly asking for the 12px uppercase mono label, and
+   they rendered as 26 to 36px Instrument Serif display headings because
+   `.prose h2` beat `.eyebrow` on specificity while this rule set margin,
+   colour, border and padding and no font properties at all. Dropping .prose
+   from the article already fixes it; declaring it means the next rewrite of
+   this rule cannot reproduce the omission, which is exactly what the
+   2026-07-22 rewrite did. */
 .note-footer h2 {
   margin: 0 0 var(--space-3);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: var(--read-meta);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
   color: var(--muted);
   border: 0;
   padding: 0;
@@ -816,8 +1043,9 @@ h2, h3, h4 {
   gap: var(--space-2);
 }
 .note-footer li {
-  color: var(--ink-2);
-  font-size: var(--step-0);
+  color: var(--muted-read);
+  font-size: var(--read-caption);
+  line-height: var(--read-lh-lead);
   margin: 0;
 }
 .note-sources li .mono {
@@ -831,6 +1059,25 @@ h2, h3, h4 {
 .note-article .back {
   margin: 0;
   color: var(--muted);
+  font-size: var(--read-meta);
+}
+/* The back arrow, drawn rather than typed. All four locales used to open this
+   string with U+2190, and U+2190 is present in NONE of the shipped woff2
+   files, so the arrow came from a system font while the words beside it
+   rendered in JetBrains Mono: a visible weight and alignment mismatch on
+   every note article in every locale. Swapping in U+2039 would not fix it
+   either, since that codepoint sits outside every declared unicode-range and
+   would fall back the same way. A CSS chevron needs no glyph, inherits
+   colour and scales with the font size. */
+.note-article .back a::before {
+  content: "";
+  display: inline-block;
+  width: 0.4em;
+  height: 0.4em;
+  margin-right: 0.65em;
+  border-left: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translate(0.1em, -0.1em);
 }
 .note-article .back a {
   color: inherit;

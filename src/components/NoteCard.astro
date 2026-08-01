@@ -1,20 +1,46 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { getLocale, localizePath, localeDateFmt, type Locale } from '../i18n';
+import { getLocale, localizePath, localeDateFmt, t as translate, type Locale } from '../i18n';
 
 interface Props { entry: CollectionEntry<'notes'>; }
 const { entry } = Astro.props;
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
 const fmt = localeDateFmt(locale);
 const displaySlug = entry.slug.replace(/^(en|de|fr|ru)\//, '');
 const href = localizePath(`/notes/${displaySlug}/`, locale);
 const firstTag = entry.data.tags[0];
 const publishedDate = entry.data.publishDate.toISOString().slice(0, 10);
+
+/* The word count, computed from the entry body at build time so it cannot
+   drift from the essay it describes.
+
+   This is where the length signal lives, and it is deliberately NOT a title
+   size. The design direction proposed scaling each index title on a log
+   curve of its word count; that move had a mandatory render test attached,
+   the test was run on 2026-08-01, and it failed: six of the seven titles
+   land within 5px of each other, so what a reader sees is the title's
+   LENGTH, not the essay's. The fallback the spec names is this one, and it
+   is the better answer anyway, because a reader deciding what to open can
+   read an exact number but cannot resolve a 1.2px difference. */
+const words = entry.body.trim().split(/\s+/).length;
+const wordsKey = (n: number): string => {
+  if (locale === 'ru') {
+    const m10 = n % 10;
+    const m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return 'notes.index.words.one';
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'notes.index.words.few';
+    return 'notes.index.words.many';
+  }
+  return n === 1 ? 'notes.index.words.one' : 'notes.index.words.many';
+};
+const wordCount = t(wordsKey(words), { count: new Intl.NumberFormat(locale).format(words) });
 ---
 <a href={href} class="note-entry" data-astro-prefetch>
   <p class="note-entry-meta eyebrow">
     <time datetime={publishedDate}>{fmt.format(entry.data.publishDate)}</time>
     {firstTag && <><span aria-hidden="true">·</span><span>{firstTag}</span></>}
+    <span aria-hidden="true">·</span><span>{wordCount}</span>
   </p>
   <h2 class="serif note-entry-title" transition:name={`note-title-${displaySlug}`}>
     {entry.data.title}

@@ -1,28 +1,159 @@
+/* ============================================================================
+   tokens.css  ·  the type-led reading direction
+   Applied 2026-08-01. Every token here is bound to a selector in
+   components.css or global.css. The sole deliberate exception is
+   --serif-floor, which is a documentation token and says so at its
+   declaration.
+
+   THIS FILE IS THE ONLY SOURCE OF DESIGN TOKENS (docs/DECISIONS.md).
+
+   CHANGES FROM THE PREVIOUS FILE
+     + --ink-read / --muted-read     long-form reading inks, all 3 themes
+     + the 15-pair accent matrix     resolved in CSS instead of by inline style
+     + the reading ladder            --read-*, derived from --step-1
+     + --adv / --cpl / --measure     a character count that holds under the clamp
+     + --cyr-display-*               optical compensation for the ru display voice
+     + --rhythm, --dur-draw, --serif-floor, --bleed-lane
+     ~ --step-1 cap 19px -> 19.5px   sole other consumer: .sec-head .blurb
+     ~ --ok gains per-theme values   it failed AA on dark (3.07) and ink (2.85)
+     ~ [data-density] also drives measure, leading and rhythm
+     = --space-2..9, --pad-y, --container, --gap, --ease-out, --dur-* unchanged
+     = --bg, --bg-2, --ink, --ink-2, --muted, --rule, --deep unchanged, all themes
+
+   Every contrast ratio in this file was computed with the WCAG 2.x sRGB
+   relative-luminance formula, not asserted. Every font metric was measured
+   with fontTools against the shipped .woff2 binaries in public/fonts/.
+   ========================================================================== */
+
 :root {
+  /* Surface. Unchanged. */
   --bg: #F6F2EC;
   --bg-2: #EFE8DD;
   --ink: #0E0E0C;
   --ink-2: #2A2A28;
   --muted: #6B6963;
   --rule: #1f1f1c1a;
-  --accent: #C4623A;
+
+  /* Long-form reading inks. The article body used to be set in --ink-2,
+     which is the UI de-emphasis colour. These sit one notch back from
+     --ink rather than at maximum: #0E0E0C on warm paper is 17.33:1 and
+     harsh over 1600 words.
+       light  15.64:1 on --bg, 14.33:1 on --bg-2
+       dark   15.12:1 / 13.92:1        ink  14.17:1 / 12.42:1              */
+  --ink-read: #1A1A17;
+  --muted-read: #5F5D57;   /* 5.90:1 on --bg, 5.41:1 on --bg-2 */
+
+  /* Accent: DEFAULT ONLY (light + terracotta), for the no-JS path. The live
+     value comes from the [data-theme][data-accent] matrix below. Base.astro
+     and DisplayPanel.jsx write a data-accent ATTRIBUTE and no longer write
+     --accent as an inline style; an inline style beats an attribute selector,
+     which is why the per-theme accents never applied before 2026-08-01 and
+     why reachable combinations rendered body links at 1.28:1 and focus
+     outlines at 1.37:1.                                                    */
+  --accent: #AE5230;
   --accent-ink: #8A3F1E;
+
   --deep: #1B2B4B;
-  --ok: #2F6B4F;
+
+  /* --ok was declared once here and never per theme, so the light-theme green
+     leaked into both dark themes and failed: 3.07:1 on dark, 2.85:1 on ink.
+     It colours .sigil.pos and .proj-cards .card.in-progress .card-metric-num,
+     which is text.                                                         */
+  --ok: #2F6B4F;           /* 5.64:1 on light --bg */
+
   --pad-y: clamp(56px, 6vw, 104px);
   --container: 1200px;
   --gap: 24px;
 
-  /* ── Type scale (fluid, ~1.22 ratio). Opt-in: selectors adopt these
-        below; existing ad-hoc clamps keep working until they reference a step. */
-  --step-0: clamp(15px, 0.95rem + 0.1vw, 16.5px);   /* body            */
-  --step-1: clamp(17px, 1rem + 0.3vw, 19px);        /* lead            */
+  /* UI type ladder. Only --step-1 moves (cap 19px -> 19.5px), so that the
+     reading size and the "lead" step are the same thing, which they always
+     should have been: the old hardcoded 17px body IS --step-1's floor with
+     the fluidity amputated. The only other --step-1 consumer is
+     .sec-head .blurb, a lead paragraph that benefits from the same half
+     pixel.                                                                 */
+  --step-0: clamp(15px, 0.95rem + 0.1vw, 16.5px);   /* body (cards, UI)     */
+  --step-1: clamp(17px, 1rem + 0.3vw, 19.5px);      /* lead == reading size */
   --step-2: clamp(20px, 1.1rem + 0.5vw, 24px);
-  --step-3: clamp(26px, 1.4rem + 1vw, 34px);        /* card title      */
+  --step-3: clamp(26px, 1.4rem + 1vw, 34px);        /* index entry title    */
   --step-4: clamp(34px, 2rem + 2vw, 52px);
-  --step-5: clamp(44px, 3rem + 3vw, 84px);          /* display heading */
+  --step-5: clamp(44px, 3rem + 3vw, 84px);          /* display heading      */
 
-  /* ── Vertical rhythm ramp on the 4px grid. */
+  /* Reading ladder. Same ~1.22 ratio, rooted at the reading size. */
+  --read-0:       var(--step-1);                            /* 17 - 19.5px   */
+  --read-lead:    clamp(19px, 1.05rem + 0.5vw, 23px);       /* .note-summary */
+  --read-h2:      clamp(21px, 1.15rem + 0.5vw, 25px);       /* Inter 600     */
+  --read-caption: clamp(13px, 0.8rem + 0.15vw, 14.5px);     /* blockquote, sources */
+  --read-meta:    clamp(11.5px, 0.7rem + 0.12vw, 12.5px);   /* mono labels   */
+  --read-title:   clamp(32px, 1.4rem + 3.2vw, 62px);        /* .note-title   */
+
+  /* NOT DECLARED, and deliberately so: --idx-min / --idx-max, the word-count
+     ladder that would have sized each index title on a log scale.
+     DESIGN-DIRECTION.md 5.6 required a render test before any token work,
+     because six of the seven current titles land within 5px of each other.
+     That test was run on 2026-08-01 at a 1440px viewport with the real
+     binaries, and the answer was wobble, not hierarchy: the six bunched
+     titles are indistinguishable, and the apparent size differences that do
+     read track title LENGTH rather than word count, so the ladder encodes
+     nothing a reader can recover. Fallback (c) was taken: the size mapping is
+     dropped and the word count is printed in the metadata line instead, where
+     it can be read exactly. .note-entry-title keeps --step-3. Two inert
+     tokens are not shipped to preserve a move that did not survive its own
+     acceptance test.                                                       */
+
+  --read-lh:         1.62;   /* Inter x-height 0.5459 em at a 70-char measure */
+  --read-lh-lead:    1.42;
+  --read-lh-display: 1.04;
+
+  /* The measure. NOT in ch.
+     Inter's zero advance is 0.6309 em but its average advance over the real
+     corpus (31,986 chars of the seven published EN notes, markdown stripped,
+     zero unmapped glyphs) is 0.4675 em, so `ch` understates the real measure
+     by about 28 percent.
+
+     With this constant, --cpl IS the character count, at every viewport,
+     zoom level and density mode.
+
+     For comparison, the surface this replaces: .note-article was max-width
+     46rem at font-size var(--step-0), so the column was 736px at 15 to
+     16.5px, giving 95.4 characters at the clamp cap and 98.4 at the worst
+     viewport. The comfortable band is 60 to 75.                            */
+  --adv: 0.4675em;
+  --cpl: 70;
+  --measure: calc(var(--cpl) * var(--adv));   /* 32.725em = 638.1px at 19.5px */
+
+  /* The bleed lane: 40px gutter + 240px escape for wide objects
+     (figure.page-video, pre, blockquote, .note-footer), which take
+     grid-column: text-start / bleed-end. The article frame is DERIVED from
+     this, not declared beside it:
+
+       .note-article { max-width: calc(var(--measure) + var(--bleed-lane)); }
+
+     which is what stops the ru measure (736.6px at default density) from
+     clipping against a hardcoded 46rem = 736px cap.
+
+     Set this to 0px to opt out: the article grid degenerates to a single
+     track at the measure, with no other change required anywhere.          */
+  --bleed-lane: 280px;
+
+  /* Optical relationship between the two faces (measured, fontTools).
+     Instrument Serif x-height 0.5100 em, Inter 0.5459 em -> 0.934 scale.
+     Instrument Serif 'l' stem 0.0680 em; Inter 300 is 0.0664 em (0.977x),
+     Inter 400 is 0.0879 (1.293x), Inter 500 is 0.1074 (1.580x).
+     So the ru display voice is Inter LIGHT, not regular and certainly not
+     medium: Instrument Serif reads light on the page because half its
+     strokes are 0.0250 em hairlines, and matching that needs a LIGHTER
+     sans, not a heavier one. The intuitive choice is backwards.            */
+  --cyr-display-scale: 1;
+  --cyr-display-weight: 400;
+
+  /* Instrument Serif's thinnest stroke is 0.0250 em, so it renders below one
+     device pixel under 20px at 2 dppx and under 40px at 1 dppx.
+     DOCUMENTATION TOKEN: nothing reads it, on purpose, but nothing should set
+     the serif below it. Absolute floor 24px, preferred floor 32px.         */
+  --serif-floor: 24px;
+
+  /* Rhythm ramp on the 4px grid. UNCHANGED. Page chrome only; the reading
+     surface uses proportional intervals in lh, not this ramp.              */
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
@@ -33,16 +164,23 @@
   --space-9: 96px;
   --section-gap: var(--pad-y); /* one rhythm source for section padding */
 
-  /* ── Motion language. The curve already used in .reveal / .case is now
-        a single referenced variable so the lattice and reveals stay in lockstep. */
+  /* Base paragraph interval, in LINES (consumed as
+     `margin-top: calc(var(--rhythm) * 1lh)`). The old gap was 16px against a
+     16.5 x 1.55 = 25.575px line box, which is 0.626 of a line, so paragraph
+     boundaries read WEAKER than line boundaries. That is the mechanism that
+     turns a 1999-character paragraph into an undifferentiated slab. At
+     exactly 1.00 they register with no mark, rule, indent or ornament.     */
+  --rhythm: 1.0;
+
+  /* Motion. UNCHANGED, plus one token for the underline draw. */
   --ease-out: cubic-bezier(.2, .7, .2, 1);
   --dur-reveal: .7s;
   --dur-ui: .18s;
+  --dur-draw: .22s;
   --stagger: 70ms;
-
-  /* --hairline: alias intent for --rule. Use var(--rule) for 1px separators;
-     this note documents intent without redefining the locked value. */
 }
+
+/* Themes. Surface tokens only; the accent comes from the matrix below. */
 
 [data-theme="dark"] {
   --bg: #0E0E0C;
@@ -51,9 +189,12 @@
   --ink-2: #D6D1C7;
   --muted: #8E8B82;
   --rule: #ffffff1a;
-  --accent: #E37B4F;
+  --ink-read: #E8E3DA;    /* 15.12:1 on --bg, 13.92:1 on --bg-2 */
+  --muted-read: #9A968C;  /*  6.55:1 on --bg,  6.03:1 on --bg-2 */
+  --accent: #E37B4F;      /* terracotta default; the matrix is authoritative */
   --accent-ink: #F0A07F;
   --deep: #C9D5EE;
+  --ok: #4FA57C;          /* 6.45:1. Was #2F6B4F at 3.07:1, failing. */
 }
 
 [data-theme="ink"] {
@@ -63,10 +204,191 @@
   --ink-2: #C7D2E5;
   --muted: #7C8DAA;
   --rule: #ffffff14;
-  --accent: #E8B25A;
-  --accent-ink: #F5C97A;
+  --ink-read: #DDE5F2;    /* 14.17:1 on --bg, 12.42:1 on --bg-2 */
+  --muted-read: #8A9BB8;  /*  6.38:1 on --bg,  5.60:1 on --bg-2 */
+  --accent: #EE9166;      /* terracotta default; the matrix is authoritative */
+  --accent-ink: #F6BEA1;
   --deep: #EAF0FA;
+  --ok: #4FA57C;          /* 5.99:1. Was #2F6B4F at 2.85:1, failing. */
 }
 
-[data-density="compact"] { --pad-y: clamp(56px, 6vw, 96px); }
-[data-density="airy"]    { --pad-y: clamp(96px, 11vw, 180px); }
+/* ============================================================================
+   THE ACCENT MATRIX: 5 accents x 3 themes, resolved in CSS.
+
+   Base.astro and DisplayPanel.jsx both write setAttribute('data-accent', ...)
+   as of 2026-08-01. Before that they both wrote --accent as an INLINE STYLE
+   on <html>, unconditionally, and an inline style beats an attribute
+   selector, so all three themes rendered the same five-entry map and every
+   per-theme accent declaration was dead code.
+
+   EACH PAIR IS DECLARED TWICE, and the second form is load-bearing:
+
+     [data-theme=X][data-accent=Y]   compound, matches <html>
+     [data-theme=X] [data-accent=Y]  descendant, matches the accent swatch
+                                     buttons inside the display panel
+
+   The descendant form is what lets the panel's five colour swatches take
+   their fill from `background: var(--accent)` instead of from a duplicated
+   hex table in the React island. That duplicate table was the drift risk
+   recorded in PREFS-CONTRACT.md, and it is now gone: these 15 rows are the
+   only place any accent hex is written. The swatches also become
+   theme-correct for free, where before they showed light-theme hexes on both
+   dark themes.
+
+   SPECIFICITY IS UNAMBIGUOUS. Both forms are (0,2,0), which beats :root
+   (0,0,0) and the theme blocks (0,1,0). No ties, no source-order dependence.
+   <html> has no ancestor, so the descendant form can never match it.
+
+   TWO FLOORS, both verified on --bg AND --bg-2, all 15 pairs, 0 failures:
+     --accent      >= 3.0:1   graphic role (focus rings, rules, hover marks)
+     --accent-ink  >= 4.5:1   text role (AA for normal-size text)
+
+   BEFORE this matrix, EIGHT of the fifteen rendered combinations failed:
+     terracotta/light 3.65   amber/light 2.52   forest/dark 3.07
+     violet/dark 2.93        ink/dark 1.37      forest/ink 2.85
+     violet/ink 2.72         ink/ink 1.28
+   and the --accent-ink pairs on the two dark themes ran from 1.03 to 3.53.
+   The worst reachable case was a.link on theme=ink + accent=ink at 1.03:1,
+   which is the background colour.
+
+   The light terracotta row is the one place a colour was changed rather than
+   repaired: #C4623A -> #AE5230, because the shipped value computes 3.65:1 as
+   body-link text against a 4.5:1 requirement. That is a taste call and it is
+   separable from the mechanism. To keep the original colour and still keep
+   the repair, set this one row back to #C4623A / #8A3F1E. See
+   docs/DECISIONS.md.
+
+   Two pairs below are the previous file's own dead values, RESURRECTED
+   rather than replaced, because they were correctly designed and only ever
+   failed to apply: dark terracotta and ink amber.
+
+   The `ink` accent on the two dark themes is now a pale blue rather than a
+   navy. That is unavoidable: a navy accent on #0E1726 cannot be seen. The
+   key is named rather than pretending it still means "navy" on every theme.
+   ========================================================================== */
+
+/*                                            --accent on bg/bg-2 | --accent-ink on bg/bg-2 */
+[data-theme="light"][data-accent="terracotta"],
+[data-theme="light"] [data-accent="terracotta"] { --accent: #AE5230; --accent-ink: #8A3F1E; } /*  4.65/ 4.26 |  6.70/ 6.14 */
+[data-theme="light"][data-accent="ink"],
+[data-theme="light"] [data-accent="ink"]        { --accent: #22375E; --accent-ink: #0E1A2E; } /* 10.60/ 9.72 | 15.62/14.31 */
+[data-theme="light"][data-accent="forest"],
+[data-theme="light"] [data-accent="forest"]     { --accent: #2A6047; --accent-ink: #1E4A35; } /*  6.58/ 6.03 |  9.03/ 8.27 */
+[data-theme="light"][data-accent="amber"],
+[data-theme="light"] [data-accent="amber"]      { --accent: #8E640E; --accent-ink: #71500C; } /*  4.73/ 4.34 |  6.60/ 6.04 */
+[data-theme="light"][data-accent="violet"],
+[data-theme="light"] [data-accent="violet"]     { --accent: #5C3F97; --accent-ink: #48327A; } /*  7.21/ 6.60 |  9.36/ 8.57 */
+
+[data-theme="dark"][data-accent="terracotta"],
+[data-theme="dark"] [data-accent="terracotta"]  { --accent: #E37B4F; --accent-ink: #F0A07F; } /*  6.64/ 6.11 |  9.24/ 8.51 */
+[data-theme="dark"][data-accent="ink"],
+[data-theme="dark"] [data-accent="ink"]         { --accent: #9DB4E4; --accent-ink: #C3D2F2; } /*  9.28/ 8.54 | 12.72/11.71 */
+[data-theme="dark"][data-accent="forest"],
+[data-theme="dark"] [data-accent="forest"]      { --accent: #79BE97; --accent-ink: #A7D8BC; } /*  8.86/ 8.15 | 12.14/11.18 */
+[data-theme="dark"][data-accent="amber"],
+[data-theme="dark"] [data-accent="amber"]       { --accent: #E0B45F; --accent-ink: #F0D093; } /* 10.00/ 9.20 | 13.02/11.99 */
+[data-theme="dark"][data-accent="violet"],
+[data-theme="dark"] [data-accent="violet"]      { --accent: #B49BE8; --accent-ink: #CFC0F3; } /*  8.09/ 7.45 | 11.49/10.58 */
+
+[data-theme="ink"][data-accent="terracotta"],
+[data-theme="ink"] [data-accent="terracotta"]   { --accent: #EE9166; --accent-ink: #F6BEA1; } /*  7.59/ 6.66 | 10.95/ 9.60 */
+[data-theme="ink"][data-accent="ink"],
+[data-theme="ink"] [data-accent="ink"]          { --accent: #A9C0EC; --accent-ink: #CBDAF6; } /*  9.78/ 8.58 | 12.74/11.17 */
+[data-theme="ink"][data-accent="forest"],
+[data-theme="ink"] [data-accent="forest"]       { --accent: #7FC79E; --accent-ink: #ACDFC2; } /*  9.04/ 7.92 | 12.05/10.57 */
+[data-theme="ink"][data-accent="amber"],
+[data-theme="ink"] [data-accent="amber"]        { --accent: #E8B25A; --accent-ink: #F5C97A; } /*  9.36/ 8.21 | 11.56/10.14 */
+[data-theme="ink"][data-accent="violet"],
+[data-theme="ink"] [data-accent="violet"]       { --accent: #BCA6F0; --accent-ink: #D6C9F7; } /*  8.43/ 7.39 | 11.59/10.17 */
+
+/* ============================================================================
+   DENSITY. Same two attribute states, same three UI choices, same contract.
+   ts-display-prefs {theme, density, accent} is byte-identical: same key, same
+   shape, same three themes, same five accent keys, same legacy bare `density`
+   fallback, same try/catch pinning light. NO MIGRATION IS NEEDED, because no
+   stored value changes meaning. Only the DOM mechanism for accent changed.
+
+   What is new is that density now means something on a reading page. It used
+   to change --pad-y and nothing else, and a notes page has one <section>, so
+   density was very nearly invisible there. --pad-y values are UNCHANGED in
+   both modes, so a visitor keeps exactly the section padding they chose and
+   gains a reading rhythm on top of it.
+
+   With --adv measured rather than guessed, --cpl is literally the character
+   count, so all three modes land inside the 60 to 75 band BY CONSTRUCTION
+   rather than by luck, and (with the html[lang="ru"] block below) in every
+   locale:
+     compact  74 characters   default  70 characters   airy  66 characters
+   ========================================================================== */
+
+[data-density="compact"] {
+  --pad-y: clamp(56px, 6vw, 96px);   /* unchanged */
+  --cpl: 74;
+  --read-lh: 1.55;
+  --rhythm: 0.9;
+}
+
+[data-density="airy"] {
+  --pad-y: clamp(96px, 11vw, 180px); /* unchanged */
+  --cpl: 66;
+  --read-lh: 1.72;
+  --rhythm: 1.15;
+}
+
+/* Belt and braces. DisplayPanel.jsx writes the literal string "default" into
+   localStorage and correctly REMOVES the attribute for it, but the head
+   script in Base.astro did not make that check and set data-density="default"
+   on every load for anyone who had ever clicked Default. That was inert while
+   nothing targeted the value; it stopped being inert the moment density
+   started carrying a reading variable, which it now does. The head script is
+   fixed; this block is the safety net for a stale cached page.             */
+[data-density="default"] {
+  --pad-y: clamp(56px, 6vw, 104px);
+  --cpl: 70;
+  --read-lh: 1.62;
+  --rhythm: 1.0;
+}
+
+/* ============================================================================
+   MULTISCRIPT. <html lang> is set in Base.astro and the locales are declared
+   in astro.config.mjs, so this is a static, zero-JS, zero-cost hook.
+   ========================================================================== */
+
+html[lang="ru"] {
+  /* Instrument Serif has ZERO Cyrillic codepoints (verified: U+0410 absent
+     from all 206 glyphs), so every .serif title in the ru locale used to fall
+     back to Times New Roman. There are seven published Russian notes. The
+     replacement display voice is Inter Light at 0.934x, matched to the
+     English serif on BOTH x-height (0.510/0.5459) and stem weight (0.0664 vs
+     0.0680 em, a 2.3 percent match).                                       */
+  --cyr-display-scale: 0.934;
+  --cyr-display-weight: 300;
+
+  /* The measure constant is per-script, so the CHARACTER COUNT is what stays
+     invariant across locales rather than the pixel width. Inter's Cyrillic
+     average advance over the real ru corpus is 0.5396 em, measured over
+     30,995 characters: Cyrillic letters PLUS the inter-word spaces between
+     them, which is the same rule the EN figure uses, because a rendered line
+     contains spaces. (Cyrillic letters alone are 26,251 characters at 0.5861
+     em; that is the wrong constant to size a column with.)
+
+     0.5396 against Latin's 0.4675, so Russian needs a WIDER column to hold
+     the same number of characters. At default density and 19.5px that is
+     736.6px against 638.1px, which is why .note-article derives its frame
+     from calc(var(--measure) + var(--bleed-lane)) instead of hardcoding
+     46rem: at a 736px cap the ru measure would have clipped by 0.6px and
+     delivered 69.9 characters against a declared 70. Widest real case is ru
+     at compact density, 778.6 + 280 = 1058.6px, which clears the 1144px
+     container interior by 85px.
+
+     Without this, ru runs 60.6 characters at --cpl 70 and 57.2 at --cpl 66,
+     which drifts below the band at airy density. With it, every locale gets
+     exactly --cpl characters in every density mode.                        */
+  --adv: 0.5396em;
+}
+
+/* German and French are Latin-script and use the :root constant unchanged.
+   :where(main) { overflow-wrap: anywhere } in components.css stays exactly as
+   it is: it is what stops a 27-character compound like
+   "Geschwindigkeitsunterschied" forcing horizontal scroll at 320px, and what
+   lets 1fr grid tracks shrink below a compound's min-content. Do not remove. */

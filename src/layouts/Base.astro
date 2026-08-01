@@ -93,25 +93,41 @@ const OG_LOCALE: Record<Locale, string> = {
 
     <script is:inline>
       (function () {
-        var ACC = {
-          terracotta: { a: '#C4623A', i: '#8A3F1E' },
-          ink:        { a: '#1B2B4B', i: '#0E1A2E' },
-          forest:     { a: '#2F6B4F', i: '#1E4A35' },
-          amber:      { a: '#C8902A', i: '#8A6217' },
-          violet:     { a: '#6A4BA8', i: '#48327A' },
-        };
+        /* FIRST statement, before the try block, so a localStorage throw can
+           never skip it. `html.js` is what lets .reveal hide itself only when
+           there is a script to un-hide it; without this class the notes index
+           renders visually empty with JavaScript disabled. The class existed
+           until the 2026-07-22 privacy cut, which deleted it along with its
+           only consumer at the time. It lands before first paint (this script
+           is is:inline in <head>) so there is no flash, and <html> persists
+           across ClientRouter swaps so it survives navigation. */
+        document.documentElement.classList.add('js');
+
+        /* Accent hexes are NOT duplicated here any more. This list is the set
+           of valid keys; the colours live in exactly one place, the
+           [data-theme][data-accent] matrix in tokens.css. Writing an
+           attribute instead of an inline style is the whole fix: an inline
+           style beat the attribute selectors, so every per-theme accent in
+           tokens.css was dead code and 8 of 15 reachable combinations
+           rendered below AA, the worst at 1.03:1. */
+        var ACCENTS = ['terracotta', 'ink', 'forest', 'amber', 'violet'];
         function applyDisplayPrefs() {
           try {
             var prefs = JSON.parse(localStorage.getItem('ts-display-prefs') || '{}');
             var theme = prefs.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', theme);
+            /* "default" is a real stored value and it must NOT reach the DOM:
+               DisplayPanel removes the attribute for it, this script used to
+               set it, and the two disagreeing is what made every Default
+               visitor miss the density block. */
             var density = prefs.density || localStorage.getItem('density');
-            if (density) document.documentElement.setAttribute('data-density', density);
+            if (density && density !== 'default') document.documentElement.setAttribute('data-density', density);
             else document.documentElement.removeAttribute('data-density');
-            var accent = prefs.accent || 'terracotta';
-            var a = ACC[accent] || ACC.terracotta;
-            document.documentElement.style.setProperty('--accent', a.a);
-            document.documentElement.style.setProperty('--accent-ink', a.i);
+            var accent = prefs.accent;
+            document.documentElement.setAttribute(
+              'data-accent',
+              ACCENTS.indexOf(accent) === -1 ? 'terracotta' : accent
+            );
           } catch (e) {
             document.documentElement.setAttribute('data-theme', 'light');
           }

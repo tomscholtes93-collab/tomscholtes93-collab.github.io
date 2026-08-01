@@ -46,15 +46,81 @@
   font-weight: 500; font-style: normal; font-display: swap;
   unicode-range: U+0400-04FF;
 }
+/* The two Latin JetBrains Mono faces declared NO unicode-range, so they
+   claimed U+0400-04FF while containing zero Cyrillic glyphs. That is what
+   made a Russian eyebrow render in two different monospaces on one line: the
+   browser matched these files for the Cyrillic letters, found no glyph, and
+   fell back per glyph. Declaring the range routes Cyrillic to the file below
+   that actually has it. */
 @font-face {
   font-family: 'JetBrains Mono';
   src: url('/fonts/jetbrains-mono-400.woff2') format('woff2');
   font-weight: 400; font-style: normal; font-display: swap;
+  unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'JetBrains Mono';
   src: url('/fonts/jetbrains-mono-500.woff2') format('woff2');
   font-weight: 500; font-style: normal; font-display: swap;
+  unicode-range: U+0000-024F, U+02BB;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-400-cyrl.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+  unicode-range: U+0400-04FF;
+}
+
+/* Inter italic. The project shipped exactly one italic file, Instrument
+   Serif, so every <em> in body copy was a browser-synthesised oblique: a
+   mechanical slant of the upright outline, not a drawn italic. Every one of
+   the seven essays opens with an italic restatement of its summary. */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-400-italic.woff2') format('woff2');
+  font-weight: 400; font-style: italic; font-display: swap;
+  unicode-range: U+0000-024F, U+02BB;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-400-italic-cyrl.woff2') format('woff2');
+  font-weight: 400; font-style: italic; font-display: swap;
+  unicode-range: U+0400-04FF;
+}
+
+/* Inter Cyrillic shipped 400 and 500 only, so any rule asking for 600 or 700
+   rendered synthetic bold in Russian. Seven published Russian notes are
+   affected, and the run-in head introduced on this surface is weight 600. */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-600-cyrl.woff2') format('woff2');
+  font-weight: 600; font-style: normal; font-display: swap;
+  unicode-range: U+0400-04FF;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-700-cyrl.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+  unicode-range: U+0400-04FF;
+}
+
+/* Inter Light, both scripts. This is the ru display voice: matched to
+   Instrument Serif on stem weight (0.0664 against 0.0680 em, a 2.3 percent
+   match) and, with --cyr-display-scale, on x-height. The intuitive move for a
+   display role is a HEAVIER grade; that is backwards, because Instrument
+   Serif reads light on the page precisely because half its strokes are
+   0.0250 em hairlines. */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-300.woff2') format('woff2');
+  font-weight: 300; font-style: normal; font-display: swap;
+  unicode-range: U+0000-024F, U+02BB;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-300-cyrl.woff2') format('woff2');
+  font-weight: 300; font-style: normal; font-display: swap;
+  unicode-range: U+0400-04FF;
 }
 
 * { box-sizing: border-box; }
@@ -63,7 +129,10 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: 'Inter', system-ui, sans-serif;
-  font-feature-settings: 'ss01', 'cv11';
+  /* `font-feature-settings: 'ss01', 'cv11'` was removed 2026-08-01. Neither
+     feature exists in the shipped Inter GSUB (verified: calt ccmp dnom frac
+     locl numr pnum tnum), so it was inert, and it would have become a
+     surprise the day Inter was re-subset upstream. */
   -webkit-font-smoothing: antialiased;
   font-size: var(--step-0);
   line-height: 1.55;
@@ -90,7 +159,27 @@ a { color: inherit; text-decoration: none; }
   width: 22px; height: 1px; background: currentColor; opacity: .5;
 }
 
-.reveal {
+/* GATED ON html.js ON PURPOSE (2026-08-01). Ungated, this hid every .reveal
+   element until RevealObserver's IntersectionObserver added .is-visible, so a
+   visitor with JavaScript disabled saw an EMPTY notes index: the markup was
+   in the DOM, the opacity was 0, and nothing was ever going to clear it.
+   Base.astro adds `js` to <html> as the first statement of its inline head
+   script, so with JS off the class never lands, these rules never match, and
+   the content is simply visible.
+
+   :where() RATHER THAN A PLAIN DESCENDANT, and this is load-bearing.
+   `html.js .reveal` computes (0,2,1), which would BEAT `.reveal.is-visible`
+   at (0,2,0), so the observer would add the class and nothing would appear:
+   the fix would hide the content permanently with JS ON instead of revealing
+   it with JS off. :where() contributes zero specificity, so these rules keep
+   exactly the weight they had before this change and every downstream rule
+   (.is-visible, the stagger cascade, the reduced-motion override) resolves
+   the same way it always did.
+
+   It also fails in the safe direction: an engine without :where() drops the
+   whole rule, .reveal never hides, and the content is visible without the
+   animation. */
+:where(html.js) .reveal {
   opacity: 0;
   transform: translateY(16px);
   transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
@@ -103,7 +192,7 @@ a { color: inherit; text-decoration: none; }
    container cascade in reading order once the parent becomes visible. Same
    gesture as the hero lattice, at section scale. Reduced-motion-safe: the
    global block below nulls every transition, so the cascade is inert there. */
-.reveal[data-stagger] .reveal-item {
+:where(html.js) .reveal[data-stagger] .reveal-item {
   opacity: 0;
   transform: translateY(16px);
   transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
@@ -122,4 +211,11 @@ section:first-of-type { border-top: 0; }
   .reveal,
   .reveal[data-stagger] .reveal-item { opacity: 1; transform: none; transition: none; }
   * { transition: none !important; animation: none !important; }
+  /* `*` is a universal ELEMENT selector and cannot match view-transition
+     pseudo-elements, so the note title morph kept animating for a visitor who
+     had explicitly asked for no motion. These three are the only way to reach
+     it. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
 }

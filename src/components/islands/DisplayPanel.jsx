@@ -1,11 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 
+/* Names only. The hexes used to live here AND in the Base.astro head script,
+   two tables that had to be kept in sync by hand. They are now in exactly one
+   place, the [data-theme][data-accent] matrix in tokens.css, and the swatch
+   buttons below take their fill from `var(--accent)` via their own
+   data-accent attribute. Side effect worth having: the swatches are now
+   theme-correct, where before they showed light-theme hexes on both dark
+   themes. */
 const PUBLIC_ACCENTS = {
-  terracotta: { name: 'Terracotta', accent: '#C4623A', accentInk: '#8A3F1E' },
-  ink:        { name: 'Navy',       accent: '#1B2B4B', accentInk: '#0E1A2E' },
-  forest:     { name: 'Forest',     accent: '#2F6B4F', accentInk: '#1E4A35' },
-  amber:      { name: 'Amber',      accent: '#C8902A', accentInk: '#8A6217' },
-  violet:     { name: 'Violet',     accent: '#6A4BA8', accentInk: '#48327A' },
+  terracotta: { name: 'Terracotta' },
+  ink:        { name: 'Navy' },
+  forest:     { name: 'Forest' },
+  amber:      { name: 'Amber' },
+  violet:     { name: 'Violet' },
 };
 
 const PUBLIC_THEMES = [
@@ -46,9 +53,15 @@ function applyPrefs(p) {
   root.setAttribute('data-theme', p.theme);
   if (p.density && p.density !== 'default') root.setAttribute('data-density', p.density);
   else root.removeAttribute('data-density');
-  const a = PUBLIC_ACCENTS[p.accent] || PUBLIC_ACCENTS.terracotta;
-  root.style.setProperty('--accent', a.accent);
-  root.style.setProperty('--accent-ink', a.accentInk);
+  /* Attribute, not inline style. Both writers had to change or the defect
+     would have survived on whichever path still wrote inline; the other one
+     is the head script in Base.astro. */
+  root.setAttribute('data-accent', PUBLIC_ACCENTS[p.accent] ? p.accent : 'terracotta');
+  /* HeroLattice.astro registers a `ts-display-prefs` listener that nothing in
+     the tree ever fired, so the lattice only picked up a theme change on the
+     next navigation. One line honours the contract rather than leaving one
+     side believing in it. */
+  try { window.dispatchEvent(new CustomEvent('ts-display-prefs', { detail: p })); } catch (e) {}
 }
 
 export default function DisplayPanel() {
@@ -219,13 +232,14 @@ export default function DisplayPanel() {
                   <button
                     key={k}
                     type="button"
+                    data-accent={k}
                     onClick={() => setPrefs((p) => ({ ...p, accent: k }))}
                     title={a.name}
                     aria-label={a.name}
                     style={{
                       width: 32, height: 32, borderRadius: '50%',
                       border: active ? '2px solid var(--ink)' : '1px solid var(--rule)',
-                      background: a.accent, cursor: 'pointer', padding: 0,
+                      background: 'var(--accent)', cursor: 'pointer', padding: 0,
                       outline: active ? '2px solid var(--bg)' : 'none', outlineOffset: -4,
                       transition: 'transform .15s ease',
                     }}
