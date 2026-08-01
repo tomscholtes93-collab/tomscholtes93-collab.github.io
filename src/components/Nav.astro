@@ -21,16 +21,17 @@ const notes = localizePath('/notes/', locale);
       <span>{t('nav.brand')}</span>
     </a>
     <nav class="nav-links">
-      <a href={`${home}#now`}>{t('nav.now')}</a>
-      <a href={`${home}#work`}>{t('nav.work')}</a>
-      <a href={projects}>{t('nav.projects')}</a>
+      {/* Unlinked 2026-08-01: #work (the case-studies section), #cv and
+          /workflow-automation/. Notes are the front door now. NOTHING here
+          was deleted: /case/<slug>/ (nine pages), /workflow-automation/ and
+          /cv/ all still build and still serve at their exact addresses, they
+          are simply no longer advertised in the header. Thesis and Reading
+          stay reachable via the footer. Contact is menu-only: on desktop the
+          Say-hi CTA already targets #contact, on mobile the CTA is hidden so
+          the menu needs its own Contact entry. */}
       <a href={notes}>{t('nav.notes')}</a>
-      <a href="/workflow-automation/">{t('nav.workflow')}</a>
-      <a href={`${home}#cv`}>{t('nav.cv')}</a>
-      {/* Thesis and Reading stay reachable via the footer; the header keeps
-          6 primary links. Contact is menu-only: on desktop the Say-hi CTA
-          already targets #contact, on mobile the CTA is hidden so the menu
-          needs its own Contact entry. */}
+      <a href={`${home}#now`}>{t('nav.now')}</a>
+      <a href={projects}>{t('nav.projects')}</a>
       <a href={`${home}#contact`} class="nav-link-menu-only">{t('nav.contact')}</a>
     </nav>
     <LangSwitcher />

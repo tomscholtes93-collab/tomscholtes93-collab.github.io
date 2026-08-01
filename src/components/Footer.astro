@@ -23,11 +23,14 @@ const year = new Date().getFullYear();
       </div>
       <div>
         <h2>{t('footer.col.site')}</h2>
-        <a href={`${home}#now`}>{t('nav.now')}</a>
-        <a href={`${home}#work`}>{t('nav.work')}</a>
-        <a href={projects}>{t('nav.projects')}</a>
+        {/* #work and #cv removed 2026-08-01: both anchors point at sections
+            that no longer render on the homepage, and an anchor with no
+            target silently lands the reader at the top of the page. The
+            addresses those sections moved to are alive; they are just not
+            linked from here. */}
         <a href={notes}>{t('nav.notes')}</a>
-        <a href={`${home}#cv`}>{t('nav.cv')}</a>
+        <a href={`${home}#now`}>{t('nav.now')}</a>
+        <a href={projects}>{t('nav.projects')}</a>
         <a href={`${home}#reading`}>{t('nav.reading')}</a>
       </div>
       <div>

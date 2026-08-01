@@ -40,6 +40,21 @@ const data = {
       inLanguage: ['en', 'de', 'fr', 'ru'],
       publisher: { '@id': `${SITE}/#person` },
     },
+    // Added 2026-08-01 with the subtraction. The entity graph described a
+    // person and a website and said nothing about the thing the site is now
+    // organised around, so a crawler had no way to read /notes/ as a
+    // publication. Every claim below is already published: the essays exist
+    // at /notes/<slug>/ in four locales.
+    {
+      '@type': 'Blog',
+      '@id': `${SITE}/notes/#blog`,
+      name: 'Notes',
+      url: `${SITE}/notes/`,
+      inLanguage: ['en', 'de', 'fr', 'ru'],
+      isPartOf: { '@id': `${SITE}/#website` },
+      author: { '@id': `${SITE}/#person` },
+      publisher: { '@id': `${SITE}/#person` },
+    },
   ],
 };
 const json = JSON.stringify(data).replace(/</g, '\\u003c');

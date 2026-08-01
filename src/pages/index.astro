@@ -1,11 +1,18 @@
 ---
+/* The CV and CaseStudies sections were removed from this page on 2026-08-01.
+   UNLINK, NOT DELETE. Nothing they render has left the site:
+     - the nine case studies are static passthrough at /case/<slug>/ and keep
+       building at their exact addresses
+     - /workflow-automation/ is untouched
+     - the CV moved to its own route at /cv/ in an earlier commit, which is
+       what makes this a demotion by address rather than a deletion
+   There is no per-path 301 on this host, so no URL may move. See
+   docs/DECISIONS.md. */
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Hero from '../components/Hero.astro';
 import Now from '../components/Now.astro';
-import CaseStudies from '../components/CaseStudies.astro';
 import WorkflowAutomation from '../components/WorkflowAutomation.astro';
-import CV from '../components/CV.astro';
 import Reading from '../components/Reading.astro';
 import Languages from '../components/Languages.astro';
 import Contact from '../components/Contact.astro';
@@ -19,9 +26,7 @@ import TweaksPanel from '../components/islands/TweaksPanel.jsx';
   <main>
     <Hero />
     <WorkflowAutomation />
-    <CaseStudies />
     <Now />
-    <CV />
     <Reading />
     <Languages />
     <Contact />

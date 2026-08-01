@@ -19,7 +19,13 @@ const roles = [
   {
     co: 'Working in Controlling',
     role: 'SPV Controller',
-    period: 'Mar 2025 · Present',
+    // Closed 2026-08-01. This read "Mar 2025 · Present" under an eyebrow
+    // saying "Live CV" and a blurb promising it is updated as roles change,
+    // and it kept asserting a current role after that role ended. A false
+    // claim about a real person on a public page is worth one word.
+    // NOT ADDING the next role here: announcing a job change is a decision
+    // for the person whose job it is, not a side effect of a design commit.
+    period: 'Mar 2025 · Jul 2026',
     notes: [
       'End-to-end SPV finance, statutory reporting, cash flows and investor distributions. Hands-on in fund-administration platforms. Construction and maintenance of waterfall models. LuxGAAP / eCDF annual accounts and BCL Annex IV filings.',
       'Payment automation across the SPV book: batch generation, exception routing, recharge / intercompany cases.',
@@ -83,7 +89,9 @@ const skills: [string, string][] = [
     <div class="cv-block">
       <div class="cv-head">
         <span>{t('home.cv.experience.heading')}</span>
-        <span>{t('home.cv.experience.summary', { count: 5, years: 6 })}</span>
+        {/* Derived, not typed. A hardcoded count is exactly the drift the
+            hero meta already avoids. */}
+        <span>{t('home.cv.experience.summary', { count: roles.length, years: 6 })}</span>
       </div>
       {roles.map((r) => (
         <div class="cv-row">
