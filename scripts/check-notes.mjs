@@ -85,8 +85,30 @@ files.forEach(checkFile);
    silently mis-key every German tag page, on a host with no redirects to
    repair it with.
 
-   So the invariant is a gate rather than a comment. Only PUBLISHED essays are
-   checked, because a draft emits no route and therefore no tag page. */
+   WHAT THIS CHECK ACTUALLY COVERS, stated exactly, because the rest of the
+   tree used to describe it as enforcing positional parallelism and it does
+   not. It compares ARITY: `tags.length` against the English `tags.length`.
+   That catches the add-a-tag and drop-a-tag cases above, which are the ones
+   observed in practice. It does NOT catch a REORDER: a translator who keeps
+   the count and swaps two tags into a more natural reading order passes this
+   check and silently re-keys that locale's tag pages, because tagGroups pairs
+   enTags[i] as the key with the local tags[i] as the label. Nothing downstream
+   catches it either; the pages still build and still return 200, they just
+   carry the wrong label. Verified clean by hand across all 7 published essays
+   on 2026-08-01, which is an observation and not a guarantee.
+
+   Second limit, same honesty: parseTags below reads only the YAML FLOW form
+   (`tags: [a, b, c]`). A note written with a block sequence parses to [] on
+   both sides, the lengths match, and this check passes vacuously while Astro's
+   real YAML parse feeds the actual tags to the routes. Every note in the
+   corpus uses the flow form today.
+
+   Closing either hole needs a canonical en-tag to locale-label dictionary to
+   compare against, which is a design change and not a gate change. Until then
+   the alignment claim is: arity is enforced, ordering is a convention.
+
+   Only PUBLISHED essays are checked, because a draft emits no route and
+   therefore no tag page. */
 function frontmatter(path) {
   const parts = readFileSync(path, 'utf8').split('---');
   return parts.length > 1 ? parts[1] : '';

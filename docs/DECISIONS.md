@@ -331,8 +331,21 @@ repair a mistake with. `/de/tags/memory/` therefore displays "Gedächtnis".
 That mapping resolves a locale's tag to its English key **by array index**, so
 it holds only while each essay's `tags` array is positionally parallel across
 the four locales. Zod cannot express that, since it validates each file alone.
-`scripts/check-notes.mjs` now fails the build on it. The invariant is checked,
-not trusted.
+`scripts/check-notes.mjs` fails the build when a locale's tag **count** differs
+from English. **Arity is enforced; ordering is a convention.** A translator who
+adds or drops a tag is caught. One who reorders two tags without changing the
+count is not, and silently re-keys that locale's tag pages: the address still
+builds and still returns 200, the label on it is wrong. Verified correct by
+hand across all 7 published essays on 2026-08-01, which is an observation, not
+a guarantee.
+
+**Open, deliberately not built inside amendment 1:** closing the reorder hole
+needs a canonical en-tag to locale-label dictionary for the gate to compare
+against, which is a data-model change rather than a gate change. The same
+dictionary would close the second hole, that `check-notes.mjs` parses tags with
+a flow-form regex while Astro parses real YAML, so a block-sequence `tags:`
+would pass the check vacuously. Both are recorded here rather than left as a
+comment nobody reads.
 
 **Built: a date archive** at `/notes/archive/`, four locales, grouped by month
 on UTC parts because `publishDate` is coerced to midnight UTC and local
@@ -374,6 +387,32 @@ constraint is justified on the durability of published addresses and on the
 inbound links, citations and bookmarks that are known to be possible, not on
 measured traffic, because there is no measurement. Installing analytics is Tom's
 call and a privacy decision, and is deliberately NOT made here.
+
+### 2026-08-01. What amendment 1 left open, written down so it is not folklore
+
+Named here because an undocumented shortcut becomes a wrong assumption the next
+time someone reads the code. None of these is reachable as wrong behavior on the
+live site today; all four were confirmed by measurement on 2026-08-01.
+
+- **`urls.lock` now holds 72 tag addresses, so an editorial field became
+  build-breaking.** `scripts/check-urls.mjs` exits 1 when a locked path stops
+  being built. Thirteen of the seventeen published tags carry exactly one essay,
+  so removing `wearables` from the one essay that has it deletes four locked
+  addresses and fails the next build. That is the URL guarantee working as
+  designed, but it now applies to a freeform frontmatter field: **retagging is
+  no longer a free edit.** The escape hatch is the one the gate already prints,
+  a `successors` entry or a deliberate `--update`, and it should be used
+  deliberately rather than discovered during a failing push.
+- **The tag gate enforces arity, not ordering.** See the tag section above.
+- **`publishedNotes()` is not yet the single status filter.** Thirteen longhand
+  `data.status === 'published'` copies remain under `src/pages`. Change both or
+  neither.
+- **`NotesList.astro` was extracted but not adopted** by the five pre-existing
+  list sites, and the locale to BCP47 table now exists in three places
+  (`src/i18n/index.ts`, `src/lib/rss.ts`, `src/pages/notes/archive/index.astro`).
+  `NoteCard.astro` also inlines the slug regex it imports `noteSlug` for, and
+  re-implements the ru plural rules that this same amendment introduced as the
+  shared `pluralKey`. All mechanical, all deferred rather than hidden.
 
 ---
 

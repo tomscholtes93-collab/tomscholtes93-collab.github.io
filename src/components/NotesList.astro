@@ -14,7 +14,14 @@
    second card component and no new CSS: this is one extraction, not a fork.
 
    The reveal delay caps at index 6 so a long list does not accumulate a
-   visible wait on its last rows, which is what the original inline copies did. */
+   visible wait on its last rows. That cap is carried over unchanged: all five
+   inline copies already use the identical `Math.min(i, 6) * 45`, so this is a
+   move, not a behavior change.
+
+   NOT YET ADOPTED by those five copies. `/` and the four `/notes/index.astro`
+   still inline the markup, so the site currently carries two implementations
+   of one list. Migrating them is open work; until then, a change here has to
+   be mirrored there or the two drift. */
 import NoteCard from './NoteCard.astro';
 import type { Note } from '../lib/notes';
 

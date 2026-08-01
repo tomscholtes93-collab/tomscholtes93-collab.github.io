@@ -1,10 +1,14 @@
 /* Shared queries over the notes collection.
    ==========================================================================
 
-   Every route that lists essays goes through here, so "published" means one
-   thing in one place. Before this, `data.status === 'published' && slug
-   .startsWith('en/')` was written out longhand in five files, and each new
-   route was another chance to forget the status filter and publish a draft.
+   Every route added by amendment 1 goes through here, so "published" means one
+   thing in one place for the tag pages, the archive and the feeds. It is NOT
+   yet the site's single status filter: `data.status === 'published' && slug
+   .startsWith('<locale>/')` is still written out longhand in 13 places under
+   src/pages (`index.astro`, the four `notes/index.astro`, and two each in the
+   four `notes/[slug].astro`). Migrating those is open work. Until it is done,
+   changing the definition of "published" here changes half the site, so change
+   both or neither.
 
    TAG IDENTITY IS THE ENGLISH TAG. Display is the local one.
 
@@ -25,10 +29,21 @@
 
    THIS DEPENDS ON A DATA INVARIANT: each essay's `tags` array is positionally
    parallel across the four locales. Verified true for all 7 published essays
-   (3 tags each, 4 locales). Nothing in the Zod schema enforces it, and a
-   translator adding a fourth tag to one locale would silently mis-key that
-   locale's pages, so scripts/check-notes.mjs now fails the build on it. The
-   invariant is checked, not trusted. */
+   (3 tags each, 4 locales) on 2026-08-01. Nothing in the Zod schema enforces
+   it, since Zod validates each file alone.
+
+   HOW MUCH OF THAT IS ACTUALLY ENFORCED, precisely: scripts/check-notes.mjs
+   fails the build when a locale's tag COUNT differs from English. Arity only.
+   A translator who adds or drops a tag is caught. A translator who REORDERS
+   two tags without changing the count is NOT caught, and silently re-keys that
+   locale's tag pages: the address stays valid and returns 200, the label on it
+   is simply wrong. Reordering for natural reading order is a normal thing for
+   a translator to do, so treat the ordering half as a CONVENTION that a human
+   has to respect, not as a guarantee the build gives you.
+
+   Closing it properly needs a canonical en-tag to locale-label dictionary for
+   the gate to compare against. That is a design change, deliberately not made
+   inside amendment 1. Recorded in docs/DECISIONS.md. */
 
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { Locale } from '../i18n';

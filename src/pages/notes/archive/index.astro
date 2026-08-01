@@ -8,8 +8,11 @@
    three-line re-exports.
 
    Month names come from Intl.DateTimeFormat with the locale's own date locale,
-   so nothing here needs a dictionary entry per month: `localeDateFmt` already
-   maps en to en-GB, de to de-DE and so on, and this uses the same table.
+   so nothing here needs a dictionary entry per month. The en to en-GB mapping
+   is RE-DECLARED below rather than shared: the equivalent table is private to
+   src/i18n/index.ts (as DATE_LOCALE, behind localeDateFmt) and to src/lib/rss.ts
+   (as RSS_LANG), so the same four pairs now exist in three places. Exporting the
+   i18n one and importing it here is the fix; it is open work, not a decision.
    Grouping is on UTC parts. publishDate is a date-only front-matter value that
    Zod coerces to midnight UTC, so reading local getMonth() would shift an
    essay published on the 1st into the previous month west of Greenwich. */
