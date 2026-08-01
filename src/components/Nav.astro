@@ -14,6 +14,7 @@ const home = localizePath('/', locale);
 const projects = localizePath('/projects/', locale);
 const notes = localizePath('/notes/', locale);
 const about = localizePath('/about/', locale);
+const cv = localizePath('/cv/', locale);
 ---
 <header class="nav" id="site-nav" data-open="false">
   <div class="container nav-inner">
@@ -22,26 +23,33 @@ const about = localizePath('/about/', locale);
       <span>{t('nav.brand')}</span>
     </a>
     <nav class="nav-links">
-      {/* Unlinked 2026-08-01: #work (the case-studies section), #cv and
-          /workflow-automation/. Notes are the front door now. NOTHING here
-          was deleted: /case/<slug>/ (nine pages), /workflow-automation/ and
-          /cv/ all still build and still serve at their exact addresses, they
-          are simply no longer advertised in the header. Thesis and Reading
-          stay reachable via the footer. Contact is menu-only: on desktop the
-          Say-hi CTA already targets #contact, on mobile the CTA is hidden so
-          the menu needs its own Contact entry. */}
+      {/* Publication-first, 2026-08-01. The brand and the feed are the same
+          destination now that `/` renders the essays, so the first link is the
+          archive index and the rest are the site's other addresses in
+          decreasing order of what a reader of the essays is likely to want.
+
+          Every anchor here is a REAL address, not a fragment. The three
+          fragment links this nav used to carry (#now, #contact, and before
+          them #work and #cv) all pointed at sections on `/`; #now and #contact
+          moved to /about/ in the previous commit and are repointed here rather
+          than left aiming at a fragment with no target, which silently lands
+          the reader at the top of the page.
+
+          NOTHING was deleted anywhere in this series. /case/<slug>/ (nine
+          pages), /workflow-automation/, /cv/, /projects/, /thesis/ and /notes/
+          all still build and still serve at their exact addresses. /cv/ is
+          linked from a nav for the first time since it was created; it had been
+          reachable by URL only. Thesis stays in the footer. Contact is
+          menu-only because on desktop the Say-hi CTA already targets it, and
+          on mobile that CTA is hidden. */}
       <a href={notes}>{t('nav.notes')}</a>
-      {/* /about/ is linked from the commit that CREATES it, so it is never
-          reachable-by-URL-only. The #now anchor beside it still points at the
-          homepage, which still renders that section; the commit that moves the
-          feed onto `/` is the one that repoints it. */}
       <a href={about}>{t('nav.about')}</a>
-      <a href={`${home}#now`}>{t('nav.now')}</a>
+      <a href={cv}>{t('nav.cv')}</a>
       <a href={projects}>{t('nav.projects')}</a>
-      <a href={`${home}#contact`} class="nav-link-menu-only">{t('nav.contact')}</a>
+      <a href={`${about}#contact`} class="nav-link-menu-only">{t('nav.contact')}</a>
     </nav>
     <LangSwitcher />
-    <a href={`${home}#contact`} class="nav-cta">{t('nav.cta')} <Arr /></a>
+    <a href={`${about}#contact`} class="nav-cta">{t('nav.cta')} <Arr /></a>
     <button type="button" class="nav-toggle" aria-label={t('nav.menu.open')} aria-expanded="false" data-label-open={t('nav.menu.open')} data-label-close={t('nav.menu.close')}>
       <span class="bar"></span>
       <span class="bar"></span>

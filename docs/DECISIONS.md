@@ -213,6 +213,54 @@ build, so nothing else has to move.
 
 ---
 
+## 2026-08-01. The root URL is the publication, and /about/ exists so nothing loses an address
+
+**Applied.** `/` renders a masthead and the essay feed and nothing else. This
+closes critic finding 5, which stayed open through the previous series: the root
+URL kept declaring itself a career site after the subtraction. Commit `140874d`
+had claimed "Notes become the front door" while `src/pages/index.astro` still
+rendered Hero, WorkflowAutomation, Now, Reading, Languages and Contact and
+referenced the notes collection zero times.
+
+`/about/` plus three locale mirrors was created one commit EARLIER, deliberately,
+so that this change could not orphan anything. It renders Hero, Now, Reading,
+Languages and Contact: the same components in the same order, unedited.
+`/workflow-automation/` was not re-hosted because it already had its own
+address. The CV is at `/cv/` and is now linked from Nav for the first time; it
+had been reachable by URL only since it was created.
+
+**The feed is duplicated across `/` and `/notes/`, and that is the decision.**
+Both URLs now list the same seven essays from the same `NoteCard` component. The
+alternatives were to delete `/notes/` or to noindex one of them. This host serves
+no per-path 301, so deleting it breaks every inbound link and every essay's own
+back-link; noindex was declined on its merits earlier in this series and
+declining it for the homepage and then applying it here would be incoherent. The
+mastheads differ (`home.masthead.*` against `notes.index.*`), so the two pages
+read as a front door and an archive index rather than as one page served twice.
+Revisit only if a feed grows past what one page should list.
+
+The `Blog` node in `JsonLdPerson.astro` keeps its `@id` and `url` at `/notes/`.
+That is where the publication was first published, an `@id` is meant to be
+stable, and re-pointing it would churn the node for no gain.
+
+Nine `href="/#contact"` links in the nine static `public/case/*` pages were
+rewritten to `/about/#contact` in the same commit, because no `src/` edit can
+reach those files and the fragment they pointed at moved. The remaining dead
+`/#work`, `/#cv`, `/#now` and `/#reading` fragments in the built output are all
+inside `/lab/`, which is noindexed, excluded from the sitemap, and made of
+self-contained prototypes with their own hardcoded link arrays. Not touched.
+
+Revert: `git revert` the commit. `/about/` survives it and keeps serving, which
+is the point of having shipped the route first.
+
+Masthead copy is assembled from strings that already shipped, not written fresh:
+`home.hero.lead` supplies the identity sentence, the six-years clause and the
+three-part list, and `meta.home.description` supplies the subject noun phrase.
+Each locale's version is lifted clause-for-clause from that locale's own already
+translated `home.hero.lead`, so no locale received a paraphrase of the English.
+
+---
+
 ## Standing: the build is the review
 
 There is no human review step between a push to `main` and production. The

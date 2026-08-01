@@ -3,10 +3,11 @@ import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
-const home = localizePath('/', locale);
 const projects = localizePath('/projects', locale);
 const notes = localizePath('/notes/', locale);
 const thesis = localizePath('/thesis', locale);
+const about = localizePath('/about/', locale);
+const cv = localizePath('/cv/', locale);
 const year = new Date().getFullYear();
 ---
 <footer>
@@ -23,15 +24,19 @@ const year = new Date().getFullYear();
       </div>
       <div>
         <h2>{t('footer.col.site')}</h2>
-        {/* #work and #cv removed 2026-08-01: both anchors point at sections
-            that no longer render on the homepage, and an anchor with no
-            target silently lands the reader at the top of the page. The
-            addresses those sections moved to are alive; they are just not
-            linked from here. */}
+        {/* Every href here resolves. #now and #reading used to hang off `/`;
+            those two sections render at /about/ as of 2026-08-01, so the
+            fragments follow them. #work and #cv were removed earlier the same
+            day for the opposite reason: they pointed at sections that had left
+            the homepage without a fragment to land on, and an anchor with no
+            target silently drops the reader at the top of the page. /cv/ has a
+            real address and is linked as one. */}
         <a href={notes}>{t('nav.notes')}</a>
-        <a href={`${home}#now`}>{t('nav.now')}</a>
+        <a href={about}>{t('nav.about')}</a>
+        <a href={cv}>{t('nav.cv')}</a>
         <a href={projects}>{t('nav.projects')}</a>
-        <a href={`${home}#reading`}>{t('nav.reading')}</a>
+        <a href={`${about}#now`}>{t('nav.now')}</a>
+        <a href={`${about}#reading`}>{t('nav.reading')}</a>
       </div>
       <div>
         <h2>{t('footer.col.elsewhere')}</h2>
@@ -41,7 +46,7 @@ const year = new Date().getFullYear();
       <div>
         <h2>{t('footer.col.contact')}</h2>
         <a href="mailto:tom@tomscholtes.com">tom@tomscholtes.com</a>
-        <a href={`${home}#contact`}>{t('footer.email.cta')}</a>
+        <a href={`${about}#contact`}>{t('footer.email.cta')}</a>
       </div>
     </div>
     <div class="foot-bottom">

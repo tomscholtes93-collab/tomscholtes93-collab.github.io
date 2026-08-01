@@ -1,35 +1,77 @@
 ---
-/* The CV and CaseStudies sections were removed from this page on 2026-08-01.
-   UNLINK, NOT DELETE. Nothing they render has left the site:
-     - the nine case studies are static passthrough at /case/<slug>/ and keep
-       building at their exact addresses
-     - /workflow-automation/ is untouched
-     - the CV moved to its own route at /cv/ in an earlier commit, which is
-       what makes this a demotion by address rather than a deletion
-   There is no per-path 301 on this host, so no URL may move. See
-   docs/DECISIONS.md. */
+/* The root URL is the publication.
+
+   THIS is the change that commit 140874d claimed and did not make. That commit
+   said "Notes become the front door" while this file still rendered Hero,
+   WorkflowAutomation, Now, Reading, Languages and Contact and referenced the
+   notes collection zero times. Critic finding 5 stayed open: the root URL kept
+   declaring itself a career site after the subtraction. It now renders a
+   masthead and the essay feed, and nothing else.
+
+   UNLINK, NOT DELETE, and this time nothing loses an address either:
+     - Hero, Now, Reading, Languages and Contact all render at /about/ (plus the
+       three locale mirrors), created in the previous commit precisely so this
+       one could not orphan them
+     - WorkflowAutomation is the section that already had its own address;
+       /workflow-automation/ builds from public/ and is untouched
+     - the CV is at /cv/, linked from Nav as of this commit
+     - the nine case studies keep building at /case/<slug>/ and stay reachable:
+       five of them are cited by name in essay `sources` arrays, in all four
+       locales
+     - /notes/ is unchanged and still returns 200. It now carries a list that
+       `/` also carries, which is a real duplication and a deliberate one: this
+       host serves no per-path 301, so the alternative to duplicating the list
+       is deleting a published URL. See docs/DECISIONS.md.
+
+   The feed reuses NoteCard and the .notes-index / .notes-list rules that ship
+   on /notes/ today. There is no second card component and no new CSS.
+
+   DisplayPanel and TweaksPanel stay mounted here, exactly as before, so the
+   ts-display-prefs surface recorded in PREFS-CONTRACT.md is unchanged by this
+   series: still `/` and /lab/interactive/, still two pages wide. */
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
-import Hero from '../components/Hero.astro';
-import Now from '../components/Now.astro';
-import WorkflowAutomation from '../components/WorkflowAutomation.astro';
-import Reading from '../components/Reading.astro';
-import Languages from '../components/Languages.astro';
-import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
+import NoteCard from '../components/NoteCard.astro';
 import RevealObserver from '../components/RevealObserver.astro';
 import DisplayPanel from '../components/islands/DisplayPanel.jsx';
 import TweaksPanel from '../components/islands/TweaksPanel.jsx';
+import { getCollection } from 'astro:content';
+import { t as translate, getLocale, type Locale } from '../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+
+/* The three locale routes re-export this file, so the collection prefix is
+   derived from the resolved locale rather than hardcoded. That is why `/` needs
+   one page file and three three-line mirrors where /notes/ needs four full
+   copies: the notes index files predate this and hardcode their prefix. */
+const entries = (await getCollection('notes', ({ data, slug }) =>
+    data.status === 'published' && slug.startsWith(`${locale}/`)))
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 ---
 <Base jsonLd={true}>
   <Nav active="home" />
   <main>
-    <Hero />
-    <WorkflowAutomation />
-    <Now />
-    <Reading />
-    <Languages />
-    <Contact />
+    <header class="paper notes-index-header">
+      <div class="container">
+        <span class="eyebrow">{t('home.masthead.eyebrow')}</span>
+        <h1 class="title">{t('home.masthead.heading.pre')} <em>{t('home.masthead.heading.em')}</em>{t('home.masthead.heading.post')}</h1>
+        <p class="sub">{t('home.masthead.sub')}</p>
+      </div>
+    </header>
+
+    <section class="notes-index">
+      <div class="container">
+        <ol class="notes-list">
+          {entries.map((entry, i) => (
+            <li class="reveal" style={`--reveal-delay: ${Math.min(i, 6) * 45}ms`}>
+              <NoteCard entry={entry} />
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
   </main>
   <Footer />
 

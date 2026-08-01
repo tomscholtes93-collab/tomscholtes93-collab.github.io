@@ -1,8 +1,11 @@
 ---
-// Person + WebSite entity graph, rendered on the four home pages only.
+// Person + WebSite entity graph, rendered on the four home pages and the four
+// /about/ pages.
 // Every claim here must already be published on the site (no-fabrication gate):
-// jobTitle and languages appear on the homepage, Erasmus University Rotterdam
-// on the thesis page, the knowsAbout topics in the case studies and notes.
+// jobTitle and languages appear on /about/ (they were on the homepage until
+// 2026-08-01, when the Hero and Languages sections moved there and `/` became
+// the essay feed), Erasmus University Rotterdam on the thesis page, the
+// knowsAbout topics in the case studies and notes.
 const SITE = 'https://tomscholtes.com';
 const data = {
   '@context': 'https://schema.org',
@@ -45,6 +48,10 @@ const data = {
     // organised around, so a crawler had no way to read /notes/ as a
     // publication. Every claim below is already published: the essays exist
     // at /notes/<slug>/ in four locales.
+    // The @id and url stay at /notes/ now that `/` carries the same feed. That
+    // is the address the publication was first published at, an @id is meant to
+    // be stable, and re-pointing it would churn the node for no gain. The
+    // duplication of the list across two URLs is recorded in docs/DECISIONS.md.
     {
       '@type': 'Blog',
       '@id': `${SITE}/notes/#blog`,
