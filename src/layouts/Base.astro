@@ -60,6 +60,18 @@ const OG_LOCALE: Record<Locale, string> = {
       <link rel="alternate" hreflang={l} href={new URL(localizePath(logicalPath, l), SITE).toString()} />
     ))}
     {!noindex && <link rel="alternate" hreflang="x-default" href={new URL(localizePath(logicalPath, DEFAULT_LOCALE), SITE).toString()} />}
+    {/* The feed, discoverable. Added 2026-08-01 with /rss.xml: an aggregator
+        finds a feed by this link element, so shipping the endpoint without it
+        would mean a feed only a reader who guessed the URL could subscribe to.
+        Per-locale, so a German reader's reader gets the German feed. Emitted
+        even on a noindex page: "do not index this" and "here is the site's
+        feed" are unrelated statements. */}
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={t('meta.notes.index.title')}
+      href={new URL(localizePath('/rss.xml', locale), SITE).toString()}
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

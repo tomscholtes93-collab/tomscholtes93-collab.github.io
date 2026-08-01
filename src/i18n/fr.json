@@ -341,5 +341,6 @@
   "archive.sub": "L'ensemble par mois, les plus récents en premier. Une liste courte aujourd'hui, et tout l'intérêt d'archives datées est de rester utiles quand elles cessent d'être courtes.",
   "archive.count.one": "{count} essai",
   "archive.count.few": "{count} essais",
-  "archive.count.many": "{count} essais"
+  "archive.count.many": "{count} essais",
+  "nav.rss": "Flux RSS"
 }

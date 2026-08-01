@@ -341,5 +341,6 @@
   "archive.sub": "The whole run by month, newest first. A short list today, and the point of a date archive is that it stays useful as it stops being short.",
   "archive.count.one": "{count} essay",
   "archive.count.few": "{count} essays",
-  "archive.count.many": "{count} essays"
+  "archive.count.many": "{count} essays",
+  "nav.rss": "RSS feed"
 }

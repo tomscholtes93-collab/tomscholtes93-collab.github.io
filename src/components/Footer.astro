@@ -10,6 +10,7 @@ const about = localizePath('/about/', locale);
 const cv = localizePath('/cv/', locale);
 const tags = localizePath('/tags/', locale);
 const archive = localizePath('/notes/archive/', locale);
+const rss = localizePath('/rss.xml', locale);
 const year = new Date().getFullYear();
 ---
 <footer>
@@ -46,6 +47,9 @@ const year = new Date().getFullYear();
         <h2>{t('footer.col.elsewhere')}</h2>
         <a href="https://www.linkedin.com/in/tomscholtes93/" target="_blank" rel="noopener">{t('footer.linkedin')}</a>
         <a href={thesis}>{t('footer.thesis')}</a>
+        {/* The head already carries <link rel=alternate> for aggregators. This
+            is for a person who wants the address to paste into one. */}
+        <a href={rss}>{t('nav.rss')}</a>
       </div>
       <div>
         <h2>{t('footer.col.contact')}</h2>

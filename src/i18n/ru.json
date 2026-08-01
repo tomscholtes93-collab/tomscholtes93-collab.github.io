@@ -341,5 +341,6 @@
   "archive.sub": "Весь ход по месяцам, новые сверху. Сегодня список короткий, и смысл архива по датам в том, что он останется полезным, когда список коротким быть перестанет.",
   "archive.count.one": "{count} эссе",
   "archive.count.few": "{count} эссе",
-  "archive.count.many": "{count} эссе"
+  "archive.count.many": "{count} эссе",
+  "nav.rss": "RSS-лента"
 }

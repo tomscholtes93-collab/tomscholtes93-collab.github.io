@@ -14,7 +14,8 @@
     "index.html and a bare .html file is invisible to it. Checked as files on disk.",
     "successors: old -> new, for a removal that was deliberate. This host cannot",
     "redirect, so it records intent and keeps the trail; it does not make the old",
-    "address serve."
+    "address serve.",
+    "The four /rss.xml addresses are in extra for the same reason as the .html files: post-build.mjs builds the sitemap by walking for index.html, so a feed endpoint is invisible to it. A feed that silently stops building would strand every subscriber."
   ],
   "updated": "2026-08-01",
   "paths": [
@@ -90,7 +91,11 @@
     "/workflow-automation/"
   ],
   "extra": [
+    "/de/rss.xml",
+    "/fr/rss.xml",
     "/projects/cv-onepager-artifact.html",
+    "/rss.xml",
+    "/ru/rss.xml",
     "/thesis.html"
   ],
   "successors": {}

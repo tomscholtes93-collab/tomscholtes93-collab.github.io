@@ -341,5 +341,6 @@
   "archive.sub": "Der gesamte Verlauf nach Monat, neueste zuerst. Heute eine kurze Liste, und der Sinn eines Datumsarchivs ist, dass es nützlich bleibt, sobald es nicht mehr kurz ist.",
   "archive.count.one": "{count} Essay",
   "archive.count.few": "{count} Essays",
-  "archive.count.many": "{count} Essays"
+  "archive.count.many": "{count} Essays",
+  "nav.rss": "RSS-Feed"
 }
