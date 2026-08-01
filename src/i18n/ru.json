@@ -330,5 +330,16 @@
   "tags.detail.count.one": "{count} эссе",
   "tags.detail.count.few": "{count} эссе",
   "tags.detail.count.many": "{count} эссе",
-  "tags.detail.back": "все темы"
+  "tags.detail.back": "все темы",
+  "nav.archive": "Архив",
+  "meta.archive.title": "Архив · Tom Scholtes",
+  "meta.archive.description": "Все эссе по месяцу публикации, новые сверху.",
+  "archive.eyebrow": "Архив",
+  "archive.heading.pre": "Всё, в том",
+  "archive.heading.em": "порядке, как было",
+  "archive.heading.post": ".",
+  "archive.sub": "Весь ход по месяцам, новые сверху. Сегодня список короткий, и смысл архива по датам в том, что он останется полезным, когда список коротким быть перестанет.",
+  "archive.count.one": "{count} эссе",
+  "archive.count.few": "{count} эссе",
+  "archive.count.many": "{count} эссе"
 }

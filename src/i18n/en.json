@@ -330,5 +330,16 @@
   "tags.detail.count.one": "{count} essay",
   "tags.detail.count.few": "{count} essays",
   "tags.detail.count.many": "{count} essays",
-  "tags.detail.back": "all tags"
+  "tags.detail.back": "all tags",
+  "nav.archive": "Archive",
+  "meta.archive.title": "Archive · Tom Scholtes",
+  "meta.archive.description": "Every essay by the month it was published, newest first.",
+  "archive.eyebrow": "Archive",
+  "archive.heading.pre": "Everything, in the",
+  "archive.heading.em": "order it happened",
+  "archive.heading.post": ".",
+  "archive.sub": "The whole run by month, newest first. A short list today, and the point of a date archive is that it stays useful as it stops being short.",
+  "archive.count.one": "{count} essay",
+  "archive.count.few": "{count} essays",
+  "archive.count.many": "{count} essays"
 }

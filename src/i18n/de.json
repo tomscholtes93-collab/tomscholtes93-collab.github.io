@@ -330,5 +330,16 @@
   "tags.detail.count.one": "{count} Essay",
   "tags.detail.count.few": "{count} Essays",
   "tags.detail.count.many": "{count} Essays",
-  "tags.detail.back": "alle Themen"
+  "tags.detail.back": "alle Themen",
+  "nav.archive": "Archiv",
+  "meta.archive.title": "Archiv · Tom Scholtes",
+  "meta.archive.description": "Alle Essays nach Erscheinungsmonat, neueste zuerst.",
+  "archive.eyebrow": "Archiv",
+  "archive.heading.pre": "Alles, in der",
+  "archive.heading.em": "Reihenfolge des Geschehens",
+  "archive.heading.post": ".",
+  "archive.sub": "Der gesamte Verlauf nach Monat, neueste zuerst. Heute eine kurze Liste, und der Sinn eines Datumsarchivs ist, dass es nützlich bleibt, sobald es nicht mehr kurz ist.",
+  "archive.count.one": "{count} Essay",
+  "archive.count.few": "{count} Essays",
+  "archive.count.many": "{count} Essays"
 }

@@ -9,6 +9,7 @@ const thesis = localizePath('/thesis', locale);
 const about = localizePath('/about/', locale);
 const cv = localizePath('/cv/', locale);
 const tags = localizePath('/tags/', locale);
+const archive = localizePath('/notes/archive/', locale);
 const year = new Date().getFullYear();
 ---
 <footer>
@@ -34,6 +35,7 @@ const year = new Date().getFullYear();
             real address and is linked as one. */}
         <a href={notes}>{t('nav.notes')}</a>
         <a href={tags}>{t('nav.tags')}</a>
+        <a href={archive}>{t('nav.archive')}</a>
         <a href={about}>{t('nav.about')}</a>
         <a href={cv}>{t('nav.cv')}</a>
         <a href={projects}>{t('nav.projects')}</a>

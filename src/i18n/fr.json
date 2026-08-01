@@ -330,5 +330,16 @@
   "tags.detail.count.one": "{count} essai",
   "tags.detail.count.few": "{count} essais",
   "tags.detail.count.many": "{count} essais",
-  "tags.detail.back": "tous les thèmes"
+  "tags.detail.back": "tous les thèmes",
+  "nav.archive": "Archives",
+  "meta.archive.title": "Archives · Tom Scholtes",
+  "meta.archive.description": "Tous les essais par mois de publication, les plus récents en premier.",
+  "archive.eyebrow": "Archives",
+  "archive.heading.pre": "Tout, dans l'",
+  "archive.heading.em": "ordre où cela est arrivé",
+  "archive.heading.post": ".",
+  "archive.sub": "L'ensemble par mois, les plus récents en premier. Une liste courte aujourd'hui, et tout l'intérêt d'archives datées est de rester utiles quand elles cessent d'être courtes.",
+  "archive.count.one": "{count} essai",
+  "archive.count.few": "{count} essais",
+  "archive.count.many": "{count} essais"
 }

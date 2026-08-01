@@ -1,0 +1,77 @@
+---
+/* /notes/archive/ : the whole run by month, newest first.
+   Created 2026-08-01 (amendment 1). Cheap, static, and it is the affordance
+   that makes a corpus read as a publication with a history rather than a page
+   of seven links.
+
+   Locale comes from the route, so one file serves all four addresses via
+   three-line re-exports.
+
+   Month names come from Intl.DateTimeFormat with the locale's own date locale,
+   so nothing here needs a dictionary entry per month: `localeDateFmt` already
+   maps en to en-GB, de to de-DE and so on, and this uses the same table.
+   Grouping is on UTC parts. publishDate is a date-only front-matter value that
+   Zod coerces to midnight UTC, so reading local getMonth() would shift an
+   essay published on the 1st into the previous month west of Greenwich. */
+import Base from '../../../layouts/Base.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import NotesList from '../../../components/NotesList.astro';
+import RevealObserver from '../../../components/RevealObserver.astro';
+import { archiveMonths, pluralKey } from '../../../lib/notes';
+import { t as translate, getLocale, localizePath, type Locale } from '../../../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
+const months = await archiveMonths(locale);
+const nf = new Intl.NumberFormat(locale);
+
+const DATE_LOCALE: Record<Locale, string> = {
+  en: 'en-GB', de: 'de-DE', fr: 'fr-FR', ru: 'ru-RU',
+};
+const monthFmt = new Intl.DateTimeFormat(DATE_LOCALE[locale], {
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+const notesHref = localizePath('/notes/', locale);
+---
+<Base
+  title={t('meta.archive.title')}
+  description={t('meta.archive.description')}
+  path="/notes/archive/"
+>
+  <Nav active="notes" />
+  <main>
+    <header class="paper notes-index-header">
+      <div class="container">
+        <span class="eyebrow">{t('archive.eyebrow')}</span>
+        <h1 class="title">{t('archive.heading.pre')} <em>{t('archive.heading.em')}</em>{t('archive.heading.post')}</h1>
+        <p class="sub">{t('archive.sub')}</p>
+      </div>
+    </header>
+
+    <div class="archive-list">
+      {months.map((m) => (
+        <section class="archive-group notes-index notes-index-bare">
+          <div class="container">
+            <h2 class="eyebrow archive-month">
+              {monthFmt.format(Date.UTC(m.year, m.month - 1, 1))}
+              <span aria-hidden="true"> · </span>
+              {t(pluralKey('archive.count', m.entries.length, locale), { count: nf.format(m.entries.length) })}
+            </h2>
+          </div>
+          <NotesList entries={m.entries} padded={false} />
+        </section>
+      ))}
+    </div>
+
+    <section class="notes-index notes-index-bare">
+      <div class="container">
+        <p class="back mono"><a href={notesHref}>{t('notes.detail.back')}</a></p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <RevealObserver />
+</Base>
