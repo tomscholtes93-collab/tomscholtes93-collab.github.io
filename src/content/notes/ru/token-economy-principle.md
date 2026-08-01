@@ -5,6 +5,12 @@ publishDate: 2026-05-16
 tags: ["принципы", "design", "llms"]
 related: ["self-hosted-rag-claude-max", "mcp-workstream"]
 sources:
+  - label: "Кейс: Automated regulatory notes generation"
+    kind: site
+    href: "/case/automated-regulatory-notes/"
+  - label: "Кейс: Annual accounts quality review"
+    kind: site
+    href: "/case/annual-accounts-quality-review/"
   - label: "Личные дизайн-заметки"
     kind: notion
   - label: "Практический опыт маршрутизации данных через Claude Code"

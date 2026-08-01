@@ -7,8 +7,9 @@ related: ["the-remembering-assistant", "self-hosted-rag-claude-max"]
 sources:
   - label: "Systemnotizen zur Sleep-Time-Konsolidierung"
     kind: memory
-  - label: "Projektseite zum Exocortex-Stack"
+  - label: "Fallstudie: AI skill architecture and reusable tooling"
     kind: site
+    href: "/case/ai-skill-architecture/"
 status: published
 ---
 

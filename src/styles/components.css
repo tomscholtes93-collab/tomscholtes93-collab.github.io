@@ -1051,7 +1051,8 @@ html[lang="ru"] :is(.note-entry-title, .note-title, .serif) {
 .note-sources li .mono {
   color: var(--muted);
 }
-.note-related a {
+.note-related a,
+.note-sources a {
   color: var(--ink);
   border-bottom: 1px solid var(--rule);
 }
@@ -1085,6 +1086,7 @@ html[lang="ru"] :is(.note-entry-title, .note-title, .serif) {
 }
 @media (prefers-reduced-motion: no-preference) {
   .note-related a,
+  .note-sources a,
   .note-article .back a {
     transition:
       color var(--dur-ui) var(--ease-out),
@@ -1092,7 +1094,9 @@ html[lang="ru"] :is(.note-entry-title, .note-title, .serif) {
   }
 }
 .note-related a:hover,
-.note-related a:focus-visible {
+.note-related a:focus-visible,
+.note-sources a:hover,
+.note-sources a:focus-visible {
   color: var(--accent-ink);
   border-bottom-color: var(--accent-ink);
 }

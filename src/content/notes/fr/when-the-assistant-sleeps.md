@@ -7,8 +7,9 @@ related: ["the-remembering-assistant", "self-hosted-rag-claude-max"]
 sources:
   - label: "Notes système sur la consolidation pendant le sommeil"
     kind: memory
-  - label: "Page projet du site sur la pile exocortex"
+  - label: "Étude de cas : AI skill architecture and reusable tooling"
     kind: site
+    href: "/case/ai-skill-architecture/"
 status: published
 ---
 

@@ -7,8 +7,9 @@ related: ["the-remembering-assistant", "self-hosted-rag-claude-max"]
 sources:
   - label: "Заметки по системе ночной консолидации"
     kind: memory
-  - label: "Страница проекта об exocortex-стеке"
+  - label: "Кейс: AI skill architecture and reusable tooling"
     kind: site
+    href: "/case/ai-skill-architecture/"
 status: published
 ---
 

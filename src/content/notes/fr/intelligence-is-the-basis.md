@@ -7,6 +7,7 @@ related: ["the-cave-inside-the-cave", "the-remembering-assistant"]
 sources:
   - label: "Essai compagnon : La caverne dans la caverne"
     kind: site
+    href: "/fr/notes/the-cave-inside-the-cave/"
   - label: "Wheeler, Information, Physics, Quantum (it from bit), 1989"
     kind: external
   - label: "Bostrom, Are You Living in a Computer Simulation? (2003)"

@@ -5,6 +5,12 @@ publishDate: 2026-05-16
 tags: ["prinzipien", "design", "llms"]
 related: ["self-hosted-rag-claude-max", "mcp-workstream"]
 sources:
+  - label: "Fallstudie: Automated regulatory notes generation"
+    kind: site
+    href: "/case/automated-regulatory-notes/"
+  - label: "Fallstudie: Annual accounts quality review"
+    kind: site
+    href: "/case/annual-accounts-quality-review/"
   - label: "Persönliche Design-Notizen"
     kind: notion
   - label: "Praktische Erfahrung beim Routing von Daten durch Claude Code"

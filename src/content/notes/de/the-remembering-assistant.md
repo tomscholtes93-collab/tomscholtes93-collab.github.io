@@ -7,8 +7,9 @@ related: ["self-hosted-rag-claude-max", "token-economy-principle"]
 sources:
   - label: "Persönliche Notizen zum G2-Stack"
     kind: notion
-  - label: "Projektseite zum Exocortex-Stack"
+  - label: "Fallstudie: AI skill architecture and reusable tooling"
     kind: site
+    href: "/case/ai-skill-architecture/"
 status: published
 ---
 

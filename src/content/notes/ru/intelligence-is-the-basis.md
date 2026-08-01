@@ -7,6 +7,7 @@ related: ["the-cave-inside-the-cave", "the-remembering-assistant"]
 sources:
   - label: "Сопутствующее эссе: Пещера внутри пещеры"
     kind: site
+    href: "/ru/notes/the-cave-inside-the-cave/"
   - label: "Уилер, Information, Physics, Quantum (it from bit), 1989"
     kind: external
   - label: "Бостром, Are You Living in a Computer Simulation? (2003)"

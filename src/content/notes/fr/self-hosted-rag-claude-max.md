@@ -5,8 +5,9 @@ publishDate: 2026-05-16
 tags: ["rag", "auto-hébergé", "connaissance"]
 related: ["token-economy-principle", "the-remembering-assistant"]
 sources:
-  - label: "Page projet du site sur la pile exocortex"
+  - label: "Étude de cas : AI skill architecture and reusable tooling"
     kind: site
+    href: "/case/ai-skill-architecture/"
   - label: "Notes de compilation et d'interrogation OpenKB"
     kind: notion
 status: published

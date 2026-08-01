@@ -5,6 +5,12 @@ publishDate: 2026-05-16
 tags: ["mcp", "automatisation", "outils"]
 related: ["self-hosted-rag-claude-max", "token-economy-principle"]
 sources:
+  - label: "Étude de cas : Cross-platform mailbox intelligence"
+    kind: site
+    href: "/case/cross-platform-mailbox-intelligence/"
+  - label: "Étude de cas : End-to-end email automation"
+    kind: site
+    href: "/case/email-automation/"
   - label: "Notes personnelles sur le câblage MCP"
     kind: notion
   - label: "Spécification MCP d'Anthropic"

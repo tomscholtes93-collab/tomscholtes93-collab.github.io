@@ -69,7 +69,10 @@ const notesHref = localizePath('/notes/', locale);
                 <h2 class="eyebrow">{t('notes.detail.sources.heading')}</h2>
                 <ul>
                   {entry.data.sources.map((s) => (
-                    <li>{s.label} <span class="mono">· {s.kind}</span></li>
+                    <li>
+                      {s.href ? <a href={s.href}>{s.label}</a> : s.label}
+                      <span class="mono">· {s.kind}</span>
+                    </li>
                   ))}
                 </ul>
               </section>

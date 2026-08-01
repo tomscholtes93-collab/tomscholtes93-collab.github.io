@@ -5,8 +5,9 @@ publishDate: 2026-05-16
 tags: ["rag", "selbst-gehostet", "wissen"]
 related: ["token-economy-principle", "the-remembering-assistant"]
 sources:
-  - label: "Projektseite zum Exocortex-Stack"
+  - label: "Fallstudie: AI skill architecture and reusable tooling"
     kind: site
+    href: "/case/ai-skill-architecture/"
   - label: "OpenKB Compile- und Query-Notizen"
     kind: notion
 status: published

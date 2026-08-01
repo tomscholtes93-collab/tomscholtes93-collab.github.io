@@ -5,6 +5,12 @@ publishDate: 2026-05-16
 tags: ["mcp", "автоматизация", "инструменты"]
 related: ["self-hosted-rag-claude-max", "token-economy-principle"]
 sources:
+  - label: "Кейс: Cross-platform mailbox intelligence"
+    kind: site
+    href: "/case/cross-platform-mailbox-intelligence/"
+  - label: "Кейс: End-to-end email automation"
+    kind: site
+    href: "/case/email-automation/"
   - label: "Личные заметки про обвязку MCP"
     kind: notion
   - label: "Спецификация MCP от Anthropic"
