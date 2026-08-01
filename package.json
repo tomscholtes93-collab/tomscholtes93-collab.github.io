@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/check-i18n.mjs && node scripts/check-notes.mjs && node scripts/copy-fonts.mjs && node scripts/make-og.mjs && astro build && node scripts/post-build.mjs",
+    "build": "node scripts/check-i18n.mjs && node scripts/check-notes.mjs && node scripts/copy-fonts.mjs && node scripts/make-og.mjs && astro build && node scripts/post-build.mjs && node scripts/check-urls.mjs",
+    "urls:update": "node scripts/check-urls.mjs --update",
     "preview": "astro preview",
     "astro": "astro",
     "copy:fonts": "node scripts/copy-fonts.mjs"

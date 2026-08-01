@@ -261,6 +261,53 @@ translated `home.hero.lead`, so no locale received a paraphrase of the English.
 
 ---
 
+## 2026-08-01. urls.lock is built, reversing the decision taken earlier the same day
+
+**Applied, and this supersedes the "urls.lock declined" entry above.** That
+entry declined the gate on three reasons, and the load-bearing one was that the
+series' net path delta was zero, so the gate would have guarded nothing while
+taxing the only near-term traffic. The first half of that stopped being true in
+this series: `/about/` was added and `/` was rewritten, so paths are now moving
+around on this site rather than sitting still. The second half is answered by
+building the gate so that it cannot tax an essay push.
+
+`scripts/check-urls.mjs` fails on exactly one condition: a path `urls.lock`
+records as published is absent from the current build and no declared successor
+is present either. It is the last step of the build chain, after post-build.mjs
+writes the sitemap it reads.
+
+It does NOT fire on additive change. Publishing an essay adds four paths and
+removes none, so the build passes and the lock does not need touching; new paths
+are reported as one informational line and never as an error. This is the design
+constraint, not a nicety: a gate that makes ordinary work annoying gets deleted,
+and then it guards nothing.
+
+Seeded from the LIVE sitemap rather than a local build, so it records what the
+public was actually served: 70 paths, plus two `extra` addresses the sitemap
+structurally cannot carry because it is built by walking for index.html
+(`/projects/cv-onepager-artifact.html` and `/thesis.html`). `/lab/*` and
+anything carrying a noindex robots meta are absent, because post-build.mjs
+already excludes them from the sitemap, so this gate cannot enshrine a preview
+or a deliberately unindexed page.
+
+The `successors` map is honest about its limits. On a host that could redirect,
+`"/old/": "/new/"` would be a redirect rule. Here nothing makes /old/ serve
+/new/, so it records that a removal was deliberate and where the content went.
+A reader of the old URL still gets a 404. Deleting the path from `paths` is the
+other route; the difference is that a successor leaves a trail in the file
+rather than in a commit message.
+
+Verified by seven tests before commit: clean build passes; four added paths pass
+with an informational line; a removed published path fails; a declared successor
+that IS built passes; a declared successor that is NOT built still fails; a
+missing `extra` .html file fails; and a missing sitemap fails with a message
+naming the chain order.
+
+Revert: drop `&& node scripts/check-urls.mjs` from the build script. The lock
+file is then inert data.
+
+---
+
 ## Standing: the build is the review
 
 There is no human review step between a push to `main` and production. The
