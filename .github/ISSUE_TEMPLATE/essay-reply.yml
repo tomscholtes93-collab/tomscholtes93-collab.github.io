@@ -1,0 +1,42 @@
+name: Reply to an essay
+description: Reply publicly to one of the essays on tomscholtes.com
+title: "Reply: "
+labels: ["reply"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reading. This thread is public and lives in this repository,
+        which is what makes replies possible on a site with no server.
+
+        Nothing you write here is copied into the site's source. Replies stay
+        on GitHub.
+  - type: input
+    id: essay
+    attributes:
+      label: Which essay
+      description: >
+        The address of the essay. Prefilled if you arrived from the essay page.
+      placeholder: https://tomscholtes.com/notes/the-token-economy-principle/
+    validations:
+      required: true
+  - type: input
+    id: passage
+    attributes:
+      label: Which passage
+      description: >
+        Optional. Every paragraph has its own address: click the number beside
+        one and paste the link here, so we are both looking at the same
+        sentence.
+      placeholder: "#p12"
+    validations:
+      required: false
+  - type: textarea
+    id: reply
+    attributes:
+      label: Your reply
+      description: >
+        Disagreement is welcome and does not need to be softened. If something
+        is wrong, saying which part and why is the most useful thing you can do.
+    validations:
+      required: true

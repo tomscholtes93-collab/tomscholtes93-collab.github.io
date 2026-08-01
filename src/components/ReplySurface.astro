@@ -1,0 +1,72 @@
+---
+/* LAYER 1: the reply surface that works the moment it deploys.
+   ==========================================================================
+
+   Tom asked twice, literally: "I want people to be able to comment on each of
+   these note pages." This is the half of the answer that needs no setup, no
+   account of Tom's, no third-party script, and no service that can go down.
+
+   It is entirely static. The page ships two outbound links and some prose. No
+   fetch, no origin to rate-limit, nothing to keep alive. A reply lands in a
+   place GitHub already runs and already moderates.
+
+   WHY AN ISSUE AND NOT A FORM. This site is `output: 'static'` on GitHub
+   Pages. There is no server to POST to and nowhere to hold a secret, so a
+   native comment box is not a thing that can exist here. The honest options
+   were an outbound link or a third-party embed, and the embed is Layer 2,
+   which cannot be switched on from a terminal (see src/config/comments.ts).
+   So Layer 1 is the link, and it is built to be the good version of that:
+   prefilled, labelled, addressed to a specific passage, with the account
+   requirement stated in advance.
+
+   THE ACCOUNT REQUIREMENT IS STATED BEFORE THE CLICK, on purpose. Sending a
+   reader to a sign-in wall they did not expect is the failure mode this block
+   is shaped to avoid, so `notes.reply.account` renders as body text above the
+   buttons rather than as fine print below them, and the mailto alternative is
+   named in the same sentence.
+
+   QUARANTINE. Nothing a reader writes ever comes back into this repository.
+   Replies live on GitHub. No externally authored byte is fetched at build
+   time, written into src/content/notes/** or src/i18n/*.json, or committed.
+   See src/config/comments.ts for why that boundary is load-bearing rather
+   than fastidious. */
+import { comments, replyIssueUrl } from '../config/comments';
+import { t as translate, type Locale } from '../i18n';
+
+interface Props {
+  /** The essay's own title, for the prefilled issue subject. */
+  title: string;
+  /** Absolute canonical URL of THIS locale's copy of the essay. */
+  url: string;
+  locale: Locale;
+}
+const { title, url, locale } = Astro.props;
+const t = (k: string) => translate(k, locale);
+
+const issueHref = replyIssueUrl({ title, url });
+
+/* The mailto carries the same two facts as the issue: which essay, and at
+   which address. A reader with no GitHub account gets the identical ability to
+   cite a passage, because the URL they arrived by is already in the body. */
+const mailHref = `mailto:tom@tomscholtes.com?subject=${encodeURIComponent(`Reply: ${title}`)}&body=${encodeURIComponent(`${url}\n\n`)}`;
+---
+<section class="note-reply" id="reply" aria-labelledby="reply-heading">
+  <h2 class="eyebrow" id="reply-heading">{t('notes.reply.heading')}</h2>
+  <p>{t('notes.reply.body')}</p>
+  <p class="note-reply-cite">{t('notes.reply.cite')}</p>
+  <p class="note-reply-account">{t('notes.reply.account')}</p>
+  <p class="note-reply-actions">
+    <a class="btn btn-primary" href={issueHref} target="_blank" rel="noopener">{t('notes.reply.cta.github')}</a>
+    <a class="btn btn-ghost" href={mailHref}>{t('notes.reply.cta.email')}</a>
+  </p>
+  {/* Existing replies, filtered to the label the issue form applies. A reader
+      arriving at an essay should be able to see what has already been said
+      without opening the reply form first. The label is the visible text
+      rather than the URL: this repository's name is 46 characters and wrapped
+      across two lines in mono, which is worse than useless as a link. */}
+  {comments.repo && (
+    <p class="note-reply-where">
+      <a href={`https://github.com/${comments.repo}/issues?q=is%3Aissue+label%3Areply`} target="_blank" rel="noopener">{t('notes.reply.browse')}</a>
+    </p>
+  )}
+</section>

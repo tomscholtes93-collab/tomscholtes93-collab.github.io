@@ -1,0 +1,9 @@
+# blank_issues_enabled stays TRUE on purpose. The essay-reply form is a
+# convenience for readers arriving from a note page with the fields prefilled;
+# it must never become the only way to open an issue on this repository, which
+# is also where the site's own bugs get filed.
+blank_issues_enabled: true
+contact_links:
+  - name: Reply by email instead
+    url: mailto:tom@tomscholtes.com
+    about: No GitHub account needed. Reaches Tom directly and stays private.

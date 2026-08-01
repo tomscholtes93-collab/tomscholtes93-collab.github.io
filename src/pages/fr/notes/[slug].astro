@@ -5,6 +5,7 @@ import Footer from '../../../components/Footer.astro';
 import RevealObserver from '../../../components/RevealObserver.astro';
 import PageVideo from '../../../components/PageVideo.astro';
 import JsonLdArticle from '../../../components/JsonLdArticle.astro';
+import ReplySurface from '../../../components/ReplySurface.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { t as translate, getLocale, localizePath, localeDateFmt, type Locale } from '../../../i18n';
 
@@ -35,6 +36,15 @@ const relatedEntries = entry.data.related.length
       data.status === 'published' && entry.data.related.map((r) => `fr/${r}`).includes(slug)))
   : [];
 const notesHref = localizePath('/notes/', locale);
+/* Absolute canonical URL of this locale's copy of the essay, built through the
+   same localizePath + Astro.site pair Base.astro uses for <link rel=canonical>,
+   so the address a reader is told to cite is byte-identical to the one search
+   engines are told is canonical. Falls back to the production origin when
+   Astro.site is unset, which it never is here (astro.config.mjs sets it). */
+const essayUrl = new URL(
+  localizePath(`/notes/${displaySlug}/`, locale),
+  Astro.site ?? 'https://tomscholtes.com',
+).toString();
 ---
 <Base
   title={`${entry.data.title} · Tom Scholtes`}
@@ -90,6 +100,10 @@ const notesHref = localizePath('/notes/', locale);
             )}
 
             <p class="back mono"><a href={notesHref}>{t('notes.detail.back')}</a></p>
+
+            {/* LAYER 1, always rendered. LAYER 2 (giscus) mounts below it and
+                only when src/config/comments.ts is switched on. */}
+            <ReplySurface title={entry.data.title} url={essayUrl} locale={locale} />
           </footer>
         </article>
       </div>

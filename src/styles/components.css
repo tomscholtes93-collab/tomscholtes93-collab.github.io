@@ -930,7 +930,16 @@ header.paper.notes-index-header .container,
    --accent-ink, not --accent: the matrix holds --accent to the 3.0:1 graphic
    floor and --accent-ink to the 4.5:1 AA text floor, and a body link is text.
    The old rule used --accent and computed 3.65:1 on the default theme. */
-.note-article > :is(p, ul, ol, blockquote, h2, h3) a {
+/* :not(.para-anchor) added 2026-08-01, and it is a correctness fix rather than
+   a tidy-up. This rule is (0,1,2) because :is() takes its highest argument and
+   `p` is (0,0,1); `.para-anchor` is (0,1,0), so this rule BEAT it and every
+   paragraph marker rendered as a body link: accent-ink and underlined, when it
+   is meant to be muted apparatus in the margin. Excluding it here rather than
+   raising .para-anchor's weight states the intent at the rule that holds it:
+   this styles links a reader FOLLOWS OUT of the prose, and a paragraph's own
+   address is not one. All three occurrences are excluded, not just the base
+   one, or hover and focus would still repaint it. */
+.note-article > :is(p, ul, ol, blockquote, h2, h3) a:not(.para-anchor) {
   color: var(--accent-ink);
   text-decoration: underline;
   text-underline-offset: 0.18em;
@@ -938,12 +947,12 @@ header.paper.notes-index-header .container,
   text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .note-article > :is(p, ul, ol, blockquote, h2, h3) a {
+  .note-article > :is(p, ul, ol, blockquote, h2, h3) a:not(.para-anchor) {
     transition: text-decoration-color var(--dur-draw) var(--ease-out);
   }
 }
-.note-article > :is(p, ul, ol, blockquote, h2, h3) a:hover,
-.note-article > :is(p, ul, ol, blockquote, h2, h3) a:focus-visible {
+.note-article > :is(p, ul, ol, blockquote, h2, h3) a:not(.para-anchor):hover,
+.note-article > :is(p, ul, ol, blockquote, h2, h3) a:not(.para-anchor):focus-visible {
   text-decoration-color: var(--accent);
 }
 
@@ -1104,6 +1113,163 @@ html[lang="ru"] :is(.note-entry-title, .note-title, .serif) {
 .note-article .back a:focus-visible {
   color: var(--ink);
   border-bottom-color: var(--ink);
+}
+
+/* ============================================================================
+   Per-paragraph addresses, and the reply surface beneath the endmatter.
+   Added 2026-08-01. Zero token edits: every value below is an existing token.
+   ========================================================================= */
+
+/* The paragraph number. rehype-note-paragraph-anchors.mjs APPENDS it as the
+   last child of the paragraph, because prepending would make it
+   `p > *:first-child` and silently kill the run-in-head rules above, which are
+   the only authored hierarchy in six essays that contain zero headings. Where
+   it appears is decided here instead.
+
+   TWO PRESENTATIONS, and the narrow one is not a degradation.
+
+   Below 1024px the marker is INLINE, a small superior figure at the end of the
+   paragraph, the way a footnote reference has always been set. It is not
+   hidden, because the affordance is the entire feature: "click the number
+   beside a paragraph" has to be true on a phone as well.
+
+   At 1024px and up the article's grid has a real left lane to lift it into
+   (--bleed-lane is 280px, split by `margin: 0 auto` into 140px a side), so the
+   marker leaves the flow, sits in that margin, and stops interrupting the last
+   line of running prose. 1024px, not a container query: the article's own
+   frame is max-width calc(--measure + --bleed-lane) plus .container padding,
+   about 974px at default density, so below roughly that the 1fr lanes have
+   collapsed to nothing and an absolutely positioned marker would be off-screen
+   or on top of the text. */
+.para-anchor {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--read-meta);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: 0.5em;
+  vertical-align: super;
+  line-height: 1;
+}
+.para-anchor:hover,
+.para-anchor:focus-visible {
+  color: var(--accent-ink);
+}
+.para-anchor:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+/* :target on the paragraph, so arriving at /notes/x/#p12 says which one. A
+   left rule in the margin lane rather than a background wash: the wash would
+   have to be a new token and it would fight the accent matrix across three
+   themes, where a rule inherits --accent and is correct in all of them. */
+.note-article > p:target {
+  box-shadow: -0.6em 0 0 -0.5em var(--accent);
+}
+.note-article > p:target .para-anchor {
+  color: var(--accent-ink);
+}
+
+@media (min-width: 1024px) {
+  .note-article > p {
+    position: relative;
+  }
+  .para-anchor {
+    position: absolute;
+    top: 0;
+    right: calc(100% + 1.1em);
+    margin-left: 0;
+    vertical-align: baseline;
+    /* Optically seated against the first line of body text rather than its
+       box top: --read-lh is the body line height and the mono marker is
+       --read-meta, so half the difference re-centres it. */
+    line-height: var(--read-lh);
+    text-align: right;
+  }
+  .note-article > p:target {
+    box-shadow: none;
+  }
+  .note-article > p:target::before {
+    content: "";
+    position: absolute;
+    top: 0.15em;
+    right: calc(100% + 0.35em);
+    width: 2px;
+    height: calc(100% - 0.3em);
+    background: var(--accent);
+  }
+}
+
+/* The reply surface. Sits inside .note-footer, after Sources and Related, so
+   it inherits that block's reset and its top rule. It takes the same escape
+   lane .note-footer does, which is why the buttons have room to sit on one
+   line at the reading measure. */
+.note-reply {
+  margin: 0;
+  /* Matches .note-footer's own top treatment rather than inventing a second
+     one. The space-6 grid gap of .note-footer sits ABOVE this border, so the
+     break reads as deliberate instead of as more endmatter. */
+  padding: var(--space-5) 0 0;
+  border-top: 1px solid var(--rule);
+}
+/* SPACING DECLARED ON THE PARAGRAPH, not via `.note-reply > * + *`. That
+   sibling form is (0,1,0) and `.note-reply p` below is (0,1,1), so the
+   paragraph rule would have won and every gap in this block would have
+   collapsed to zero. Same fault class as the four this file already documents:
+   two mechanisms expressing one intent, winner decided by something nobody
+   checked. One mechanism. The h2's space-3 bottom margin collapses against the
+   first paragraph's space-4 top margin, which is the intended single interval. */
+.note-reply p {
+  margin: var(--space-4) 0 0;
+  max-width: var(--measure);
+  color: var(--ink-read);
+  font-size: var(--read-meta);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+.note-reply .note-reply-cite,
+.note-reply .note-reply-account {
+  color: var(--muted);
+}
+.note-reply-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.note-reply-where {
+  color: var(--muted);
+  font-size: var(--read-meta);
+}
+.note-reply-where a {
+  color: inherit;
+  border-bottom: 1px solid var(--rule);
+}
+.note-reply-where a:hover,
+.note-reply-where a:focus-visible {
+  color: var(--accent-ink);
+  border-bottom-color: var(--accent-ink);
+}
+
+/* LAYER 2 host. Empty and zero-height until src/config/comments.ts is
+   switched on, so the reserved slot costs a shipped page nothing. The thread
+   itself is an iframe giscus injects client-side; nothing here renders
+   externally authored content at build time. */
+.note-comments {
+  margin: 0;
+  padding: var(--space-6) 0 0;
+}
+.note-comments:not(:empty) {
+  border-top: 1px solid var(--rule);
+}
+.note-comments .giscus,
+.note-comments .giscus-frame {
+  width: 100%;
+}
+.note-comments .giscus-frame {
+  border: 0;
+  color-scheme: normal;
 }
 
 /* lang-switcher (i18n) */
