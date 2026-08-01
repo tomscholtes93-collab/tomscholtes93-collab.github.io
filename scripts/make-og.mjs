@@ -9,9 +9,14 @@ const OUT = resolve(OUT_DIR, 'default.png');
 
 await mkdir(OUT_DIR, { recursive: true });
 
+// The two accent marks below are hand-mirrored from tokens.css: an SVG built in
+// node cannot read a custom property. The card is dark (#0E0E0C), so the row to
+// mirror is [data-theme="dark"][data-accent="terracotta"], which is #E37B4F.
+// The rule said #C4623A until 2026-08-01 and so disagreed with the italic line
+// three rows down inside this same card. Resync by hand if that row moves.
 const svg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#0E0E0C"/>
-  <rect x="60" y="60" width="80" height="3" fill="#C4623A"/>
+  <rect x="60" y="60" width="80" height="3" fill="#E37B4F"/>
   <text x="60" y="200" font-family="Georgia, 'Times New Roman', serif" font-size="92" fill="#F4EFE6">Tom Scholtes</text>
   <text x="60" y="280" font-family="Georgia, 'Times New Roman', serif" font-size="64" fill="#E37B4F" font-style="italic">Six years, quietly automated.</text>
   <text x="60" y="380" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#D6D1C7">Personal site, live CV, and a portfolio of automation work</text>

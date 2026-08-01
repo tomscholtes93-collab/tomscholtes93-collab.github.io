@@ -26,7 +26,12 @@ export function ogTemplate() {
                   style: {
                     fontFamily: 'Inter',
                     fontSize: 22,
-                    color: '#C4623A',
+                    // Hand-mirrored from tokens.css. Satori renders outside the
+                    // document, so it cannot read a custom property. The card
+                    // background is #0E0E0C, so the row to mirror is the DARK
+                    // theme's terracotta accent, not the light one. Resync by
+                    // hand if that row moves.
+                    color: '#E37B4F',
                     letterSpacing: 2,
                     textTransform: 'uppercase',
                     marginBottom: 24,

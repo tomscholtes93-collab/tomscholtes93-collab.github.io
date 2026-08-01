@@ -189,6 +189,30 @@ a section from the homepage removes a link, never a path.
 
 ---
 
+## 2026-08-01. The two OG accent literals are a declared exception to "tokens.css is the only source"
+
+**Applied.** `src/lib/og.ts` and `scripts/make-og.mjs` build social preview
+images outside the document, in node, where no custom property resolves. Both
+therefore hold the accent as a literal, which is a real exception to the rule
+that `tokens.css` is the only source of design tokens.
+
+The exception was undeclared and had already drifted: both held `#C4623A`, the
+pre-makeover light accent, while `make-og.mjs` painted its own subtitle
+`#E37B4F` two rows below, so one card disagreed with itself. Both are now
+`#E37B4F`, which is the value the site paints for that accent on a dark surface,
+and both carry a comment naming the row they mirror.
+
+Why the dark row and not `#AE5230`: these cards are `#0E0E0C`. The matching
+token is `[data-theme="dark"][data-accent="terracotta"]`, 6.64:1 on that
+background where the old literal was 4.74:1. `HeroLattice.astro` also holds the
+old hex but reads `--accent` from computed style at runtime, so it self-heals
+and was left alone.
+
+Revert: set both literals back to `#C4623A`. The images regenerate on every
+build, so nothing else has to move.
+
+---
+
 ## Standing: the build is the review
 
 There is no human review step between a push to `main` and production. The
