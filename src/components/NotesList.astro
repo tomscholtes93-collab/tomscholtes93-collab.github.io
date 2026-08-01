@@ -1,0 +1,39 @@
+---
+/* The essay list, extracted 2026-08-01.
+   ==========================================================================
+
+   This exact markup, `<section class="notes-index"><div class="container">
+   <ol class="notes-list">` with a `.reveal` li per entry and a staggered
+   --reveal-delay, was written out longhand in `/` and in the four
+   `/notes/index.astro` files. Amendment 1 adds five more routes that list
+   essays (/tags/, four locales of /tags/<tag>/, /notes/archive/), which would
+   have taken it to ten copies.
+
+   It renders NoteCard, the component already live on /notes/, and reuses the
+   .notes-index / .notes-list rules already in components.css. There is no
+   second card component and no new CSS: this is one extraction, not a fork.
+
+   The reveal delay caps at index 6 so a long list does not accumulate a
+   visible wait on its last rows, which is what the original inline copies did. */
+import NoteCard from './NoteCard.astro';
+import type { Note } from '../lib/notes';
+
+interface Props {
+  entries: Note[];
+  /** Set false where the list is not the page's own top-level section, so the
+      section padding does not double up. */
+  padded?: boolean;
+}
+const { entries, padded = true } = Astro.props;
+---
+<section class:list={['notes-index', !padded && 'notes-index-bare']}>
+  <div class="container">
+    <ol class="notes-list">
+      {entries.map((entry, i) => (
+        <li class="reveal" style={`--reveal-delay: ${Math.min(i, 6) * 45}ms`}>
+          <NoteCard entry={entry} />
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

@@ -71,6 +71,69 @@ if (files.length === 0) {
 
 files.forEach(checkFile);
 
+/* TAG ALIGNMENT, added 2026-08-01 with the tag routes.
+   =========================================================================
+   /tags/<tag>/ keys every tag page by the ENGLISH tag and renders the local
+   one as its label, because the tags in this corpus are translated per locale
+   (`memory` / `gedächtnis` / `mémoire` / `память`). See src/lib/notes.ts for
+   why the alternative, a non-ASCII URL segment per locale, was rejected.
+
+   That mapping resolves a locale's tag to its English key BY ARRAY INDEX, so
+   it is only correct while each essay's `tags` array is positionally parallel
+   across the four locales. The Zod schema cannot express that: it validates
+   each file alone. A translator adding a fourth tag to the German copy would
+   silently mis-key every German tag page, on a host with no redirects to
+   repair it with.
+
+   So the invariant is a gate rather than a comment. Only PUBLISHED essays are
+   checked, because a draft emits no route and therefore no tag page. */
+function frontmatter(path) {
+  const parts = readFileSync(path, 'utf8').split('---');
+  return parts.length > 1 ? parts[1] : '';
+}
+function parseTags(fm) {
+  const m = fm.match(/tags:\s*\[([^\]]*)\]/);
+  if (!m) return [];
+  return m[1].split(',').map((t) => t.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+}
+
+const enDir = join(NOTES_DIR, 'en');
+let enSlugs = [];
+try {
+  enSlugs = readdirSync(enDir).filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''));
+} catch { /* no en/ directory: nothing to align */ }
+
+let aligned = 0;
+for (const slug of enSlugs) {
+  const enPath = join(enDir, `${slug}.md`);
+  const enFm = frontmatter(enPath);
+  if (/status:\s*draft/.test(enFm)) continue;
+  const enTags = parseTags(enFm);
+  for (const locale of LOCALES.filter((l) => l !== 'en')) {
+    const p = join(NOTES_DIR, locale, `${slug}.md`);
+    let fm;
+    try {
+      fm = frontmatter(p);
+    } catch {
+      // A published essay with no translation is a separate concern; the
+      // locale route simply will not emit it. Not this gate's business.
+      continue;
+    }
+    if (/status:\s*draft/.test(fm)) continue;
+    const tags = parseTags(fm);
+    if (tags.length !== enTags.length) {
+      errors.push({
+        path: p,
+        line: 1,
+        kind: 'tag-misalignment',
+        snippet: `${tags.length} tags [${tags.join(', ')}] against en's ${enTags.length} [${enTags.join(', ')}]. Tag pages are keyed by the English tag at the same index, so the arrays must be positionally parallel. See src/lib/notes.ts.`,
+      });
+    } else {
+      aligned += 1;
+    }
+  }
+}
+
 if (errors.length > 0) {
   console.error(`\n✗ check-notes FAILED: ${errors.length} issue${errors.length === 1 ? '' : 's'} across ${files.length} note${files.length === 1 ? '' : 's'}\n`);
   errors.forEach((e) => {
@@ -81,4 +144,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`✓ check-notes passed: ${files.length} notes checked, 0 issues`);
+console.log(`✓ check-notes passed: ${files.length} notes checked, ${aligned} translation tag-arrays aligned, 0 issues`);

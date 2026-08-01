@@ -1,0 +1,13 @@
+---
+/* Locale mirror of /tags/<tag>/. getStaticPaths must live in the page file that
+   owns the route, so this cannot be a re-export the way index.astro is. The
+   route set is the English tag keys, identical in every locale; the LABEL this
+   renders is the de tag at the same array index. See src/lib/notes.ts. */
+import TagDetail from '../../tags/[tag].astro';
+import { allTagKeys } from '../../../lib/notes';
+
+export async function getStaticPaths() {
+  return (await allTagKeys()).map((tag) => ({ params: { tag } }));
+}
+---
+<TagDetail />

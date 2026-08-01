@@ -1,0 +1,67 @@
+---
+/* /tags/<tag>/ : the essays carrying one tag.
+   Created 2026-08-01 (amendment 1).
+
+   FOUR FILES, NOT ONE, and that is a framework constraint rather than a
+   choice: getStaticPaths must be declared in the page file that owns the route,
+   so a locale mirror cannot re-export this the way /tags/index.astro is
+   re-exported. What the locale copies duplicate is 12 lines of route wiring;
+   every query lives in src/lib/notes.ts and the list markup is NotesList, so
+   nothing substantive is copied.
+
+   The route SET is the English tag keys and is therefore identical in all four
+   locales, which is what lets /de/tags/memory/ exist and display "Gedächtnis".
+   check-notes.mjs fails the build if a translation's tag array stops being
+   positionally parallel and the mapping would silently mis-key. */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import NotesList from '../../components/NotesList.astro';
+import RevealObserver from '../../components/RevealObserver.astro';
+import { allTagKeys, tagGroup, pluralKey } from '../../lib/notes';
+import { t as translate, getLocale, localizePath, type Locale } from '../../i18n';
+
+export async function getStaticPaths() {
+  return (await allTagKeys()).map((tag) => ({ params: { tag } }));
+}
+
+const { tag } = Astro.params as { tag: string };
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
+const group = await tagGroup(locale, tag);
+
+// A tag key with no essays in this locale cannot happen while the alignment
+// gate passes, but rendering an empty list beats throwing during a build.
+const entries = group?.entries ?? [];
+const label = group?.label ?? tag;
+const count = t(pluralKey('tags.detail.count', entries.length, locale), {
+  count: new Intl.NumberFormat(locale).format(entries.length),
+});
+const tagsHref = localizePath('/tags/', locale);
+---
+<Base
+  title={t('meta.tags.detail.title', { tag: label })}
+  description={t('meta.tags.detail.description', { tag: label })}
+  path={`/tags/${tag}/`}
+>
+  <Nav active="tags" />
+  <main>
+    <header class="paper notes-index-header">
+      <div class="container">
+        <span class="eyebrow">{t('tags.detail.eyebrow')}</span>
+        <h1 class="title tag-title">{label}</h1>
+        <p class="sub">{count}</p>
+      </div>
+    </header>
+
+    <NotesList entries={entries} />
+
+    <section class="notes-index notes-index-bare">
+      <div class="container">
+        <p class="back mono"><a href={tagsHref}>{t('tags.detail.back')}</a></p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <RevealObserver />
+</Base>

@@ -315,5 +315,20 @@
   "thesis.sub": "Institutions, infrastructures et mondialisation, et la façon dont chacune influe sur les exportations bilatérales agrégées entre 36 économies de l'OECD sur le panel 1995-2018. Une équation de gravité traditionnelle étendue avec la fragilité étatique, un indice d'innovation et des indices de mondialisation économique et politique.",
   "thesis.title.em": "exportations bilatérales de l'OECD",
   "thesis.title.post": ".",
-  "thesis.title.pre": "Un modèle de gravité augmenté des "
+  "thesis.title.pre": "Un modèle de gravité augmenté des ",
+  "nav.tags": "Thèmes",
+  "meta.tags.index.title": "Thèmes · Tom Scholtes",
+  "meta.tags.index.description": "Chaque sujet sur lequel les essais reviennent, et à quelle fréquence. Mémoire, agents, recherche augmentée, outillage, et ce que leur exploitation coûte.",
+  "meta.tags.detail.title": "{tag} · Thèmes · Tom Scholtes",
+  "meta.tags.detail.description": "Tous les essais portant le thème {tag}.",
+  "tags.index.eyebrow": "Thèmes · 2026",
+  "tags.index.heading.pre": "Ce sur quoi je",
+  "tags.index.heading.em": "reviens sans cesse",
+  "tags.index.heading.post": ".",
+  "tags.index.sub": "Les sujets autour desquels tournent les essais. Le nombre indique combien d'essais portent ce thème : la liste sert donc aussi de carte de là où la réflexion est réellement allée.",
+  "tags.detail.eyebrow": "Thème",
+  "tags.detail.count.one": "{count} essai",
+  "tags.detail.count.few": "{count} essais",
+  "tags.detail.count.many": "{count} essais",
+  "tags.detail.back": "tous les thèmes"
 }

@@ -315,5 +315,20 @@
   "thesis.sub": "Institutionen, Infrastruktur und Globalisierung und wie jeder dieser Faktoren die aggregierten bilateralen Exporte zwischen 36 OECD-Volkswirtschaften im Panel 1995-2018 bewegt. Eine klassische Gravitationsgleichung, erweitert um staatliche Fragilität, einen Innovationsindex sowie Indizes der wirtschaftlichen und politischen Globalisierung.",
   "thesis.title.em": "bilateralen Exporte der OECD",
   "thesis.title.post": ".",
-  "thesis.title.pre": "Ein erweitertes Gravitationsmodell der "
+  "thesis.title.pre": "Ein erweitertes Gravitationsmodell der ",
+  "nav.tags": "Themen",
+  "meta.tags.index.title": "Themen · Tom Scholtes",
+  "meta.tags.index.description": "Jedes Thema, zu dem die Essays zurückkehren, und wie oft. Gedächtnis, Agenten, Retrieval, Tooling und was ihr Betrieb kostet.",
+  "meta.tags.detail.title": "{tag} · Themen · Tom Scholtes",
+  "meta.tags.detail.description": "Alle Essays mit dem Thema {tag}.",
+  "tags.index.eyebrow": "Themen · 2026",
+  "tags.index.heading.pre": "Worauf ich",
+  "tags.index.heading.em": "immer zurückkomme",
+  "tags.index.heading.post": ".",
+  "tags.index.sub": "Die Themen, um die die Essays kreisen. Die Zahl sagt, wie viele Essays ein Thema tragen, sodass die Liste zugleich eine Karte davon ist, wohin das Denken tatsächlich gegangen ist.",
+  "tags.detail.eyebrow": "Thema",
+  "tags.detail.count.one": "{count} Essay",
+  "tags.detail.count.few": "{count} Essays",
+  "tags.detail.count.many": "{count} Essays",
+  "tags.detail.back": "alle Themen"
 }

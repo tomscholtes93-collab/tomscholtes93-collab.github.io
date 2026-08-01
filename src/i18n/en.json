@@ -315,5 +315,20 @@
   "thesis.sub": "Institutions, infrastructure, and globalization, and how each moves bilateral aggregate exports between 36 OECD economies over the 1995-2018 panel. A traditional gravity equation extended with state fragility, an innovation index, and economic + political globalization indices.",
   "thesis.title.em": "OECD bilateral exports",
   "thesis.title.post": ".",
-  "thesis.title.pre": "An augmented gravity model of "
+  "thesis.title.pre": "An augmented gravity model of ",
+  "nav.tags": "Tags",
+  "meta.tags.index.title": "Tags · Tom Scholtes",
+  "meta.tags.index.description": "Every subject the essays return to, and how often. Memory, agents, retrieval, tooling, and what running them costs.",
+  "meta.tags.detail.title": "{tag} · Tags · Tom Scholtes",
+  "meta.tags.detail.description": "Every essay tagged {tag}.",
+  "tags.index.eyebrow": "Tags · 2026",
+  "tags.index.heading.pre": "What I keep",
+  "tags.index.heading.em": "coming back to",
+  "tags.index.heading.post": ".",
+  "tags.index.sub": "The subjects the essays circle. A number is how many essays carry that tag, so the list doubles as a map of where the thinking has actually gone.",
+  "tags.detail.eyebrow": "Tagged",
+  "tags.detail.count.one": "{count} essay",
+  "tags.detail.count.few": "{count} essays",
+  "tags.detail.count.many": "{count} essays",
+  "tags.detail.back": "all tags"
 }

@@ -7,6 +7,7 @@ import PageVideo from '../../../components/PageVideo.astro';
 import JsonLdArticle from '../../../components/JsonLdArticle.astro';
 import ReplySurface from '../../../components/ReplySurface.astro';
 import GiscusThread from '../../../components/GiscusThread.astro';
+import { publishedNotes, noteSlug } from '../../../lib/notes';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { t as translate, getLocale, localizePath, localeDateFmt, type Locale } from '../../../i18n';
 
@@ -29,8 +30,21 @@ const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 const fmt = localeDateFmt(locale);
 const displaySlug = entry.slug.replace(/^ru\//, '');
-const eyebrowParts = [t('notes.detail.eyebrow.prefix'), fmt.format(entry.data.publishDate), ...entry.data.tags];
-const eyebrow = eyebrowParts.join(' · ');
+/* The eyebrow used to be one joined string, which is why the tags in it were
+   unclickable: a reader finished an essay, saw its three subjects, and had
+   nowhere to go. It is structured now so each tag is a link.
+
+   Hrefs are keyed by the ENGLISH tag at the same array index, because tags here
+   are translated per locale and the tag routes are keyed on the English one to
+   keep URL segments ASCII. The visible text stays the local label. See
+   src/lib/notes.ts. */
+const eyebrowPrefix = `${t('notes.detail.eyebrow.prefix')} · ${fmt.format(entry.data.publishDate)}`;
+const enTags = (await publishedNotes('en')).find((e) => noteSlug(e) === displaySlug)?.data.tags
+  ?? entry.data.tags;
+const tagLinks = entry.data.tags.map((label, i) => ({
+  label,
+  href: localizePath(`/tags/${enTags[i] ?? label}/`, locale),
+}));
 
 const relatedEntries = entry.data.related.length
   ? (await getCollection('notes', ({ data, slug }) =>
@@ -67,7 +81,12 @@ const essayUrl = new URL(
       <div class="container">
         <article class="note-article">
           <header class="note-header">
-            <p class="eyebrow mono">{eyebrow}</p>
+            <p class="eyebrow mono">
+              {eyebrowPrefix}
+              {tagLinks.map((tg) => (
+                <>{' · '}<a href={tg.href} class="tag-link">{tg.label}</a></>
+              ))}
+            </p>
             <h1 class="serif note-title" transition:name={`note-title-${displaySlug}`}>{entry.data.title}</h1>
             <p class="lead note-summary" transition:name={`note-summary-${displaySlug}`}>{entry.data.summary}</p>
           </header>

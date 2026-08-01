@@ -1,0 +1,57 @@
+---
+/* /tags/ : every subject the essays return to, with counts.
+   Created 2026-08-01 (amendment 1). The taxonomy already existed in the data,
+   `tags: z.array(z.string()).max(3)`, and was rendered as pure decoration: a
+   reader could see a tag and could not click it.
+
+   Locale comes from the route, so this one file serves all four addresses via
+   three-line re-exports, the shape /about/ and /cv/ use.
+
+   Tag keys are the ENGLISH tags and labels are the local ones. See
+   src/lib/notes.ts for why, and scripts/check-notes.mjs for the gate that
+   keeps the mapping true. */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import RevealObserver from '../../components/RevealObserver.astro';
+import { tagGroups } from '../../lib/notes';
+import { t as translate, getLocale, localizePath, type Locale } from '../../i18n';
+
+const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
+const t = (k: string) => translate(k, locale);
+const groups = await tagGroups(locale);
+const nf = new Intl.NumberFormat(locale);
+---
+<Base
+  title={t('meta.tags.index.title')}
+  description={t('meta.tags.index.description')}
+  path="/tags/"
+>
+  <Nav active="tags" />
+  <main>
+    <header class="paper notes-index-header">
+      <div class="container">
+        <span class="eyebrow">{t('tags.index.eyebrow')}</span>
+        <h1 class="title">{t('tags.index.heading.pre')} <em>{t('tags.index.heading.em')}</em>{t('tags.index.heading.post')}</h1>
+        <p class="sub">{t('tags.index.sub')}</p>
+      </div>
+    </header>
+
+    <section class="notes-index">
+      <div class="container">
+        <ul class="tag-cloud">
+          {groups.map((g) => (
+            <li>
+              <a href={localizePath(`/tags/${g.key}/`, locale)} class="tag-chip" data-astro-prefetch>
+                <span class="tag-chip-label">{g.label}</span>
+                <span class="tag-chip-count mono">{nf.format(g.entries.length)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <RevealObserver />
+</Base>

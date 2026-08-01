@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { getLocale, localizePath, localeDateFmt, t as translate, type Locale } from '../i18n';
+import { publishedNotes, noteSlug } from '../lib/notes';
 
 interface Props { entry: CollectionEntry<'notes'>; }
 const { entry } = Astro.props;
@@ -10,6 +11,19 @@ const fmt = localeDateFmt(locale);
 const displaySlug = entry.slug.replace(/^(en|de|fr|ru)\//, '');
 const href = localizePath(`/notes/${displaySlug}/`, locale);
 const firstTag = entry.data.tags[0];
+
+/* The first tag was rendered as plain text, so a reader could see a subject and
+   could not follow it. It is a link now.
+
+   The href is keyed by the ENGLISH tag at the same array index, because tags in
+   this corpus are translated per locale and the tag routes are keyed on the
+   English one to keep URL segments ASCII. See src/lib/notes.ts. The visible
+   text stays the local label. Resolving it needs the en entry for this slug;
+   getCollection is cached within a build, so this is a map lookup, not a read. */
+const enNotes = await publishedNotes('en');
+const enTags = enNotes.find((e) => noteSlug(e) === displaySlug)?.data.tags ?? entry.data.tags;
+const firstTagKey = enTags[0] ?? firstTag;
+const firstTagHref = firstTag ? localizePath(`/tags/${firstTagKey}/`, locale) : undefined;
 const publishedDate = entry.data.publishDate.toISOString().slice(0, 10);
 
 /* The word count, computed from the entry body at build time so it cannot
@@ -36,16 +50,41 @@ const wordsKey = (n: number): string => {
 };
 const wordCount = t(wordsKey(words), { count: new Intl.NumberFormat(locale).format(words) });
 ---
-<a href={href} class="note-entry" data-astro-prefetch>
+{/* THE META LINE SITS OUTSIDE THE CARD LINK, and it has to.
+
+    The card was one `<a>` wrapping meta, title and summary. Amendment 1 asks
+    for the rendered tag to be a real link, and an `<a>` inside an `<a>` is
+    invalid HTML: browsers close the outer anchor early and the resulting DOM is
+    not what either element asked for. So the meta paragraph moved out and the
+    anchor now wraps the title and summary, which is the great majority of the
+    card's area and all of its reading matter.
+
+    What is lost: clicking the date or the word count no longer opens the essay.
+    What is gained: the tag beside them opens the tag page. That trade is the
+    right way round, and the alternative, a stretched ::after overlay with the
+    tag lifted above it in z-order, would have meant rewriting the :visited scan
+    affordance and the two view-transition names this card shipped with three
+    commits ago.
+
+    The grid and the row padding moved to the wrapper so the rendered geometry
+    is unchanged; verified by measuring both against the previous build. */}
+<div class="note-entry-wrap">
   <p class="note-entry-meta eyebrow">
     <time datetime={publishedDate}>{fmt.format(entry.data.publishDate)}</time>
-    {firstTag && <><span aria-hidden="true">·</span><span>{firstTag}</span></>}
+    {firstTag && (
+      <>
+        <span aria-hidden="true">·</span>
+        <a href={firstTagHref} class="tag-link">{firstTag}</a>
+      </>
+    )}
     <span aria-hidden="true">·</span><span>{wordCount}</span>
   </p>
-  <h2 class="serif note-entry-title" transition:name={`note-title-${displaySlug}`}>
-    {entry.data.title}
-  </h2>
-  <p class="note-entry-summary" transition:name={`note-summary-${displaySlug}`}>
-    {entry.data.summary}
-  </p>
-</a>
+  <a href={href} class="note-entry" data-astro-prefetch>
+    <h2 class="serif note-entry-title" transition:name={`note-title-${displaySlug}`}>
+      {entry.data.title}
+    </h2>
+    <p class="note-entry-summary" transition:name={`note-summary-${displaySlug}`}>
+      {entry.data.summary}
+    </p>
+  </a>
+</div>
