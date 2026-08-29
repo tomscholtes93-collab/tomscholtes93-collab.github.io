@@ -1,4 +1,182 @@
 ---
-import ThesisPage from '../thesis.astro';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import RevealObserver from '../../components/RevealObserver.astro';
 ---
-<ThesisPage />
+<Base
+  title="Расширенная гравитационная модель · Tom Scholtes (магистерская работа)"
+  description="Магистерская работа Tom Scholtes: влияние институтов, инфраструктуры и глобализации на двусторонний экспорт между странами OECD (1995-2018). Erasmus University Rotterdam."
+  path="/ru/thesis"
+>
+  <Nav active="thesis" />
+
+  <main>
+    <header class="paper">
+      <div class="container">
+        <span class="eyebrow">Магистерская работа · 2020 · Erasmus School of Economics</span>
+        <h1 class="title">Расширенная гравитационная модель <em>двустороннего экспорта OECD</em>.</h1>
+        <p class="sub">
+          Институты, инфраструктура и глобализация, и как каждая из этих величин двигает агрегированный
+          двусторонний экспорт между 36 экономиками OECD на панели 1995-2018. Традиционное гравитационное
+          уравнение, расширенное государственной нестабильностью, индексом инноваций и индексами
+          экономической и политической глобализации.
+        </p>
+
+        <div class="actions">
+          <a href="https://thesis.eur.nl/pub/52992" target="_blank" rel="noopener" class="btn btn-primary">Открыть в репозитории EUR <span class="arr">→</span></a>
+          <a href="https://thesis.eur.nl/pub/52992" target="_blank" rel="noopener" class="btn btn-ghost">Посмотреть метаданные</a>
+        </div>
+
+        <div class="meta-row">
+          <span><strong>Автор</strong> · Tom Scholtes</span>
+          <span><strong>Институт</strong> · Erasmus University Rotterdam</span>
+          <span><strong>Программа</strong> · MSc International Economics</span>
+          <span><strong>Страниц</strong> · 78</span>
+          <span><strong>Период</strong> · 1995-2018</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="reveal">
+      <div class="container">
+        <span class="eyebrow">01 · Гипотезы</span>
+        <h2 class="h">Семь гипотез о том, что двигает <em>двусторонний экспорт</em>.</h2>
+        <p class="lede">
+          Работа проверяет семь гипотез против панели OECD: три по стандартным переменным торговой политики
+          (EU, RTAs, общая валюта), четыре расширяющие гравитационную модель в сторону институционального
+          качества, инфраструктуры, глобализации и тарифных барьеров.
+        </p>
+
+        <div class="hyps">
+          <div class="hyp"><span class="id">H1</span><div class="body"><strong>Членство в EU.</strong> Экспорт членов EU между собой выше, чем с партнёрами за пределами EU.</div></div>
+          <div class="hyp"><span class="id">H2</span><div class="body"><strong>RTAs.</strong> Региональные торговые соглашения увеличивают агрегированный экспорт между членами одного RTA.</div></div>
+          <div class="hyp"><span class="id">H3</span><div class="body"><strong>Общая валюта.</strong> Общая валюта расширяет торговлю за счёт снижения транзакционных издержек и отсутствия FX-риска.</div></div>
+          <div class="hyp"><span class="id">H4</span><div class="body"><strong>Институциональное качество.</strong> Улучшение институционального качества экспортёра поддерживает агрегированный двусторонний экспорт.</div></div>
+          <div class="hyp"><span class="id">H5</span><div class="body"><strong>Инфраструктура.</strong> Лучшая инфраструктура у экспортёра подстёгивает торговлю через прирост эффективности и снижение неявных торговых издержек.</div></div>
+          <div class="hyp"><span class="id">H6</span><div class="body"><strong>Глобализация.</strong> Более высокая глобализация экспортёра подстёгивает торговлю через взаимозависимость элементов мировой экономики.</div></div>
+          <div class="hyp"><span class="id">H7</span><div class="body"><strong>Тарифы.</strong> Рост тарифов наиболее благоприятствуемой нации негативно сказывается на двусторонней торговле.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container">
+        <span class="eyebrow">02 · Результаты</span>
+        <h2 class="h">Что данные <em>на самом деле сказали</em>.</h2>
+        <p class="lede">
+          Оценено fixed-effects OLS за 1995-2018, все спецификации проходят тест RESET на ошибочную
+          спецификацию. Результаты чётко делятся на три ведра: устойчивые положительные, ожидаемые
+          отрицательные и озадачивающее.
+        </p>
+
+        <div class="findings">
+          <div class="find">
+            <span class="sign"><span class="sigil pos"></span>Положительно · устойчиво</span>
+            <h4>Экономическая &amp; политическая глобализация</h4>
+            <p>Оба индекса глобализации вносят существенный и устойчивый вклад в двусторонний экспорт как на полной, так и на недавней (2011-2018) периодах. Главный вклад работы.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil pos"></span>Положительно · устойчиво</span>
+            <h4>Индекс инноваций</h4>
+            <p>Инновационная способность экспортёра оказывает значимое положительное влияние на агрегированный двусторонний экспорт.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil pos"></span>Положительно · устойчиво</span>
+            <h4>Качество дорожной инфраструктуры</h4>
+            <p>Среди инфраструктурных индикаторов качество дорог выделяется существенным положительным эффектом на зависимую переменную.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil pos"></span>Положительно · ожидаемо</span>
+            <h4>EU, RTAs, общая валюта</h4>
+            <p>Когда и репортёр, и партнёр являются членами EU или RTA, двусторонний экспорт растёт; общая валюта поднимает его ещё выше.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil neg"></span>Отрицательно · устойчиво</span>
+            <h4>Государственная нестабильность</h4>
+            <p>Более высокая государственная нестабильность на стороне экспортёра ощутимо подавляет двусторонний экспорт; согласуется со взглядом на институты как на торговые издержки.</p>
+          </div>
+          <div class="find">
+            <span class="sign"><span class="sigil mix"></span>Контринтуитивно</span>
+            <h4>Политическая стабильность &amp; открытость рынка</h4>
+            <p>Обе выходят отрицательными; самые озадачивающие результаты. Возможное объяснение: стабильные открытые экспортёры обслуживают более крупные внутренние рынки и больше закупают локально, что снижает измеряемый объём экспорта.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container">
+        <span class="eyebrow">03 · Главное</span>
+        <h2 class="h">Что здесь <em>нового</em>.</h2>
+        <p class="lede">
+          Большинство работ по гравитационной модели останавливаются на GDP, расстоянии, RTAs и валюте.
+          Эта работа расширяет уравнение тремя малоисследованными переменными со стороны экспортёра и
+          перезапускает всё на более короткой, более недавней подпериоде.
+        </p>
+
+        <div class="high">
+          <div>
+            <h3>Вклад</h3>
+            <ul>
+              <li><strong>Глобализация, end-to-end.</strong> Первое рассмотрение KOF-индексов экономической и политической глобализации в гравитационной модели для экспорта OECD; оба выходят значимыми и положительными.</li>
+              <li><strong>Добавлена государственная нестабильность.</strong> Привносит измерение нестабильности в литературу, где институты традиционно прокси'ются только индикаторами WGI / Heritage.</li>
+              <li><strong>Инновации как детерминанта.</strong> Тестирует Global Innovation Index напрямую против двустороннего экспорта; значимо, положительно, устойчиво.</li>
+              <li><strong>Два окна, а не одно.</strong> Перезапускает полную модель на посткризисном подпериоде 2011-2018, чтобы вытащить эффекты, размывающиеся на более длинных панелях.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Метод</h3>
+            <ul>
+              <li><strong>Расширенное гравитационное уравнение</strong> с фиксированными эффектами пары стран и года, OLS-оценка.</li>
+              <li><strong>Ошибочная спецификация обработана.</strong> Каждая спецификация проходит тест RESET до того, как её интерпретируют.</li>
+              <li><strong>Таблица устойчивости</strong> подменяет альтернативные структуры фиксированных эффектов (изменяющиеся по времени по странам vs. неизменная во времени пара), чтобы испытать коэффициенты EU и RTA.</li>
+              <li><strong>Стандартные контроли сохранены:</strong> GDP, расстояние, смежность, общий язык, колониальные связи, запас FDI, обменный курс, EU, общая валюта.</li>
+            </ul>
+          </div>
+        </div>
+
+        <dl class="method">
+          <div><dt>Выборка</dt><dd>Двусторонние пары OECD</dd></div>
+          <div><dt>Период</dt><dd>1995 по 2018</dd></div>
+          <div><dt>Оценщик</dt><dd>Fixed-effects OLS</dd></div>
+          <div><dt>Диагностика</dt><dd>Тест RESET пройден</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="container">
+        <span class="eyebrow">04 · Полный документ</span>
+        <h2 class="h">Работа, <em>полностью</em>.</h2>
+        <p class="lede">
+          Все 78 страниц: аннотация, литературный обзор, методология, таблицы результатов, проверки
+          устойчивости, приложения и список ссылок. Репозиторий Erasmus хостит каноническое PDF.
+        </p>
+
+        <div class="pdf-wrap">
+          <div class="pdf-bar">
+            <div class="left">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span>Tom_Scholtes_Thesis.pdf · 78 страниц</span>
+            </div>
+            <div class="right">
+              <a href="https://thesis.eur.nl/pub/52992" target="_blank" rel="noopener">Открыть в репозитории EUR ↗</a>
+            </div>
+          </div>
+          <div class="pdf-fallback" style="padding:64px 28px">
+            <p style="margin:0 0 12px; color:var(--ink-2); font-size:15px">
+              Полный PDF хостится Erasmus University Rotterdam.
+            </p>
+            <a href="https://thesis.eur.nl/pub/52992" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:8px">
+              Открыть в репозитории EUR <span class="arr">→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <RevealObserver />
+</Base>
