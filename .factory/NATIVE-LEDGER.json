@@ -3,7 +3,7 @@
   "tickets": [
     {
       "id": "01",
-      "state": "RUNNING"
+      "state": "CLOSED"
     },
     {
       "id": "02",
