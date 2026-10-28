@@ -46,17 +46,24 @@ const t = (k: string) => translate(k, locale);
    derived from the resolved locale rather than hardcoded. That is why `/` needs
    one page file and three three-line mirrors where /notes/ needs four full
    copies: the notes index files predate this and hardcode their prefix. */
-const entries = (await getCollection('notes', ({ data, slug }) =>
-    data.status === 'published' && slug.startsWith(`${locale}/`)))
-  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const entries = (
+  await getCollection(
+    'notes',
+    ({ data, id }) => data.status === 'published' && id.startsWith(`${locale}/`),
+  )
+).sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 ---
+
 <Base jsonLd={true}>
   <Nav active="home" />
   <main>
     <header class="paper notes-index-header">
       <div class="container">
         <span class="eyebrow">{t('home.masthead.eyebrow')}</span>
-        <h1 class="title">{t('home.masthead.heading.pre')} <em>{t('home.masthead.heading.em')}</em>{t('home.masthead.heading.post')}</h1>
+        <h1 class="title">
+          {t('home.masthead.heading.pre')} <em>{t('home.masthead.heading.em')}</em>
+          {t('home.masthead.heading.post')}
+        </h1>
         <p class="sub">{t('home.masthead.sub')}</p>
       </div>
     </header>

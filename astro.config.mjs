@@ -1,18 +1,20 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
+import { unified } from '@astrojs/markdown-remark';
 import { rehypeNoteParagraphAnchors } from './src/lib/rehype-note-paragraph-anchors.mjs';
 
 export default defineConfig({
+  compressHTML: true,
   // Per-paragraph addresses on the essays, so a reader replying can cite an
   // exact passage. Build time rather than runtime so a shared #p12 link
   // resolves with JavaScript off. See the plugin for why it appends rather
   // than prepends. No-op on any file outside src/content/notes/<locale>/.
   markdown: {
-    rehypePlugins: [rehypeNoteParagraphAnchors],
+    processor: unified({ rehypePlugins: [rehypeNoteParagraphAnchors] }),
   },
   site: 'https://tomscholtes.com',
   output: 'static',
-  trailingSlash: 'never',
+  trailingSlash: 'ignore',
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'de', 'fr', 'ru'],
