@@ -10,7 +10,7 @@
     },
     {
       "path": ".factory/dag.json",
-      "sha256": "d0b917146da2ae4e3b2a6fb8ea21f572ac69a648272dd3b8a33a879c7888cfb9"
+      "sha256": "044c5640a49b0380a2599446cc6857a3b2fac4669a7fc865848b6a180cc547b2"
     }
   ],
   "evidence_path": ".factory/COMPLETION-EVIDENCE.json",

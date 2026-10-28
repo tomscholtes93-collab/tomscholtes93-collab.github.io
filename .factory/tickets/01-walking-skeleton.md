@@ -4,7 +4,7 @@
 
 **Blocked by:** None
 **Engine:** codex
-**Files:** scripts/quality-gate.sh scripts/check-format.mjs scripts/check-lint.mjs scripts/quality-scope.mjs scripts/run-tests.mjs scripts/check-i18n.mjs scripts/check-notes.mjs scripts/check-urls.mjs scripts/copy-fonts.mjs scripts/make-og.mjs scripts/post-build.mjs package.json package-lock.json astro.config.mjs prettier.config.mjs eslint.config.mjs playwright.config.mjs tsconfig.json src/**/*.astro src/**/*.ts src/content.config.ts src/components/islands/*.jsx src/lib/*.mjs test/quality/** test/smoke/** test/support/** docs/adr/0003-quality-compatibility.md
+**Files:** public/favicon-48.png scripts/quality-gate.sh scripts/check-format.mjs scripts/check-lint.mjs scripts/quality-scope.mjs scripts/run-tests.mjs scripts/check-i18n.mjs scripts/check-notes.mjs scripts/check-urls.mjs scripts/copy-fonts.mjs scripts/make-og.mjs scripts/post-build.mjs package.json package-lock.json astro.config.mjs prettier.config.mjs eslint.config.mjs playwright.config.mjs tsconfig.json src/**/*.astro src/**/*.ts src/content.config.ts src/components/islands/*.jsx src/lib/*.mjs test/quality/** test/smoke/** test/support/** docs/adr/0003-quality-compatibility.md
 **Acceptance-test:** bash scripts/quality-gate.sh
 **Covers:** REQ-1 REQ-2 REQ-3 REQ-11 REQ-14 REQ-22 REQ-23 REQ-30
 
@@ -30,3 +30,5 @@
 - [ ] All five gate steps pass, including an audit with no high or critical findings. Do not suppress findings, omit dependency classes or run `npm audit fix --force`. If authorized compatible remediation cannot satisfy S-52, retain the failure and identify the remaining decision for the existing reviewed amendment process.
 - [ ] Existing pages remain buildable without importing G183. Add no fabricated report route, placeholder or research copy. Preserve the privacy cut, existing guards and the prohibition on authored U+2014 characters.
 - [ ] Retain candidate-bound command results, runtime/tool versions, selected formatting/linting scope and preview evidence in the existing operational evidence location. Distinguish successful site checks from report integration and publication, which this ticket does not establish.
+
+- [ ] The existing build regenerates public/favicon-48.png through the patched image dependency. Include only that observed generated asset change and verify the Tom monogram and dimensions; do not import reference-site assets.

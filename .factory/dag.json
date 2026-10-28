@@ -37,6 +37,7 @@
       "blockers": [],
       "engine": "codex",
       "files": [
+        "public/favicon-48.png",
         "scripts/quality-gate.sh",
         "scripts/check-format.mjs",
         "scripts/check-lint.mjs",
