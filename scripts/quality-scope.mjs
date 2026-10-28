@@ -81,6 +81,7 @@ export async function qualityScope(kind, cwd = process.cwd()) {
     } catch (error) {
       throw new Error(
         `Cannot inspect quality input ${JSON.stringify(path)} (${error.code ?? 'filesystem error'}).`,
+        { cause: error },
       );
     }
     if (stat === undefined) {
