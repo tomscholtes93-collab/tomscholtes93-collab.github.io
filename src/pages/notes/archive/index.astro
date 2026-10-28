@@ -30,7 +30,10 @@ const months = await archiveMonths(locale);
 const nf = new Intl.NumberFormat(locale);
 
 const DATE_LOCALE: Record<Locale, string> = {
-  en: 'en-GB', de: 'de-DE', fr: 'fr-FR', ru: 'ru-RU',
+  en: 'en-GB',
+  de: 'de-DE',
+  fr: 'fr-FR',
+  ru: 'ru-RU',
 };
 const monthFmt = new Intl.DateTimeFormat(DATE_LOCALE[locale], {
   month: 'long',
@@ -39,17 +42,21 @@ const monthFmt = new Intl.DateTimeFormat(DATE_LOCALE[locale], {
 });
 const notesHref = localizePath('/notes/', locale);
 ---
+
 <Base
   title={t('meta.archive.title')}
   description={t('meta.archive.description')}
   path="/notes/archive/"
 >
   <Nav active="notes" />
-  <main>
+  <main id="main-content" tabindex="-1">
     <header class="paper notes-index-header">
       <div class="container">
         <span class="eyebrow">{t('archive.eyebrow')}</span>
-        <h1 class="title">{t('archive.heading.pre')} <em>{t('archive.heading.em')}</em>{t('archive.heading.post')}</h1>
+        <h1 class="title">
+          {t('archive.heading.pre')} <em>{t('archive.heading.em')}</em>
+          {t('archive.heading.post')}
+        </h1>
         <p class="sub">{t('archive.sub')}</p>
       </div>
     </header>
@@ -61,7 +68,9 @@ const notesHref = localizePath('/notes/', locale);
             <h2 class="eyebrow archive-month">
               {monthFmt.format(Date.UTC(m.year, m.month - 1, 1))}
               <span aria-hidden="true"> · </span>
-              {t(pluralKey('archive.count', m.entries.length, locale), { count: nf.format(m.entries.length) })}
+              {t(pluralKey('archive.count', m.entries.length, locale), {
+                count: nf.format(m.entries.length),
+              })}
             </h2>
           </div>
           <NotesList entries={m.entries} padded={false} />
@@ -71,7 +80,9 @@ const notesHref = localizePath('/notes/', locale);
 
     <section class="notes-index notes-index-bare">
       <div class="container">
-        <p class="back mono"><a href={notesHref}>{t('notes.detail.back')}</a></p>
+        <p class="back mono">
+          <a href={notesHref}>{t('notes.detail.back')}</a>
+        </p>
       </div>
     </section>
   </main>

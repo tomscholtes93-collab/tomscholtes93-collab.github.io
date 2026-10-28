@@ -342,5 +342,13 @@
   "archive.count.one": "{count} essai",
   "archive.count.few": "{count} essais",
   "archive.count.many": "{count} essais",
-  "nav.rss": "Flux RSS"
+  "nav.rss": "Flux RSS",
+  "nav.skip": "Aller au contenu",
+  "editorial.browse": "Parcourir les essais",
+  "editorial.latest": "Dernier essai",
+  "editorial.read": "Lire l’essai",
+  "editorial.essays": "Tous les essais",
+  "editorial.explore": "Suivre un fil",
+  "editorial.explore.sub": "Explorez les sujets qui relient ces essais.",
+  "editorial.context": "Au-delà des essais"
 }

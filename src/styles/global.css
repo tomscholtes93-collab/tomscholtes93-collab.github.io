@@ -1,49 +1,65 @@
 @font-face {
   font-family: 'Instrument Serif';
   src: url('/fonts/instrument-serif-regular.woff2') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'Instrument Serif';
   src: url('/fonts/instrument-serif-italic.woff2') format('woff2');
-  font-weight: 400; font-style: italic; font-display: swap;
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-400.woff2') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-500.woff2') format('woff2');
-  font-weight: 500; font-style: normal; font-display: swap;
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-600.woff2') format('woff2');
-  font-weight: 600; font-style: normal; font-display: swap;
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-700.woff2') format('woff2');
-  font-weight: 700; font-style: normal; font-display: swap;
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-400-cyrl.woff2') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0400-04FF;
 }
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-500-cyrl.woff2') format('woff2');
-  font-weight: 500; font-style: normal; font-display: swap;
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0400-04FF;
 }
 /* The two Latin JetBrains Mono faces declared NO unicode-range, so they
@@ -55,19 +71,25 @@
 @font-face {
   font-family: 'JetBrains Mono';
   src: url('/fonts/jetbrains-mono-400.woff2') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'JetBrains Mono';
   src: url('/fonts/jetbrains-mono-500.woff2') format('woff2');
-  font-weight: 500; font-style: normal; font-display: swap;
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'JetBrains Mono';
   src: url('/fonts/jetbrains-mono-400-cyrl.woff2') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0400-04FF;
 }
 
@@ -78,13 +100,17 @@
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-400-italic.woff2') format('woff2');
-  font-weight: 400; font-style: italic; font-display: swap;
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-400-italic-cyrl.woff2') format('woff2');
-  font-weight: 400; font-style: italic; font-display: swap;
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
   unicode-range: U+0400-04FF;
 }
 
@@ -94,13 +120,17 @@
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-600-cyrl.woff2') format('woff2');
-  font-weight: 600; font-style: normal; font-display: swap;
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0400-04FF;
 }
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-700-cyrl.woff2') format('woff2');
-  font-weight: 700; font-style: normal; font-display: swap;
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0400-04FF;
 }
 
@@ -113,18 +143,28 @@
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-300.woff2') format('woff2');
-  font-weight: 300; font-style: normal; font-display: swap;
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0000-024F, U+02BB;
 }
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/inter-300-cyrl.woff2') format('woff2');
-  font-weight: 300; font-style: normal; font-display: swap;
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
   unicode-range: U+0400-04FF;
 }
 
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
 body {
   background: var(--bg);
   color: var(--ink);
@@ -137,12 +177,28 @@ body {
   font-size: var(--step-0);
   line-height: 1.55;
 }
-a { color: inherit; text-decoration: none; }
-::selection { background: var(--accent); color: var(--bg); }
+a {
+  color: inherit;
+  text-decoration: none;
+}
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
 
-.container { max-width: var(--container); margin: 0 auto; padding: 0 28px; }
-.serif { font-family: 'Instrument Serif', 'Times New Roman', serif; font-weight: 400; letter-spacing: -0.01em; }
-.mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+.serif {
+  font-family: 'Instrument Serif', 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
 
 .eyebrow {
   font-family: 'JetBrains Mono', monospace;
@@ -155,67 +211,70 @@ a { color: inherit; text-decoration: none; }
   gap: 10px;
 }
 .eyebrow::before {
-  content: "";
-  width: 22px; height: 1px; background: currentColor; opacity: .5;
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
 }
 
-/* GATED ON html.js ON PURPOSE (2026-08-01). Ungated, this hid every .reveal
-   element until RevealObserver's IntersectionObserver added .is-visible, so a
-   visitor with JavaScript disabled saw an EMPTY notes index: the markup was
-   in the DOM, the opacity was 0, and nothing was ever going to clear it.
-   Base.astro adds `js` to <html> as the first statement of its inline head
-   script, so with JS off the class never lands, these rules never match, and
-   the content is simply visible.
-
-   :where() RATHER THAN A PLAIN DESCENDANT, and this is load-bearing.
-   `html.js .reveal` computes (0,2,1), which would BEAT `.reveal.is-visible`
-   at (0,2,0), so the observer would add the class and nothing would appear:
-   the fix would hide the content permanently with JS ON instead of revealing
-   it with JS off. :where() contributes zero specificity, so these rules keep
-   exactly the weight they had before this change and every downstream rule
-   (.is-visible, the stagger cascade, the reduced-motion override) resolves
-   the same way it always did.
-
-   It also fails in the safe direction: an engine without :where() drops the
-   whole rule, .reveal never hides, and the content is visible without the
-   animation. */
-:where(html.js) .reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
-}
-.reveal.is-visible { opacity: 1; transform: none; }
-
-/* Opt-in child stagger: direct .reveal-item children of a [data-stagger]
-   container cascade in reading order once the parent becomes visible. Same
-   gesture as the hero lattice, at section scale. Reduced-motion-safe: the
-   global block below nulls every transition, so the cascade is inert there. */
-:where(html.js) .reveal[data-stagger] .reveal-item {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
-  will-change: opacity, transform;
-}
-.reveal[data-stagger].is-visible .reveal-item {
+/* Reading content is visible before and independently of enhancement. */
+.reveal,
+.reveal[data-stagger] .reveal-item {
   opacity: 1;
   transform: none;
-  transition-delay: calc(var(--stagger) * var(--i, 0));
 }
 
-section { padding: var(--pad-y) 0; border-top: 1px solid var(--rule); }
-section:first-of-type { border-top: 0; }
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 1rem;
+  z-index: 200;
+  padding: 1rem;
+  background: var(--ink);
+  color: var(--bg);
+  transform: translateY(-120%);
+}
+.skip-link:focus {
+  transform: none;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+[id] {
+  scroll-margin-top: 9rem;
+}
+main:focus {
+  outline: none;
+}
+
+section {
+  padding: var(--pad-y) 0;
+  border-top: 1px solid var(--rule);
+}
+section:first-of-type {
+  border-top: 0;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .reveal,
-  .reveal[data-stagger] .reveal-item { opacity: 1; transform: none; transition: none; }
-  * { transition: none !important; animation: none !important; }
+  .reveal[data-stagger] .reveal-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
   /* `*` is a universal ELEMENT selector and cannot match view-transition
      pseudo-elements, so the note title morph kept animating for a visitor who
      had explicitly asked for no motion. These three are the only way to reach
      it. */
   ::view-transition-group(*),
   ::view-transition-old(*),
-  ::view-transition-new(*) { animation: none !important; }
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

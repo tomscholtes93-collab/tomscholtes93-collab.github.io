@@ -22,31 +22,46 @@ const contribLis = ['c1', 'c2', 'c3', 'c4'] as const;
 const methodLis = ['m1', 'm2', 'm3', 'm4'] as const;
 const specs = ['sample', 'period', 'estimator', 'diagnostics'] as const;
 ---
-<Base
-  title={t('meta.thesis.title')}
-  description={t('meta.thesis.description')}
-  path="/thesis/"
->
+
+<Base title={t('meta.thesis.title')} description={t('meta.thesis.description')} path="/thesis/">
   <Nav active="thesis" />
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <header class="paper">
       <div class="container">
         <span class="eyebrow">{t('thesis.eyebrow')}</span>
-        <h1 class="title">{t('thesis.title.pre')}<em>{t('thesis.title.em')}</em>{t('thesis.title.post')}</h1>
+        <h1 class="title">
+          {t('thesis.title.pre')}
+          <em>{t('thesis.title.em')}</em>
+          {t('thesis.title.post')}
+        </h1>
         <p class="sub">{t('thesis.sub')}</p>
 
         <div class="actions">
-          <a href={EUR} target="_blank" rel="noopener" class="btn btn-primary">{t('thesis.cta.open')} <span class="arr">→</span></a>
-          <a href={EUR} target="_blank" rel="noopener" class="btn btn-ghost">{t('thesis.cta.metadata')}</a>
+          <a href={EUR} target="_blank" rel="noopener" class="btn btn-primary">
+            {t('thesis.cta.open')} <span class="arr">→</span>
+          </a>
+          <a href={EUR} target="_blank" rel="noopener" class="btn btn-ghost">
+            {t('thesis.cta.metadata')}
+          </a>
         </div>
 
         <div class="meta-row">
-          <span><strong>{t('thesis.meta.author')}</strong> · Tom Scholtes</span>
-          <span><strong>{t('thesis.meta.institution')}</strong> · Erasmus University Rotterdam</span>
-          <span><strong>{t('thesis.meta.programme')}</strong> · MSc International Economics</span>
-          <span><strong>{t('thesis.meta.pages')}</strong> · 78</span>
-          <span><strong>{t('thesis.meta.period')}</strong> · 1995-2018</span>
+          <span>
+            <strong>{t('thesis.meta.author')}</strong> · Tom Scholtes
+          </span>
+          <span>
+            <strong>{t('thesis.meta.institution')}</strong> · Erasmus University Rotterdam
+          </span>
+          <span>
+            <strong>{t('thesis.meta.programme')}</strong> · MSc International Economics
+          </span>
+          <span>
+            <strong>{t('thesis.meta.pages')}</strong> · 78
+          </span>
+          <span>
+            <strong>{t('thesis.meta.period')}</strong> · 1995-2018
+          </span>
         </div>
       </div>
     </header>
@@ -54,14 +69,20 @@ const specs = ['sample', 'period', 'estimator', 'diagnostics'] as const;
     <section class="reveal">
       <div class="container">
         <span class="eyebrow">{t('thesis.s1.eyebrow')}</span>
-        <h2 class="h">{t('thesis.s1.title.pre')}<em>{t('thesis.s1.title.em')}</em>{t('thesis.s1.title.post')}</h2>
+        <h2 class="h">
+          {t('thesis.s1.title.pre')}
+          <em>{t('thesis.s1.title.em')}</em>
+          {t('thesis.s1.title.post')}
+        </h2>
         <p class="lede">{t('thesis.s1.lede')}</p>
 
         <div class="hyps">
           {hyps.map((h) => (
             <div class="hyp">
               <span class="id">{h.toUpperCase()}</span>
-              <div class="body"><strong>{t(`thesis.s1.${h}.label`)}</strong> {t(`thesis.s1.${h}.body`)}</div>
+              <div class="body">
+                <strong>{t(`thesis.s1.${h}.label`)}</strong> {t(`thesis.s1.${h}.body`)}
+              </div>
             </div>
           ))}
         </div>
@@ -71,13 +92,22 @@ const specs = ['sample', 'period', 'estimator', 'diagnostics'] as const;
     <section class="reveal">
       <div class="container">
         <span class="eyebrow">{t('thesis.s2.eyebrow')}</span>
-        <h2 class="h">{t('thesis.s2.title.pre')}<em>{t('thesis.s2.title.em')}</em>{t('thesis.s2.title.post')}</h2>
+        <h2 class="h">
+          {t('thesis.s2.title.pre')}
+          <em>{t('thesis.s2.title.em')}</em>
+          {t('thesis.s2.title.post')}
+        </h2>
         <p class="lede">{t('thesis.s2.lede')}</p>
 
         <div class="findings">
           {finds.map((f) => (
             <div class="find">
-              <span class="sign"><span class={`sigil ${f.sign === 'negRobust' ? 'neg' : f.sign === 'counter' ? 'mix' : 'pos'}`}></span>{t(`thesis.sign.${f.sign}`)}</span>
+              <span class="sign">
+                <span
+                  class={`sigil ${f.sign === 'negRobust' ? 'neg' : f.sign === 'counter' ? 'mix' : 'pos'}`}
+                ></span>
+                {t(`thesis.sign.${f.sign}`)}
+              </span>
               <h4>{t(`thesis.s2.find.${f.key}.title`)}</h4>
               <p>{t(`thesis.s2.find.${f.key}.body`)}</p>
             </div>
@@ -89,7 +119,11 @@ const specs = ['sample', 'period', 'estimator', 'diagnostics'] as const;
     <section class="reveal">
       <div class="container">
         <span class="eyebrow">{t('thesis.s3.eyebrow')}</span>
-        <h2 class="h">{t('thesis.s3.title.pre')}<em>{t('thesis.s3.title.em')}</em>{t('thesis.s3.title.post')}</h2>
+        <h2 class="h">
+          {t('thesis.s3.title.pre')}
+          <em>{t('thesis.s3.title.em')}</em>
+          {t('thesis.s3.title.post')}
+        </h2>
         <p class="lede">{t('thesis.s3.lede')}</p>
 
         <div class="high">
@@ -97,7 +131,10 @@ const specs = ['sample', 'period', 'estimator', 'diagnostics'] as const;
             <h3>{t('thesis.s3.contribHeading')}</h3>
             <ul>
               {contribLis.map((li) => (
-                <li><strong>{t(`thesis.s3.contrib.${li}.label`)}</strong> {t(`thesis.s3.contrib.${li}.body`)}</li>
+                <li>
+                  <strong>{t(`thesis.s3.contrib.${li}.label`)}</strong>{' '}
+                  {t(`thesis.s3.contrib.${li}.body`)}
+                </li>
               ))}
             </ul>
           </div>
@@ -105,7 +142,10 @@ const specs = ['sample', 'period', 'estimator', 'diagnostics'] as const;
             <h3>{t('thesis.s3.methodHeading')}</h3>
             <ul>
               {methodLis.map((li) => (
-                <li><strong>{t(`thesis.s3.method.${li}.label`)}</strong> {t(`thesis.s3.method.${li}.body`)}</li>
+                <li>
+                  <strong>{t(`thesis.s3.method.${li}.label`)}</strong>{' '}
+                  {t(`thesis.s3.method.${li}.body`)}
+                </li>
               ))}
             </ul>
           </div>
@@ -113,7 +153,10 @@ const specs = ['sample', 'period', 'estimator', 'diagnostics'] as const;
 
         <dl class="method">
           {specs.map((s) => (
-            <div><dt>{t(`thesis.s3.spec.${s}.dt`)}</dt><dd>{t(`thesis.s3.spec.${s}.dd`)}</dd></div>
+            <div>
+              <dt>{t(`thesis.s3.spec.${s}.dt`)}</dt>
+              <dd>{t(`thesis.s3.spec.${s}.dd`)}</dd>
+            </div>
           ))}
         </dl>
       </div>
@@ -122,22 +165,40 @@ const specs = ['sample', 'period', 'estimator', 'diagnostics'] as const;
     <section class="reveal">
       <div class="container">
         <span class="eyebrow">{t('thesis.s4.eyebrow')}</span>
-        <h2 class="h">{t('thesis.s4.title.pre')}<em>{t('thesis.s4.title.em')}</em>{t('thesis.s4.title.post')}</h2>
+        <h2 class="h">
+          {t('thesis.s4.title.pre')}
+          <em>{t('thesis.s4.title.em')}</em>
+          {t('thesis.s4.title.post')}
+        </h2>
         <p class="lede">{t('thesis.s4.lede')}</p>
 
         <div class="pdf-wrap">
           <div class="pdf-bar">
             <div class="left">
-              <span class="dots"><i></i><i></i><i></i></span>
+              <span class="dots">
+                <i></i>
+                <i></i>
+                <i></i>
+              </span>
               <span>Tom_Scholtes_Thesis.pdf · {t('thesis.s4.pages')}</span>
             </div>
             <div class="right">
-              <a href={EUR} target="_blank" rel="noopener">{t('thesis.cta.open')} ↗</a>
+              <a href={EUR} target="_blank" rel="noopener">
+                {t('thesis.cta.open')} ↗
+              </a>
             </div>
           </div>
           <div class="pdf-fallback" style="padding:64px 28px">
-            <p style="margin:0 0 12px; color:var(--ink-2); font-size:15px">{t('thesis.s4.fallback')}</p>
-            <a href={EUR} target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:8px">
+            <p style="margin:0 0 12px; color:var(--ink-2); font-size:15px">
+              {t('thesis.s4.fallback')}
+            </p>
+            <a
+              href={EUR}
+              target="_blank"
+              rel="noopener"
+              class="btn btn-primary"
+              style="margin-top:8px"
+            >
               {t('thesis.cta.open')} <span class="arr">→</span>
             </a>
           </div>

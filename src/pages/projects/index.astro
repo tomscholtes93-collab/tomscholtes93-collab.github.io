@@ -12,17 +12,21 @@ const devswarmTags = [0, 1, 2, 3]
   .map((i) => t(`projects.index.card.devswarm.tag.${i}`))
   .filter((s) => s && s.length > 0);
 ---
+
 <Base
   title={t('meta.projects.title')}
   description={t('meta.projects.description')}
   path="/projects/"
 >
   <Nav active="projects" />
-  <main>
+  <main id="main-content" tabindex="-1">
     <header class="paper">
       <div class="container">
         <span class="eyebrow">{t('projects.index.eyebrow')}</span>
-        <h1 class="title">{t('projects.index.heading.pre')} <em>{t('projects.index.heading.em')}</em> {t('projects.index.heading.post')}</h1>
+        <h1 class="title">
+          {t('projects.index.heading.pre')} <em>{t('projects.index.heading.em')}</em>{' '}
+          {t('projects.index.heading.post')}
+        </h1>
         <p class="sub">{t('projects.index.sub')}</p>
       </div>
     </header>
@@ -30,7 +34,6 @@ const devswarmTags = [0, 1, 2, 3]
     <section class="cards reveal" id="projects-list">
       <div class="container">
         <div class="proj-cards">
-
           <a class="card" href={devswarmHref}>
             <div class="card-head">
               <span class="card-num">{t('projects.index.card.devswarm.num')}</span>
@@ -39,13 +42,17 @@ const devswarmTags = [0, 1, 2, 3]
                 <div class="card-metric-lbl">{t('projects.index.card.devswarm.label')}</div>
               </div>
             </div>
-            <h2>{t('projects.index.card.devswarm.title')}<span class="arr"> →</span></h2>
+            <h2>
+              {t('projects.index.card.devswarm.title')}
+              <span class="arr"> →</span>
+            </h2>
             <p>{t('projects.index.card.devswarm.body')}</p>
             <div class="tags">
-              {devswarmTags.map((tg) => <span class="tag">{tg}</span>)}
+              {devswarmTags.map((tg) => (
+                <span class="tag">{tg}</span>
+              ))}
             </div>
           </a>
-
         </div>
       </div>
     </section>

@@ -342,5 +342,13 @@
   "archive.count.one": "{count} Essay",
   "archive.count.few": "{count} Essays",
   "archive.count.many": "{count} Essays",
-  "nav.rss": "RSS-Feed"
+  "nav.rss": "RSS-Feed",
+  "nav.skip": "Zum Inhalt springen",
+  "editorial.browse": "Essays entdecken",
+  "editorial.latest": "Neuester Essay",
+  "editorial.read": "Essay lesen",
+  "editorial.essays": "Alle Essays",
+  "editorial.explore": "Einem Thema folgen",
+  "editorial.explore.sub": "Entdecken Sie die Themen, die diese Essays verbinden.",
+  "editorial.context": "Über die Essays hinaus"
 }
