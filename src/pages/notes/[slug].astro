@@ -123,10 +123,7 @@ const essayUrl = new URL(
                 <ul>
                   {relatedEntries.map((r) => (
                     <li>
-                      <a
-                        href={localizePath(`/notes/${noteSlug(r)}/`, locale)}
-                        data-astro-prefetch
-                      >
+                      <a href={localizePath(`/notes/${noteSlug(r)}/`, locale)} data-astro-prefetch>
                         {r.data.title}
                       </a>
                     </li>
