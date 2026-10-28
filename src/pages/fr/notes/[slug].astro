@@ -8,14 +8,16 @@ import JsonLdArticle from '../../../components/JsonLdArticle.astro';
 import ReplySurface from '../../../components/ReplySurface.astro';
 import GiscusThread from '../../../components/GiscusThread.astro';
 import { publishedNotes, noteSlug } from '../../../lib/notes';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import { t as translate, getLocale, localizePath, localeDateFmt, type Locale } from '../../../i18n';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('notes', ({ data, slug }) =>
-    data.status === 'published' && slug.startsWith('fr/'));
+  const entries = await getCollection(
+    'notes',
+    ({ data, id }) => data.status === 'published' && id.startsWith('fr/'),
+  );
   return entries.map((entry) => ({
-    params: { slug: entry.slug.replace(/^fr\//, '') },
+    params: { slug: entry.id.replace(/^fr\//, '') },
     props: { entry },
   }));
 }
@@ -24,12 +26,12 @@ interface Props {
   entry: CollectionEntry<'notes'>;
 }
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 const fmt = localeDateFmt(locale);
-const displaySlug = entry.slug.replace(/^fr\//, '');
+const displaySlug = entry.id.replace(/^fr\//, '');
 /* The eyebrow used to be one joined string, which is why the tags in it were
    unclickable: a reader finished an essay, saw its three subjects, and had
    nowhere to go. It is structured now so each tag is a link.
@@ -39,16 +41,20 @@ const displaySlug = entry.slug.replace(/^fr\//, '');
    keep URL segments ASCII. The visible text stays the local label. See
    src/lib/notes.ts. */
 const eyebrowPrefix = `${t('notes.detail.eyebrow.prefix')} · ${fmt.format(entry.data.publishDate)}`;
-const enTags = (await publishedNotes('en')).find((e) => noteSlug(e) === displaySlug)?.data.tags
-  ?? entry.data.tags;
+const enTags =
+  (await publishedNotes('en')).find((e) => noteSlug(e) === displaySlug)?.data.tags ??
+  entry.data.tags;
 const tagLinks = entry.data.tags.map((label, i) => ({
   label,
   href: localizePath(`/tags/${enTags[i] ?? label}/`, locale),
 }));
 
 const relatedEntries = entry.data.related.length
-  ? (await getCollection('notes', ({ data, slug }) =>
-      data.status === 'published' && entry.data.related.map((r) => `fr/${r}`).includes(slug)))
+  ? await getCollection(
+      'notes',
+      ({ data, id }) =>
+        data.status === 'published' && entry.data.related.map((r) => `fr/${r}`).includes(id),
+    )
   : [];
 const notesHref = localizePath('/notes/', locale);
 /* Absolute canonical URL of this locale's copy of the essay, built through the
@@ -61,6 +67,7 @@ const essayUrl = new URL(
   Astro.site ?? 'https://tomscholtes.com',
 ).toString();
 ---
+
 <Base
   title={`${entry.data.title} · Tom Scholtes`}
   description={entry.data.summary}
@@ -84,11 +91,20 @@ const essayUrl = new URL(
             <p class="eyebrow mono">
               {eyebrowPrefix}
               {tagLinks.map((tg) => (
-                <>{' · '}<a href={tg.href} class="tag-link">{tg.label}</a></>
+                <>
+                  {' · '}
+                  <a href={tg.href} class="tag-link">
+                    {tg.label}
+                  </a>
+                </>
               ))}
             </p>
-            <h1 class="serif note-title" transition:name={`note-title-${displaySlug}`}>{entry.data.title}</h1>
-            <p class="lead note-summary" transition:name={`note-summary-${displaySlug}`}>{entry.data.summary}</p>
+            <h1 class="serif note-title" transition:name={`note-title-${displaySlug}`}>
+              {entry.data.title}
+            </h1>
+            <p class="lead note-summary" transition:name={`note-summary-${displaySlug}`}>
+              {entry.data.summary}
+            </p>
           </header>
           <PageVideo slug={displaySlug} />
           <Content />
@@ -113,13 +129,22 @@ const essayUrl = new URL(
                 <h2 class="eyebrow">{t('notes.detail.related.heading')}</h2>
                 <ul>
                   {relatedEntries.map((r) => (
-                    <li><a href={localizePath(`/notes/${r.slug.replace(/^fr\//, '')}/`, locale)} data-astro-prefetch>{r.data.title}</a></li>
+                    <li>
+                      <a
+                        href={localizePath(`/notes/${r.id.replace(/^fr\//, '')}/`, locale)}
+                        data-astro-prefetch
+                      >
+                        {r.data.title}
+                      </a>
+                    </li>
                   ))}
                 </ul>
               </section>
             )}
 
-            <p class="back mono"><a href={notesHref}>{t('notes.detail.back')}</a></p>
+            <p class="back mono">
+              <a href={notesHref}>{t('notes.detail.back')}</a>
+            </p>
 
             {/* LAYER 1, always rendered. LAYER 2 mounts below it and only when
                 src/config/comments.ts is switched on; while it is off,

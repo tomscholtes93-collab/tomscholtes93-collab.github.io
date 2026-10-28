@@ -3,12 +3,14 @@ import type { CollectionEntry } from 'astro:content';
 import { getLocale, localizePath, localeDateFmt, t as translate, type Locale } from '../i18n';
 import { publishedNotes, noteSlug } from '../lib/notes';
 
-interface Props { entry: CollectionEntry<'notes'>; }
+interface Props {
+  entry: CollectionEntry<'notes'>;
+}
 const { entry } = Astro.props;
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string, vars?: Record<string, string | number>) => translate(k, locale, vars);
 const fmt = localeDateFmt(locale);
-const displaySlug = entry.slug.replace(/^(en|de|fr|ru)\//, '');
+const displaySlug = entry.id.replace(/^(en|de|fr|ru)\//, '');
 const href = localizePath(`/notes/${displaySlug}/`, locale);
 const firstTag = entry.data.tags[0];
 
@@ -37,6 +39,7 @@ const publishedDate = entry.data.publishDate.toISOString().slice(0, 10);
    LENGTH, not the essay's. The fallback the spec names is this one, and it
    is the better answer anyway, because a reader deciding what to open can
    read an exact number but cannot resolve a 1.2px difference. */
+if (entry.body === undefined) throw new Error('A note has no Markdown body.');
 const words = entry.body.trim().split(/\s+/).length;
 const wordsKey = (n: number): string => {
   if (locale === 'ru') {
@@ -50,6 +53,7 @@ const wordsKey = (n: number): string => {
 };
 const wordCount = t(wordsKey(words), { count: new Intl.NumberFormat(locale).format(words) });
 ---
+
 {/* THE META LINE SITS OUTSIDE THE CARD LINK, and it has to.
 
     The card was one `<a>` wrapping meta, title and summary. Amendment 1 asks
@@ -74,10 +78,13 @@ const wordCount = t(wordsKey(words), { count: new Intl.NumberFormat(locale).form
     {firstTag && (
       <>
         <span aria-hidden="true">·</span>
-        <a href={firstTagHref} class="tag-link">{firstTag}</a>
+        <a href={firstTagHref} class="tag-link">
+          {firstTag}
+        </a>
       </>
     )}
-    <span aria-hidden="true">·</span><span>{wordCount}</span>
+    <span aria-hidden="true">·</span>
+    <span>{wordCount}</span>
   </p>
   <a href={href} class="note-entry" data-astro-prefetch>
     <h2 class="serif note-entry-title" transition:name={`note-title-${displaySlug}`}>

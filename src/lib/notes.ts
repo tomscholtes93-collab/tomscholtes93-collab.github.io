@@ -52,7 +52,7 @@ export type Note = CollectionEntry<'notes'>;
 
 /** The unlocalized slug: the collection id with its locale directory removed. */
 export function noteSlug(entry: Note): string {
-  return entry.slug.replace(/^(en|de|fr|ru)\//, '');
+  return entry.id.replace(/^(en|de|fr|ru)\//, '');
 }
 
 /** Published essays for one locale, newest first. THE status filter. A draft
@@ -60,7 +60,7 @@ export function noteSlug(entry: Note): string {
 export async function publishedNotes(locale: Locale): Promise<Note[]> {
   const entries = await getCollection(
     'notes',
-    ({ data, slug }) => data.status === 'published' && slug.startsWith(`${locale}/`),
+    ({ data, id }) => data.status === 'published' && id.startsWith(`${locale}/`),
   );
   return entries.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 }

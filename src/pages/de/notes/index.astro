@@ -10,10 +10,14 @@ import { t as translate, getLocale, type Locale } from '../../../i18n';
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 
-const entries = (await getCollection('notes', ({ data, slug }) =>
-    data.status === 'published' && slug.startsWith('de/')))
-  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const entries = (
+  await getCollection(
+    'notes',
+    ({ data, id }) => data.status === 'published' && id.startsWith('de/'),
+  )
+).sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 ---
+
 <Base
   title={t('meta.notes.index.title')}
   description={t('meta.notes.index.description')}
@@ -24,7 +28,10 @@ const entries = (await getCollection('notes', ({ data, slug }) =>
     <header class="paper notes-index-header">
       <div class="container">
         <span class="eyebrow">{t('notes.index.eyebrow')}</span>
-        <h1 class="title">{t('notes.index.heading.pre')} <em>{t('notes.index.heading.em')}</em>{t('notes.index.heading.post')}</h1>
+        <h1 class="title">
+          {t('notes.index.heading.pre')} <em>{t('notes.index.heading.em')}</em>
+          {t('notes.index.heading.post')}
+        </h1>
         <p class="sub">{t('notes.index.sub')}</p>
       </div>
     </header>
