@@ -73,3 +73,106 @@ test('retained graph examples emit valid existing data rather than literal templ
     page.off('pageerror', listener);
   }
 });
+
+for (const locale of ['en', 'ru']) {
+  test(`existing fonts, Cyrillic and display preferences survive upgrade (${locale})`, async ({
+    page,
+    context,
+  }, testInfo) => {
+    const home = locale === 'en' ? '/' : '/ru/';
+    const notes = locale === 'en' ? '/notes/' : '/ru/notes/';
+    await page.setViewportSize({ width: locale === 'en' ? 1440 : 390, height: 900 });
+    const assetFailures = [];
+    page.on('response', (response) => {
+      if (new URL(response.url()).origin === 'http://127.0.0.1:4327' && response.status() >= 400)
+        assetFailures.push(response.url());
+    });
+    await page.goto(home);
+    await expect(page.locator('astro-island[ssr]')).toHaveCount(0);
+    const main = page.locator('main');
+    await expect(main).toBeVisible();
+    if (locale === 'ru') expect(await main.innerText()).toMatch(/[А-Яа-я]/u);
+    const fonts = await page.evaluate(
+      async (sample) => {
+        await document.fonts.ready;
+        const available = {};
+        for (const family of ['Inter', 'Instrument Serif', 'JetBrains Mono']) {
+          await document.fonts.load(
+            `400 16px "${family}"`,
+            family === 'Instrument Serif' ? 'Reading' : sample,
+          );
+          available[family] = document.fonts.check(
+            `400 16px "${family}"`,
+            family === 'Instrument Serif' ? 'Reading' : sample,
+          );
+        }
+        return {
+          available,
+          resources: performance
+            .getEntriesByType('resource')
+            .map((item) => item.name)
+            .filter((name) => name.includes('/fonts/')),
+        };
+      },
+      locale === 'ru' ? 'Привет' : 'Reading',
+    );
+    expect(Object.values(fonts.available)).toEqual([true, true, true]);
+    if (locale === 'ru')
+      expect(fonts.resources.some((url) => url.includes('inter-400-cyrl.woff2'))).toBe(true);
+    const session = await context.newCDPSession(page);
+    await session.send('DOM.enable');
+    await session.send('CSS.enable');
+    const { root } = await session.send('DOM.getDocument');
+    const { nodeId } = await session.send('DOM.querySelector', {
+      nodeId: root.nodeId,
+      selector: 'main .sub',
+    });
+    const usedFonts = await session.send('CSS.getPlatformFontsForNode', { nodeId });
+    expect(
+      usedFonts.fonts.some(
+        (font) => font.familyName === 'Inter' && font.isCustomFont && font.glyphCount > 0,
+      ),
+    ).toBe(true);
+    await session.detach();
+    await testInfo.attach(`fonts-${locale}`, {
+      body: JSON.stringify({ ...fonts, usedFonts }),
+      contentType: 'application/json',
+    });
+
+    for (const [theme, density, themeLabel, densityLabel] of [
+      ['dark', 'compact', 'Dark', 'Compact'],
+      ['ink', 'airy', 'Ink', 'Airy'],
+      ['light', 'default', 'Light', 'Default'],
+    ]) {
+      await page.getByRole('button', { name: 'Display settings', exact: true }).click();
+      const panel = page.getByRole('dialog', { name: 'Display settings', exact: true });
+      await panel.getByRole('button', { name: themeLabel, exact: true }).click();
+      await panel.getByRole('button', { name: densityLabel, exact: true }).click();
+      const assertPreferences = async () => {
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        if (density === 'default')
+          await expect(page.locator('html')).not.toHaveAttribute('data-density');
+        else await expect(page.locator('html')).toHaveAttribute('data-density', density);
+      };
+      await assertPreferences();
+      await expect
+        .poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ts-display-prefs'))))
+        .toMatchObject({ theme, density });
+      await page.keyboard.press('Escape');
+      if (locale === 'ru') await page.locator('.nav-toggle').click();
+      await page.locator(`.nav-links a[href="${notes}"]`).click();
+      await expect(page).toHaveURL(new RegExp(`${notes.replace(/\/$/, '')}/?$`));
+      await assertPreferences();
+      await page.reload();
+      await assertPreferences();
+      await page.locator('a.brand').click();
+      await expect(page.locator('astro-island[ssr]')).toHaveCount(0);
+      await assertPreferences();
+    }
+    expect(assetFailures).toEqual([]);
+    await page.screenshot({
+      path: testInfo.outputPath(`compatibility-${locale}.png`),
+      fullPage: true,
+    });
+  });
+}

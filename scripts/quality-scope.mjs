@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, lstatSync } from 'node:fs';
-import { extname, resolve } from 'node:path';
+import { lstatSync, realpathSync } from 'node:fs';
+import { basename, extname, resolve } from 'node:path';
 
 export const BASELINE = 'e635f7b4cbe195e6dcfc42a3b517cfcdd3ba9917';
 const roots = ['src/', 'scripts/', 'test/', 'docs/', 'public/'];
@@ -14,20 +14,6 @@ const configuration = new Set([
   'eslint.config.mjs',
   'playwright.config.mjs',
 ]);
-const formatted = new Set([
-  '.astro',
-  '.ts',
-  '.tsx',
-  '.js',
-  '.jsx',
-  '.mjs',
-  '.cjs',
-  '.json',
-  '.css',
-  '.html',
-  '.md',
-  '.svg',
-]);
 const linted = new Set(['.astro', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
 
 function git(args, cwd) {
@@ -38,18 +24,30 @@ function git(args, cwd) {
   return result.stdout.split('\0').filter(Boolean);
 }
 
-function supported(path, kind) {
-  return (
-    (configuration.has(path) || roots.some((root) => path.startsWith(root))) &&
-    !generated.some((root) => path.startsWith(root)) &&
-    (kind === 'lint' ? linted : formatted).has(extname(path))
-  );
-}
-
-export function qualityScope(kind, cwd = process.cwd()) {
+export async function qualityScope(kind, cwd = process.cwd()) {
   if (!['format', 'lint'].includes(kind)) throw new Error('Unknown quality scope.');
   git(['rev-parse', '--verify', `${BASELINE}^{commit}`], cwd);
-  const changed = git(['diff', '--name-only', '-z', '--find-renames', BASELINE, '--'], cwd);
+  const extensions = new Set(linted);
+  const filenames = new Set();
+  if (kind === 'format') {
+    const prettier = await import('prettier');
+    const support = await prettier.getSupportInfo({ plugins: ['prettier-plugin-astro'] });
+    for (const language of support.languages) {
+      for (const extension of language.extensions ?? []) extensions.add(extension);
+      for (const filename of language.filenames ?? []) filenames.add(filename);
+    }
+    extensions.add('.svg'); // The locked config assigns the HTML parser.
+  }
+  const supported = (path) =>
+    (configuration.has(path) || roots.some((root) => path.startsWith(root))) &&
+    !generated.some((root) => path.startsWith(root)) &&
+    (extensions.has(extname(path)) || filenames.has(basename(path)));
+
+  // These are separate inventories: index/worktree changes can cancel a
+  // committed change without making the path safe to omit from checking.
+  const committed = git(['diff', '--name-only', '-z', '--no-renames', BASELINE, 'HEAD', '--'], cwd);
+  const staged = git(['diff', '--cached', '--name-only', '-z', '--no-renames', '--'], cwd);
+  const unstaged = git(['diff', '--name-only', '-z', '--no-renames', '--'], cwd);
   const untracked = git(['ls-files', '--others', '--exclude-standard', '-z'], cwd);
   const ignored = git(
     [
@@ -67,23 +65,31 @@ export function qualityScope(kind, cwd = process.cwd()) {
     ],
     cwd,
   );
-  const bypasses = ignored.filter((path) => supported(path, kind));
+  const bypasses = ignored.filter(supported);
   if (bypasses.length)
     throw new Error(
       `Ignored first-party files bypass the quality scope: ${JSON.stringify(bypasses)}`,
     );
   const files = [];
   const deleted = [];
-  for (const path of [...new Set([...changed, ...untracked])].sort()) {
-    if (!supported(path, kind)) continue;
+  for (const path of [...new Set([...committed, ...staged, ...unstaged, ...untracked])].sort()) {
+    if (!supported(path)) continue;
     const absolute = resolve(cwd, path);
-    if (!existsSync(absolute)) {
+    let stat;
+    try {
+      stat = lstatSync(absolute, { throwIfNoEntry: false });
+    } catch (error) {
+      throw new Error(
+        `Cannot inspect quality input ${JSON.stringify(path)} (${error.code ?? 'filesystem error'}).`,
+      );
+    }
+    if (stat === undefined) {
       deleted.push(path);
       continue;
     }
-    const stat = lstatSync(absolute);
-    if (!stat.isFile() || stat.isSymbolicLink())
+    if (stat.isSymbolicLink() || !stat.isFile() || realpathSync(absolute) !== absolute) {
       throw new Error(`Unsupported quality input: ${JSON.stringify(path)}`);
+    }
     files.push(path);
   }
   return { baseline: BASELINE, files, deleted };

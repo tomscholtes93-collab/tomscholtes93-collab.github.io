@@ -5,7 +5,7 @@ import { qualityScope } from './quality-scope.mjs';
 
 try {
   const { ESLint } = await import('eslint');
-  const scope = qualityScope('lint');
+  const scope = await qualityScope('lint');
   console.log(`lint scope: ${JSON.stringify(scope)}`);
   const eslint = new ESLint();
   for (const path of scope.files) {

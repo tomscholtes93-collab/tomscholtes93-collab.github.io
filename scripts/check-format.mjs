@@ -5,7 +5,7 @@ import { qualityScope } from './quality-scope.mjs';
 
 try {
   const prettier = await import('prettier');
-  const scope = qualityScope('format');
+  const scope = await qualityScope('format');
   console.log(`format scope: ${JSON.stringify(scope)}`);
   const ignorePath = ['.gitignore', '.prettierignore'].filter(existsSync);
   for (const path of scope.files) {
