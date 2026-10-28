@@ -7,11 +7,11 @@
     },
     {
       "id": "02",
-      "state": "PENDING"
+      "state": "STARTING"
     },
     {
       "id": "03",
-      "state": "PENDING"
+      "state": "RUNNING"
     },
     {
       "id": "04",
