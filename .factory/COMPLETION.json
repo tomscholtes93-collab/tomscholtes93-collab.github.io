@@ -1,0 +1,99 @@
+{
+  "authority": [
+    {
+      "path": ".factory/INTENT.md",
+      "sha256": "aed7075b424c760d13764f4db89e339ddad4afe3244d0acc9a3c4bd7a43feba3"
+    },
+    {
+      "path": ".factory/SPEC.md",
+      "sha256": "207055cdb8b0755140d9a8407f8cf3f7aff6ecf8c6f4bee25f4d9198dff1434b"
+    },
+    {
+      "path": ".factory/dag.json",
+      "sha256": "d0b917146da2ae4e3b2a6fb8ea21f572ac69a648272dd3b8a33a879c7888cfb9"
+    }
+  ],
+  "evidence_path": ".factory/COMPLETION-EVIDENCE.json",
+  "max_age_seconds": 86400,
+  "objective_id": "tomscholtes-g183-vortx-20261028",
+  "requirements": [
+    {
+      "checks": [
+        {
+          "artifact": "proof",
+          "op": "eq",
+          "pointer": "/anchors/site-experience/acceptance_green",
+          "value": true
+        },
+        {
+          "artifact": "proof",
+          "op": "eq",
+          "pointer": "/quality_gate/green",
+          "value": true
+        }
+      ],
+      "description": "Outcome 'site-experience' is delivered and its acceptance commands pass on the integrated candidate",
+      "id": "site-experience",
+      "required_tickets": [
+        "01",
+        "02",
+        "04",
+        "05",
+        "06"
+      ]
+    },
+    {
+      "checks": [
+        {
+          "artifact": "proof",
+          "op": "eq",
+          "pointer": "/anchors/full-g183-report/acceptance_green",
+          "value": true
+        },
+        {
+          "artifact": "proof",
+          "op": "eq",
+          "pointer": "/quality_gate/green",
+          "value": true
+        }
+      ],
+      "description": "Outcome 'full-g183-report' is delivered and its acceptance commands pass on the integrated candidate",
+      "id": "full-g183-report",
+      "required_tickets": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06"
+      ]
+    },
+    {
+      "checks": [
+        {
+          "artifact": "proof",
+          "op": "eq",
+          "pointer": "/anchors/verified-publication/acceptance_green",
+          "value": true
+        },
+        {
+          "artifact": "proof",
+          "op": "eq",
+          "pointer": "/quality_gate/green",
+          "value": true
+        }
+      ],
+      "description": "Outcome 'verified-publication' is delivered and its acceptance commands pass on the integrated candidate",
+      "id": "verified-publication",
+      "required_tickets": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06"
+      ]
+    }
+  ],
+  "schema_version": 1
+}

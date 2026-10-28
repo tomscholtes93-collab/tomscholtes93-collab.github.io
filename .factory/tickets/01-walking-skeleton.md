@@ -1,0 +1,32 @@
+# 01 - Build, test and serve the existing publication
+
+**What to build:** A walking skeleton that builds the existing static publication, runs meaningful automated checks, starts an owned loopback preview and serves existing content successfully. The complete quality gate passes before report integration and without GitHub deployment credentials.
+
+**Blocked by:** None
+**Engine:** codex
+**Files:** scripts/quality-gate.sh scripts/check-format.mjs scripts/check-lint.mjs scripts/quality-scope.mjs scripts/run-tests.mjs scripts/check-i18n.mjs scripts/check-notes.mjs scripts/check-urls.mjs scripts/copy-fonts.mjs scripts/make-og.mjs scripts/post-build.mjs package.json package-lock.json astro.config.mjs prettier.config.mjs eslint.config.mjs playwright.config.mjs tsconfig.json src/**/*.astro src/**/*.ts src/content.config.ts src/components/islands/*.jsx src/lib/*.mjs test/quality/** test/smoke/** test/support/** docs/adr/0003-quality-compatibility.md
+**Acceptance-test:** bash scripts/quality-gate.sh
+**Covers:** REQ-1 REQ-2 REQ-3 REQ-11 REQ-14 REQ-22 REQ-23 REQ-30
+
+- [ ] Work only in the assigned isolated worktree based on `e635f7b4cbe195e6dcfc42a3b517cfcdd3ba9917`. Preserve unrelated changes and leave the original V2 checkout untouched. Retain Astro static output, CNAME, repository identity, the complete build chain and existing deployment workflow.
+- [ ] Use the supplied job-local Node.js 24.22.1 and npm 11.19.1 without changing global defaults. Follow INTENT, DESIGN and ADR 0001 for the authorized security compatibility upgrade.
+- [ ] Implement `scripts/quality-gate.sh` to run the following commands from the repository root in order, stopping at the first failure and propagating its exit status:
+
+  1. `node scripts/check-format.mjs`
+  2. `node scripts/check-lint.mjs`
+  3. `npx --no-install astro check`
+  4. `npm run build && npm test --silent`
+  5. `npm audit --audit-level=high --include=dev --include=optional --include=peer`
+
+- [ ] Install and lock the development tools authorized by S-61. Verify engine and peer compatibility with the selected framework and workflow runtime. Checks use installed local tools and never install dependencies, download browsers, rewrite source or update baselines.
+- [ ] Format and lint adapters select relevant committed, staged, unstaged and nonignored untracked changes against the fixed baseline. Cover all S-72 scopes, including changed authored documentation and supported public text assets. Preserve filename boundaries, handle renames and deletions, reject enumeration failures and unexpected ignores, and report selected paths.
+- [ ] Prettier checks Astro files with its Astro plugin. ESLint handles Astro frontmatter, TypeScript, JavaScript and JSX with zero warnings. `astro check` covers the relevant application graph using the strict Astro foundation and generated declarations. Do not disable diagnostics or exclude failing application files to obtain a pass.
+- [ ] Implement `scripts/run-tests.mjs` and wire `npm test --silent` to tracked Node and Playwright tests under `test/`. Default execution runs every installed suite. Support `--suite quality`, `--suite smoke`, `--suite site`, `--suite live-content`, `--suite publication` and `--suite report`; an explicitly selected missing or empty suite fails. Later tickets add suites without editing the shared runner.
+- [ ] Add executable-interface tests for gate ordering and failure propagation, missing tools, empty suites, committed and working-change selection, safe filename handling, ignored-file bypasses and enumeration failure. Use temporary fixtures outside public content.
+- [ ] Smoke tests start a bounded owned loopback preview, request representative existing pages and assert expected rendered content. Startup timeout, missing pages or missing content fails acceptance. Clean up only test-owned processes. Browser provisioning is an explicit setup prerequisite.
+- [ ] Begin dependency remediation with the recorded Astro 7.4.1 target. Choose minimum compatible patched framework, integrations and declarations using verified primary metadata and actual audit/build results. A same-major Astro 5 update cannot resolve the recorded affected range. Preserve the original audit evidence and document actual selections and compatibility rationale in `docs/adr/0003-quality-compatibility.md`.
+- [ ] Adapt collection configuration, query/render APIs and paragraph transformation only as required by the authorized upgrade. Source and build-script scopes permit diagnosed compatibility and type corrections, not editorial redesign. Retain one logical collection/schema authority even if its configuration location changes.
+- [ ] Production-build and browser regression checks preserve collection identity, existing prose, whitespace between inline elements, paragraph anchors, locked URLs, fonts, Cyrillic rendering and display preferences. Do not rewrite existing note bodies or `urls.lock`.
+- [ ] All five gate steps pass, including an audit with no high or critical findings. Do not suppress findings, omit dependency classes or run `npm audit fix --force`. If authorized compatible remediation cannot satisfy S-52, retain the failure and identify the remaining decision for the existing reviewed amendment process.
+- [ ] Existing pages remain buildable without importing G183. Add no fabricated report route, placeholder or research copy. Preserve the privacy cut, existing guards and the prohibition on authored U+2014 characters.
+- [ ] Retain candidate-bound command results, runtime/tool versions, selected formatting/linting scope and preview evidence in the existing operational evidence location. Distinguish successful site checks from report integration and publication, which this ticket does not establish.

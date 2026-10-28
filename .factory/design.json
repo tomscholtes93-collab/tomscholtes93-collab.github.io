@@ -1,0 +1,5 @@
+{
+  "gate": "required",
+  "quality_gate": "bash scripts/quality-gate.sh",
+  "schema": 1
+}

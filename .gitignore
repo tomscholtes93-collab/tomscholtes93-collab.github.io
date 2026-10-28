@@ -26,3 +26,14 @@ PLAN.md
 RESEARCH.md
 REVIEW.md
 tests/
+.factory/runs/
+.factory/design-runs/
+.factory/COMPLETION-EVIDENCE.json
+.factory/completion-proofs/
+.factory/COMPLETION-RECEIPT-*.json
+
+.factory/design-reviews/
+
+.factory/NATIVE-EVIDENCE/
+
+.factory/DEPENDENCIES.md

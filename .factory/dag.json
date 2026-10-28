@@ -1,0 +1,180 @@
+{
+  "base_branch": "site-g183-vortx-20261028",
+  "config": {
+    "base_branch": "site-g183-vortx-20261028",
+    "blocked_consultation": true,
+    "claude_planner_effort": "xhigh",
+    "claude_planner_model": "claude-fable-5-1[1m]",
+    "claude_reviewer_effort": "xhigh",
+    "claude_reviewer_model": "claude-opus-5-5[1m]",
+    "claude_worker_effort": "xhigh",
+    "claude_worker_model": "claude-sonnet-5",
+    "codex_planner_effort": "xhigh",
+    "codex_planner_model": "gpt-6-astra",
+    "codex_reviewer_effort": "medium",
+    "codex_reviewer_fallback_effort": "xhigh",
+    "codex_reviewer_fallback_model": "gpt-5.6-sol",
+    "codex_reviewer_model": "gpt-6-astra",
+    "codex_worker_effort": "medium",
+    "codex_worker_model": "gpt-6-astra",
+    "engine_default": "local-exec",
+    "fable_consultation_timeout_seconds": 900,
+    "harness_host": "f44",
+    "integration_test": "bash scripts/quality-gate.sh",
+    "max_failed_retries": 1,
+    "max_parallel": 2,
+    "max_review_rounds": 3,
+    "reviewer_preference": "astra",
+    "slug": "tomscholtes-g183-vortx-20261028"
+  },
+  "integration_test": "bash scripts/quality-gate.sh",
+  "run_slug": "tomscholtes-g183-vortx-20261028",
+  "schema": 1,
+  "schema_prior_art": "Ticket dependency shape follows ~/Projects/swarm-v0 plan.json 'depends_on'; cited as prior art, not reinvented.",
+  "tickets": [
+    {
+      "acceptance_test": "bash scripts/quality-gate.sh",
+      "blockers": [],
+      "engine": "codex",
+      "files": [
+        "scripts/quality-gate.sh",
+        "scripts/check-format.mjs",
+        "scripts/check-lint.mjs",
+        "scripts/quality-scope.mjs",
+        "scripts/run-tests.mjs",
+        "scripts/check-i18n.mjs",
+        "scripts/check-notes.mjs",
+        "scripts/check-urls.mjs",
+        "scripts/copy-fonts.mjs",
+        "scripts/make-og.mjs",
+        "scripts/post-build.mjs",
+        "package.json",
+        "package-lock.json",
+        "astro.config.mjs",
+        "prettier.config.mjs",
+        "eslint.config.mjs",
+        "playwright.config.mjs",
+        "tsconfig.json",
+        "src/**/*.astro",
+        "src/**/*.ts",
+        "src/content.config.ts",
+        "src/components/islands/*.jsx",
+        "src/lib/*.mjs",
+        "test/quality/**",
+        "test/smoke/**",
+        "test/support/**",
+        "docs/adr/0003-quality-compatibility.md"
+      ],
+      "id": "01",
+      "path": "tickets/01-walking-skeleton.md",
+      "repairs": "",
+      "title": "01 - Build, test and serve the existing publication"
+    },
+    {
+      "acceptance_test": "npm run build && node scripts/run-tests.mjs --suite site",
+      "blockers": [
+        "01"
+      ],
+      "engine": "codex",
+      "files": [
+        "src/components/**",
+        "src/layouts/**",
+        "src/styles/**",
+        "src/pages/**",
+        "src/i18n/**",
+        "src/lib/justify-client.js",
+        "test/site/**"
+      ],
+      "id": "02",
+      "path": "tickets/02-editorial-site-experience.md",
+      "repairs": "",
+      "title": "02 - Make the notes-first site readable and navigable on every screen"
+    },
+    {
+      "acceptance_test": "npm run build && node scripts/run-tests.mjs --suite live-content",
+      "blockers": [
+        "01"
+      ],
+      "engine": "codex",
+      "files": [
+        "scripts/publication/verify-live-content.mjs",
+        "test/live-content/**",
+        "docs/agents/publication.md"
+      ],
+      "id": "03",
+      "path": "tickets/03-publication-evidence-contract.md",
+      "repairs": "",
+      "title": "03 - Document the one-off handoff and verify live article content"
+    },
+    {
+      "acceptance_test": "npm run build && node scripts/run-tests.mjs --suite publication",
+      "blockers": [
+        "02"
+      ],
+      "engine": "codex",
+      "files": [
+        "src/lib/notes.ts",
+        "src/lib/rss.ts",
+        "src/components/NoteCard.astro",
+        "src/components/NotesList.astro",
+        "src/components/LangSwitcher.astro",
+        "src/components/GiscusThread.astro",
+        "src/components/ReplySurface.astro",
+        "src/components/JsonLdArticle.astro",
+        "src/layouts/Base.astro",
+        "src/pages/**",
+        "src/i18n/**",
+        "test/publication/**"
+      ],
+      "id": "04",
+      "path": "tickets/04-publication-identity-and-locales.md",
+      "repairs": "",
+      "title": "04 - Keep note discovery, translations and discussion on one identity"
+    },
+    {
+      "acceptance_test": "npm run build && node scripts/run-tests.mjs --suite report && node scripts/report/check-source-render.mjs --source \"${G183_SOURCE_EXPORT:?}\" --expected-sha256 8ac43988f501241c62002f6206f04c04d794e9a7cb888406345a18b99bf23d22 --dist dist",
+      "blockers": [
+        "04"
+      ],
+      "engine": "codex",
+      "files": [
+        "scripts/report/**",
+        "scripts/check-notes.mjs",
+        "src/content/notes/**",
+        "src/content/config.ts",
+        "src/content.config.ts",
+        "src/lib/notes.ts",
+        "src/lib/report*.ts",
+        "src/lib/rehype-note-paragraph-anchors.mjs",
+        "src/components/Report*.astro",
+        "src/layouts/Base.astro",
+        "src/pages/**",
+        "src/styles/components.css",
+        "src/styles/pages.css",
+        "src/i18n/**",
+        "test/report/**"
+      ],
+      "id": "05",
+      "path": "tickets/05-complete-owner-report.md",
+      "repairs": "",
+      "title": "05 - Import and render the complete supplied G183 report"
+    },
+    {
+      "acceptance_test": "node scripts/publication/verify-live-content.mjs --origin https://tomscholtes.com --dist \"${G183_REVIEWED_DIST:?}\" --slug \"${G183_REPORT_SLUG:?}\"",
+      "blockers": [
+        "03",
+        "05"
+      ],
+      "engine": "codex",
+      "files": [
+        "scripts/publication/verify-live-content.mjs",
+        "test/live-content/**",
+        "docs/agents/publication.md"
+      ],
+      "id": "06",
+      "path": "tickets/06-verified-publication.md",
+      "repairs": "",
+      "title": "06 - Verify the reviewed report at its public URL"
+    }
+  ]
+}

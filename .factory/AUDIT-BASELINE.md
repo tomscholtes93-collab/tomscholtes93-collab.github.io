@@ -1,0 +1,5 @@
+# Existing dependency audit baseline
+
+2026-10-28, F44, clean origin/main e635f7b4cbe195e6dcfc42a3b517cfcdd3ba9917 before product changes. npm ci --ignore-scripts succeeded and npm run build passed, preserving the locked addresses. npm audit --json reports19 existing findings:1 critical,13 high,3 moderate and2 low. This is existing upstream evidence, not a regression introduced by the site redesign, and not proof that a static deployed page is exploitable. The full machine result is retained in the publisher job's evidence/site-baseline-audit.json.
+
+Do not hide these findings, invent a clean audit, run npm audit fix --force, or turn a dependency migration into this design task. The quality gate may compare against a recorded unchanged-dependency baseline, with any new finding or changed dependency receiving independent assessment; required reviewers decide whether a reproduced work defect blocks the actual static candidate. Existing server/dev-tool advisories should be distinguished from published static content. Any justified targeted fix needs an explicit narrow ticket and preserved baseline evidence.
