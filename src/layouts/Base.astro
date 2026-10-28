@@ -5,7 +5,15 @@ import '../styles/components.css';
 import '../styles/pages.css';
 import { ClientRouter } from 'astro:transitions';
 import JsonLdPerson from '../components/JsonLdPerson.astro';
-import { LOCALES, DEFAULT_LOCALE, getLocale, localizePath, delocalizePath, t as translate, type Locale } from '../i18n';
+import {
+  LOCALES,
+  DEFAULT_LOCALE,
+  getLocale,
+  localizePath,
+  delocalizePath,
+  t as translate,
+  type Locale,
+} from '../i18n';
 
 interface Props {
   title?: string;
@@ -47,6 +55,7 @@ const OG_LOCALE: Record<Locale, string> = {
   ru: 'ru_RU',
 };
 ---
+
 <!doctype html>
 <html lang={locale}>
   <head>
@@ -56,10 +65,21 @@ const OG_LOCALE: Record<Locale, string> = {
     <meta name="description" content={resolvedDesc} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     {!noindex && <link rel="canonical" href={canonical} />}
-    {!noindex && LOCALES.map((l) => (
-      <link rel="alternate" hreflang={l} href={new URL(localizePath(logicalPath, l), SITE).toString()} />
-    ))}
-    {!noindex && <link rel="alternate" hreflang="x-default" href={new URL(localizePath(logicalPath, DEFAULT_LOCALE), SITE).toString()} />}
+    {!noindex &&
+      LOCALES.map((l) => (
+        <link
+          rel="alternate"
+          hreflang={l}
+          href={new URL(localizePath(logicalPath, l), SITE).toString()}
+        />
+      ))}
+    {!noindex && (
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={new URL(localizePath(logicalPath, DEFAULT_LOCALE), SITE).toString()}
+      />
+    )}
     {/* The feed, discoverable. Added 2026-08-01 with /rss.xml: an aggregator
         finds a feed by this link element, so shipping the endpoint without it
         would mean a feed only a reader who guessed the URL could subscribe to.
@@ -99,53 +119,87 @@ const OG_LOCALE: Record<Locale, string> = {
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
-    <link rel="preload" href="/fonts/instrument-serif-regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/instrument-serif-regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/inter-500.woff2" as="font" type="font/woff2" crossorigin />
 
     <script is:inline>
       (function () {
-        /* FIRST statement, before the try block, so a localStorage throw can
-           never skip it. `html.js` is what lets .reveal hide itself only when
-           there is a script to un-hide it; without this class the notes index
-           renders visually empty with JavaScript disabled. The class existed
-           until the 2026-07-22 privacy cut, which deleted it along with its
-           only consumer at the time. It lands before first paint (this script
-           is is:inline in <head>) so there is no flash, and <html> persists
-           across ClientRouter swaps so it survives navigation. */
-        document.documentElement.classList.add('js');
-
-        /* Accent hexes are NOT duplicated here any more. This list is the set
-           of valid keys; the colours live in exactly one place, the
-           [data-theme][data-accent] matrix in tokens.css. Writing an
-           attribute instead of an inline style is the whole fix: an inline
-           style beat the attribute selectors, so every per-theme accent in
-           tokens.css was dead code and 8 of 15 reachable combinations
-           rendered below AA, the worst at 1.03:1. */
-        var ACCENTS = ['terracotta', 'ink', 'forest', 'amber', 'violet'];
-        function applyDisplayPrefs() {
-          try {
-            var prefs = JSON.parse(localStorage.getItem('ts-display-prefs') || '{}');
-            var theme = prefs.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-            /* "default" is a real stored value and it must NOT reach the DOM:
-               DisplayPanel removes the attribute for it, this script used to
-               set it, and the two disagreeing is what made every Default
-               visitor miss the density block. */
-            var density = prefs.density || localStorage.getItem('density');
-            if (density && density !== 'default') document.documentElement.setAttribute('data-density', density);
-            else document.documentElement.removeAttribute('data-density');
-            var accent = prefs.accent;
-            document.documentElement.setAttribute(
-              'data-accent',
-              ACCENTS.indexOf(accent) === -1 ? 'terracotta' : accent
+        // This existing subsystem owns restoration and all control writes.
+        let current;
+        function defaults() {
+          return {
+            theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+            accent: 'terracotta',
+            density: 'default',
+          };
+        }
+        function normalize(value) {
+          const fallback = defaults();
+          const prefs = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+          return {
+            theme: ['light', 'dark', 'ink'].includes(prefs.theme) ? prefs.theme : fallback.theme,
+            accent: ['terracotta', 'ink', 'forest', 'amber', 'violet'].includes(prefs.accent)
+              ? prefs.accent
+              : fallback.accent,
+            density: ['compact', 'default', 'airy'].includes(prefs.density)
+              ? prefs.density
+              : fallback.density,
+          };
+        }
+        function storageFailure(error) {
+          if (
+            error instanceof SyntaxError ||
+            (error instanceof DOMException &&
+              ['SecurityError', 'QuotaExceededError'].includes(error.name))
+          ) {
+            console.warn(
+              'Display preferences unavailable; using readable defaults or current settings.',
             );
-          } catch (e) {
-            document.documentElement.setAttribute('data-theme', 'light');
+            return;
+          }
+          throw error;
+        }
+        function read() {
+          try {
+            const saved = JSON.parse(localStorage.getItem('ts-display-prefs') || '{}');
+            if (saved && typeof saved === 'object' && !Array.isArray(saved) && !saved.density)
+              saved.density = localStorage.getItem('density');
+            return normalize(saved);
+          } catch (error) {
+            storageFailure(error);
+            return current || defaults();
           }
         }
-        applyDisplayPrefs();
-        document.addEventListener('astro:after-swap', applyDisplayPrefs);
+        function apply(prefs) {
+          current = normalize(prefs);
+          const root = document.documentElement;
+          root.setAttribute('data-theme', current.theme);
+          root.setAttribute('data-accent', current.accent);
+          if (current.density === 'default') root.removeAttribute('data-density');
+          else root.setAttribute('data-density', current.density);
+          window.dispatchEvent(new CustomEvent('ts-display-prefs', { detail: current }));
+        }
+        function save(prefs) {
+          apply(prefs);
+          try {
+            localStorage.setItem('ts-display-prefs', JSON.stringify(current));
+          } catch (error) {
+            storageFailure(error);
+          }
+          return current;
+        }
+        window.tsDisplayPrefs = { read: read, save: save };
+        apply(read());
+        document.addEventListener('astro:after-swap', function () {
+          apply(read());
+        });
       })();
     </script>
 
@@ -153,6 +207,9 @@ const OG_LOCALE: Record<Locale, string> = {
     <ClientRouter />
   </head>
   <body>
+    <a class="skip-link" href="#main-content">
+      {t('nav.skip')}
+    </a>
     <slot />
     {/* Text justification retired 2026-06-23: prose is ragged-right (left-aligned). */}
   </body>

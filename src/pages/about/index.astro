@@ -37,6 +37,7 @@ import { t as translate, getLocale, type Locale } from '../../i18n';
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 ---
+
 <Base
   title={t('meta.about.title')}
   description={t('meta.about.description')}
@@ -44,7 +45,7 @@ const t = (k: string) => translate(k, locale);
   jsonLd={true}
 >
   <Nav active="about" />
-  <main>
+  <main id="main-content" tabindex="-1">
     <Hero />
     <Now />
     <Reading />

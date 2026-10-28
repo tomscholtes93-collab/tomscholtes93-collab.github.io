@@ -22,17 +22,21 @@ const t = (k: string) => translate(k, locale);
 const groups = await tagGroups(locale);
 const nf = new Intl.NumberFormat(locale);
 ---
+
 <Base
   title={t('meta.tags.index.title')}
   description={t('meta.tags.index.description')}
   path="/tags/"
 >
   <Nav active="tags" />
-  <main>
+  <main id="main-content" tabindex="-1">
     <header class="paper notes-index-header">
       <div class="container">
         <span class="eyebrow">{t('tags.index.eyebrow')}</span>
-        <h1 class="title">{t('tags.index.heading.pre')} <em>{t('tags.index.heading.em')}</em>{t('tags.index.heading.post')}</h1>
+        <h1 class="title">
+          {t('tags.index.heading.pre')} <em>{t('tags.index.heading.em')}</em>
+          {t('tags.index.heading.post')}
+        </h1>
         <p class="sub">{t('tags.index.sub')}</p>
       </div>
     </header>
@@ -42,7 +46,11 @@ const nf = new Intl.NumberFormat(locale);
         <ul class="tag-cloud">
           {groups.map((g) => (
             <li>
-              <a href={localizePath(`/tags/${g.key}/`, locale)} class="tag-chip" data-astro-prefetch>
+              <a
+                href={localizePath(`/tags/${g.key}/`, locale)}
+                class="tag-chip"
+                data-astro-prefetch
+              >
                 <span class="tag-chip-label">{g.label}</span>
                 <span class="tag-chip-count mono">{nf.format(g.entries.length)}</span>
               </a>

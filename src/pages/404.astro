@@ -8,9 +8,15 @@ const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 const home = localizePath('/', locale);
 ---
-<Base title={t('meta.404.title')} description={t('meta.404.description')} path="/404/" noindex={true}>
+
+<Base
+  title={t('meta.404.title')}
+  description={t('meta.404.description')}
+  path="/404/"
+  noindex={true}
+>
   <Nav active="404" />
-  <main>
+  <main id="main-content" tabindex="-1">
     <section>
       <div class="container">
         <div class="prose" style="text-align:center">
@@ -18,7 +24,9 @@ const home = localizePath('/', locale);
           <h1>{t('error.404.heading')}</h1>
           <p>{t('error.404.body')}</p>
           <p style="margin-top:32px">
-            <a href={home} class="btn btn-primary">{t('error.404.cta')}</a>
+            <a href={home} class="btn btn-primary">
+              {t('error.404.cta')}
+            </a>
           </p>
         </div>
       </div>

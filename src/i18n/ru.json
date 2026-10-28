@@ -342,5 +342,13 @@
   "archive.count.one": "{count} эссе",
   "archive.count.few": "{count} эссе",
   "archive.count.many": "{count} эссе",
-  "nav.rss": "RSS-лента"
+  "nav.rss": "RSS-лента",
+  "nav.skip": "Перейти к содержанию",
+  "editorial.browse": "Все эссе",
+  "editorial.latest": "Новое эссе",
+  "editorial.read": "Читать эссе",
+  "editorial.essays": "Все эссе",
+  "editorial.explore": "Проследить тему",
+  "editorial.explore.sub": "Темы, которые связывают эти эссе.",
+  "editorial.context": "За пределами эссе"
 }

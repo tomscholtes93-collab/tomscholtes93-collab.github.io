@@ -14,14 +14,15 @@ import { t as translate, getLocale, type Locale } from '../../i18n';
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 ---
+
 <Base
   title={`${t('home.cv.eyebrow')} · Tom Scholtes`}
   description={`${t('home.cv.heading')} ${t('home.cv.blurb')}`}
   path="/cv/"
 >
   <Nav active="cv" />
-  <main>
-    <CV reveal={false} />
+  <main id="main-content" tabindex="-1">
+    <CV reveal={false} standalone />
   </main>
   <Footer />
 </Base>

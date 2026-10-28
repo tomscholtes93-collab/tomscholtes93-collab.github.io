@@ -1,34 +1,4 @@
 ---
-/* The root URL is the publication.
-
-   THIS is the change that commit 140874d claimed and did not make. That commit
-   said "Notes become the front door" while this file still rendered Hero,
-   WorkflowAutomation, Now, Reading, Languages and Contact and referenced the
-   notes collection zero times. Critic finding 5 stayed open: the root URL kept
-   declaring itself a career site after the subtraction. It now renders a
-   masthead and the essay feed, and nothing else.
-
-   UNLINK, NOT DELETE, and this time nothing loses an address either:
-     - Hero, Now, Reading, Languages and Contact all render at /about/ (plus the
-       three locale mirrors), created in the previous commit precisely so this
-       one could not orphan them
-     - WorkflowAutomation is the section that already had its own address;
-       /workflow-automation/ builds from public/ and is untouched
-     - the CV is at /cv/, linked from Nav as of this commit
-     - the nine case studies keep building at /case/<slug>/ and stay reachable:
-       five of them are cited by name in essay `sources` arrays, in all four
-       locales
-     - /notes/ is unchanged and still returns 200. It now carries a list that
-       `/` also carries, which is a real duplication and a deliberate one: this
-       host serves no per-path 301, so the alternative to duplicating the list
-       is deleting a published URL. See docs/DECISIONS.md.
-
-   The feed reuses NoteCard and the .notes-index / .notes-list rules that ship
-   on /notes/ today. There is no second card component and no new CSS.
-
-   DisplayPanel and TweaksPanel stay mounted here, exactly as before, so the
-   ts-display-prefs surface recorded in PREFS-CONTRACT.md is unchanged by this
-   series: still `/` and /lab/interactive/, still two pages wide. */
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -36,40 +6,66 @@ import NoteCard from '../components/NoteCard.astro';
 import RevealObserver from '../components/RevealObserver.astro';
 import DisplayPanel from '../components/islands/DisplayPanel.jsx';
 import TweaksPanel from '../components/islands/TweaksPanel.jsx';
-import { getCollection } from 'astro:content';
-import { t as translate, getLocale, type Locale } from '../i18n';
+import { publishedNotes, tagGroups, noteSlug } from '../lib/notes';
+import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 
-/* The three locale routes re-export this file, so the collection prefix is
-   derived from the resolved locale rather than hardcoded. That is why `/` needs
-   one page file and three three-line mirrors where /notes/ needs four full
-   copies: the notes index files predate this and hardcode their prefix. */
-const entries = (
-  await getCollection(
-    'notes',
-    ({ data, id }) => data.status === 'published' && id.startsWith(`${locale}/`),
-  )
-).sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const entries = await publishedNotes(locale);
+const topics = (await tagGroups(locale)).slice(0, 6);
+const latest = entries[0];
+const link = (path: string) => localizePath(path, locale);
 ---
 
 <Base jsonLd={true}>
   <Nav active="home" />
-  <main>
-    <header class="paper notes-index-header">
-      <div class="container">
-        <span class="eyebrow">{t('home.masthead.eyebrow')}</span>
-        <h1 class="title">
-          {t('home.masthead.heading.pre')} <em>{t('home.masthead.heading.em')}</em>
-          {t('home.masthead.heading.post')}
-        </h1>
-        <p class="sub">{t('home.masthead.sub')}</p>
+  <main id="main-content" tabindex="-1">
+    <header class="paper notes-index-header editorial-masthead">
+      <div class="container masthead-grid">
+        <div>
+          <span class="eyebrow">{t('home.masthead.eyebrow')}</span>
+          <h1 class="title">
+            {t('home.masthead.heading.pre')} <em>{t('home.masthead.heading.em')}</em>
+            {t('home.masthead.heading.post')}
+          </h1>
+          <p class="sub">{t('home.masthead.sub')}</p>
+          <div class="reading-actions">
+            <a class="btn btn-primary" href="#essays">
+              {t('editorial.browse')}
+            </a>
+            <a class="reading-link" href={link('/notes/archive/')}>
+              {t('nav.archive')} <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+        {latest && (
+          <aside class="latest-reading" aria-labelledby="latest-label">
+            <span class="eyebrow" id="latest-label">
+              {t('editorial.latest')}
+            </span>
+            <h2>
+              <a href={link(`/notes/${noteSlug(latest)}/`)}>{latest.data.title}</a>
+            </h2>
+            <p>{latest.data.summary}</p>
+            <a class="reading-link" href={link(`/notes/${noteSlug(latest)}/`)}>
+              {t('editorial.read')} <span aria-hidden="true">→</span>
+            </a>
+          </aside>
+        )}
       </div>
     </header>
 
-    <section class="notes-index">
+    <section class="notes-index" id="essays" aria-labelledby="essays-heading">
       <div class="container">
+        <div class="reading-section-head">
+          <h2 class="eyebrow" id="essays-heading">
+            {t('editorial.essays')}
+          </h2>
+          <a class="reading-link" href={link('/rss.xml')}>
+            {t('nav.rss')}
+          </a>
+        </div>
         <ol class="notes-list">
           {entries.map((entry, i) => (
             <li class="reveal" style={`--reveal-delay: ${Math.min(i, 6) * 45}ms`}>
@@ -77,6 +73,40 @@ const entries = (
             </li>
           ))}
         </ol>
+      </div>
+    </section>
+    <section class="reading-pathways" aria-labelledby="pathways-heading">
+      <div class="container pathways-grid">
+        <div>
+          <h2 id="pathways-heading">{t('editorial.explore')}</h2>
+          <p>{t('editorial.explore.sub')}</p>
+          <div class="topic-links">
+            {topics.map((topic) => (
+              <a href={link(`/tags/${topic.key}/`)}>{topic.label}</a>
+            ))}
+          </div>
+          <a class="reading-link" href={link('/tags/')}>
+            {t('nav.tags')} <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <nav class="context-links" aria-label={t('editorial.context')}>
+          <span class="eyebrow">{t('editorial.context')}</span>
+          <a href={link('/projects/')}>
+            {t('nav.projects')} <span aria-hidden="true">↗</span>
+          </a>
+          <a href={link('/thesis/')}>
+            {t('footer.thesis')} <span aria-hidden="true">↗</span>
+          </a>
+          <a href={link('/about/')}>
+            {t('nav.about')} <span aria-hidden="true">↗</span>
+          </a>
+          <a href={link('/cv/')}>
+            {t('nav.cv')} <span aria-hidden="true">↗</span>
+          </a>
+          <a href={`${link('/about/')}#contact`}>
+            {t('nav.contact')} <span aria-hidden="true">↗</span>
+          </a>
+        </nav>
       </div>
     </section>
   </main>

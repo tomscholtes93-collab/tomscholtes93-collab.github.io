@@ -342,5 +342,13 @@
   "archive.count.one": "{count} essay",
   "archive.count.few": "{count} essays",
   "archive.count.many": "{count} essays",
-  "nav.rss": "RSS feed"
+  "nav.rss": "RSS feed",
+  "nav.skip": "Skip to content",
+  "editorial.browse": "Browse the essays",
+  "editorial.latest": "Latest essay",
+  "editorial.read": "Read the essay",
+  "editorial.essays": "All essays",
+  "editorial.explore": "Follow a thread",
+  "editorial.explore.sub": "Explore the subjects that connect these essays.",
+  "editorial.context": "Beyond the essays"
 }

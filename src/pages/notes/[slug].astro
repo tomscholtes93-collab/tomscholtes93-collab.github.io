@@ -8,16 +8,13 @@ import JsonLdArticle from '../../components/JsonLdArticle.astro';
 import ReplySurface from '../../components/ReplySurface.astro';
 import GiscusThread from '../../components/GiscusThread.astro';
 import { publishedNotes, noteSlug } from '../../lib/notes';
-import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { render, type CollectionEntry } from 'astro:content';
 import { t as translate, getLocale, localizePath, localeDateFmt, type Locale } from '../../i18n';
 
 export async function getStaticPaths() {
-  const entries = await getCollection(
-    'notes',
-    ({ data, id }) => data.status === 'published' && id.startsWith('en/'),
-  );
+  const entries = await publishedNotes('en');
   return entries.map((entry) => ({
-    params: { slug: entry.id.replace(/^en\//, '') },
+    params: { slug: noteSlug(entry) },
     props: { entry },
   }));
 }
@@ -31,7 +28,7 @@ const { Content } = await render(entry);
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
 const fmt = localeDateFmt(locale);
-const displaySlug = entry.id.replace(/^en\//, '');
+const displaySlug = noteSlug(entry);
 /* The eyebrow used to be one joined string, which is why the tags in it were
    unclickable: a reader finished an essay, saw its three subjects, and had
    nowhere to go. It is structured now so each tag is a link.
@@ -49,13 +46,9 @@ const tagLinks = entry.data.tags.map((label, i) => ({
   href: localizePath(`/tags/${enTags[i] ?? label}/`, locale),
 }));
 
-const relatedEntries = entry.data.related.length
-  ? await getCollection(
-      'notes',
-      ({ data, id }) =>
-        data.status === 'published' && entry.data.related.map((r) => `en/${r}`).includes(id),
-    )
-  : [];
+const relatedEntries = (await publishedNotes(locale)).filter((candidate) =>
+  entry.data.related.includes(noteSlug(candidate)),
+);
 const notesHref = localizePath('/notes/', locale);
 /* Absolute canonical URL of this locale's copy of the essay, built through the
    same localizePath + Astro.site pair Base.astro uses for <link rel=canonical>,
@@ -83,7 +76,7 @@ const essayUrl = new URL(
     path={`/notes/${displaySlug}/`}
   />
   <Nav active="notes" />
-  <main>
+  <main id="main-content" tabindex="-1">
     <section>
       <div class="container">
         <article class="note-article">
@@ -130,10 +123,7 @@ const essayUrl = new URL(
                 <ul>
                   {relatedEntries.map((r) => (
                     <li>
-                      <a
-                        href={localizePath(`/notes/${r.id.replace(/^en\//, '')}/`, locale)}
-                        data-astro-prefetch
-                      >
+                      <a href={localizePath(`/notes/${noteSlug(r)}/`, locale)} data-astro-prefetch>
                         {r.data.title}
                       </a>
                     </li>

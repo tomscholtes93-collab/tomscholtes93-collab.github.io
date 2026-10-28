@@ -6,7 +6,9 @@ import { t as translate, getLocale, localizePath, type Locale } from '../i18n';
 interface Props {
   active?: string;
 }
-const { active: _active = 'home' } = Astro.props;
+const { active = '' } = Astro.props;
+const current = (name: string, href: string) =>
+  Astro.url.pathname === href ? 'page' : active === name ? 'location' : undefined;
 
 const locale = (Astro.currentLocale ?? getLocale(Astro.url)) as Locale;
 const t = (k: string) => translate(k, locale);
@@ -16,41 +18,43 @@ const notes = localizePath('/notes/', locale);
 const about = localizePath('/about/', locale);
 const cv = localizePath('/cv/', locale);
 ---
+
 <header class="nav" id="site-nav" data-open="false">
   <div class="container nav-inner">
-    <a href={home} class="brand">
+    <a href={home} class="brand" aria-current={current('home', home)}>
       <span class="brand-mark">T</span>
       <span>{t('nav.brand')}</span>
     </a>
-    <nav class="nav-links">
-      {/* Publication-first, 2026-08-01. The brand and the feed are the same
-          destination now that `/` renders the essays, so the first link is the
-          archive index and the rest are the site's other addresses in
-          decreasing order of what a reader of the essays is likely to want.
-
-          Every anchor here is a REAL address, not a fragment. The three
-          fragment links this nav used to carry (#now, #contact, and before
-          them #work and #cv) all pointed at sections on `/`; #now and #contact
-          moved to /about/ in the previous commit and are repointed here rather
-          than left aiming at a fragment with no target, which silently lands
-          the reader at the top of the page.
-
-          NOTHING was deleted anywhere in this series. /case/<slug>/ (nine
-          pages), /workflow-automation/, /cv/, /projects/, /thesis/ and /notes/
-          all still build and still serve at their exact addresses. /cv/ is
-          linked from a nav for the first time since it was created; it had been
-          reachable by URL only. Thesis stays in the footer. Contact is
-          menu-only because on desktop the Say-hi CTA already targets it, and
-          on mobile that CTA is hidden. */}
-      <a href={notes}>{t('nav.notes')}</a>
-      <a href={about}>{t('nav.about')}</a>
-      <a href={cv}>{t('nav.cv')}</a>
-      <a href={projects}>{t('nav.projects')}</a>
-      <a href={`${about}#contact`} class="nav-link-menu-only">{t('nav.contact')}</a>
+    <nav class="nav-links" id="primary-navigation" aria-label={t('footer.col.site')}>
+      <a href={notes} aria-current={current('notes', notes)}>
+        {t('nav.notes')}
+      </a>
+      <a href={about} aria-current={current('about', about)}>
+        {t('nav.about')}
+      </a>
+      <a href={cv} aria-current={current('cv', cv)}>
+        {t('nav.cv')}
+      </a>
+      <a href={projects} aria-current={current('projects', projects)}>
+        {t('nav.projects')}
+      </a>
+      <a href={`${about}#contact`} class="nav-link-menu-only">
+        {t('nav.contact')}
+      </a>
     </nav>
     <LangSwitcher />
-    <a href={`${about}#contact`} class="nav-cta">{t('nav.cta')} <Arr /></a>
-    <button type="button" class="nav-toggle" aria-label={t('nav.menu.open')} aria-expanded="false" data-label-open={t('nav.menu.open')} data-label-close={t('nav.menu.close')}>
+    <a href={`${about}#contact`} class="nav-cta">
+      {t('nav.cta')} <Arr />
+    </a>
+    <button
+      type="button"
+      class="nav-toggle"
+      aria-controls="primary-navigation"
+      aria-label={t('nav.menu.open')}
+      aria-expanded="false"
+      data-label-open={t('nav.menu.open')}
+      data-label-close={t('nav.menu.close')}
+    >
       <span class="bar"></span>
       <span class="bar"></span>
       <span class="bar"></span>
@@ -58,36 +62,62 @@ const cv = localizePath('/cv/', locale);
   </div>
 </header>
 
-<script is:inline>
-  (function () {
-    function init() {
-      var nav = document.getElementById('site-nav');
-      if (!nav || nav.dataset.toggleBound === 'true') return;
-      var btn = nav.querySelector('.nav-toggle');
-      var links = nav.querySelector('.nav-links');
-      if (!btn || !links) return;
-      var openLabel = btn.getAttribute('data-label-open') || 'Open menu';
-      var closeLabel = btn.getAttribute('data-label-close') || 'Close menu';
-      function setOpen(v) {
-        nav.setAttribute('data-open', v ? 'true' : 'false');
-        btn.setAttribute('aria-expanded', v ? 'true' : 'false');
-        btn.setAttribute('aria-label', v ? closeLabel : openLabel);
-        document.body.style.overflow = v ? 'hidden' : '';
-      }
-      btn.addEventListener('click', function () {
-        setOpen(nav.getAttribute('data-open') !== 'true');
-      });
-      links.addEventListener('click', function (e) {
-        if (e.target && e.target.tagName === 'A') setOpen(false);
-      });
-      nav.dataset.toggleBound = 'true';
+<script>
+  let disposeMenu: (() => void) | undefined;
+  function initMenu() {
+    disposeMenu?.();
+    const nav = document.getElementById('site-nav');
+    const button = nav?.querySelector<HTMLButtonElement>('.nav-toggle');
+    if (!nav || !button) return;
+    const controller = new AbortController();
+    const options = { signal: controller.signal };
+    function setOpen(open: boolean) {
+      if (!nav || !button) return;
+      nav.dataset.open = String(open);
+      button.setAttribute('aria-expanded', String(open));
+      button.setAttribute(
+        'aria-label',
+        (open ? button.dataset.labelClose : button.dataset.labelOpen) || '',
+      );
     }
-    // Initial load: run once the DOM is parsed.
-    if (document.readyState !== 'loading') init();
-    else document.addEventListener('DOMContentLoaded', init);
-    // After every Astro View Transition swap, the Nav is re-rendered and
-    // needs its handlers re-bound. The dataset guard above prevents double
-    // binding if the same Nav element is somehow persisted.
-    document.addEventListener('astro:page-load', init);
-  })();
+    setOpen(false);
+    nav.dataset.enhanced = 'true';
+    button.addEventListener('click', () => setOpen(nav.dataset.open !== 'true'), options);
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key === 'Escape' && nav.dataset.open === 'true') {
+          setOpen(false);
+          button.focus();
+        }
+      },
+      options,
+    );
+    nav.addEventListener(
+      'click',
+      (event) => {
+        if (event.target instanceof Element && event.target.closest('a')) setOpen(false);
+      },
+      options,
+    );
+    // Close after activation. Closing on blur moves a link under the pointer
+    // between pointerdown and click, which can discard the reader's first click.
+    document.addEventListener(
+      'click',
+      (event) => {
+        if (event.target instanceof Node && !nav.contains(event.target)) setOpen(false);
+      },
+      options,
+    );
+    const desktop = matchMedia('(min-width: 981px)');
+    desktop.addEventListener('change', () => setOpen(false), options);
+    disposeMenu = () => {
+      setOpen(false);
+      controller.abort();
+    };
+  }
+  initMenu();
+  document.addEventListener('astro:page-load', initMenu);
+  document.addEventListener('astro:before-swap', () => disposeMenu?.());
+  window.addEventListener('pageshow', initMenu);
 </script>
